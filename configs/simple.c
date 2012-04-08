@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: simple.c 315957 2011-09-01 09:03:32Z laruence $ */
+
+/* $Id: simple.c 324504 2012-03-24 02:48:04Z laruence $ */
 
 zend_class_entry *yaf_config_simple_ce;
 
@@ -53,7 +53,7 @@ yaf_config_t * yaf_config_simple_instance(yaf_config_t *this_ptr, zval *values, 
 	yaf_config_t *instance;
 
 	switch (Z_TYPE_P(values)) {
-		case IS_ARRAY: 
+		case IS_ARRAY:
 			if (this_ptr) {
 				instance = this_ptr;
 			} else {
@@ -69,7 +69,7 @@ yaf_config_t * yaf_config_simple_instance(yaf_config_t *this_ptr, zval *values, 
 		break;
 		default:
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Invalid parameters provided, must be an array");
-			return NULL;	
+			return NULL;
 	}
 }
 /* }}} */
@@ -84,7 +84,7 @@ zval * yaf_config_simple_format(yaf_config_t *instance, zval **ppzval TSRMLS_DC)
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Config_Simple::__construct(mixed $array, string $readonly) 
+/** {{{ proto public Yaf_Config_Simple::__construct(mixed $array, string $readonly)
 */
 PHP_METHOD(yaf_config_simple, __construct) {
 	zval *values, *readonly = NULL;
@@ -127,7 +127,7 @@ PHP_METHOD(yaf_config_simple, get) {
 		if (zend_hash_find(hash, name, len + 1, (void **) &ppzval) == FAILURE) {
 			RETURN_FALSE;
 		}
-		
+
 		if (Z_TYPE_PP(ppzval) == IS_ARRAY) {
 			if ((ret = yaf_config_simple_format(getThis(), ppzval TSRMLS_CC))) {
 				RETURN_ZVAL(ret, 1, 1);
@@ -166,7 +166,7 @@ PHP_METHOD(yaf_config_simple, set) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string key name");
 			RETURN_FALSE;
 		}
-		
+
 		Z_ADDREF_P(value);
 		props = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
 		if (zend_hash_update(Z_ARRVAL_P(props), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, (void **)&value, sizeof(zval*), NULL) == SUCCESS) {
@@ -189,17 +189,17 @@ PHP_METHOD(yaf_config_simple, __isset) {
 		return;
 	} else {
 		zval *prop = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
-		RETURN_BOOL(zend_hash_exists(Z_ARRVAL_P(prop), name, len + 1)); 
+		RETURN_BOOL(zend_hash_exists(Z_ARRVAL_P(prop), name, len + 1));
 	}
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Config_Simple::offsetUnset($index) 
+/** {{{ proto public Yaf_Config_Simple::offsetUnset($index)
 */
 PHP_METHOD(yaf_config_simple, offsetUnset) {
 	zval *readonly = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY), 1 TSRMLS_CC);
 
-	if (Z_BVAL_P(readonly)) {
+	if (!Z_BVAL_P(readonly)) {
 		zval *name, *props;
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &name) == FAILURE) {
 			return;
@@ -209,9 +209,9 @@ PHP_METHOD(yaf_config_simple, offsetUnset) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string key name");
 			RETURN_FALSE;
 		}
-		
+
 		props = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
-		if (zend_hash_del(Z_ARRVAL_P(props), Z_STRVAL_P(name), Z_STRLEN_P(name)) == SUCCESS) {
+		if (zend_hash_del(Z_ARRVAL_P(props), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1) == SUCCESS) {
 			RETURN_TRUE;
 		}
 	}

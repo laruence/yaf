@@ -15,7 +15,7 @@ Yaf_Config_Ini Object
         (
             [application] => Array
                 (
-                    [directory] => APPLICATION_PATCH/applcation
+                    [directory] => APPLICATION_PATH/applcation
                 )
 
             [name] => base
@@ -64,7 +64,7 @@ Yaf_Config_Ini Object
                     [rewrite] => Array
                         (
                             [type] => rewrite
-                            [match] => /ap/:name/:value
+                            [match] => /yaf/:name/:value
                             [route] => Array
                                 (
                                     [controller] => Index

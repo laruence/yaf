@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_exception.h 315615 2011-08-27 14:14:48Z laruence $ */
+
+/* $Id: yaf_exception.h 321289 2011-12-21 02:53:29Z laruence $ */
 
 #ifndef YAF_EXCEPTION_H
 #define YAF_EXCEPTION_H
@@ -28,8 +28,8 @@
 #define YAF_ERR_STARTUP_FAILED 		512
 #define YAF_ERR_ROUTE_FAILED 		513
 #define YAF_ERR_DISPATCH_FAILED 	514
-#define YAF_ERR_NOTFOUND_MODULE 	515 
-#define YAF_ERR_NOTFOUND_CONTROLLER 516 
+#define YAF_ERR_NOTFOUND_MODULE 	515
+#define YAF_ERR_NOTFOUND_CONTROLLER 516
 #define YAF_ERR_NOTFOUND_ACTION 	517
 #define YAF_ERR_NOTFOUND_VIEW 		518
 #define YAF_ERR_CALL_FAILED			519

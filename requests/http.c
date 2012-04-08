@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: http.c 315715 2011-08-29 16:08:35Z laruence $ */
+
+/* $Id: http.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 #include "ext/standard/url.h"
 
@@ -56,7 +56,7 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 			if (Z_TYPE_P(uri) != IS_NULL) {
 				settled_uri = uri;
 				break;
-			} 
+			}
 			zval_ptr_dtor(&uri);
 
 			/* IIS7 with URL Rewrite: make sure we get the unencoded url (double slash problem) */
@@ -64,7 +64,7 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 			if (Z_TYPE_P(uri) != IS_NULL) {
 				zval *rewrited = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("IIS_WasUrlRewritten") TSRMLS_CC);
 				zval *unencode = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("UNENCODED_URL") TSRMLS_CC);
-				if (Z_TYPE_P(rewrited) = IS_LONG 
+				if (Z_TYPE_P(rewrited) = IS_LONG
 						&& Z_LVAL_P(rewrited) == 1
 						&& Z_TYPE_P(unencode) == IS_STRING
 						&& Z_STRLEN_P(unencode) > 0) {
@@ -73,7 +73,7 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 				break;
 			}
 			zval_ptr_dtor(&uri);
-#endif 
+#endif
 			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PATH_INFO") TSRMLS_CC);
 			if (Z_TYPE_P(uri) != IS_NULL) {
 				settled_uri = uri;
@@ -105,7 +105,7 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 					}
 				}
 				break;
-			} 
+			}
 			zval_ptr_dtor(&uri);
 
 			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("ORIG_PATH_INFO") TSRMLS_CC);
@@ -163,7 +163,7 @@ YAF_REQUEST_METHOD(yaf_request_http, Files, 	YAF_GLOBAL_VARS_FILES);
 YAF_REQUEST_METHOD(yaf_request_http, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Http::isXmlHttpRequest() 
+/** {{{ proto public Yaf_Request_Http::isXmlHttpRequest()
 */
 PHP_METHOD(yaf_request_http, isXmlHttpRequest) {
 	zval * header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("HTTP_X_REQUESTED_WITH") TSRMLS_CC);

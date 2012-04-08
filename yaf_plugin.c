@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_plugin.c 318209 2011-10-19 07:04:34Z laruence $ */
+
+/* $Id: yaf_plugin.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -100,7 +100,7 @@ PHP_METHOD(yaf_plugin, preResponse) {
 }
 /* }}} */
 
-/** {{{ yaf_plugin_methods 
+/** {{{ yaf_plugin_methods
 */
 zend_function_entry yaf_plugin_methods[] = {
 	PHP_ME(yaf_plugin, routerStartup,  		 plugin_arg, ZEND_ACC_PUBLIC)
@@ -127,7 +127,7 @@ zend_function_entry yaf_plugin_methods_ns[] = {
 #endif
 /* }}} */
 
-/** {{{ YAF_STARTUP_FUNCTION 
+/** {{{ YAF_STARTUP_FUNCTION
 */
 YAF_STARTUP_FUNCTION(plugin) {
 	zend_class_entry ce;

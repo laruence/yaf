@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
  */
-   
-/* $Id: regex.c 315715 2011-08-29 16:08:35Z laruence $ */
+
+/* $Id: regex.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 zend_class_entry *yaf_route_regex_ce;
 
@@ -63,7 +63,7 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 	if (!len) {
 		return NULL;
 	}
-	
+
 	match = zend_read_property(yaf_route_regex_ce, route, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 1 TSRMLS_CC);
 
 	if ((pce_regexp = pcre_get_compiled_regex_cache(Z_STRVAL_P(match), Z_STRLEN_P(match) TSRMLS_CC)) == NULL) {
@@ -74,7 +74,7 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 		MAKE_STD_ZVAL(matches);
 		MAKE_STD_ZVAL(subparts);
 		ZVAL_NULL(subparts);
-		
+
 		map = zend_read_property(yaf_route_regex_ce, route, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MAP), 1 TSRMLS_CC);
 
 		php_pcre_match_impl(pce_regexp, uir, len, matches, subparts /* subpats */,
@@ -172,7 +172,7 @@ int yaf_route_regex_route(yaf_route_t *router, yaf_request_t *request TSRMLS_DC)
  */
 PHP_METHOD(yaf_route_regex, route) {
 	yaf_route_t	*route;
-	yaf_request_t *request; 
+	yaf_request_t *request;
 
 	route = getThis();
 
@@ -201,7 +201,7 @@ PHP_METHOD(yaf_route_regex, __construct) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects an array as third paramter",  yaf_route_regex_ce->name);
 		WRONG_PARAM_COUNT;
 	}
-	
+
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a string as the first parameter", yaf_route_regex_ce->name);
 		RETURN_FALSE;
@@ -231,7 +231,7 @@ PHP_METHOD(yaf_route_regex, __construct) {
 	RETURN_FALSE;
 }
 /** }}} */
- 
+
 /** {{{ yaf_route_regex_methods
  */
 zend_function_entry yaf_route_regex_methods[] = {

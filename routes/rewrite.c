@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-  
-/* $Id: rewrite.c 315715 2011-08-29 16:08:35Z laruence $ */
+
+/* $Id: rewrite.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 zend_class_entry *yaf_route_rewrite_ce;
 
@@ -64,10 +64,10 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 	if (!len) {
 		return NULL;
 	}
-	
+
 	match  = zend_read_property(yaf_route_rewrite_ce, router, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 1 TSRMLS_CC);
 	pmatch = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
-	
+
 	smart_str_appendc(&pattern, YAF_ROUTE_REGEX_DILIMITER);
 	smart_str_appendc(&pattern, '^');
 
@@ -80,7 +80,7 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 			if(*(seg) == '*') {
 				smart_str_appendl(&pattern, "(?P<__yaf_route_rest>.*)", sizeof("(?P<__yaf_route_rest>.*)") -1);
 				break;
-			}		
+			}
 
 			if(*(seg) == ':') {
 				smart_str_appendl(&pattern, "(?P<", sizeof("(?P<") -1 );
@@ -98,7 +98,7 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 	smart_str_appendc(&pattern, YAF_ROUTE_REGEX_DILIMITER);
 	smart_str_appendc(&pattern, 'i');
 	smart_str_0(&pattern);
-	
+
 	if ((pce_regexp = pcre_get_compiled_regex_cache(pattern.c, pattern.len TSRMLS_CC)) == NULL) {
 		smart_str_free(&pattern);
 		return NULL;
@@ -142,7 +142,7 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 				if (zend_hash_get_current_data(ht, (void**)&ppzval) == FAILURE) {
 					continue;
 				}
-				
+
 				if (!strncmp(key, "__yaf_route_rest", len)) {
 					zval *args = yaf_router_parse_parameters(Z_STRVAL_PP(ppzval) TSRMLS_CC);
 					if (args) {
@@ -261,7 +261,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "za|a", &match, &route, &verify) ==  FAILURE) {
 		return;
 	}
-	
+
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a string as the first parameter", yaf_route_rewrite_ce->name);
 		RETURN_FALSE;
@@ -286,7 +286,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 	RETURN_FALSE;
 }
 /** }}} */
- 
+
 /** {{{ yaf_route_rewrite_methods
  */
 zend_function_entry yaf_route_rewrite_methods[] = {

@@ -57,7 +57,7 @@ Yaf_Config_Ini Object
             [rewrite] => Array
                 (
                     [type] => rewrite
-                    [match] => /ap/:name/:value
+                    [match] => /yaf/:name/:value
                     [route] => Array
                         (
                             [controller] => Index
@@ -109,7 +109,7 @@ Array
 
     [rewrite] => Yaf_Route_Rewrite Object
         (
-            [_route:protected] => /ap/:name/:value
+            [_route:protected] => /yaf/:name/:value
             [_default:protected] => Array
                 (
                     [controller] => Index

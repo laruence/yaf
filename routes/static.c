@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
  */
- 
-/* $Id: static.c 315957 2011-09-01 09:03:32Z laruence $ */
+
+/* $Id: static.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -62,7 +62,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 			if (yaf_application_is_module_name(p, s-p TSRMLS_CC)) {
 				module = estrndup(p, s - p);
 				p  = s + 1;
-			} 
+			}
 		}
 
 		if ((s = strstr(p, "/")) != NULL) {
@@ -78,7 +78,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 		if (*p != '\0') {
 			rest = estrdup(p);
 		}
-		
+
 		if (module == NULL
 				&& controller == NULL
 				&& action == NULL ) {
@@ -96,7 +96,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 			if (YAF_G(action_prefer)) {
 				action = controller;
 				controller = NULL;
-			} 
+			}
 		} else if (controller == NULL
 				&& action == NULL
 				&& rest != NULL) {
@@ -122,8 +122,8 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 			/* /module/controller/action */
 			action = rest;
 			rest   = NULL;
-		} 
-		
+		}
+
 	} while (0);
 
 	efree(req_uri);
@@ -131,16 +131,16 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 	if (module != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
 		efree(module);
-	} 	
+	}
 	if (controller != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
 		efree(controller);
-	} 	
+	}
 
 	if (action != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
 		efree(action);
-	} 
+	}
 
 	if (rest) {
 		params = yaf_router_parse_parameters(rest TSRMLS_CC);
@@ -201,6 +201,6 @@ YAF_STARTUP_FUNCTION(route_static) {
  * c-basic-offset: 4
  * End:
  * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4 
+ * vim<600: noet sw=4 ts=4
  */
 

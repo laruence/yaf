@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
- 
-/* $Id: interface.c 315638 2011-08-28 13:11:43Z laruence $ */
+
+/* $Id: interface.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 zend_class_entry *yaf_view_interface_ce;
 
@@ -43,7 +43,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_view_getpath_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ yaf_view_interface_methods 
+/** {{{ yaf_view_interface_methods
  */
 zend_function_entry yaf_view_interface_methods[] = {
 	ZEND_ABSTRACT_ME(yaf_view, assign,  yaf_view_assign_arginfo)
@@ -55,7 +55,7 @@ zend_function_entry yaf_view_interface_methods[] = {
 };
 /* }}} */
 
-/** {{{ YAF_STARTUP_FUNCTION 
+/** {{{ YAF_STARTUP_FUNCTION
  */
 YAF_STARTUP_FUNCTION(view_interface) {
 	zend_class_entry ce;

@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_exception.c 315957 2011-09-01 09:03:32Z laruence $ */
+
+/* $Id: yaf_exception.c 324666 2012-03-31 13:30:18Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,22 +48,22 @@ void yaf_trigger_error(int type TSRMLS_DC, char *format, ...) {
 	uint msg_len;
 
 	va_start(args, format);
-	msg_len = vspprintf(&message, 0, format, args); 
-	va_end(args);    
+	msg_len = vspprintf(&message, 0, format, args);
+	va_end(args);
 
 	if (YAF_G(throw_exception)) {
 		yaf_throw_exception(type, message TSRMLS_CC);
-	} else { 
+	} else {
 		yaf_application_t *app = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1 TSRMLS_CC);
 		zend_update_property_long(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), type TSRMLS_CC);
 		zend_update_property_stringl(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRMSG), message, msg_len TSRMLS_CC);
-		php_error_docref(NULL TSRMLS_CC, E_RECOVERABLE_ERROR, message);
-	} 
-	efree(message); 
+		php_error_docref(NULL TSRMLS_CC, E_RECOVERABLE_ERROR, "%s", message);
+	}
+	efree(message);
 }
 /* }}} */
 
-/** {{{ zend_class_entry * yaf_get_exception_base(int root TSRMLS_DC) 
+/** {{{ zend_class_entry * yaf_get_exception_base(int root TSRMLS_DC)
 */
 zend_class_entry * yaf_get_exception_base(int root TSRMLS_DC) {
 #if can_handle_soft_dependency_on_SPL && defined(HAVE_SPL) && ((PHP_MAJOR_VERSION > 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 1))
@@ -104,7 +104,7 @@ void yaf_throw_exception(long code, char *message TSRMLS_DC) {
 /* }}} */
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)) || (PHP_MAJOR_VERSION < 5)
-/** {{{ proto Yaf_Exception::__construct($mesg = 0, $code = 0, Exception $previous = NULL) 
+/** {{{ proto Yaf_Exception::__construct($mesg = 0, $code = 0, Exception $previous = NULL)
 */
 PHP_METHOD(yaf_exception, __construct) {
 	char  	*message = NULL;
@@ -145,8 +145,8 @@ PHP_METHOD(yaf_exception, getPrevious) {
 */
 zend_function_entry yaf_exception_methods[] = {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)) || (PHP_MAJOR_VERSION < 5)
-	PHP_ME(yaf_exception, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR) 
-	PHP_ME(yaf_exception, getPrevious, NULL, ZEND_ACC_PUBLIC) 
+	PHP_ME(yaf_exception, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_exception, getPrevious, NULL, ZEND_ACC_PUBLIC)
 #endif
 	{NULL, NULL, NULL}
 };

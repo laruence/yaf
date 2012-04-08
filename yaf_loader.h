@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_loader.h 315615 2011-08-27 14:14:48Z laruence $ */
+
+/* $Id: yaf_loader.h 324659 2012-03-31 09:01:41Z laruence $ */
 
 #ifndef YAF_LOADER_H
 #define YAF_LOADER_H
@@ -23,7 +23,7 @@
 #define YAF_DEFAULT_LIBRARY_EXT		   		YAF_DEFAULT_CONTROLLER_EXT
 
 #define YAF_LIBRARY_DIRECTORY_NAME    		"library"
-#define YAF_CONTROLLER_DIRECTORY_NAME 		"controller"
+#define YAF_CONTROLLER_DIRECTORY_NAME 		"controllers"
 #define YAF_PLUGIN_DIRECTORY_NAME 	  		"plugins"
 #define YAF_MODULE_DIRECTORY_NAME     		"modules"
 #define YAF_VIEW_DIRECTORY_NAME       		"views"
@@ -45,7 +45,7 @@
 
 /* {{{ This only effects internally */
 #define YAF_LOADER_DAO						"Dao_"
-#define YAF_LOADER_LEN_DAO					4	
+#define YAF_LOADER_LEN_DAO					4
 #define YAF_LOADER_SERVICE					"Service_"
 #define YAF_LOADER_LEN_SERVICE				8
 /* }}} */
@@ -53,7 +53,7 @@
 #define	YAF_LOADER_PROPERTY_NAME_LIBRARY	"_library"
 #define YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB "_global_library"
 
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5) 
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
 #define YAF_STORE_EG_ENVIRON() \
 	{ \
 		zval ** __old_return_value_pp   = EG(return_value_ptr_ptr); \
@@ -90,6 +90,7 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory TSRML
 int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC);
 int yaf_loader_compose(char *path, int len, int use_path TSRMLS_DC);
 int yaf_register_autoloader(yaf_loader_t *loader TSRMLS_DC);
+int yaf_loader_register_namespace_single(yaf_loader_t *loader, char *prefix, uint len TSRMLS_DC);
 yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, char *global_path TSRMLS_DC);
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode TSRMLS_DC);

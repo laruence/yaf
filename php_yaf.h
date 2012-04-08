@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
- 
-/* $Id: php_yaf.h 317890 2011-10-08 13:31:56Z laruence $ */
+
+/* $Id: php_yaf.h 324890 2012-04-06 05:46:43Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -26,7 +26,7 @@ extern zend_module_entry yaf_module_entry;
 #define PHP_YAF_API __declspec(dllexport)
 #ifndef _MSC_VER
 #define _MSC_VER 1600
-#endif      
+#endif
 #else
 #define PHP_YAF_API
 #endif
@@ -41,7 +41,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define YAF_VERSION 					"2.1.3"
+#define YAF_VERSION 					"2.1.11-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(modle)		ZEND_RINIT_FUNCTION(yaf_##module)
@@ -50,7 +50,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-#define YAF_HAVE_NAMESPACE			
+#define YAF_HAVE_NAMESPACE
 #else
 #define Z_ADDREF_P 	 ZVAL_ADDREF
 #define Z_REFCOUNT_P ZVAL_REFCOUNT
@@ -82,7 +82,8 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	char		*base_uri;
 	char 		*environ;
 	char 		*directory;
-	char 		*library_directory;
+	char 		*local_library;
+	char        *local_namespace;
 	char 		*global_library;
 	char 		*view_ext;
 	char 		*default_module;
@@ -106,11 +107,15 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	long		forward_limit;
 	HashTable	*configs;
 	zval 		*modules;
+	zval        *default_route;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	uint 		buf_nesting;
 	void		*buffer;
 	void 		*owrite_handler;
 #endif
+	zval        *active_ini_file_section;
+	zval        *ini_wanted_section;
+	uint        parsing_flag;
 #ifdef YAF_HAVE_NAMESPACE
 	zend_bool	use_namespace;
 #endif

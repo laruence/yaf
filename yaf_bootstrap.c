@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_bootstrap.c 318209 2011-10-19 07:04:34Z laruence $ */
+
+/* $Id: yaf_bootstrap.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -29,7 +29,7 @@
 
 zend_class_entry *yaf_bootstrap_ce;
 
-/** {{{ yaf_bootstrap_methods 
+/** {{{ yaf_bootstrap_methods
 */
 zend_function_entry yaf_bootstrap_methods[] = {
 	{NULL, NULL, NULL}

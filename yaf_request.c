@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 315957 2011-09-01 09:03:32Z laruence $*/
+/* $Id: yaf_request.c 324673 2012-04-01 08:51:22Z laruence $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -122,17 +122,19 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 					char 	*script;
 					size_t 	script_len;
 
-					php_basename(Z_STRVAL_P(script_name), Z_STRLEN_P(script_name), 
+					php_basename(Z_STRVAL_P(script_name), Z_STRLEN_P(script_name),
 							NULL, 0, &script, &script_len TSRMLS_CC);
 
 					if (strncmp(file_name, script, file_name_len) == 0) {
 						basename 	 = Z_STRVAL_P(script_name);
 						basename_len = Z_STRLEN_P(script_name);
+						efree(file_name);
 						efree(script);
 						break;
 					}
 					efree(script);
 				}
+				efree(file_name);
 
 				phpself_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PHP_SELF") TSRMLS_CC);
 				if (phpself_name && IS_STRING == Z_TYPE_P(phpself_name)) {
@@ -178,7 +180,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 			dir_len = php_dirname(basename, basename_len);
 			if (*(basename + dir_len - 1) == '/') {
 				--dir_len;
-			} 
+			}
 
 			if (dir_len) {
 				dir = estrndup(basename, dir_len);
@@ -225,13 +227,13 @@ zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC) {
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
 				zend_is_auto_global(ZEND_STRL("_SERVER") TSRMLS_CC);
-			} 
+			}
 			(void)zend_hash_find(&EG(symbol_table), ZEND_STRS("_SERVER"), (void **)&carrier);
 			break;
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
 				zend_is_auto_global(ZEND_STRL("_ENV") TSRMLS_CC);
-			} 
+			}
 			carrier = &PG(http_globals)[YAF_GLOBAL_VARS_ENV];
 			break;
 		case YAF_GLOBAL_VARS_FILES:
@@ -240,13 +242,13 @@ zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC) {
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
 				zend_is_auto_global(ZEND_STRL("_REQUEST") TSRMLS_CC);
-			} 
+			}
 			(void)zend_hash_find(&EG(symbol_table), ZEND_STRS("_REQUEST"), (void **)&carrier);
 			break;
 		default:
 			break;
 	}
-#else 
+#else
 	switch (type) {
 		case YAF_GLOBAL_VARS_POST:
 		case YAF_GLOBAL_VARS_GET:
@@ -257,19 +259,19 @@ zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC) {
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
 				zend_is_auto_global(ZEND_STRL("_ENV") TSRMLS_CC);
-			} 
+			}
 			carrier = &PG(http_globals)[type];
 			break;
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
 				zend_is_auto_global(ZEND_STRL("_SERVER") TSRMLS_CC);
-			} 
+			}
 			carrier = &PG(http_globals)[type];
 			break;
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
 				zend_is_auto_global(ZEND_STRL("_REQUEST") TSRMLS_CC);
-			} 
+			}
 			(void)zend_hash_find(&EG(symbol_table), ZEND_STRS("_REQUEST"), (void **)&carrier);
 			break;
 		default:
@@ -295,14 +297,14 @@ zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC) {
 		ZVAL_NULL(empty);
 		return empty;
 	}
-	
+
 	Z_ADDREF_P(*ret);
 	return *ret;
 }
 /* }}} */
 
 /** {{{inline yaf_request_t * yaf_request_get_method(yaf_request_t *request TSRMLS_DC)
-*/ 
+*/
 inline yaf_request_t * yaf_request_get_method(yaf_request_t *request TSRMLS_DC) {
 	yaf_request_t *method = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 1 TSRMLS_CC);
 	return method;
@@ -470,7 +472,7 @@ YAF_REQUEST_IS_METHOD(Options);
 YAF_REQUEST_IS_METHOD(Cli);
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::isXmlHttpRequest(void) 
+/** {{{ proto public Yaf_Request_Abstract::isXmlHttpRequest(void)
 */
 PHP_METHOD(yaf_request, isXmlHttpRequest) {
 	RETURN_FALSE;
@@ -487,7 +489,7 @@ YAF_REQUEST_METHOD(yaf_request, Env, 	YAF_GLOBAL_VARS_ENV);
 YAF_REQUEST_METHOD(yaf_request, Server, YAF_GLOBAL_VARS_SERVER);
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::getModuleName(void) 
+/** {{{ proto public Yaf_Request_Abstract::getModuleName(void)
 */
 PHP_METHOD(yaf_request, getModuleName) {
 	zval *module = zend_read_property(yaf_request_ce, getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
@@ -495,7 +497,7 @@ PHP_METHOD(yaf_request, getModuleName) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::getControllerName(void) 
+/** {{{ proto public Yaf_Request_Abstract::getControllerName(void)
 */
 PHP_METHOD(yaf_request, getControllerName) {
 	zval *controller = zend_read_property(yaf_request_ce, getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
@@ -503,7 +505,7 @@ PHP_METHOD(yaf_request, getControllerName) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::getActionName(void) 
+/** {{{ proto public Yaf_Request_Abstract::getActionName(void)
 */
 PHP_METHOD(yaf_request, getActionName) {
 	zval *action = zend_read_property(yaf_request_ce, getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
@@ -511,7 +513,7 @@ PHP_METHOD(yaf_request, getActionName) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setModuleName(string $module) 
+/** {{{ proto public Yaf_Request_Abstract::setModuleName(string $module)
 */
 PHP_METHOD(yaf_request, setModuleName) {
 	zval *module;
@@ -519,7 +521,7 @@ PHP_METHOD(yaf_request, setModuleName) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &module) == FAILURE) {
 		return;
-	}     
+	}
 
 	if (Z_TYPE_P(module) != IS_STRING) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string module name");
@@ -532,7 +534,7 @@ PHP_METHOD(yaf_request, setModuleName) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setControllerName(string $controller) 
+/** {{{ proto public Yaf_Request_Abstract::setControllerName(string $controller)
 */
 PHP_METHOD(yaf_request, setControllerName) {
 	zval *controller;
@@ -540,7 +542,7 @@ PHP_METHOD(yaf_request, setControllerName) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &controller) == FAILURE) {
 		return;
-	}     
+	}
 
 	if (Z_TYPE_P(controller) != IS_STRING) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string controller name");
@@ -553,7 +555,7 @@ PHP_METHOD(yaf_request, setControllerName) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setActionName(string $action) 
+/** {{{ proto public Yaf_Request_Abstract::setActionName(string $action)
 */
 PHP_METHOD(yaf_request, setActionName) {
 	zval *action;
@@ -561,7 +563,7 @@ PHP_METHOD(yaf_request, setActionName) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &action) == FAILURE) {
 		return;
-	}     
+	}
 
 	if (Z_TYPE_P(action) != IS_STRING) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string action name");
@@ -586,19 +588,19 @@ PHP_METHOD(yaf_request, setParam) {
 		zval *value ;
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &value) == FAILURE) {
 			return;
-		}     
+		}
 		if (value && Z_TYPE_P(value) == IS_ARRAY) {
 			if (yaf_request_set_params_multi(self, value TSRMLS_CC)) {
 				RETURN_ZVAL(self, 1, 0);
 			}
-		} 
+		}
 	} else if (2 == argc) {
 		zval *value;
 		char *name;
 		uint len;
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &len, &value) == FAILURE) {
 			return;
-		}     
+		}
 
 		if (yaf_request_set_params_single(getThis(), name, len, value TSRMLS_CC)) {
 			RETURN_ZVAL(self, 1, 0);
@@ -639,7 +641,7 @@ PHP_METHOD(yaf_request, getParam) {
 PHP_METHOD(yaf_request, getException) {
 	zval *exception = zend_read_property(yaf_request_ce, getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_EXCEPTION), 1 TSRMLS_CC);
 	if (IS_OBJECT == Z_TYPE_P(exception)
-			&& instanceof_function(Z_OBJCE_P(exception), 
+			&& instanceof_function(Z_OBJCE_P(exception),
 #if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 2)
 				zend_exception_get_default()
 #else
@@ -698,7 +700,7 @@ PHP_METHOD(yaf_request, setBaseUri) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &uri) == FAILURE) {
 		return;
-	} 
+	}
 
 	if (Z_TYPE_P(uri) !=  IS_STRING || !Z_STRLEN_P(uri)) {
 		RETURN_FALSE;
@@ -736,14 +738,14 @@ PHP_METHOD(yaf_request, setRequestUri) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &uri, &len) == FAILURE) {
 		return;
-	} 
+	}
 
 	zend_update_property_stringl(yaf_request_ce, getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), uri, len TSRMLS_CC);
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::isRouted(void) 
+/** {{{ proto public Yaf_Request_Abstract::isRouted(void)
 */
 PHP_METHOD(yaf_request, isRouted) {
 	RETURN_BOOL(yaf_request_is_routed(getThis() TSRMLS_CC));

@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_controller.h 315615 2011-08-27 14:14:48Z laruence $ */
+
+/* $Id: yaf_controller.h 324667 2012-03-31 13:55:08Z laruence $ */
 
 #ifndef YAF_CONTROLLER_H
 #define YAF_CONTROLLER_H
@@ -25,11 +25,13 @@
 #define YAF_CONTROLLER_PROPERTY_NAME_RESPONSE	"_response"
 #define YAF_CONTROLLER_PROPERTY_NAME_REQUEST	"_request"
 #define YAF_CONTROLLER_PROPERTY_NAME_ARGS		"_invoke_args"
-#define YAF_CONTROLLER_PROPERTY_NAME_ACTIONS	"actions"	
+#define YAF_CONTROLLER_PROPERTY_NAME_ACTIONS	"actions"
 #define YAF_CONTROLLER_PROPERTY_NAME_VIEW		"_view"
 
+#define YAF_CONTROLLER_PROPERTY_NAME_RENDER     "yafAutoRender"
+
 extern zend_class_entry *yaf_controller_ce;
-int yaf_controller_construct(zend_class_entry *ce, yaf_controller_t *self, 
+int yaf_controller_construct(zend_class_entry *ce, yaf_controller_t *self,
 		yaf_request_t *request, yaf_response_t *response, yaf_view_t *view, zval *args TSRMLS_DC);
 YAF_STARTUP_FUNCTION(controller);
 #endif

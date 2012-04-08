@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: simple.c 315715 2011-08-29 16:08:35Z laruence $ */
+
+/* $Id: simple.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 static zend_class_entry *yaf_request_simple_ce;
 
@@ -57,7 +57,7 @@ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *modul
 			zend_update_property_string(yaf_request_simple_ce, instance,
 				   	ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), YAF_G(default_controller) TSRMLS_CC);
 		} else {
-			zend_update_property(yaf_request_simple_ce, instance, 
+			zend_update_property(yaf_request_simple_ce, instance,
 					ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
 		}
 
@@ -129,7 +129,7 @@ PHP_METHOD(yaf_request_simple, __construct) {
 		return;
 	} else {
 		if ((params && IS_ARRAY != Z_TYPE_P(params))) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, 
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC,
 				   	"Expects the params is an array", yaf_request_simple_ce->name);
 			RETURN_FALSE;
 		}
@@ -164,7 +164,7 @@ YAF_REQUEST_METHOD(yaf_request_simple, Files, 	YAF_GLOBAL_VARS_FILES);
 YAF_REQUEST_METHOD(yaf_request_simple, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Simple::isXmlHttpRequest() 
+/** {{{ proto public Yaf_Request_Simple::isXmlHttpRequest()
 */
 PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 	zval * header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("X-Requested-With") TSRMLS_CC);

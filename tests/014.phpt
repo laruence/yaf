@@ -19,7 +19,7 @@ Yaf_Application Object
                 (
                     [application] => Array
                         (
-                            [directory] => APPLICATION_PATCH/applcation
+                            [directory] => %stests/applcation
                         )
 
                     [name] => extra
@@ -69,7 +69,7 @@ Yaf_Application Object
                             [rewrite] => Array
                                 (
                                     [type] => rewrite
-                                    [match] => /ap/:name/:value
+                                    [match] => /yaf/:name/:value
                                     [route] => Array
                                         (
                                             [controller] => Index

@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_config.c 315957 2011-09-01 09:03:32Z laruence $ */
+
+/* $Id: yaf_config.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -58,7 +58,7 @@ static int yaf_config_ini_modified(zval * file, long ctime TSRMLS_DC) {
 	php_stat(Z_STRVAL_P(file), Z_STRLEN_P(file) + 1, 7 /*YAF_FS_CTIME*/ , &n_ctime TSRMLS_CC);
 	if (Z_TYPE(n_ctime) != IS_BOOL && ctime != Z_LVAL(n_ctime)) {
 		return Z_LVAL(n_ctime);
-	}	
+	}
 	return 0;
 }
 /* }}} */
@@ -114,11 +114,11 @@ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC
 			if (zend_hash_get_current_data(src, (void**)&ppzval) == FAILURE) {
 				continue;
 			}
-	
+
 			tmp = yaf_config_ini_zval_persistent(*ppzval TSRMLS_CC);
 			if (tmp)
 			zend_hash_index_update(pdst, idx, (void **)&tmp, sizeof(zval *), NULL);
-			
+
 		} else {
 			zval *tmp;
 			if (zend_hash_get_current_data(src, (void**)&ppzval) == FAILURE) {
@@ -137,8 +137,8 @@ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC
  */
 static void yaf_config_copy_losable(HashTable *ldst, HashTable *src TSRMLS_DC) {
 	zval **ppzval, *tmp;
-	char *key;  
-	long idx; 
+	char *key;
+	long idx;
 	uint keylen;
 
 	for(zend_hash_internal_pointer_reset(src);
@@ -149,10 +149,10 @@ static void yaf_config_copy_losable(HashTable *ldst, HashTable *src TSRMLS_DC) {
 			if (zend_hash_get_current_data(src, (void**)&ppzval) == FAILURE) {
 				continue;
 			}
-	
+
 			tmp = yaf_config_ini_zval_losable(*ppzval TSRMLS_CC);
 			zend_hash_index_update(ldst, idx, (void **)&tmp, sizeof(zval *), NULL);
-			
+
 		} else {
 			if (zend_hash_get_current_data(src, (void**)&ppzval) == FAILURE) {
 				continue;
@@ -288,7 +288,7 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 	}
 
 	cache = (yaf_config_cache *)pemalloc(sizeof(yaf_config_cache), 1);
-	
+
 	if (!cache) {
 		return;
 	}
@@ -308,7 +308,7 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 	cache->ctime = ctime;
 	cache->data  = persistent;
 	len = spprintf(&key, 0, "%s#%s", Z_STRVAL_P(filename), Z_STRVAL_P(section));
-	
+
 	zend_hash_update(YAF_G(configs), key, len + 1, (void **)&cache, sizeof(yaf_config_cache *), NULL);
 
 	efree(key);

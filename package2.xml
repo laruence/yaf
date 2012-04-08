@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2011-10-08</date>
- <time>21:32:20</time>
+ <date>2012-04-01</date>
+ <time>18:34:23</time>
  <version>
-  <release>2.1.3</release>
-  <api>2.1.3</api>
+  <release>2.1.10</release>
+  <api>2.1.10</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,7 +22,13 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
--Fixed Bug that Yaf still call to Yaf_View_Simple although a custom view engine was setted
+  - Improved Yaf_Config_Ini::__Construct performance, and reduce memory consumption
+  - Fixed bug #61493 (Can't remove item when using unset() with a Yaf_Config_Simple instance)
+  - Support controller autoloading(Only default module)
+  - Fixed bug that the controller name could be lowercase in routeShutdown hook
+  - Fixed bug that segfault while attempt to free owrite_handler
+  - Added Yaf_Controller::$yafAutoRender to controller render
+  - Fixed some memory leaks
  </notes>
  <contents> 
   <dir name="/"> 
@@ -108,6 +114,23 @@
     <file name="014.phpt" role="test" />
     <file name="015.phpt" role="test" />
     <file name="016.phpt" role="test" />
+    <file name="017.phpt" role="test" />
+    <file name="018.phpt" role="test" />
+    <file name="019.phpt" role="test" />
+    <file name="020.phpt" role="test" />
+    <file name="021.phpt" role="test" />
+    <file name="022.phpt" role="test" />
+    <file name="023.phpt" role="test" />
+    <file name="024.phpt" role="test" />
+    <file name="025.phpt" role="test" />
+    <file name="026.phpt" role="test" />
+    <file name="027.phpt" role="test" />
+    <file name="028.phpt" role="test" />
+    <file name="029.phpt" role="test" />
+    <file name="030.phpt" role="test" />
+    <file name="031.phpt" role="test" />
+    <file name="032.phpt" role="test" />
+    <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
    </dir>
   </dir> 
@@ -127,6 +150,119 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-04-01</date> 
+   <version> 
+    <release>2.1.10</release> 
+    <api>2.1.10</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Fixed bug #61493 (Can't remove item when using unset() with a Yaf_Config_Simple instance)
+    - Support controller autoloading(Only default module)
+    - Fixed bug that the controller name could be lowercase in routeShutdown hook
+    - Fixed bug that segfault while attempt to free owrite_handler
+    - Added Yaf_Controller::$yafAutoRender to controller render
+    - Fixed some memory leaks
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2012-03-20</date> 
+   <version> 
+    <release>2.1.9</release> 
+    <api>2.1.9</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Fixed Bug that Yaf_Response::setBody cause invalid read
+   </notes> 
+  </release> 
+  <release> 
+   <date>2012-03-12</date> 
+   <version> 
+    <release>2.1.8</release> 
+    <api>2.1.8</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Fixed bug Yaf_Response::setBody act the same as Yaf_Response::prependBody
+   </notes> 
+  </release> 
+  <release> 
+   <date>2012-02-05</date> 
+   <version> 
+    <release>2.1.7</release> 
+    <api>2.1.7</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Release 2.1.7 stable
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2012-01-06</date> 
+   <version> 
+    <release>2.1.6</release> 
+    <api>2.1.6</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Fix Bug that classname with namespace can not be auto loaded
+   </notes> 
+  </release> 
+  <release> 
+   <date>2011-12-26</date> 
+   <version> 
+    <release>2.1.5</release> 
+    <api>2.1.5</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Fix Bug #60608
+   </notes> 
+  </release> 
+  <release> 
+   <date>2011-12-21</date> 
+   <version> 
+    <release>2.1.4</release> 
+    <api>2.1.4</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes> 
+    - Improve the Yaf_Loader::getInstance, make the Yaf_Loader can be used independently
+    - Implemented Yaf_View::assignRef, which didn't work as expect before.
+   </notes> 
+  </release> 
+  <release> 
    <date>2011-10-08</date> 
    <version> 
     <release>2.1.3</release> 
@@ -138,10 +274,9 @@
    </stability> 
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes> 
--Fixed Bug that Yaf still call to Yaf_View_Simple although a custom view engine was setted
+    - Fixed Bug that Yaf still call to Yaf_View_Simple although a custom view engine was setted
    </notes> 
   </release> 
-
   <release> 
    <date>2011-09-01</date> 
    <version> 
@@ -154,13 +289,12 @@
    </stability> 
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes> 
--Added Yaf_Application::getLastErrorNo
--Added Yaf_Application::getLastErrorMsg
--Added Yaf_Application::clearLastError
--Changed trigger ERROR to E_RECOVERABLE_ERROR, then people can use set_error_handler to catch it
+    - Added Yaf_Application::getLastErrorNo
+    - Added Yaf_Application::getLastErrorMsg
+    - Added Yaf_Application::clearLastError
+    - Changed trigger ERROR to E_RECOVERABLE_ERROR, then people can use set_error_handler to catch it
    </notes> 
   </release> 
-
   <release> 
    <date>2011-08-31</date> 
    <version> 
@@ -173,8 +307,8 @@
    </stability> 
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes> 
--Fixed Yaf_View_Simple::render flush output instantly in PHP5.4
--Fixed Yaf_Session crash in PHP5.4
+    - Fixed Yaf_View_Simple::render flush output instantly in PHP5.4
+    - Fixed Yaf_Session crash in PHP5.4
    </notes> 
   </release> 
   <release> 
@@ -189,12 +323,12 @@
    </stability> 
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes> 
-- Avoided calling to get_class_entry for higher performance
-- Added arginfo for all methods
-- Remove unnecessary stack variable initialization
-- Standardize error message
-- Add Yaf_Request::setRequstUri
-- Fixed build broken with PHP 5.4
+    - Avoided calling to get_class_entry for higher performance
+    - Added arginfo for all methods
+    - Remove unnecessary stack variable initialization
+    - Standardize error message
+    - Add Yaf_Request::setRequstUri
+    - Fixed build broken with PHP 5.4
    </notes> 
   </release> 
   <release> 
@@ -209,10 +343,10 @@
    </stability> 
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes> 
-- Fixed Bug that when call to Yaf_Config_Ini/Yaf_Config_Simple with freaky paramters then invoke its methods cause crash (thanks to Felipe Pena)
-- Yaf_Application::execute call Zend_API call_user_func instead of call zif_call_user_func, since zif_call_user_func was not declared with dllexport
-- Built on windows with PHP-5.3.6 and PHP-5.2.15 (you can download the dll on Yaf Google Code)
-- Corrected some broken C89 statements
+    - Fixed Bug that when call to Yaf_Config_Ini/Yaf_Config_Simple with freaky paramters then invoke its methods cause crash (thanks to Felipe Pena)
+    - Yaf_Application::execute call Zend_API call_user_func instead of call zif_call_user_func, since zif_call_user_func was not declared with dllexport
+    - Built on windows with PHP-5.3.6 and PHP-5.2.15 (you can download the dll on Yaf Google Code)
+    - Corrected some broken C89 statements
    </notes> 
   </release> 
   <release> 

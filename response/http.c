@@ -14,11 +14,11 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: http.c 315957 2011-09-01 09:03:32Z laruence $ */
+/* $Id: http.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 zend_class_entry *yaf_response_http_ce;
 
-/** {{{ yaf_response_methods 
+/** {{{ yaf_response_methods
 */
 zend_function_entry yaf_response_http_methods[] = {
 	{NULL, NULL, NULL}

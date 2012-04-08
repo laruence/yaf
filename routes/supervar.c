@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: supervar.c 315957 2011-09-01 09:03:32Z laruence $ */
+/* $Id: supervar.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 #define YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR "_var_name"
 
@@ -34,7 +34,7 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request TSRMLS_D
 	char *req_uri, *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
 
 	varname = zend_read_property(yaf_route_supervar_ce, route, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), 1 TSRMLS_CC);
-	
+
 	zuir = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(varname), Z_STRLEN_P(varname) TSRMLS_CC);
 
 	if (!zuir || ZVAL_IS_NULL(zuir)) {
@@ -63,7 +63,7 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request TSRMLS_D
 			if (yaf_application_is_module_name(p, s-p TSRMLS_CC)) {
 				module = estrndup(p, s - p);
 				p  = s + 1;
-			} 
+			}
 		}
 
 		if ((s = strstr(p, "/")) != NULL) {
@@ -97,7 +97,7 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request TSRMLS_D
 			if (YAF_G(action_prefer)) {
 				action = controller;
 				controller = NULL;
-			} 
+			}
 		} else if (controller == NULL
 				&& action == NULL
 				&& rest != NULL) {
@@ -123,7 +123,7 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request TSRMLS_D
 			/* /module/controller/action */
 			action = rest;
 			rest   = NULL;
-		} 
+		}
 
 	} while (0);
 
@@ -132,15 +132,15 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request TSRMLS_D
 	if (module != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
 		efree(module);
-	} 	
+	}
 	if (controller != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
 		efree(controller);
-	} 	
+	}
 	if (action != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
 		efree(action);
-	} 
+	}
 
 	if (rest) {
 		params = yaf_router_parse_parameters(rest TSRMLS_CC);
@@ -184,7 +184,7 @@ PHP_METHOD(yaf_route_supervar, route) {
 		return;
 	} else {
 		RETURN_BOOL(yaf_route_supervar_route(getThis(), request TSRMLS_CC));
-	}                                    
+	}
 }
 /** }}} */
 
@@ -196,7 +196,7 @@ PHP_METHOD(yaf_route_supervar, __construct) {
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &var) ==   FAILURE) {
 		return;
 	}
-	
+
 	if (Z_TYPE_P(var) != IS_STRING || !Z_STRLEN_P(var)) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a string super var name", yaf_route_supervar_ce->name);
 		RETURN_FALSE;
@@ -205,7 +205,7 @@ PHP_METHOD(yaf_route_supervar, __construct) {
 	zend_update_property(yaf_route_supervar_ce, getThis(), ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), var TSRMLS_CC);
 }
 /** }}} */
- 
+
 /** {{{ yaf_route_supervar_methods
  */
 zend_function_entry yaf_route_supervar_methods[] = {

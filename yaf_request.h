@@ -13,8 +13,8 @@
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
 */
-   
-/* $Id: yaf_request.h 315620 2011-08-27 16:47:56Z laruence $ */
+
+/* $Id: yaf_request.h 321289 2011-12-21 02:53:29Z laruence $ */
 
 #ifndef YAF_REQUEST_H
 #define YAF_REQUEST_H

@@ -2,6 +2,8 @@
 Check for Yaf_Loader
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_spl_autoload=0
 --FILE--
 <?php 
 ini_set("ap.lowcase_path", FALSE);
