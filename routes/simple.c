@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: simple.c 325432 2012-04-24 09:06:40Z laruence $ */
 
 zend_class_entry *yaf_route_simple_ce;
 
@@ -50,7 +50,10 @@ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 		return 0;
 	}
 
-	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+	if (Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STRVAL_P(module), Z_STRLEN_P(module) TSRMLS_CC)) {
+		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+	}
+
 	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
 	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
 

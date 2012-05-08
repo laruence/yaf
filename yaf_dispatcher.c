@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 324955 2012-04-08 09:24:06Z laruence $ */
+/* $Id: yaf_dispatcher.c 325512 2012-05-03 08:22:37Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -582,24 +582,33 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			   */
 			yaf_controller_construct(ce, icontroller, request, response, view, NULL TSRMLS_CC);
 
-			MAKE_STD_ZVAL(view_dir);
-			Z_TYPE_P(view_dir) = IS_STRING;
-
-			if (is_def_module) {
-				Z_STRLEN_P(view_dir) = spprintf(&(Z_STRVAL_P(view_dir)), 0, "%s/%s", app_dir ,"views");
-			} else {
-				Z_STRLEN_P(view_dir) = spprintf(&(Z_STRVAL_P(view_dir)), 0, "%s/%s/%s/%s", app_dir,
-						"modules", Z_STRVAL_P(module), "views");
-			}
-
-			/** tell the view engine where to find templates */
 			if ((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce) {
-				zend_update_property(view_ce, view,  ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), view_dir TSRMLS_CC);
+				view_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
 			} else {
-				zend_call_method_with_1_params(&view, view_ce, NULL, "setscriptpath", NULL, view_dir);
+				zend_call_method_with_1_params(&view, view_ce, NULL, "getscriptpath", NULL, view_dir);
 			}
 
-			zval_ptr_dtor(&view_dir);
+			if (IS_STRING != Z_TYPE_P(view_dir) || !Z_STRLEN_P(view_dir)) {
+				/* view directory might be set by _constructor */
+				MAKE_STD_ZVAL(view_dir);
+				Z_TYPE_P(view_dir) = IS_STRING;
+
+				if (is_def_module) {
+					Z_STRLEN_P(view_dir) = spprintf(&(Z_STRVAL_P(view_dir)), 0, "%s/%s", app_dir ,"views");
+				} else {
+					Z_STRLEN_P(view_dir) = spprintf(&(Z_STRVAL_P(view_dir)), 0, "%s/%s/%s/%s", app_dir,
+							"modules", Z_STRVAL_P(module), "views");
+				}
+
+				/** tell the view engine where to find templates */
+				if ((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce) {
+					zend_update_property(view_ce, view,  ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), view_dir TSRMLS_CC);
+				} else {
+					zend_call_method_with_1_params(&view, view_ce, NULL, "setscriptpath", NULL, view_dir);
+				}
+
+			    zval_ptr_dtor(&view_dir);
+			}
 
 			zend_update_property(ce, icontroller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME),	controller TSRMLS_CC);
 
@@ -804,7 +813,16 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL TSRMLS_CC);
 
 	if (!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC)) {
-		return;
+		if (EG(exception) 
+				&& instanceof_function(Z_OBJCE_P(EG(exception)), 
+					yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)] TSRMLS_CC)) {
+			zval *m = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
+			/* failover to default module error catcher */
+			zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), m TSRMLS_CC);
+			zval_ptr_dtor(&EG(exception));
+			EG(exception) = NULL;
+			!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC);
+		}
 	}
 
 	(void)yaf_response_send(response TSRMLS_CC);
@@ -820,10 +838,8 @@ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request TS
 	yaf_router_t *router = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 1 TSRMLS_CC);
 	if (IS_OBJECT == Z_TYPE_P(router)) {
 		if ((router_ce = Z_OBJCE_P(router)) == yaf_router_ce) {
-			/* use buildin router */
-			if (!yaf_router_route(router, request TSRMLS_CC)) {
-				return 0;
-			}
+			/* use built-in router */
+			yaf_router_route(router, request TSRMLS_CC);
 		} else {
 			/* user custom router */
 			zval *ret = zend_call_method_with_1_params(&router, router_ce, NULL, "route", &ret, request);

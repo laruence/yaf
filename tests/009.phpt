@@ -22,6 +22,7 @@ Yaf_View_Simple Object
         )
 
     [_tpl_dir:protected] => %s
+    [_options:protected] => 
 )
 int(1590)
 string(8) "laruence"
@@ -34,4 +35,5 @@ Yaf_View_Simple Object
         )
 
     [_tpl_dir:protected] => %s
+    [_options:protected] => 
 )

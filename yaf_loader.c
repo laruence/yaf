@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 324792 2012-04-04 07:45:20Z laruence $ */
+/* $Id: yaf_loader.c 325432 2012-04-24 09:06:40Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -212,8 +212,7 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 	}
 #endif
 
-	if (!prefix_len) {
-		efree(prefix);
+	if (!prefix) {
 		return 0;
 	}
 
@@ -227,6 +226,7 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 		}
 		ns = pos + prefix_len;
 	}
+
 	efree(prefix);
 	return 0;
 }

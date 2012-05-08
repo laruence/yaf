@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: http.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: http.c 325431 2012-04-24 07:41:42Z laruence $ */
 
 #include "ext/standard/url.h"
 
@@ -124,6 +124,18 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 	}
 
 	if (settled_uri) {
+		char *p = Z_STRVAL_P(settled_uri);
+
+		while (*p == '/' && *(p + 1) == '/') {
+			p++;
+		}
+
+		if (p != Z_STRVAL_P(settled_uri)) {
+			char *garbage = Z_STRVAL_P(settled_uri);
+			ZVAL_STRING(settled_uri, p, 1);
+			efree(garbage);
+		}
+
 		zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), settled_uri TSRMLS_CC);
 		yaf_request_set_base_uri(instance, base_uri, Z_STRVAL_P(settled_uri) TSRMLS_CC);
 		zval_ptr_dtor(&settled_uri);

@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 324890 2012-04-06 05:46:43Z laruence $ */
+/* $Id: interface.c 325413 2012-04-23 09:19:44Z laruence $ */
 
 #include "ext/standard/php_smart_str.h"
 
@@ -44,7 +44,7 @@ zend_class_entry *yaf_route_ce;
 
 /* {{{ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr,  zval *config TSRMLS_DC)
  */
-yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr,  zval *config TSRMLS_DC) {
+yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) {
 	zval **match, **def, **map, **ppzval;
 	yaf_route_t *instance = NULL;
 

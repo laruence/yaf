@@ -2,6 +2,8 @@
 Check for Yaf_Application
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.environ=product
 --FILE--
 <?php 
 define("APPLICATION_PATH", dirname(__FILE__));

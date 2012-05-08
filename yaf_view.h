@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_view.h 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_view.h 325381 2012-04-21 01:51:59Z laruence $ */
 
 #ifndef YAF_VIEW_H
 #define YAF_VIEW_H
@@ -24,6 +24,7 @@
 
 #define YAF_VIEW_PROPERTY_NAME_TPLVARS 	"_tpl_vars"
 #define YAF_VIEW_PROPERTY_NAME_TPLDIR	"_tpl_dir"
+#define YAF_VIEW_PROPERTY_NAME_OPTS 	"_options"
 
 extern zend_class_entry *yaf_view_interface_ce;
 extern zend_class_entry *yaf_view_simple_ce;

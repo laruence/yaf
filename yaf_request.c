@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 324673 2012-04-01 08:51:22Z laruence $*/
+/* $Id: yaf_request.c 325277 2012-04-18 09:06:41Z laruence $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -134,7 +134,6 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 					}
 					efree(script);
 				}
-				efree(file_name);
 
 				phpself_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PHP_SELF") TSRMLS_CC);
 				if (phpself_name && IS_STRING == Z_TYPE_P(phpself_name)) {
@@ -145,13 +144,14 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 					if (strncmp(file_name, phpself, file_name_len) == 0) {
 						basename	 = Z_STRVAL_P(phpself_name);
 						basename_len = Z_STRLEN_P(phpself_name);
+						efree(file_name);
 						efree(phpself);
 						break;
 					}
 					efree(phpself);
 				}
 
-				orig_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PHP_SELF") TSRMLS_CC);
+				orig_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("ORIG_SCRIPT_NAME") TSRMLS_CC);
 				if (orig_name && IS_STRING == Z_TYPE_P(orig_name)) {
 					char 	*orig;
 					size_t	orig_len;
@@ -159,11 +159,13 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 					if (strncmp(file_name, orig, file_name_len) == 0) {
 						basename 	 = Z_STRVAL_P(orig_name);
 						basename_len = Z_STRLEN_P(orig_name);
+						efree(file_name);
 						efree(orig);
 						break;
 					}
 					efree(orig);
 				}
+				efree(file_name);
 			}
 		} while (0);
 

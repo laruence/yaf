@@ -4,6 +4,7 @@ Check for Yaf_Loader::set/get(library_path)
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.use_spl_autoload=0
+yaf.lowcase_path=0
 --FILE--
 <?php 
 $loader = Yaf_Loader::getInstance('/foo', '/bar');

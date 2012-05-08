@@ -18,11 +18,19 @@ function cleartpl() {
 }
 register_shutdown_function("cleartpl");
 
-file_put_contents($tpl, <<<HTML
+if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+    file_put_contents($tpl, <<<HTML
 okey
 <?php exit; ?>
 HTML
 );
+} else {
+//PHP5.4 introduced a new output mechanism
+    file_put_contents($tpl, <<<HTML
+<?php exit; ?>
+HTML
+);
+}
 echo $view->render($tpl);
 ?>
 --EXPECTF--

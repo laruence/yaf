@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: static.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: static.c 325563 2012-05-07 08:21:57Z laruence $ */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -25,108 +25,90 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_static_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
- */
-int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC) {
-	zval *zuri, *base_uri, *params;
-	char *req_uri, *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
-
-	zuri 	 = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1 TSRMLS_CC);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1 TSRMLS_CC);
-
-	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
-			&& strstr(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri)) == Z_STRVAL_P(zuri)) {
-		req_uri  = estrdup(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri));
-	} else {
-		req_uri  = estrdup(Z_STRVAL_P(zuri));
-	}
+static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_len TSRMLS_DC) /* {{{ */ {
+	zval *params;
+	char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
 
 	do {
-		char *s, *p;
+#define strip_slashs(p) while (*p == ' ' || *p == '/') { ++p; }
+		char *s, *p, *q;
 		char *uri;
-		int request_uri_len = Z_STRLEN_P(zuri);
 
-		if (request_uri_len == 0
-				|| (request_uri_len == 1 && *req_uri == '/')) {
+		if (req_uri_len == 0
+				|| (req_uri_len == 1 && *req_uri == '/')) {
 			break;
 		}
 
 		uri = req_uri;
 		s = p = uri;
+		q = req_uri + req_uri_len - 1;
 
-		while(*p == ' ' || *p == '/') {
-			++p;
+		while (*q == ' ' || *q == '/') {
+			*q-- = '\0';
 		}
+
+		strip_slashs(p);
 
 		if ((s = strstr(p, "/")) != NULL) {
 			if (yaf_application_is_module_name(p, s-p TSRMLS_CC)) {
 				module = estrndup(p, s - p);
 				p  = s + 1;
+		        strip_slashs(p);
+				if ((s = strstr(p, "/")) != NULL) {
+					controller = estrndup(p, s - p);
+					p  = s + 1;
+				}
+			} else {
+				controller = estrndup(p, s - p);
+				p  = s + 1;
 			}
 		}
 
-		if ((s = strstr(p, "/")) != NULL) {
-			controller = estrndup(p, s - p);
-			p  = s + 1;
-		}
-
+		strip_slashs(p);
 		if ((s = strstr(p, "/")) != NULL) {
 			action = estrndup(p, s - p);
 			p  = s + 1;
 		}
 
+		strip_slashs(p);
 		if (*p != '\0') {
-			rest = estrdup(p);
+			do {
+				if (!module && !controller && !action) {
+					if (yaf_application_is_module_name(p, strlen(p) TSRMLS_CC)) {
+						module = estrdup(p);
+						break;
+					}
+				}
+
+				if (!controller) {
+					controller = estrdup(p);
+					break;
+				}
+
+				if (!action) {
+					action = estrdup(p);
+					break;
+				}
+
+				rest = estrdup(p);
+			} while (0);
 		}
 
-		if (module == NULL
-				&& controller == NULL
-				&& action == NULL ) {
-			/* /one */
-			if (YAF_G(action_prefer)) {
-				action = rest;
-			} else {
-				controller = rest;
-			}
-			rest  = NULL;
-		} else if (module == NULL
-				&& action == NULL
-				&& rest  == NULL) {
-			/* /one/ */
+		if (module && controller == NULL) {
+			controller = module;
+			module = NULL;
+		} else if (module && action == NULL) {
+			action = controller;
+			controller = module;
+			module = NULL;
+	    } else if (controller && action == NULL ) {
+			/* /controller */
 			if (YAF_G(action_prefer)) {
 				action = controller;
 				controller = NULL;
 			}
-		} else if (controller == NULL
-				&& action == NULL
-				&& rest != NULL) {
-			/* /controller/action */
-			controller = module;
-			action     = rest;
-			module	   = NULL;
-			rest	   = NULL;
-		} else if (action == NULL
-				&& rest == NULL) {
-			/* /module/controller/ */
-			action	   = controller;
-			controller = module;
-			module 	   = NULL;
-		} else if (controller == NULL
-				&& action == NULL)	{
-			/* /module/rest */
-			controller = module;
-			action	   = rest;
-			module 	   = NULL;
-			rest       = NULL;
-		} else if (action == NULL) {
-			/* /module/controller/action */
-			action = rest;
-			rest   = NULL;
 		}
-
 	} while (0);
-
-	efree(req_uri);
 
 	if (module != NULL) {
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
@@ -149,6 +131,27 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 		efree(rest);
 	}
 
+}
+/* }}} */
+
+/** {{{ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
+ */
+int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC) {
+	zval *zuri, *base_uri;
+	char *req_uri;
+
+	zuri 	 = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1 TSRMLS_CC);
+	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1 TSRMLS_CC);
+
+	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
+			&& strstr(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri)) == Z_STRVAL_P(zuri)) {
+		req_uri  = estrdup(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri));
+	} else {
+		req_uri  = estrdup(Z_STRVAL_P(zuri));
+	}
+
+	yaf_route_pathinfo_route(request, req_uri, Z_STRLEN_P(zuri) TSRMLS_CC);
+	efree(req_uri);
 	return 1;
 }
 /* }}} */

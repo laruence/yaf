@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 324844 2012-04-05 09:16:32Z laruence $ */
+/* $Id: simple.c 325383 2012-04-21 02:01:49Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -89,6 +89,11 @@ ZEND_END_ARG_INFO();
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_assign_by_ref_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(1, value)
+ZEND_END_ARG_INFO();
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_eval_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0, tpl_str)
+	ZEND_ARG_INFO(0, vars)
 ZEND_END_ARG_INFO();
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
@@ -253,6 +258,12 @@ yaf_view_t * yaf_view_simple_instance(yaf_view_t *view, zval *tpl_dir, zval *opt
 
 	if (tpl_dir && Z_TYPE_P(tpl_dir) == IS_STRING && IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl_dir), Z_STRLEN_P(tpl_dir))) {
 		zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), tpl_dir TSRMLS_CC);
+	} else {
+		zend_update_property_stringl(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), "", 0 TSRMLS_CC);
+	}
+
+	if (options && IS_ARRAY == Z_TYPE_P(options)) {
+		zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), options TSRMLS_CC);
 	}
 
 	return instance;
@@ -265,7 +276,254 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	zval *tpl_vars;
 	char *script;
 	uint len;
+	HashTable *calling_symbol_table;
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	zend_class_entry *old_scope;
+	yaf_view_simple_buffer *buffer;
+	zend_bool short_open_tag = 0;
+#endif
 
+	ZVAL_NULL(ret);
+
+	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	if (EG(active_symbol_table)) {
+		calling_symbol_table = EG(active_symbol_table);
+	} else {
+		calling_symbol_table = NULL;
+	}
+
+	ALLOC_HASHTABLE(EG(active_symbol_table));
+	zend_hash_init(EG(active_symbol_table), 0, NULL, ZVAL_PTR_DTOR, 0);
+
+	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
+
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	YAF_REDIRECT_OUTPUT_BUFFER(buffer);
+	{
+		zval **short_tag;
+		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 1 TSRMLS_CC);
+		if (IS_ARRAY != Z_TYPE_P(options)
+				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
+				|| zend_is_true(*short_tag)) {
+			short_open_tag = CG(short_tags);
+			CG(short_tags) = 1;
+		}
+	}
+#else
+	if (php_output_start_user(NULL, 0, PHP_OUTPUT_HANDLER_STDFLAGS TSRMLS_CC) == FAILURE) {
+		php_error_docref("ref.outcontrol" TSRMLS_CC, E_WARNING, "failed to create buffer");
+		return 0;
+	}
+#endif
+
+	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
+		script 	= Z_STRVAL_P(tpl);
+		len 	= Z_STRLEN_P(tpl);
+		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+			YAF_RESTORE_OUTPUT_BUFFER(buffer);
+			CG(short_tags) = short_open_tag;
+#else
+			php_output_end(TSRMLS_C);
+#endif
+			if (calling_symbol_table) {
+				zend_hash_destroy(EG(active_symbol_table));
+				FREE_HASHTABLE(EG(active_symbol_table));
+				EG(active_symbol_table) = calling_symbol_table;
+			}
+
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
+			return 0;
+		}
+	} else {
+		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+
+		if (ZVAL_IS_NULL(tpl_dir)) {
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+			YAF_RESTORE_OUTPUT_BUFFER(buffer);
+			CG(short_tags) = short_open_tag;
+#else
+			php_output_end(TSRMLS_C);
+#endif
+
+			if (calling_symbol_table) {
+				zend_hash_destroy(EG(active_symbol_table));
+				FREE_HASHTABLE(EG(active_symbol_table));
+				EG(active_symbol_table) = calling_symbol_table;
+			}
+
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
+				   	"Could not determine the view script path, you should call %s::setScriptPath to specific it",
+					yaf_view_simple_ce->name);
+			return 0;
+		}
+
+		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+
+		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+			YAF_RESTORE_OUTPUT_BUFFER(buffer);
+			CG(short_tags) = short_open_tag;
+#else
+			php_output_end(TSRMLS_C);
+#endif
+			if (calling_symbol_table) {
+				zend_hash_destroy(EG(active_symbol_table));
+				FREE_HASHTABLE(EG(active_symbol_table));
+				EG(active_symbol_table) = calling_symbol_table;
+			}
+
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
+			efree(script);
+			return 0;
+		}
+		efree(script);
+	}
+
+	if (calling_symbol_table) {
+		zend_hash_destroy(EG(active_symbol_table));
+		FREE_HASHTABLE(EG(active_symbol_table));
+		EG(active_symbol_table) = calling_symbol_table;
+	}
+
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	CG(short_tags) = short_open_tag;
+	if (buffer->len) {
+		ZVAL_STRINGL(ret, buffer->buffer, buffer->len, 1);
+	}
+#else
+	if (php_output_get_contents(ret TSRMLS_CC) == FAILURE) {
+		php_output_end(TSRMLS_C);
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to fetch ob content");
+		return 0;
+	}
+
+	if (php_output_discard(TSRMLS_C) != SUCCESS ) {
+		return 0;
+	}
+#endif
+
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	YAF_RESTORE_OUTPUT_BUFFER(buffer);
+#endif
+	return 1;
+}
+/* }}} */
+
+/** {{{ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC)
+*/
+int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret TSRMLS_DC) {
+	zval *tpl_vars;
+	char *script;
+	uint len;
+	zend_class_entry *old_scope;
+	HashTable *calling_symbol_table;
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	zend_bool short_open_tag = 0;
+#endif
+
+	ZVAL_NULL(ret);
+
+	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	if (EG(active_symbol_table)) {
+		calling_symbol_table = EG(active_symbol_table);
+	} else {
+		calling_symbol_table = NULL;
+	}
+
+	ALLOC_HASHTABLE(EG(active_symbol_table));
+	zend_hash_init(EG(active_symbol_table), 0, NULL, ZVAL_PTR_DTOR, 0);
+
+	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
+
+	old_scope = EG(scope);
+	EG(scope) = yaf_view_simple_ce;
+
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	{
+		zval **short_tag;
+		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 1 TSRMLS_CC);
+		if (IS_ARRAY != Z_TYPE_P(options)
+				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
+				|| zend_is_true(*short_tag)) {
+			short_open_tag = CG(short_tags);
+			CG(short_tags) = 1;
+		}
+	}
+#endif
+
+	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
+		script 	= Z_STRVAL_P(tpl);
+		len 	= Z_STRLEN_P(tpl);
+		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+			CG(short_tags) = short_open_tag;
+#endif
+			EG(scope) = old_scope;
+			if (calling_symbol_table) {
+				zend_hash_destroy(EG(active_symbol_table));
+				FREE_HASHTABLE(EG(active_symbol_table));
+				EG(active_symbol_table) = calling_symbol_table;
+			}
+			return 0;
+		}
+	} else {
+		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+
+		if (ZVAL_IS_NULL(tpl_dir)) {
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
+					"Could not determine the view script path, you should call %s::setScriptPath to specific it", yaf_view_simple_ce->name);
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+			CG(short_tags) = short_open_tag;
+#endif
+			EG(scope) = old_scope;
+			if (calling_symbol_table) {
+				zend_hash_destroy(EG(active_symbol_table));
+				FREE_HASHTABLE(EG(active_symbol_table));
+				EG(active_symbol_table) = calling_symbol_table;
+			}
+			return 0;
+		}
+
+		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+			CG(short_tags) = short_open_tag;
+#endif
+			efree(script);
+			EG(scope) = old_scope;
+			if (calling_symbol_table) {
+				zend_hash_destroy(EG(active_symbol_table));
+				FREE_HASHTABLE(EG(active_symbol_table));
+				EG(active_symbol_table) = calling_symbol_table;
+			}
+			return 0;
+		}
+		efree(script);
+	}
+
+	EG(scope) = old_scope;
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	CG(short_tags) = short_open_tag;
+#endif
+	if (calling_symbol_table) {
+		zend_hash_destroy(EG(active_symbol_table));
+		FREE_HASHTABLE(EG(active_symbol_table));
+		EG(active_symbol_table) = calling_symbol_table;
+	}
+
+	return 1;
+}
+/* }}} */
+
+/** {{{ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC)
+*/
+int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC) {
+	zval *tpl_vars;
+	char *script;
+	uint len;
 	HashTable *calling_symbol_table;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_class_entry *old_scope;
@@ -295,65 +553,38 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	}
 #endif
 
-	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
-		script 	= Z_STRVAL_P(tpl);
-		len 	= Z_STRLEN_P(tpl);
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-			YAF_RESTORE_OUTPUT_BUFFER(buffer);
-#else
-			php_output_end(TSRMLS_C);
+	if (Z_STRLEN_P(tpl)) {
+		zend_op_array *new_op_array;
+		char *eval_desc = zend_make_compiled_string_description("template code" TSRMLS_CC);
+		new_op_array = zend_compile_string(tpl, eval_desc TSRMLS_CC);
+		efree(eval_desc);
+
+		if (new_op_array) {
+			zval *result;
+
+			YAF_STORE_EG_ENVIRON();
+
+			EG(return_value_ptr_ptr) 	= &result;
+			EG(active_op_array) 		= new_op_array;
+
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
+			if (!EG(active_symbol_table)) {
+				zend_rebuild_symbol_table(TSRMLS_C);
+			}
 #endif
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
+			zend_execute(new_op_array TSRMLS_CC);
+
+			destroy_op_array(new_op_array TSRMLS_CC);
+			efree(new_op_array);
+
+			if (!EG(exception)) {
+				if (EG(return_value_ptr_ptr)) {
+					zval_ptr_dtor(EG(return_value_ptr_ptr));
+				}
 			}
 
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
-			return 0;
+			YAF_RESTORE_EG_ENVIRON();
 		}
-	} else {
-		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
-
-		if (ZVAL_IS_NULL(tpl_dir)) {
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-			YAF_RESTORE_OUTPUT_BUFFER(buffer);
-#else
-			php_output_end(TSRMLS_C);
-#endif
-
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
-			}
-
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
-				   	"Could not determine the view script path, you should call %s::setScriptPath to specific it",
-					yaf_view_simple_ce->name);
-			return 0;
-		}
-
-		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
-
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-			YAF_RESTORE_OUTPUT_BUFFER(buffer);
-#else
-			php_output_end(TSRMLS_C);
-#endif
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
-			}
-
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
-			efree(script);
-			return 0;
-		}
-		efree(script);
 	}
 
 	if (calling_symbol_table) {
@@ -385,93 +616,12 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 }
 /* }}} */
 
-/** {{{ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC)
-*/
-int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret TSRMLS_DC) {
-	zval *tpl_vars;
-	char *script;
-	uint len;
-
-	zend_class_entry *old_scope;
-	HashTable *calling_symbol_table;
-
-	ZVAL_NULL(ret);
-
-	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
-	if (EG(active_symbol_table)) {
-		calling_symbol_table = EG(active_symbol_table);
-	} else {
-		calling_symbol_table = NULL;
-	}
-
-	ALLOC_HASHTABLE(EG(active_symbol_table));
-	zend_hash_init(EG(active_symbol_table), 0, NULL, ZVAL_PTR_DTOR, 0);
-
-	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
-
-	old_scope = EG(scope);
-	EG(scope) = yaf_view_simple_ce;
-
-	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
-		script 	= Z_STRVAL_P(tpl);
-		len 	= Z_STRLEN_P(tpl);
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
-			EG(scope) = old_scope;
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
-			}
-			return 0;
-		}
-	} else {
-		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
-
-		if (ZVAL_IS_NULL(tpl_dir)) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
-					"Could not determine the view script path, you should call %s::setScriptPath to specific it", yaf_view_simple_ce->name);
-			EG(scope) = old_scope;
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
-			}
-			return 0;
-		}
-
-		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
-			efree(script);
-			EG(scope) = old_scope;
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
-			}
-			return 0;
-		}
-		efree(script);
-	}
-
-	EG(scope) = old_scope;
-	if (calling_symbol_table) {
-		zend_hash_destroy(EG(active_symbol_table));
-		FREE_HASHTABLE(EG(active_symbol_table));
-		EG(active_symbol_table) = calling_symbol_table;
-	}
-
-	return 1;
-}
-/* }}} */
-
 /** {{{ proto public Yaf_View_Simple::__construct(string $tpl_dir, array $options = NULL)
 */
 PHP_METHOD(yaf_view_simple, __construct) {
 	zval *tpl_dir, *options = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &tpl_dir, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|a", &tpl_dir, &options) == FAILURE) {
 		return;
 	}
 
@@ -634,6 +784,22 @@ PHP_METHOD(yaf_view_simple, render) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_View_Simple::eval(string $tpl_content, array $vars = NULL)
+*/
+PHP_METHOD(yaf_view_simple, eval) {
+	zval *tpl, *vars = NULL, *tpl_vars;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &tpl, &vars) == FAILURE) {
+		return;
+	}
+
+	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	if (!yaf_view_simple_eval(getThis(), tpl, vars, return_value TSRMLS_CC)) {
+		RETURN_FALSE;
+	}
+}
+/* }}} */
+
 /** {{{ proto public Yaf_View_Simple::display(string $tpl, array $vars = NULL)
 */
 PHP_METHOD(yaf_view_simple, display) {
@@ -683,6 +849,7 @@ zend_function_entry yaf_view_simple_methods[] = {
 	PHP_ME(yaf_view_simple, get, yaf_view_simple_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, assign, yaf_view_assign_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, render, yaf_view_render_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, eval,  yaf_view_simple_eval_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, display, yaf_view_display_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, assignRef, yaf_view_simple_assign_by_ref_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, clear, yaf_view_simple_clear_arginfo, ZEND_ACC_PUBLIC)
@@ -704,6 +871,7 @@ YAF_STARTUP_FUNCTION(view_simple) {
 
 	zend_declare_property_null(yaf_view_simple_ce, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_view_simple_ce, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR),  ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_null(yaf_view_simple_ce, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS),  ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	yaf_view_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 	zend_class_implements(yaf_view_simple_ce TSRMLS_CC, 1, yaf_view_interface_ce);
