@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: static.c 325563 2012-05-07 08:21:57Z laruence $ */
+/* $Id: static.c 325604 2012-05-09 06:13:51Z laruence $ */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -31,7 +31,7 @@ static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int r
 
 	do {
 #define strip_slashs(p) while (*p == ' ' || *p == '/') { ++p; }
-		char *s, *p, *q;
+		char *s, *p;
 		char *uri;
 
 		if (req_uri_len == 0
@@ -41,10 +41,12 @@ static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int r
 
 		uri = req_uri;
 		s = p = uri;
-		q = req_uri + req_uri_len - 1;
 
-		while (*q == ' ' || *q == '/') {
-			*q-- = '\0';
+		if (req_uri_len) {
+			char *q = req_uri + req_uri_len - 1;
+			while (q > req_uri && (*q == ' ' || *q == '/')) {
+				*q-- = '\0';
+			}
 		}
 
 		strip_slashs(p);
@@ -139,6 +141,7 @@ static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int r
 int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC) {
 	zval *zuri, *base_uri;
 	char *req_uri;
+	int  req_uri_len;
 
 	zuri 	 = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1 TSRMLS_CC);
 	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1 TSRMLS_CC);
@@ -146,11 +149,13 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
 			&& strstr(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri)) == Z_STRVAL_P(zuri)) {
 		req_uri  = estrdup(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri));
+		req_uri_len = Z_STRLEN_P(zuri) - Z_STRLEN_P(base_uri);
 	} else {
 		req_uri  = estrdup(Z_STRVAL_P(zuri));
+		req_uri_len = Z_STRLEN_P(zuri);
 	}
 
-	yaf_route_pathinfo_route(request, req_uri, Z_STRLEN_P(zuri) TSRMLS_CC);
+	yaf_route_pathinfo_route(request, req_uri, req_uri_len TSRMLS_CC);
 	efree(req_uri);
 	return 1;
 }

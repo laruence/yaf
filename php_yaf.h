@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 325566 2012-05-07 08:35:35Z laruence $ */
+/* $Id: php_yaf.h 325762 2012-05-21 06:17:39Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -41,7 +41,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define YAF_VERSION 					"2.1.16-dev"
+#define YAF_VERSION 					"2.1.17-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(modle)		ZEND_RINIT_FUNCTION(yaf_##module)

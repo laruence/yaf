@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 325512 2012-05-03 08:22:37Z laruence $ */
+/* $Id: yaf_dispatcher.c 325759 2012-05-21 05:52:13Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -557,10 +557,10 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 		if (!ce) {
 			return 0;
 		} else {
+			zend_class_entry *view_ce = NULL;
 			zval  *action, *view_dir, *render, *ret = NULL;
 			char  *action_lower, *func_name;
 			uint  func_name_len;
-			zend_class_entry *view_ce;
 
 			yaf_controller_t *icontroller;
 
@@ -585,7 +585,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			if ((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce) {
 				view_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
 			} else {
-				zend_call_method_with_1_params(&view, view_ce, NULL, "getscriptpath", NULL, view_dir);
+				zend_call_method_with_0_params(&view, view_ce, NULL, "getscriptpath", &view_dir);
 			}
 
 			if (IS_STRING != Z_TYPE_P(view_dir) || !Z_STRLEN_P(view_dir)) {
@@ -601,10 +601,15 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				}
 
 				/** tell the view engine where to find templates */
-				if ((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce) {
+				if (view_ce == yaf_view_simple_ce) {
 					zend_update_property(view_ce, view,  ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), view_dir TSRMLS_CC);
 				} else {
-					zend_call_method_with_1_params(&view, view_ce, NULL, "setscriptpath", NULL, view_dir);
+					zend_call_method_with_1_params(&view, view_ce, NULL, "setscriptpath", &ret, view_dir);
+				}
+
+				if (ret) {
+					zval_ptr_dtor(&ret);
+					ret = NULL;
 				}
 
 			    zval_ptr_dtor(&view_dir);

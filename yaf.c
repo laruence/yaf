@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 325413 2012-04-23 09:19:44Z laruence $ */
+/* $Id: yaf.c 325605 2012-05-09 07:16:31Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -221,11 +221,6 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));
 	}
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-	if (YAF_G(buffer)) {
-		efree(YAF_G(buffer));
-	}
-#endif
 	YAF_G(default_route) = NULL;
 
 	return SUCCESS;

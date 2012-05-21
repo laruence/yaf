@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 325383 2012-04-21 02:01:49Z laruence $ */
+/* $Id: simple.c 325605 2012-05-09 07:16:31Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -22,55 +22,6 @@
 #define VIEW_BUFFER_SIZE_MASK 	4095
 
 zend_class_entry *yaf_view_simple_ce;
-
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-struct _yaf_view_simple_buffer {
-	char *buffer;
-	unsigned long size;
-	unsigned long len;
-	struct _yaf_view_simple_buffer *prev;
-};
-
-typedef struct _yaf_view_simple_buffer yaf_view_simple_buffer;
-
-typedef int(*yaf_body_write_func)(const char *str, uint str_length TSRMLS_DC);
-
-/** {{{ MACROS
- */
-#define YAF_REDIRECT_OUTPUT_BUFFER(seg) \
-	do { \
-		if (!YAF_G(owrite_handler)) { \
-			YAF_G(owrite_handler) = OG(php_body_write); \
-		} \
-		OG(php_body_write) = yaf_view_simple_render_write; \
-		old_scope = EG(scope); \
-		EG(scope) = yaf_view_simple_ce; \
-		seg = (yaf_view_simple_buffer *)emalloc(sizeof(yaf_view_simple_buffer)); \
-		memset(seg, 0, sizeof(yaf_view_simple_buffer)); \
-		seg->prev  	 = YAF_G(buffer);\
-		YAF_G(buffer) = seg; \
-		YAF_G(buf_nesting)++;\
-	} while (0)
-
-#define YAF_RESTORE_OUTPUT_BUFFER(seg) \
-	do { \
-		OG(php_body_write) 	= (yaf_body_write_func)YAF_G(owrite_handler); \
-		EG(scope) 			= old_scope; \
-		YAF_G(buffer)  		= seg->prev; \
-		if (!(--YAF_G(buf_nesting))) { \
-			if (YAF_G(buffer)) { \
-				php_error_docref(NULL TSRMLS_CC, E_ERROR, "Yaf output buffer collapsed"); \
-			} else { \
-				YAF_G(owrite_handler) = NULL; \
-			} \
-		} \
-		if (seg->size) { \
-			efree(seg->buffer); \
-		} \
-		efree(seg); \
-	} while (0)
-/* }}} */
-#endif
 
 /** {{{ ARG_INFO */
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_construct_arginfo, 0, 0, 1)
@@ -283,6 +234,10 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	zend_bool short_open_tag = 0;
 #endif
 
+	if (IS_STRING != Z_TYPE_P(tpl)) {
+		return 0;
+	}
+
 	ZVAL_NULL(ret);
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
@@ -319,6 +274,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
 		script 	= Z_STRVAL_P(tpl);
 		len 	= Z_STRLEN_P(tpl);
+
 		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			YAF_RESTORE_OUTPUT_BUFFER(buffer);
@@ -421,6 +377,10 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_bool short_open_tag = 0;
 #endif
+
+	if (IS_STRING != Z_TYPE_P(tpl)) {
+		return 0;
+	}
 
 	ZVAL_NULL(ret);
 
@@ -529,6 +489,10 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 	zend_class_entry *old_scope;
 	yaf_view_simple_buffer *buffer;
 #endif
+
+	if (IS_STRING != Z_TYPE_P(tpl)) {
+		return 0;
+	}
 
 	ZVAL_NULL(ret);
 
@@ -778,9 +742,35 @@ PHP_METHOD(yaf_view_simple, render) {
 	}
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
-	if (!yaf_view_simple_render(getThis(), tpl, vars, return_value TSRMLS_CC)) {
-		RETURN_FALSE;
-	}
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	zend_try {
+#endif
+		if (!yaf_view_simple_render(getThis(), tpl, vars, return_value TSRMLS_CC)) {
+			RETVAL_FALSE;
+		}
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	} zend_catch {
+		yaf_view_simple_buffer *buffer;
+
+		if (YAF_G(owrite_handler)) {
+			OG(php_body_write) 	= (yaf_body_write_func)YAF_G(owrite_handler);
+			YAF_G(owrite_handler) = NULL;
+		}
+
+		if (YAF_G(buffer)) {
+			buffer = YAF_G(buffer);
+			YAF_G(buffer) = buffer->prev;
+			if (buffer->len) {
+				PHPWRITE(buffer->buffer, buffer->len);
+				efree(buffer->buffer);
+			}
+			--(YAF_G(buf_nesting));
+			efree(buffer);
+		}
+		zend_bailout();
+	} zend_end_try();
+#endif
+
 }
 /* }}} */
 

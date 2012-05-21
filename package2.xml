@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-05-07</date>
- <time>16:26:23</time>
+ <date>2012-05-21</date>
+ <time>13:59:04</time>
  <version>
-  <release>2.1.15</release>
-  <api>2.1.15</api>
+  <release>2.1.16</release>
+  <api>2.1.16</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,7 +22,11 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed typo variable name in static route(affect 2.1.14)
+  - Fixed bug that if fatal error occurred in template, Yaf_View_Simple doesn't output the error message
+  - Fixed bug that segv in Yaf_View_Simple::render if the tpl directory parameter is not a string
+  - Fixed one invalid read in Yaf_Route_Static
+  - Fixed bug that segv occurred while using a custom view engine
+  - Fixed one memleak
  </notes>
  <contents> 
   <dir name="/"> 
@@ -129,6 +133,9 @@
     <file name="035.phpt" role="test" />
     <file name="036.phpt" role="test" />
     <file name="037.phpt" role="test" />
+    <file name="038.phpt" role="test" />
+    <file name="039.phpt" role="test" />
+    <file name="040.phpt" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
    </dir>
@@ -149,6 +156,26 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-05-21</date> 
+   <version> 
+    <release>2.1.16</release> 
+    <api>2.1.16</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug that if fatal error occurred in template, Yaf_View_Simple doesn't output the error message
+    - Fixed bug that segv in Yaf_View_Simple::render if the tpl directory parameter is not a string
+    - Fixed one invalid read in Yaf_Route_Static
+    - Fixed bug that segv occurred while using a custom view engine
+    - Fixed one memleak
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-05-07</date> 
    <version> 
     <release>2.1.15</release> 
@@ -163,7 +190,6 @@
     - Fixed typo variable name in static route(affect 2.1.14)
    </notes> 
   </release> 
-
   <release> 
    <date>2012-05-05</date> 
    <version> 
