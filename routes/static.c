@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: static.c 325604 2012-05-09 06:13:51Z laruence $ */
+/* $Id: static.c 326042 2012-06-08 10:49:59Z laruence $ */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -133,6 +133,7 @@ static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int r
 		efree(rest);
 	}
 
+	return 1;
 }
 /* }}} */
 

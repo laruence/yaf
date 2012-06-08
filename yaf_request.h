@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_request.h 326040 2012-06-08 10:35:44Z laruence $ */
 
 #ifndef YAF_REQUEST_H
 #define YAF_REQUEST_H
@@ -79,16 +79,16 @@ yaf_request_t * yaf_request_instance(yaf_request_t *this_ptr, char *info TSRMLS_
 int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *request_uri TSRMLS_DC);
 PHPAPI void php_session_start(TSRMLS_D);
 
-inline zval * yaf_request_get_method(yaf_request_t *instance TSRMLS_DC);
-inline zval * yaf_request_get_param(yaf_request_t *instance, char *key, int len TSRMLS_DC);
-inline zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC);
+zval * yaf_request_get_method(yaf_request_t *instance TSRMLS_DC);
+zval * yaf_request_get_param(yaf_request_t *instance, char *key, int len TSRMLS_DC);
+zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC);
 
-inline int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC);
-inline int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC);
-inline int yaf_request_set_dispatched(yaf_request_t *request, int flag TSRMLS_DC);
-inline int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC);
-inline int yaf_request_set_params_single(yaf_request_t *instance, char *key, int len, zval *value TSRMLS_DC);
-inline int yaf_request_set_params_multi(yaf_request_t *instance, zval *values TSRMLS_DC);
+int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC);
+int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC);
+int yaf_request_set_dispatched(yaf_request_t *request, int flag TSRMLS_DC);
+int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC);
+int yaf_request_set_params_single(yaf_request_t *instance, char *key, int len, zval *value TSRMLS_DC);
+int yaf_request_set_params_multi(yaf_request_t *instance, zval *values TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(request);
 

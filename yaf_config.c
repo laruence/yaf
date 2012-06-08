@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_config.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_config.c 325800 2012-05-25 03:25:11Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -55,7 +55,7 @@ static zval * yaf_config_ini_zval_losable(zval *zvalue TSRMLS_DC);
 */
 static int yaf_config_ini_modified(zval * file, long ctime TSRMLS_DC) {
 	zval  n_ctime;
-	php_stat(Z_STRVAL_P(file), Z_STRLEN_P(file) + 1, 7 /*YAF_FS_CTIME*/ , &n_ctime TSRMLS_CC);
+	php_stat(Z_STRVAL_P(file), Z_STRLEN_P(file), 7 /*YAF_FS_CTIME*/ , &n_ctime TSRMLS_CC);
 	if (Z_TYPE(n_ctime) != IS_BOOL && ctime != Z_LVAL(n_ctime)) {
 		return Z_LVAL(n_ctime);
 	}

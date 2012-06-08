@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 325413 2012-04-23 09:19:44Z laruence $ */
+/* $Id: interface.c 326042 2012-06-08 10:49:59Z laruence $ */
 
 #include "ext/standard/php_smart_str.h"
 
@@ -69,7 +69,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) 
 		}
 
 		instance = yaf_route_rewrite_instance(NULL, *match, *def, NULL TSRMLS_CC);
-	} else if (Z_STRLEN_PP(ppzval) == ("regex", sizeof("regex") - 1)
+	} else if (Z_STRLEN_PP(ppzval) == (sizeof("regex") - 1)
 			&& strncasecmp(Z_STRVAL_PP(ppzval), "regex", sizeof("regex") - 1) == 0) {
 		if (zend_hash_find(Z_ARRVAL_P(config), ZEND_STRS("match"), (void **)&match) == FAILURE || Z_TYPE_PP(match) != IS_STRING) {
 			return NULL;
