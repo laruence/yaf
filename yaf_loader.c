@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 325432 2012-04-24 09:06:40Z laruence $ */
+/* $Id: yaf_loader.c 326050 2012-06-09 08:58:50Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -163,9 +163,9 @@ int yaf_loader_register(yaf_loader_t *loader TSRMLS_DC) {
 }
 /* }}} */
 
-/** {{{ inline int yaf_loader_is_category(char *class, uint class_len, char *category, uint category_len TSRMLS_DC)
+/** {{{ static int yaf_loader_is_category(char *class, uint class_len, char *category, uint category_len TSRMLS_DC)
  */
-inline int yaf_loader_is_category(char *class, uint class_len, char *category, uint category_len TSRMLS_DC) {
+static int yaf_loader_is_category(char *class, uint class_len, char *category, uint category_len TSRMLS_DC) {
 	uint separator_len = strlen(YAF_G(name_separator));
 
 	if (YAF_G(name_suffix)) {
