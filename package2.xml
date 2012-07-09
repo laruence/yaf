@@ -10,23 +10,22 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-05-21</date>
+ <date>2012-06-23</date>
  <time>13:59:04</time>
  <version>
-  <release>2.1.16</release>
-  <api>2.1.16</api>
+  <release>2.1.17</release>
+  <api>2.1.17</api>
  </version>
  <stability>
-  <release>beta</release>
-  <api>beta</api>
+  <release>stable</release>
+  <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug that if fatal error occurred in template, Yaf_View_Simple doesn't output the error message
-  - Fixed bug that segv in Yaf_View_Simple::render if the tpl directory parameter is not a string
-  - Fixed one invalid read in Yaf_Route_Static
-  - Fixed bug that segv occurred while using a custom view engine
-  - Fixed one memleak
+  - Fixed bug config will not re-loaded even it was modified
+  - Fixed bug segfault occurred if uncaught exception in Yaf_Controller::init
+  - If action return false, dispatch loop will go on with no auto-renderring
+  - Remove inline declarations (-fgnu-c89 on MacOS)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -156,6 +155,25 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-06-23</date> 
+   <version> 
+    <release>2.1.17</release> 
+    <api>2.1.17</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug config will not re-loaded even it was modified
+    - Fixed bug segfault occurred if uncaught exception in Yaf_Controller::init
+    - If action return false, dispatch loop will go on with no auto-renderring
+    - Remove inline declarations (-fgnu-c89 on MacOS)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-05-21</date> 
    <version> 
     <release>2.1.16</release> 
@@ -174,7 +192,6 @@
     - Fixed one memleak
    </notes> 
   </release> 
-
   <release> 
    <date>2012-05-07</date> 
    <version> 
