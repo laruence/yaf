@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-06-23</date>
+ <date>2012-07-12</date>
  <time>13:59:04</time>
  <version>
-  <release>2.1.17</release>
-  <api>2.1.17</api>
+  <release>2.1.18</release>
+  <api>2.1.18</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,10 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug config will not re-loaded even it was modified
-  - Fixed bug segfault occurred if uncaught exception in Yaf_Controller::init
-  - If action return false, dispatch loop will go on with no auto-renderring
-  - Remove inline declarations (-fgnu-c89 on MacOS)
+  - Fixed bug that Yaf_View_Simple::eval doesn't accept short open tag
+  - Fixed bug that Yaf_View_Simple::eval doesn't allow tpl be wrapped by PHP opening tag
  </notes>
  <contents> 
   <dir name="/"> 
@@ -155,6 +153,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-07-12</date> 
+   <version> 
+    <release>2.1.18</release> 
+    <api>2.1.18</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug that Yaf_View_Simple::eval doesn't accept short open tag
+    - Fixed bug that Yaf_View_Simple::eval doesn't allow tpl be wrapped by PHP opening tag
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-06-23</date> 
    <version> 
     <release>2.1.17</release> 
@@ -172,7 +187,6 @@
     - Remove inline declarations (-fgnu-c89 on MacOS)
    </notes> 
   </release> 
-
   <release> 
    <date>2012-05-21</date> 
    <version> 

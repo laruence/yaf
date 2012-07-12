@@ -8,10 +8,13 @@ Check for Yaf_View_Simple::eval
 $view = new Yaf_View_Simple("/tmp");
 
 $tpl = <<<PHP
+<?php
 echo \$name, "\n";
 foreach(\$entry as \$list) {
    echo "1. ", \$list, "\n";
 }
+?>
+<?=\$name?>
 PHP;
 
 $view->assign("entry", array('a', 'b', 'c'));
@@ -23,3 +26,4 @@ template
 1. a
 1. b
 1. c
+template

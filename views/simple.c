@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 326042 2012-06-08 10:49:59Z laruence $ */
+/* $Id: simple.c 326612 2012-07-12 08:58:59Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -231,7 +231,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_class_entry *old_scope;
 	yaf_view_simple_buffer *buffer;
-	zend_bool short_open_tag = 0;
+	zend_bool short_open_tag;
 #endif
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
@@ -253,6 +253,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	short_open_tag = CG(short_tags);
 	YAF_REDIRECT_OUTPUT_BUFFER(buffer);
 	{
 		zval **short_tag;
@@ -260,7 +261,6 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 		if (IS_ARRAY != Z_TYPE_P(options)
 				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
 				|| zend_is_true(*short_tag)) {
-			short_open_tag = CG(short_tags);
 			CG(short_tags) = 1;
 		}
 	}
@@ -375,7 +375,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 	zend_class_entry *old_scope;
 	HashTable *calling_symbol_table;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-	zend_bool short_open_tag = 0;
+	zend_bool short_open_tag;
 #endif
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
@@ -400,13 +400,13 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 	EG(scope) = yaf_view_simple_ce;
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	short_open_tag = CG(short_tags);
 	{
 		zval **short_tag;
 		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 1 TSRMLS_CC);
 		if (IS_ARRAY != Z_TYPE_P(options)
 				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
 				|| zend_is_true(*short_tag)) {
-			short_open_tag = CG(short_tags);
 			CG(short_tags) = 1;
 		}
 	}
@@ -486,6 +486,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_class_entry *old_scope;
 	yaf_view_simple_buffer *buffer;
+	zend_bool short_open_tag;
 #endif
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
@@ -507,7 +508,17 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	short_open_tag = CG(short_tags);
 	YAF_REDIRECT_OUTPUT_BUFFER(buffer);
+	{
+		zval **short_tag;
+		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 1 TSRMLS_CC);
+		if (IS_ARRAY != Z_TYPE_P(options)
+				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
+				|| zend_is_true(*short_tag)) {
+			CG(short_tags) = 1;
+		}
+	}
 #else
 	if (php_output_start_user(NULL, 0, PHP_OUTPUT_HANDLER_STDFLAGS TSRMLS_CC) == FAILURE) {
 		php_error_docref("ref.outcontrol" TSRMLS_CC, E_WARNING, "failed to create buffer");
@@ -516,9 +527,20 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 #endif
 
 	if (Z_STRLEN_P(tpl)) {
+		zval phtml;
 		zend_op_array *new_op_array;
 		char *eval_desc = zend_make_compiled_string_description("template code" TSRMLS_CC);
-		new_op_array = zend_compile_string(tpl, eval_desc TSRMLS_CC);
+		
+		/* eval require code mustn't be wrapped in opening and closing PHP tags */
+		INIT_ZVAL(phtml);
+		Z_TYPE(phtml)   = IS_STRING;
+		Z_STRLEN(phtml) = Z_STRLEN_P(tpl) + 2;
+		Z_STRVAL(phtml) = emalloc(Z_STRLEN(phtml) + 1);
+		snprintf(Z_STRVAL(phtml), Z_STRLEN(phtml) + 1, "?>%s", Z_STRVAL_P(tpl));
+
+		new_op_array = zend_compile_string(&phtml, eval_desc TSRMLS_CC);
+
+		zval_dtor(&phtml);
 		efree(eval_desc);
 
 		if (new_op_array) {
@@ -556,6 +578,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 	}
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	CG(short_tags) = short_open_tag;
 	if (buffer->len) {
 		ZVAL_STRINGL(ret, buffer->buffer, buffer->len, 1);
 	}
