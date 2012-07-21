@@ -43,7 +43,7 @@ foreach ($classes as $class_name) {
      /* interface */
      $interfaces = $class->getInterfaceNames();
      if (count($interfaces)) {
-         echo " Implements", join(", ", $interfaces);
+         echo " implements ", join(", ", $interfaces);
      }
      echo " { \n";
 

@@ -17,7 +17,7 @@ final class Yaf_Application {
 	}
 	public function run() {
 	}
-	public function execute($entry, $optional = NULL) {
+	public function execute($entry, $_ = "...") {
 	}
 	public static function app() {
 	}
@@ -668,7 +668,7 @@ abstract class Yaf_Config_Abstract {
 	}
 }
 
-final class Yaf_Config_Ini extends Yaf_Config_Abstract ImplementsIterator, Traversable, ArrayAccess, Countable { 
+final class Yaf_Config_Ini extends Yaf_Config_Abstract implements Iterator, Traversable, ArrayAccess, Countable { 
 	/* constants */
 
 	/* properties */
@@ -714,7 +714,7 @@ final class Yaf_Config_Ini extends Yaf_Config_Abstract ImplementsIterator, Trave
 	}
 }
 
-final class Yaf_Config_Simple extends Yaf_Config_Abstract ImplementsIterator, Traversable, ArrayAccess, Countable { 
+final class Yaf_Config_Simple extends Yaf_Config_Abstract implements Iterator, Traversable, ArrayAccess, Countable { 
 	/* constants */
 
 	/* properties */
@@ -760,7 +760,7 @@ final class Yaf_Config_Simple extends Yaf_Config_Abstract ImplementsIterator, Tr
 	}
 }
 
-final class Yaf_View_Simple ImplementsYaf_View_Interface { 
+final class Yaf_View_Simple implements Yaf_View_Interface { 
 	/* constants */
 
 	/* properties */
@@ -821,7 +821,7 @@ final class Yaf_Router {
 	}
 }
 
-class Yaf_Route_Static ImplementsYaf_Router { 
+class Yaf_Route_Static implements Yaf_Router { 
 	/* constants */
 
 	/* properties */
@@ -845,7 +845,7 @@ class Yaf_Route_Static ImplementsYaf_Router {
 	}
 }
 
-final class Yaf_Route_Simple ImplementsYaf_Route_Interface { 
+final class Yaf_Route_Simple implements Yaf_Route_Interface { 
 	/* constants */
 
 	/* properties */
@@ -860,7 +860,7 @@ final class Yaf_Route_Simple ImplementsYaf_Route_Interface {
 	}
 }
 
-final class Yaf_Route_Supervar ImplementsYaf_Route_Interface { 
+final class Yaf_Route_Supervar implements Yaf_Route_Interface { 
 	/* constants */
 
 	/* properties */
@@ -873,7 +873,7 @@ final class Yaf_Route_Supervar ImplementsYaf_Route_Interface {
 	}
 }
 
-final class Yaf_Route_Rewrite extends Yaf_Route_Interface ImplementsYaf_Route_Interface { 
+final class Yaf_Route_Rewrite extends Yaf_Route_Interface implements Yaf_Route_Interface { 
 	/* constants */
 
 	/* properties */
@@ -888,7 +888,7 @@ final class Yaf_Route_Rewrite extends Yaf_Route_Interface ImplementsYaf_Route_In
 	}
 }
 
-final class Yaf_Route_Regex extends Yaf_Route_Interface ImplementsYaf_Route_Interface { 
+final class Yaf_Route_Regex extends Yaf_Route_Interface implements Yaf_Route_Interface { 
 	/* constants */
 
 	/* properties */
@@ -904,7 +904,7 @@ final class Yaf_Route_Regex extends Yaf_Route_Interface ImplementsYaf_Route_Inte
 	}
 }
 
-final class Yaf_Route_Map ImplementsYaf_Route_Interface { 
+final class Yaf_Route_Map implements Yaf_Route_Interface { 
 	/* constants */
 
 	/* properties */
@@ -962,7 +962,7 @@ final class Yaf_Registry {
 	}
 }
 
-final class Yaf_Session ImplementsIterator, Traversable, ArrayAccess, Countable { 
+final class Yaf_Session implements Iterator, Traversable, ArrayAccess, Countable { 
 	/* constants */
 
 	/* properties */
