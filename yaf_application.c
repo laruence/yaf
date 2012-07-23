@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 324897 2012-04-06 09:55:01Z laruence $ */
+/* $Id: yaf_application.c 326774 2012-07-23 07:38:21Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -268,6 +268,37 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 		}
 		YAF_G(modules) = zmodules;
 	} while (0);
+
+	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("system"), (void **)&ppzval) == SUCCESS && Z_TYPE_PP(ppzval) == IS_ARRAY) {
+		long idx;
+		uint len;
+		zval **value;
+		char *key, name[128];
+		HashTable *ht = Z_ARRVAL_PP(ppzval);
+
+		for(zend_hash_internal_pointer_reset(ht);
+				zend_hash_has_more_elements(ht) == SUCCESS;
+				zend_hash_move_forward(ht)) {
+			uint len;
+			long idx;
+			char *func;
+			if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) != HASH_KEY_IS_STRING) {
+				continue;
+			}
+
+			if (zend_hash_get_current_data(ht, (void **)&value) == FAILURE) {
+				continue;
+			}
+
+			len = snprintf(name, sizeof(name), "%s.%s", "yaf", key);
+			convert_to_string(*value);
+
+			if (zend_alter_ini_entry(name, len + 1, Z_STRVAL_PP(value), Z_STRLEN_PP(value),
+						PHP_INI_USER, PHP_INI_STAGE_RUNTIME) == FAILURE) {
+				/* do nothing */
+			}
+		}
+	}
 
 	return SUCCESS;
 }
