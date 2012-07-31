@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 326050 2012-06-09 08:58:50Z laruence $ */
+/* $Id: yaf_loader.c 326906 2012-07-31 15:22:47Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -417,6 +417,7 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 			YAF_RESTORE_EG_ENVIRON();
 		}
 	} else {
+		/* return failed only on the file can not be found */
 		return 0;
 	}
 
