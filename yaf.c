@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 325605 2012-05-09 07:16:31Z laruence $ */
+/* $Id: yaf.c 327064 2012-08-12 03:04:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -100,7 +100,9 @@ PHP_MINIT_FUNCTION(yaf)
 {
 	REGISTER_INI_ENTRIES();
 
+#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 5 
 	php_register_info_logo(YAF_LOGO_GUID, YAF_LOGO_MIME_TYPE, yaf_logo, sizeof(yaf_logo));
+#endif
 
 #ifdef YAF_HAVE_NAMESPACE
 	if(YAF_G(use_namespace)) {
@@ -232,11 +234,12 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 PHP_MINFO_FUNCTION(yaf)
 {
 	php_info_print_table_start();
-	if (PG(expose_php)) {
+	if (PG(expose_php) && !sapi_module.phpinfo_as_text) {
 		php_info_print_table_header(2, "yaf support", YAF_LOGO_IMG"enabled");
 	} else {
 		php_info_print_table_header(2, "yaf support", "enabled");
 	}
+
 
 	php_info_print_table_row(2, "Version", YAF_VERSION);
 	php_info_print_table_row(2, "Supports", YAF_SUPPORT_URL);

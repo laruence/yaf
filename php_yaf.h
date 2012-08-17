@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 326615 2012-07-12 09:10:29Z laruence $ */
+/* $Id: php_yaf.h 327064 2012-08-12 03:04:55Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -73,7 +73,6 @@ extern zend_module_entry yaf_module_entry;
 #define yaf_session_t		zval
 #define yaf_exception_t		zval
 
-extern PHPAPI int  php_register_info_logo(char *logo_string, const char *mimetype, const unsigned char *data, int size);
 extern PHPAPI void php_var_dump(zval **struc, int level TSRMLS_DC);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level TSRMLS_DC);
 
