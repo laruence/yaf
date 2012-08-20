@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 326612 2012-07-12 08:58:59Z laruence $ */
+/* $Id: simple.c 327177 2012-08-19 15:32:34Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -544,11 +544,9 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 		efree(eval_desc);
 
 		if (new_op_array) {
-			zval *result;
-
 			YAF_STORE_EG_ENVIRON();
 
-			EG(return_value_ptr_ptr) 	= &result;
+			EG(return_value_ptr_ptr) 	= NULL;
 			EG(active_op_array) 		= new_op_array;
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
