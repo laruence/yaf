@@ -45,6 +45,9 @@
 #include "yaf_registry.h"
 #include "yaf_session.h"
 
+//add by syber.
+#include "yaf_url.h"
+
 ZEND_DECLARE_MODULE_GLOBALS(yaf);
 
 /* {{{ yaf_functions[]
@@ -154,6 +157,9 @@ PHP_MINIT_FUNCTION(yaf)
 	YAF_STARTUP(registry);
 	YAF_STARTUP(session);
 	YAF_STARTUP(exception);
+	
+	//add by syber.
+	YAF_STARTUP(url);
 
 	return SUCCESS;
 }
