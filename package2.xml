@@ -146,7 +146,6 @@
   <required> 
    <php> 
     <min>5.2.0</min> 
-    <max>5.4.5</max>
    </php> 
    <pearinstaller> 
     <min>1.4.0</min> 
