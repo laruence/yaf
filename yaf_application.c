@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 326774 2012-07-23 07:38:21Z laruence $ */
+/* $Id: yaf_application.c 327270 2012-08-25 15:13:04Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -363,13 +363,13 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zdispatcher = yaf_dispatcher_instance(NULL TSRMLS_CC);
-	yaf_dispatcher_set_request(zdispatcher, request TSRMLS_CC);
 	if (NULL == zdispatcher
 			|| Z_TYPE_P(zdispatcher) != IS_OBJECT
 			|| !instanceof_function(Z_OBJCE_P(zdispatcher), yaf_dispatcher_ce TSRMLS_CC)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Instantiation of application dispatcher failed");
 		RETURN_FALSE;
 	}
+	yaf_dispatcher_set_request(zdispatcher, request TSRMLS_CC);
 
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), zconfig TSRMLS_CC);
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), zdispatcher TSRMLS_CC);

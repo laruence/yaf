@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 326042 2012-06-08 10:49:59Z laruence $ */
+/* $Id: yaf_dispatcher.c 327270 2012-08-25 15:13:04Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -119,7 +119,6 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC)
 
 	if (IS_OBJECT == Z_TYPE_P(instance)
 			&& instanceof_function(Z_OBJCE_P(instance), yaf_dispatcher_ce TSRMLS_CC)) {
-		Z_ADDREF_P(instance);
 		return instance;
 	}
 
