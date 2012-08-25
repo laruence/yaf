@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327177 2012-08-19 15:32:34Z laruence $ */
+/* $Id: yaf_loader.c 327269 2012-08-25 15:09:00Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -333,9 +333,10 @@ int yaf_loader_compose(char *path, int len, int use_path TSRMLS_DC) {
 		}
 
 		if (new_op_array) {
+			zval *result = NULL;
 			YAF_STORE_EG_ENVIRON();
 
-			EG(return_value_ptr_ptr) 	= NULL;
+			EG(return_value_ptr_ptr) 	= &result;
 			EG(active_op_array) 		= new_op_array;
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
@@ -349,7 +350,7 @@ int yaf_loader_compose(char *path, int len, int use_path TSRMLS_DC) {
 			efree(new_op_array);
 
 			if (!EG(exception)) {
-				if (EG(return_value_ptr_ptr)) {
+				if (EG(return_value_ptr_ptr) && *EG(return_value_ptr_ptr)) {
 					zval_ptr_dtor(EG(return_value_ptr_ptr));
 				}
 			}
@@ -391,9 +392,11 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 		}
 
 		if (new_op_array) {
+			zval *result = NULL;
+
 			YAF_STORE_EG_ENVIRON();
 
-			EG(return_value_ptr_ptr) = NULL;
+			EG(return_value_ptr_ptr) = &result;
 			EG(active_op_array) 	 = new_op_array;
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
@@ -406,7 +409,7 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 			destroy_op_array(new_op_array TSRMLS_CC);
 			efree(new_op_array);
 			if (!EG(exception)) {
-				if (EG(return_value_ptr_ptr)) {
+				if (EG(return_value_ptr_ptr) && *EG(return_value_ptr_ptr)) {
 					zval_ptr_dtor(EG(return_value_ptr_ptr));
 				}
 			}
