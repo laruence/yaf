@@ -74,7 +74,7 @@ RewriteRule .* index.php
 
 #### Nginx
 
-````conf
+````
 server {
   listen ****;
   server_name  domain.com;
@@ -89,7 +89,7 @@ server {
 
 #### Lighttpd
 
-````conf
+````
 $HTTP["host"] =~ "(www.)?domain.com$" {
   url.rewrite = (
      "^/(.+)/?$"  => "/index.php/$1",
