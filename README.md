@@ -1,9 +1,11 @@
-# Yaf - PHP framework written in c and built as a PHP extension.
+# Yaf - Yet Another Framework  
+
+PHP framework written in c and built as a PHP extension.
 
 [![Build Status](https://secure.travis-ci.org/laruence/php-yaf.png)](http://travis-ci.org/laruence/php-yaf)
 
 ## Requirement
- - PHP 5.2 +
+- PHP 5.2 +
 
 ## Install
 
