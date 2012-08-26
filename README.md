@@ -1,7 +1,17 @@
 # Yaf - PHP framework written in c and built as a PHP extension.
 
+Build Status: [![Build Status](https://secure.travis-ci.org/laruence/php-yaf.png)](http://travis-ci.org/laruence/php-yaf)
+
+## Requirement
+ - PHP 5.2 +
+
 ## Install
 
+### Install Yaf 
+Yaf is an PECL extension, thus you can simply install it by:
+````
+pecl install yaf
+````
 ### Compile Yaf in Linux
 ````
 $/path/to/phpize
