@@ -1,7 +1,10 @@
 --TEST--
 Check for segfault while use closure as error handler
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php
+if (!extension_loaded("yaf")) print "skip";
+if (!version_compare(PHP_VERSION, "5.3", "ge")) print "skip only for 5.3+";
+?>
 --FILE--
 <?php 
 $config = array(
