@@ -45,6 +45,7 @@
 		if (YAF_G(catch_exception)) { \
 			yaf_dispatcher_exception_handler(dispatcher, request, response TSRMLS_CC); \
 		} \
+		zval_ptr_dtor(&response); \
 		return NULL; \
 	}
 
