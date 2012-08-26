@@ -9,8 +9,7 @@ notifications:
   email: false
 
 env:
-  - REPORT_EXIT_STATUS=1
-  - NO_INTERACTION=1
+  - REPORT_EXIT_STATUS=1 NO_INTERACTION=1
 
 #Compile
 before_script:
