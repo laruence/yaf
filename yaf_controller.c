@@ -367,8 +367,8 @@ PHP_METHOD(yaf_controller, getViewpath) {
 /** {{{ proto public Yaf_Controller_Abstract::forward($module, $controller, $action, $args = NULL)
 */
 PHP_METHOD(yaf_controller, forward) {
-	zval *controller, *module, *action, *args, *parameters;
 	yaf_request_t *request;
+	zval *controller, *module, *action, *args, *parameters;
 	zend_class_entry *request_ce;
 
 	yaf_controller_t *self = getThis();
@@ -388,14 +388,14 @@ PHP_METHOD(yaf_controller, forward) {
 	if (ZVAL_IS_NULL(parameters)) {
 		MAKE_STD_ZVAL(parameters);
 		array_init(parameters);
+		zend_update_property(yaf_controller_ce, self, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ARGS), parameters TSRMLS_CC);
+		zval_ptr_dtor(&parameters);
 	}
 
 	switch (ZEND_NUM_ARGS()) {
 		case 1:
 			if (Z_TYPE_P(module) != IS_STRING) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string action name");
-				zval_dtor(parameters);
-				efree(parameters);
 				RETURN_FALSE;
 			}
 			zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), module TSRMLS_CC);
@@ -409,8 +409,6 @@ PHP_METHOD(yaf_controller, forward) {
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), module TSRMLS_CC);
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), parameters TSRMLS_CC);
 			} else {
-				zval_dtor(parameters);
-				efree(parameters);
 				RETURN_FALSE;
 			}
 			break;
@@ -425,16 +423,12 @@ PHP_METHOD(yaf_controller, forward) {
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), controller TSRMLS_CC);
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), parameters TSRMLS_CC);
 			} else {
-				zval_dtor(parameters);
-				efree(parameters);
 				RETURN_FALSE;
 			}
 			break;
 		case 4:
 			if (Z_TYPE_P(args) != IS_ARRAY) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Parameters must be an array");
-				zval_dtor(parameters);
-				efree(parameters);
 				RETURN_FALSE;
 			}
 			zend_hash_copy(Z_ARRVAL_P(parameters), Z_ARRVAL_P(args), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
