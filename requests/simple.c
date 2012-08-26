@@ -171,7 +171,7 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 	zval * header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("X-Requested-With") TSRMLS_CC);
 	if (Z_TYPE_P(header) == IS_STRING
 			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
-		zval_ptr_dtor(header);
+		zval_ptr_dtor(&header);
 		RETURN_TRUE;
 	}
 	zval_ptr_dtor(header);
