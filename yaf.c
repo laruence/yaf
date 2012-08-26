@@ -217,8 +217,7 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		efree(YAF_G(bootstrap));
 	}
 	if (YAF_G(modules)) {
-		zval_dtor(YAF_G(modules));
-		efree(YAF_G(modules));
+		zval_ptr_dtor(&(YAF_G(modules)));
 	}
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));

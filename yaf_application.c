@@ -657,14 +657,12 @@ PHP_METHOD(yaf_application, bootstrap) {
 			zend_call_method(&bootstrap, *ce, NULL, func, len - 1, NULL, 1, dispatcher, NULL TSRMLS_CC);
 			/** an uncaught exception threw in function call */
 			if (EG(exception)) {
-				zval_dtor(bootstrap);
-				efree(bootstrap);
+				zval_ptr_dtor(&bootstrap);
 				RETURN_FALSE;
 			}
 		}
 
-		zval_dtor(bootstrap);
-		efree(bootstrap);
+		zval_ptr_dtor(&bootstrap);
 	}
 
 	RETVAL_ZVAL(self, 1, 0);
