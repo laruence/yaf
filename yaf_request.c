@@ -161,10 +161,12 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 						basename_len = Z_STRLEN_P(orig_name);
 						efree(file_name);
 						efree(orig);
+						zval_ptr_dtor(&orig_name);
 						break;
 					}
 					efree(orig);
 				}
+				zval_ptr_dtor(&orig_name);
 				efree(file_name);
 			}
 		} while (0);

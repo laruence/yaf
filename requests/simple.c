@@ -99,6 +99,7 @@ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *modul
 		} else {
 			zend_update_property_string(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), "" TSRMLS_CC);
 		}
+		zval_ptr_dtor(&argv);
 	}
 
 	if (!params || IS_ARRAY != Z_TYPE_P(params)) {
@@ -170,8 +171,10 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 	zval * header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("X-Requested-With") TSRMLS_CC);
 	if (Z_TYPE_P(header) == IS_STRING
 			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
+		zval_ptr_dtor(header);
 		RETURN_TRUE;
 	}
+	zval_ptr_dtor(header);
 	RETURN_FALSE;
 }
 /* }}} */
