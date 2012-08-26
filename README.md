@@ -23,6 +23,12 @@ $make && make install
 ### For windows 
 Yaf binary dlls could be found at http://code.google.com/p/yafphp/downloads/list
 
+## Document
+Yaf manual could be found at: http://www.php.net/manual/en/book.yaf.php
+
+## IRC
+efnet.org #php.yaf
+
 ## Tutorial
 
 ### layout
