@@ -123,8 +123,7 @@ static zval * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 		zend_call_method_with_1_params(&view, Z_OBJCE_P(view), NULL, "render", &ret, param);
 	}
 
-	zval_dtor(param);
-	efree(param);
+	zval_ptr_dtor(&param);
 
 	if (!ret || (Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret))) {
 		return NULL;
@@ -181,8 +180,7 @@ static int yaf_controller_display(zend_class_entry *ce, yaf_controller_t *instan
 		zend_call_method_with_1_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param);
 	}
 
-	zval_dtor(param);
-	efree(param);
+	zval_ptr_dtor(&param);
 
 	if (!ret) {
 		return 0;

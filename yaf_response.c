@@ -81,8 +81,7 @@ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_
 
 	zbody = zend_read_property(response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
 
-	zval_dtor(zbody);
-	efree(zbody);
+	zval_ptr_dtor(&zbody);
 
 	MAKE_STD_ZVAL(zbody);
 	ZVAL_STRINGL(zbody, body, body_len, 1);
