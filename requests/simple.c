@@ -174,7 +174,7 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 		zval_ptr_dtor(&header);
 		RETURN_TRUE;
 	}
-	zval_ptr_dtor(header);
+	zval_ptr_dtor(&header);
 	RETURN_FALSE;
 }
 /* }}} */
