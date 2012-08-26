@@ -543,8 +543,7 @@ yaf_config_t * yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, z
 							|| Z_TYPE_P(configs) != IS_ARRAY)
 #endif
 					{
-						zval_dtor(configs);
-						efree(configs);
+						zval_ptr_dtor(&configs);
 						yaf_trigger_error(E_ERROR TSRMLS_CC, "Parsing ini file '%s' failed", ini_file);
 						return NULL;
 					}
