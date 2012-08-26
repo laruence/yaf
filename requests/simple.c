@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: simple.c 327283 2012-08-26 07:58:18Z laruence $ */
 
 static zend_class_entry *yaf_request_simple_ce;
 
