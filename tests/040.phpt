@@ -10,5 +10,7 @@ $view = new Yaf_View_Simple(dirname(__FILE__));
 $view->render(NULL);
 $view->render(0);
 $view->render(true);
+echo "okey";
 ?>
 --EXPECT--
+okey
