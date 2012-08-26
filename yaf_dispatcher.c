@@ -670,8 +670,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 				if (!ret) {
 					Z_DELREF_P(action);
-					zval_dtor(icontroller);
-					efree(icontroller);
+					zval_ptr_dtor(&icontroller);
 					return 0;
 				}
 
@@ -680,8 +679,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 					/* no auto-render */
 					zval_ptr_dtor(&ret);
 					Z_DELREF_P(action);
-					zval_dtor(icontroller);
-					efree(icontroller);
+					zval_ptr_dtor(&icontroller);
 					return 1;
 				}
 			} else if ((ce = yaf_dispatcher_get_action(app_dir, icontroller,
@@ -718,10 +716,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 				if (!ret) {
 					Z_DELREF_P(action);
-					zval_dtor(iaction);
-					efree(iaction);
-					zval_dtor(icontroller);
-					efree(icontroller);
+					zval_ptr_dtor(&iaction);
+					zval_ptr_dtor(&icontroller);
 					return 0;
 				}
 
@@ -730,16 +726,12 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 					/* no auto-render */
 					zval_ptr_dtor(&ret);
 					Z_DELREF_P(action);
-					zval_dtor(iaction);
-					efree(iaction);
-					zval_dtor(icontroller);
-					efree(icontroller);
+					zval_ptr_dtor(&iaction);
+					zval_ptr_dtor(&icontroller);
 					return 1;
 				}
 			} else {
-				Z_DELREF_P(action);
-				zval_dtor(icontroller);
-				efree(icontroller);
+				zval_ptr_dtor(&icontroller);
 				return 0;
 			}
 
@@ -784,6 +776,9 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 							return 0;
 						}
 					}
+				} else {
+					zval_ptr_dtor(&executor);
+					Z_DELREF_P(action);
 				}
 			}
 			Z_DELREF_P(action);
@@ -881,10 +876,9 @@ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request TS
 */
 yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC) {
 	zval *return_response, *plugins, *view;
+	yaf_response_t *response;
+	yaf_request_t *request;
 	uint nesting = YAF_G(forward_limit);
-
-	yaf_response_t  	*response;
-	yaf_request_t		*request;
 
 	response = yaf_response_instance(NULL, sapi_module.name TSRMLS_CC);
 	request	 = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 1 TSRMLS_CC);
@@ -1147,7 +1141,7 @@ PHP_METHOD(yaf_dispatcher, dispatch) {
 	self = getThis();
 	zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request TSRMLS_CC);
 	if ((response = yaf_dispatcher_dispatch(self TSRMLS_CC))) {
-		RETURN_ZVAL(response, 1, 1);
+		RETURN_ZVAL(response, 0, 0);
 	}
 
 	RETURN_FALSE;
