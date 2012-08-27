@@ -153,8 +153,7 @@ The view script for default controller and default action is in the application/
 ```
 
 ## Run the Applicatioin
-
-http://www.yourhostname.com/application/index.php
+  http://www.yourhostname.com/
 
 ## Alternative
 you can generate the example above by using Yaf Code Generator:  https://github.com/laruence/php-yaf/tree/master/tools/cg
