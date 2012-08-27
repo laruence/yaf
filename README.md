@@ -73,7 +73,7 @@ $app->bootstrap() //call bootstrap methods defined in Bootstrap.php
 #### Apache
 
 ````conf
-#.htaccess, 当然也可以写在httpd.conf
+#.htaccess
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule .* index.php
@@ -105,29 +105,42 @@ $HTTP["host"] =~ "(www.)?domain.com$" {
 ````
 
 ### application.ini
-
 application.ini is the application config file
-
 ````ini
-[product]
+[application]
 ;CONSTANTS is supported
 application.directory=APP_PATH "/application/" 
+[product : yaf]
+;product section inherit from application section
 ````
+alternatively, you can use a PHP array instead: 
+````php
+<?php
+$config = array(
+   "application" => array(
+       "directory" => APP_PATH . "/application/",
+    ),
+);
 
+$app  = new Yaf_Application($config);
+....
+  
+````
 ### default controller
-In Yaf, the default controller is named IndexController?:
+In Yaf, the default controller is named IndexController:
 
 ````php
 <?php
 class IndexController extends Yaf_Controller_Abstract {
    public function indexAction() {   // default action name
+        $this->getView()->content = "Hello World";
    }
 }
 ?>
 ````
 
 ###view script
-The view script for default controller and default action is in the application/views/index/index.phtml, Yaf provides a simple view engineer called Yaf_View_Simple?, which supported the view template written by PHP.
+The view script for default controller and default action is in the application/views/index/index.phtml, Yaf provides a simple view engineer called Yaf_View_Simple, which supported the view template written by PHP.
 
 ````html
 <html>
@@ -135,9 +148,9 @@ The view script for default controller and default action is in the application/
    <title>Hello World</title>
  </head>
  <body>
-    Hellow World!
+   <?php echo $content; ?>
  </body>
-</htlm>
+</html>
 ````
 
 ## Run the Applicatioin
@@ -146,3 +159,6 @@ http://www.yourhostname.com/application/index.php
 
 ## Alternative
 you can generate the example above by using Yaf Code Generator:  https://github.com/laruence/php-yaf/tree/master/tools/cg
+
+## More
+More info could be found at Yaf Manual: http://www.php.net/manual/en/book.yaf.php
