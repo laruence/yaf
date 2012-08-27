@@ -7,7 +7,6 @@ PHP framework written in c and built as a PHP extension.
 - PHP 5.2 +
 
 ## Install
-
 ### Install Yaf 
 Yaf is an PECL extension, thus you can simply install it by:
 ````
@@ -58,15 +57,15 @@ A classic Application directory layout:
 you should set DocumentRoot to application/public, thus only the public folder can be accessed by user
 
 ### index.php
-index.php in the public directory is the only way in of the application, you should rewrite all request to it(you can use .htaccess in Apache+php_mod) 
+index.php in the public directory is the only way in of the application, you should rewrite all request to it(you can use .htaccess in Apache+php mod) 
 
 ````php
 <?php
-define("APP_PATH",  dirname(__FILE__));
- 
-$app  = new Yaf_Application(APP_PATH . "/conf/application.ini");
+define("APPLICATION_PATH",  dirname(dirname(__FILE__)));
+
+$app  = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini");
 $app->bootstrap() //call bootstrap methods defined in Bootstrap.php
- ->run();
+    ->run();
 ````
 ### Rewrite rules
 
@@ -75,20 +74,20 @@ $app->bootstrap() //call bootstrap methods defined in Bootstrap.php
 ````conf
 #.htaccess
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule .* index.php
+RewriteCond %{REQUEST\_FILENAME} !-f
+RewriteRule .\* index.php
 ````
 
 #### Nginx
 
 ````
 server {
-  listen ****;
-  server_name  domain.com;
-  root   document_root;
+  listen \*\*\*\*;
+  server\_name  domain.com;
+  root   document\_root;
   index  index.php index.html index.htm;
  
-  if (!-e $request_filename) {
+  if (!-e $request\_filename) {
     rewrite ^/(.*)  /index.php/$1 last;
   }
 }
@@ -107,22 +106,20 @@ $HTTP["host"] =~ "(www.)?domain.com$" {
 ### application.ini
 application.ini is the application config file
 ````ini
-[application]
+[product]
 ;CONSTANTS is supported
-application.directory=APP_PATH "/application/" 
-[product : yaf]
-;product section inherit from application section
+application.directory = APP\_PATH "/application/" 
 ````
 alternatively, you can use a PHP array instead: 
 ````php
 <?php
 $config = array(
    "application" => array(
-       "directory" => APP_PATH . "/application/",
+       "directory" => APPLICATION_PATH . "/application/",
     ),
 );
 
-$app  = new Yaf_Application($config);
+$app  = new Yaf\_Application($config);
 ....
   
 ````
@@ -132,7 +129,8 @@ In Yaf, the default controller is named IndexController:
 ````php
 <?php
 class IndexController extends Yaf_Controller_Abstract {
-   public function indexAction() {   // default action name
+   // default action name
+   public function indexAction() {  
         $this->getView()->content = "Hello World";
    }
 }
@@ -140,7 +138,7 @@ class IndexController extends Yaf_Controller_Abstract {
 ````
 
 ###view script
-The view script for default controller and default action is in the application/views/index/index.phtml, Yaf provides a simple view engineer called Yaf_View_Simple, which supported the view template written by PHP.
+The view script for default controller and default action is in the application/views/index/index.phtml, Yaf provides a simple view engineer called Yaf\_View\_Simple, which supported the view template written by PHP.
 
 ````html
 <html>
