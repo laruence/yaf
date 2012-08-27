@@ -76,7 +76,7 @@ $app->bootstrap() //call bootstrap methods defined in Bootstrap.php
 #.htaccess
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule .\* index.php
+RewriteRule .* index.php
 ```
 
 #### Nginx
