@@ -44,7 +44,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_VERSION 					"2.2.0-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
-#define YAF_RINIT_FUNCTION(modle)		ZEND_RINIT_FUNCTION(yaf_##module)
+#define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_SHUTDOWN_FUNCTION(module)  	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
