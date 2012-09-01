@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327415 2012-09-01 13:58:02Z laruence $ */
+/* $Id: yaf_loader.c 327416 2012-09-01 14:18:04Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -190,6 +190,7 @@ static int yaf_loader_is_category(char *class, uint class_len, char *category, u
  */
 int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len TSRMLS_DC) {
 	char *pos, *ns, *prefix = NULL;
+	char orig_char, *backup = NULL;
 	uint prefix_len = 0;
 
 	if (!YAF_G(local_namespaces)) {
@@ -201,14 +202,24 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 	pos = strstr(class_name, "_");
     if (pos) {
 		prefix_len 	= pos - class_name;
-		prefix 		= estrndup(class_name, prefix_len);
+		prefix 		= class_name;
+		backup = class_name + prefix_len;
+		orig_char = '_';
+		*backup = '\0';
 	}
 #ifdef YAF_HAVE_NAMESPACE
 	else if ((pos = strstr(class_name, "\\"))) {
 		prefix_len 	= pos - class_name;
 		prefix 		= estrndup(class_name, prefix_len);
+		orig_char = '\\';
+		backup = class_name + prefix_len;
+		*backup = '\0';
 	}
 #endif
+	else {
+		prefix = class_name;
+		prefix_len = len;
+	}
 
 	if (!prefix) {
 		return 0;
@@ -216,17 +227,24 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 
 	while ((pos = strstr(ns, prefix))) {
 		if ((pos == ns) && (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
-			efree(prefix);
+			if (backup) {
+				*backup = orig_char;
+			}
 			return 1;
 		} else if (*(pos - 1) == DEFAULT_DIR_SEPARATOR 
 				&& (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
-			efree(prefix);
+			if (backup) {
+				*backup = orig_char;
+			}
 			return 1;
 		}
 		ns = pos + prefix_len;
 	}
 
-	efree(prefix);
+	if (backup) {
+		*backup = orig_char;
+	}
+
 	return 0;
 }
 /* }}} */
