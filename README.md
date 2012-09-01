@@ -19,7 +19,6 @@ $/path/to/phpize
 $./configure --with-php-config=/path/to/php-config/
 $make && make install
 ```
-
 ### For windows 
 Yaf binary dlls could be found at http://code.google.com/p/yafphp/downloads/list
 

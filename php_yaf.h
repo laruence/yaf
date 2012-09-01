@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327064 2012-08-12 03:04:55Z laruence $ */
+/* $Id: php_yaf.h 327414 2012-09-01 12:44:40Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -90,6 +90,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	char 		*default_action;
 	char 		*bootstrap;
 	char 		*name_separator;
+	long 		name_separator_len;
 	zend_bool 	lowcase_path;
 	zend_bool 	use_spl_autoload;
 	zend_bool 	throw_exception;
