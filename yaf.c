@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 327414 2012-09-01 12:44:40Z laruence $ */
+/* $Id: yaf.c 327415 2012-09-01 13:58:02Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -54,7 +54,7 @@ zend_function_entry yaf_functions[] = {
 };
 /* }}} */
 
-/* {{{ PHP_INI_MH(OnUpdateSeparator)
+/** {{{ PHP_INI_MH(OnUpdateSeparator)
  */
 PHP_INI_MH(OnUpdateSeparator) {
 	YAF_G(name_separator) = new_value; 
@@ -196,7 +196,7 @@ PHP_RINIT_FUNCTION(yaf)
 	YAF_G(directory)			= NULL;
 	YAF_G(bootstrap)			= NULL;
 	YAF_G(local_library)     	= NULL;
-	YAF_G(local_namespace)     	= NULL;
+	YAF_G(local_namespaces)    	= NULL;
 	YAF_G(modules)				= NULL;
 	YAF_G(base_uri)				= NULL;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
@@ -219,8 +219,8 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 	if (YAF_G(local_library)) {
 		efree(YAF_G(local_library));
 	}
-	if (YAF_G(local_namespace)) {
-		efree(YAF_G(local_namespace));
+	if (YAF_G(local_namespaces)) {
+		efree(YAF_G(local_namespaces));
 	}
 	if (YAF_G(bootstrap)) {
 		efree(YAF_G(bootstrap));

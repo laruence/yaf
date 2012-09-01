@@ -10,6 +10,9 @@ yaf.lowcase_path=0
 ini_set("ap.lowcase_path", FALSE);
 $loader = Yaf_Loader::getInstance(dirname(__FILE__), dirname(__FILE__) . "/global");
 $loader->registerLocalNamespace("Baidu");
+$loader->registerLocalNamespace("Sina");
+$loader->registerLocalNamespace(array("Wb", "Inf", NULL, array(), "123"));
+var_dump($loader->getLocalNamespace());
 var_dump($loader->isLocalName("Baidu_Name"));
 
 try {
@@ -25,6 +28,7 @@ try {
 
 ?>
 --EXPECTF--
+string(21) "Baidu:Sina:Wb:Inf:123"
 bool(true)
 
 Warning: Yaf_Loader::autoload(): Could not find script %s/Baidu/Name.php in %s

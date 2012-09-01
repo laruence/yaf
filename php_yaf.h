@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327414 2012-09-01 12:44:40Z laruence $ */
+/* $Id: php_yaf.h 327415 2012-09-01 13:58:02Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -82,7 +82,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	char 		*environ;
 	char 		*directory;
 	char 		*local_library;
-	char        *local_namespace;
+	char        *local_namespaces;
 	char 		*global_library;
 	char 		*view_ext;
 	char 		*default_module;

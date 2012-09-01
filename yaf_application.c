@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327285 2012-08-26 09:12:27Z laruence $ */
+/* $Id: yaf_application.c 327415 2012-09-01 13:58:02Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -167,7 +167,22 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 			}
 			if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("namespace"), (void **)&ppsval) == SUCCESS
 					&& Z_TYPE_PP(ppsval) == IS_STRING) {
-				YAF_G(local_namespace) = estrndup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+				uint i, len;
+				char *src = Z_STRVAL_PP(ppsval);
+				if (Z_STRLEN_PP(ppsval)) {
+				    char *target = emalloc(Z_STRLEN_PP(ppsval));
+					len = 0;
+					for(i=0; i<Z_STRLEN_PP(ppsval); i++) {
+						if (src[i] == ',') {
+							target[len++] = DEFAULT_DIR_SEPARATOR;
+						} else if (src[i] != ' ') {
+                            target[len++] = src[i];
+						}
+					}
+					target[len] = '\0';
+					yaf_loader_register_namespace_single(target, len TSRMLS_CC);
+					efree(target);
+				}
 			}
 		}
 	}
@@ -270,8 +285,6 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 	} while (0);
 
 	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("system"), (void **)&ppzval) == SUCCESS && Z_TYPE_PP(ppzval) == IS_ARRAY) {
-		long idx;
-		uint len;
 		zval **value;
 		char *key, name[128];
 		HashTable *ht = Z_ARRVAL_PP(ppzval);
@@ -281,7 +294,6 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 				zend_hash_move_forward(ht)) {
 			uint len;
 			long idx;
-			char *func;
 			if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) != HASH_KEY_IS_STRING) {
 				continue;
 			}
@@ -394,22 +406,6 @@ PHP_METHOD(yaf_application, __construct) {
 	if (!loader) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Initialization of application auto loader failed");
 		RETURN_FALSE;
-	}
-
-	if (YAF_G(local_namespace)) {
-		uint i, len;
-		char *tmp = YAF_G(local_namespace);
-		len  = strlen(tmp);
-		if (len) {
-			for(i=0; i<len; i++) {
-				if (tmp[i] == ',' || tmp[i] == ' ') {
-					tmp[i] = DEFAULT_DIR_SEPARATOR;
-				}
-			}
-			yaf_loader_register_namespace_single(loader, tmp, len TSRMLS_CC);
-		}
-		efree(YAF_G(local_namespace));
-		YAF_G(local_namespace) = NULL;
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0 TSRMLS_CC);

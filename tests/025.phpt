@@ -25,7 +25,6 @@ var_dump(Yaf_Loader::getInstance()->isLocalName("Bar_Name"));
 --EXPECTF--
 Yaf_Loader Object
 (
-    [_local_ns:protected] => :Foo::Bar:Dummy:
     [_library:protected] => /tmp
     [_global_library:protected] => /php/global/dir
 )
