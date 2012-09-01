@@ -552,7 +552,7 @@ int yaf_loader_register_namespace_single(char *prefix, uint len TSRMLS_DC) {
 /** {{{ int yaf_loader_register_namespace_multi(zval *prefixes TSRMLS_DC)
  */
 int yaf_loader_register_namespace_multi(zval *prefixes TSRMLS_DC) {
-	zval *namespaces, **ppzval;
+	zval **ppzval;
 	HashTable *ht;
 
 	ht = Z_ARRVAL_P(prefixes);
