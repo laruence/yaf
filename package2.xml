@@ -136,6 +136,10 @@
     <file name="041.phpt" role="test" />
     <file name="042.phpt" role="test" />
     <file name="043.phpt" role="test" />
+    <file name="044.phpt" role="test" />
+    <file name="045.phpt" role="test" />
+    <file name="046.phpt" role="test" />
+    <file name="047.phpt" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
