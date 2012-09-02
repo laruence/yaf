@@ -32,7 +32,7 @@ $app->execute("main");
 string(7) "product"
 int(2)
 
-Warning: Yaf_Application::execute(123): First argument is expected to be a valid callback in %s027.php on line %d
+Warning: Yaf_Application::execute(%sbe a valid callback%sin %s027.php on line %d
 
 Warning: Yaf_Loader::autoload(): Could not find script %s/controllers/NoExists.php in %s027.php on line %d
 
