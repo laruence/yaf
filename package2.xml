@@ -10,20 +10,24 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-07-12</date>
- <time>13:59:04</time>
+ <date>2012-09-02</date>
+ <time>12:03:17</time>
  <version>
-  <release>2.1.18</release>
-  <api>2.1.18</api>
+  <release>2.2.0</release>
+  <api>2.2.0</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug that Yaf_View_Simple::eval doesn't accept short open tag
-  - Fixed bug that Yaf_View_Simple::eval doesn't allow tpl be wrapped by PHP opening tag
+  - Implemented Yaf_Response::setBody with key(which will make the layout easier to implement)
+  - Performance improve in various place
+  - Compatible with php5.5, which droped PHP logo guid
+  - Fixed bug that Supervar should not respect the base_uri
+  - Implemented FR #62702 (Make baseuri case-insensitive)
+  - Implemented FR #62638 (Supports set yaf runtime configuration via application.ini)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -160,6 +164,27 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-09-02</date> 
+   <version> 
+    <release>2.2.0</release> 
+    <api>2.2.0</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Implemented Yaf_Response::setBody with key(which will make the layout easier to implement)
+    - Performance improve in various place
+    - Compatible with php5.5, which droped PHP logo guid
+    - Fixed bug that Supervar should not respect the base_uri
+    - Implemented FR #62702 (Make baseuri case-insensitive)
+    - Implemented FR #62638 (Supports set yaf runtime configuration via application.ini)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-07-12</date> 
    <version> 
     <release>2.1.18</release> 
@@ -175,7 +200,6 @@
     - Fixed bug that Yaf_View_Simple::eval doesn't allow tpl be wrapped by PHP opening tag
    </notes> 
   </release> 
-
   <release> 
    <date>2012-06-23</date> 
    <version> 

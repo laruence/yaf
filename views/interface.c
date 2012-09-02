@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: interface.c 327426 2012-09-02 04:01:00Z laruence $ */
 
 zend_class_entry *yaf_view_interface_ce;
 
