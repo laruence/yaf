@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_exception.h 325425 2012-04-23 11:39:24Z laruence $ */
+/* $Id: yaf_exception.h 327283 2012-08-26 07:58:18Z laruence $ */
 
 #ifndef YAF_EXCEPTION_H
 #define YAF_EXCEPTION_H
@@ -45,6 +45,7 @@
 		if (YAF_G(catch_exception)) { \
 			yaf_dispatcher_exception_handler(dispatcher, request, response TSRMLS_CC); \
 		} \
+		zval_ptr_dtor(&response); \
 		return NULL; \
 	}
 

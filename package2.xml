@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-05-21</date>
- <time>13:59:04</time>
+ <date>2012-09-02</date>
+ <time>12:03:17</time>
  <version>
-  <release>2.1.16</release>
-  <api>2.1.16</api>
+  <release>2.2.0</release>
+  <api>2.2.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,11 +22,12 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug that if fatal error occurred in template, Yaf_View_Simple doesn't output the error message
-  - Fixed bug that segv in Yaf_View_Simple::render if the tpl directory parameter is not a string
-  - Fixed one invalid read in Yaf_Route_Static
-  - Fixed bug that segv occurred while using a custom view engine
-  - Fixed one memleak
+  - Implemented Yaf_Response::setBody with key(which will make the layout easier to implement)
+  - Performance improve in various place
+  - Compatible with php5.5, which droped PHP logo guid
+  - Fixed bug that Supervar should not respect the base_uri
+  - Implemented FR #62702 (Make baseuri case-insensitive)
+  - Implemented FR #62638 (Supports set yaf runtime configuration via application.ini)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -136,8 +137,18 @@
     <file name="038.phpt" role="test" />
     <file name="039.phpt" role="test" />
     <file name="040.phpt" role="test" />
+    <file name="041.phpt" role="test" />
+    <file name="042.phpt" role="test" />
+    <file name="043.phpt" role="test" />
+    <file name="044.phpt" role="test" />
+    <file name="045.phpt" role="test" />
+    <file name="046.phpt" role="test" />
+    <file name="047.phpt" role="test" />
+    <file name="048.phpt" role="test" />
+    <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
+    <file name="system.ini" role="test" />
    </dir>
   </dir> 
  </contents> 
@@ -145,7 +156,6 @@
   <required> 
    <php> 
     <min>5.2.0</min> 
-    <max>5.4.0</max>
    </php> 
    <pearinstaller> 
     <min>1.4.0</min> 
@@ -155,6 +165,61 @@
  <providesextension>yaf</providesextension>
  <extsrcrelease />
  <changelog> 
+  <release> 
+   <date>2012-09-02</date> 
+   <version> 
+    <release>2.2.0</release> 
+    <api>2.2.0</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Implemented Yaf_Response::setBody with key(which will make the layout easier to implement)
+    - Performance improve in various place
+    - Compatible with php5.5, which droped PHP logo guid
+    - Fixed bug that Supervar should not respect the base_uri
+    - Implemented FR #62702 (Make baseuri case-insensitive)
+    - Implemented FR #62638 (Supports set yaf runtime configuration via application.ini)
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2012-07-12</date> 
+   <version> 
+    <release>2.1.18</release> 
+    <api>2.1.18</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug that Yaf_View_Simple::eval doesn't accept short open tag
+    - Fixed bug that Yaf_View_Simple::eval doesn't allow tpl be wrapped by PHP opening tag
+   </notes> 
+  </release> 
+  <release> 
+   <date>2012-06-23</date> 
+   <version> 
+    <release>2.1.17</release> 
+    <api>2.1.17</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug config will not re-loaded even it was modified
+    - Fixed bug segfault occurred if uncaught exception in Yaf_Controller::init
+    - If action return false, dispatch loop will go on with no auto-renderring
+    - Remove inline declarations (-fgnu-c89 on MacOS)
+   </notes> 
+  </release> 
   <release> 
    <date>2012-05-21</date> 
    <version> 
@@ -174,7 +239,6 @@
     - Fixed one memleak
    </notes> 
   </release> 
-
   <release> 
    <date>2012-05-07</date> 
    <version> 

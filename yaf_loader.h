@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.h 324659 2012-03-31 09:01:41Z laruence $ */
+/* $Id: yaf_loader.h 327415 2012-09-01 13:58:02Z laruence $ */
 
 #ifndef YAF_LOADER_H
 #define YAF_LOADER_H
@@ -90,7 +90,7 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory TSRML
 int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC);
 int yaf_loader_compose(char *path, int len, int use_path TSRMLS_DC);
 int yaf_register_autoloader(yaf_loader_t *loader TSRMLS_DC);
-int yaf_loader_register_namespace_single(yaf_loader_t *loader, char *prefix, uint len TSRMLS_DC);
+int yaf_loader_register_namespace_single(char *prefix, uint len TSRMLS_DC);
 yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, char *global_path TSRMLS_DC);
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode TSRMLS_DC);

@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 324897 2012-04-06 09:55:01Z laruence $ */
+/* $Id: yaf_application.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -167,7 +167,22 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 			}
 			if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("namespace"), (void **)&ppsval) == SUCCESS
 					&& Z_TYPE_PP(ppsval) == IS_STRING) {
-				YAF_G(local_namespace) = estrndup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+				uint i, len;
+				char *src = Z_STRVAL_PP(ppsval);
+				if (Z_STRLEN_PP(ppsval)) {
+				    char *target = emalloc(Z_STRLEN_PP(ppsval) + 1);
+					len = 0;
+					for(i=0; i<Z_STRLEN_PP(ppsval); i++) {
+						if (src[i] == ',') {
+							target[len++] = DEFAULT_DIR_SEPARATOR;
+						} else if (src[i] != ' ') {
+                            target[len++] = src[i];
+						}
+					}
+					target[len] = '\0';
+					yaf_loader_register_namespace_single(target, len TSRMLS_CC);
+					efree(target);
+				}
 			}
 		}
 	}
@@ -269,6 +284,34 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 		YAF_G(modules) = zmodules;
 	} while (0);
 
+	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("system"), (void **)&ppzval) == SUCCESS && Z_TYPE_PP(ppzval) == IS_ARRAY) {
+		zval **value;
+		char *key, name[128];
+		HashTable *ht = Z_ARRVAL_PP(ppzval);
+
+		for(zend_hash_internal_pointer_reset(ht);
+				zend_hash_has_more_elements(ht) == SUCCESS;
+				zend_hash_move_forward(ht)) {
+			uint len;
+			ulong idx;
+			if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) != HASH_KEY_IS_STRING) {
+				continue;
+			}
+
+			if (zend_hash_get_current_data(ht, (void **)&value) == FAILURE) {
+				continue;
+			}
+
+			len = snprintf(name, sizeof(name), "%s.%s", "yaf", key);
+			convert_to_string(*value);
+
+			if (zend_alter_ini_entry(name, len + 1, Z_STRVAL_PP(value), Z_STRLEN_PP(value),
+						PHP_INI_USER, PHP_INI_STAGE_RUNTIME) == FAILURE) {
+				/* do nothing */
+			}
+		}
+	}
+
 	return SUCCESS;
 }
 /* }}} */
@@ -332,13 +375,13 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zdispatcher = yaf_dispatcher_instance(NULL TSRMLS_CC);
-	yaf_dispatcher_set_request(zdispatcher, request TSRMLS_CC);
 	if (NULL == zdispatcher
 			|| Z_TYPE_P(zdispatcher) != IS_OBJECT
 			|| !instanceof_function(Z_OBJCE_P(zdispatcher), yaf_dispatcher_ce TSRMLS_CC)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Instantiation of application dispatcher failed");
 		RETURN_FALSE;
 	}
+	yaf_dispatcher_set_request(zdispatcher, request TSRMLS_CC);
 
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), zconfig TSRMLS_CC);
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), zdispatcher TSRMLS_CC);
@@ -363,22 +406,6 @@ PHP_METHOD(yaf_application, __construct) {
 	if (!loader) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Initialization of application auto loader failed");
 		RETURN_FALSE;
-	}
-
-	if (YAF_G(local_namespace)) {
-		uint i, len;
-		char *tmp = YAF_G(local_namespace);
-		len  = strlen(tmp);
-		if (len) {
-			for(i=0; i<len; i++) {
-				if (tmp[i] == ',' || tmp[i] == ' ') {
-					tmp[i] = DEFAULT_DIR_SEPARATOR;
-				}
-			}
-			yaf_loader_register_namespace_single(loader, tmp, len TSRMLS_CC);
-		}
-		efree(YAF_G(local_namespace));
-		YAF_G(local_namespace) = NULL;
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0 TSRMLS_CC);
@@ -614,9 +641,10 @@ PHP_METHOD(yaf_application, bootstrap) {
 		for(zend_hash_internal_pointer_reset(methods);
 				zend_hash_has_more_elements(methods) == SUCCESS;
 				zend_hash_move_forward(methods)) {
-			uint len;
-			long idx;
 			char *func;
+			uint len;
+			ulong idx;
+
 			zend_hash_get_current_key_ex(methods, &func, &len, &idx, 0, NULL);
 			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
 			if (strncasecmp(func, YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
@@ -626,14 +654,12 @@ PHP_METHOD(yaf_application, bootstrap) {
 			zend_call_method(&bootstrap, *ce, NULL, func, len - 1, NULL, 1, dispatcher, NULL TSRMLS_CC);
 			/** an uncaught exception threw in function call */
 			if (EG(exception)) {
-				zval_dtor(bootstrap);
-				efree(bootstrap);
+				zval_ptr_dtor(&bootstrap);
 				RETURN_FALSE;
 			}
 		}
 
-		zval_dtor(bootstrap);
-		efree(bootstrap);
+		zval_ptr_dtor(&bootstrap);
 	}
 
 	RETVAL_ZVAL(self, 1, 0);

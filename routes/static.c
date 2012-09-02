@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: static.c 325604 2012-05-09 06:13:51Z laruence $ */
+/* $Id: static.c 327068 2012-08-12 08:04:53Z laruence $ */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -133,6 +133,7 @@ static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int r
 		efree(rest);
 	}
 
+	return 1;
 }
 /* }}} */
 
@@ -147,7 +148,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1 TSRMLS_CC);
 
 	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
-			&& strstr(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri)) == Z_STRVAL_P(zuri)) {
+			&& !strncasecmp(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri), Z_STRLEN_P(base_uri))) {
 		req_uri  = estrdup(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri));
 		req_uri_len = Z_STRLEN_P(zuri) - Z_STRLEN_P(base_uri);
 	} else {
@@ -195,7 +196,7 @@ zend_function_entry yaf_route_static_methods[] = {
 YAF_STARTUP_FUNCTION(route_static) {
 	zend_class_entry ce;
 
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Static", "Yaf\\Route\\Static", yaf_route_static_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Static", "Yaf\\Route_Static", yaf_route_static_methods);
 	yaf_route_static_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	zend_class_implements(yaf_route_static_ce TSRMLS_CC, 1, yaf_router_ce);
 

@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 325277 2012-04-18 09:06:41Z laruence $*/
+/* $Id: yaf_request.c 327283 2012-08-26 07:58:18Z laruence $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -161,10 +161,12 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 						basename_len = Z_STRLEN_P(orig_name);
 						efree(file_name);
 						efree(orig);
+						zval_ptr_dtor(&orig_name);
 						break;
 					}
 					efree(orig);
 				}
+				zval_ptr_dtor(&orig_name);
 				efree(file_name);
 			}
 		} while (0);
@@ -305,17 +307,17 @@ zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC) {
 }
 /* }}} */
 
-/** {{{inline yaf_request_t * yaf_request_get_method(yaf_request_t *request TSRMLS_DC)
+/** {{{ yaf_request_t * yaf_request_get_method(yaf_request_t *request TSRMLS_DC)
 */
-inline yaf_request_t * yaf_request_get_method(yaf_request_t *request TSRMLS_DC) {
+yaf_request_t * yaf_request_get_method(yaf_request_t *request TSRMLS_DC) {
 	yaf_request_t *method = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 1 TSRMLS_CC);
 	return method;
 }
 /* }}} */
 
-/** {{{ inline yaf_request_t * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC)
+/** {{{ yaf_request_t * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC)
 */
-inline zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC) {
+zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC) {
 	zval *lang;
 
 	lang = zend_read_property(yaf_request_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_LANG), 1 TSRMLS_CC);
@@ -374,41 +376,41 @@ inline zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC) {
 }
 /* }}} */
 
-/** {{{ inline int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC)
+/** {{{  int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC)
 */
-inline int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC) {
+ int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC) {
 	yaf_request_t *routed = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ROUTED), 1 TSRMLS_CC);
 	return Z_LVAL_P(routed);
 }
 /* }}} */
 
-/** {{{ inline int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC)
+/** {{{  int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC)
 */
-inline int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC) {
+ int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC) {
 	zval *dispatched = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_STATE), 1 TSRMLS_CC);
 	return Z_LVAL_P(dispatched);
 }
 /* }}} */
 
-/** {{{ inline int yaf_request_set_dispatched(yaf_request_t *instance, int flag TSRMLS_DC)
+/** {{{  int yaf_request_set_dispatched(yaf_request_t *instance, int flag TSRMLS_DC)
 */
-inline int yaf_request_set_dispatched(yaf_request_t *instance, int flag TSRMLS_DC) {
+ int yaf_request_set_dispatched(yaf_request_t *instance, int flag TSRMLS_DC) {
 	zend_update_property_bool(yaf_request_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_STATE), flag TSRMLS_CC);
 	return 1;
 }
 /* }}} */
 
-/** {{{ inline int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC)
+/** {{{  int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC)
 */
-inline int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC) {
+ int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC) {
 	zend_update_property_bool(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ROUTED), flag TSRMLS_CC);
 	return 1;
 }
 /* }}} */
 
-/** {{{ inline int yaf_request_set_params_single(yaf_request_t *request, char *key, int len, zval *value TSRMLS_DC)
+/** {{{  int yaf_request_set_params_single(yaf_request_t *request, char *key, int len, zval *value TSRMLS_DC)
 */
-inline int yaf_request_set_params_single(yaf_request_t *request, char *key, int len, zval *value TSRMLS_DC) {
+ int yaf_request_set_params_single(yaf_request_t *request, char *key, int len, zval *value TSRMLS_DC) {
 	zval *params = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1 TSRMLS_CC);
 
 	if (zend_hash_update(Z_ARRVAL_P(params), key, len+1, &value, sizeof(zval *), NULL) == SUCCESS) {
@@ -420,9 +422,9 @@ inline int yaf_request_set_params_single(yaf_request_t *request, char *key, int 
 }
 /* }}} */
 
-/** {{{ inline int yaf_request_set_params_multi(yaf_request_t *request, zval *values TSRMLS_DC)
+/** {{{  int yaf_request_set_params_multi(yaf_request_t *request, zval *values TSRMLS_DC)
 */
-inline int yaf_request_set_params_multi(yaf_request_t *request, zval *values TSRMLS_DC) {
+ int yaf_request_set_params_multi(yaf_request_t *request, zval *values TSRMLS_DC) {
 	zval *params = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1 TSRMLS_CC);
 	if (values && Z_TYPE_P(values) == IS_ARRAY) {
 		zend_hash_copy(Z_ARRVAL_P(params), Z_ARRVAL_P(values), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
@@ -432,9 +434,9 @@ inline int yaf_request_set_params_multi(yaf_request_t *request, zval *values TSR
 }
 /* }}} */
 
-/** {{{ inline zval * yaf_request_get_param(yaf_request_t *request, char *key, int len TSRMLS_DC)
+/** {{{  zval * yaf_request_get_param(yaf_request_t *request, char *key, int len TSRMLS_DC)
 */
-inline zval * yaf_request_get_param(yaf_request_t *request, char *key, int len TSRMLS_DC) {
+ zval * yaf_request_get_param(yaf_request_t *request, char *key, int len TSRMLS_DC) {
 	zval **ppzval;
 	zval *params = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1 TSRMLS_CC);
 	if (zend_hash_find(Z_ARRVAL_P(params), key, len + 1, (void **) &ppzval) == SUCCESS) {

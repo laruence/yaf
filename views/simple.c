@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 325605 2012-05-09 07:16:31Z laruence $ */
+/* $Id: simple.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -127,7 +127,7 @@ static int yaf_view_simple_valid_var_name(char *var_name, int len) /* {{{ */
 static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC) {
 	zval **entry;
 	char *var_name;
-	long num_key;
+	ulong num_key;
 	uint var_name_len;
 	HashPosition pos;
 
@@ -231,7 +231,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_class_entry *old_scope;
 	yaf_view_simple_buffer *buffer;
-	zend_bool short_open_tag = 0;
+	zend_bool short_open_tag;
 #endif
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
@@ -253,14 +253,14 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	short_open_tag = CG(short_tags);
 	YAF_REDIRECT_OUTPUT_BUFFER(buffer);
 	{
 		zval **short_tag;
-		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 1 TSRMLS_CC);
+		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 0 TSRMLS_CC);
 		if (IS_ARRAY != Z_TYPE_P(options)
 				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
 				|| zend_is_true(*short_tag)) {
-			short_open_tag = CG(short_tags);
 			CG(short_tags) = 1;
 		}
 	}
@@ -292,7 +292,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 			return 0;
 		}
 	} else {
-		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0 TSRMLS_CC);
 
 		if (ZVAL_IS_NULL(tpl_dir)) {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
@@ -375,16 +375,14 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 	zend_class_entry *old_scope;
 	HashTable *calling_symbol_table;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-	zend_bool short_open_tag = 0;
+	zend_bool short_open_tag;
 #endif
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;
 	}
 
-	ZVAL_NULL(ret);
-
-	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
 	if (EG(active_symbol_table)) {
 		calling_symbol_table = EG(active_symbol_table);
 	} else {
@@ -400,13 +398,13 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 	EG(scope) = yaf_view_simple_ce;
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	short_open_tag = CG(short_tags);
 	{
 		zval **short_tag;
-		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 1 TSRMLS_CC);
+		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 0 TSRMLS_CC);
 		if (IS_ARRAY != Z_TYPE_P(options)
 				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
 				|| zend_is_true(*short_tag)) {
-			short_open_tag = CG(short_tags);
 			CG(short_tags) = 1;
 		}
 	}
@@ -429,7 +427,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 			return 0;
 		}
 	} else {
-		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0 TSRMLS_CC);
 
 		if (ZVAL_IS_NULL(tpl_dir)) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
@@ -482,12 +480,11 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 */
 int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC) {
 	zval *tpl_vars;
-	char *script;
-	uint len;
 	HashTable *calling_symbol_table;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_class_entry *old_scope;
 	yaf_view_simple_buffer *buffer;
+	zend_bool short_open_tag;
 #endif
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
@@ -496,7 +493,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 
 	ZVAL_NULL(ret);
 
-	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
 	if (EG(active_symbol_table)) {
 		calling_symbol_table = EG(active_symbol_table);
 	} else {
@@ -509,7 +506,17 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 	(void)yaf_view_simple_extract(tpl_vars, vars TSRMLS_CC);
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	short_open_tag = CG(short_tags);
 	YAF_REDIRECT_OUTPUT_BUFFER(buffer);
+	{
+		zval **short_tag;
+		zval *options = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), 0 TSRMLS_CC);
+		if (IS_ARRAY != Z_TYPE_P(options)
+				|| (zend_hash_find(Z_ARRVAL_P(options), ZEND_STRS("short_tag"), (void **)&short_tag) == FAILURE)
+				|| zend_is_true(*short_tag)) {
+			CG(short_tags) = 1;
+		}
+	}
 #else
 	if (php_output_start_user(NULL, 0, PHP_OUTPUT_HANDLER_STDFLAGS TSRMLS_CC) == FAILURE) {
 		php_error_docref("ref.outcontrol" TSRMLS_CC, E_WARNING, "failed to create buffer");
@@ -518,13 +525,24 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 #endif
 
 	if (Z_STRLEN_P(tpl)) {
+		zval phtml;
 		zend_op_array *new_op_array;
 		char *eval_desc = zend_make_compiled_string_description("template code" TSRMLS_CC);
-		new_op_array = zend_compile_string(tpl, eval_desc TSRMLS_CC);
+		
+		/* eval require code mustn't be wrapped in opening and closing PHP tags */
+		INIT_ZVAL(phtml);
+		Z_TYPE(phtml)   = IS_STRING;
+		Z_STRLEN(phtml) = Z_STRLEN_P(tpl) + 2;
+		Z_STRVAL(phtml) = emalloc(Z_STRLEN(phtml) + 1);
+		snprintf(Z_STRVAL(phtml), Z_STRLEN(phtml) + 1, "?>%s", Z_STRVAL_P(tpl));
+
+		new_op_array = zend_compile_string(&phtml, eval_desc TSRMLS_CC);
+
+		zval_dtor(&phtml);
 		efree(eval_desc);
 
 		if (new_op_array) {
-			zval *result;
+			zval *result = NULL;
 
 			YAF_STORE_EG_ENVIRON();
 
@@ -542,7 +560,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 			efree(new_op_array);
 
 			if (!EG(exception)) {
-				if (EG(return_value_ptr_ptr)) {
+				if (EG(return_value_ptr_ptr) && *EG(return_value_ptr_ptr)) {
 					zval_ptr_dtor(EG(return_value_ptr_ptr));
 				}
 			}
@@ -558,6 +576,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 	}
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	CG(short_tags) = short_open_tag;
 	if (buffer->len) {
 		ZVAL_STRINGL(ret, buffer->buffer, buffer->len, 1);
 	}
@@ -577,6 +596,44 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSR
 	YAF_RESTORE_OUTPUT_BUFFER(buffer);
 #endif
 	return 1;
+}
+/* }}} */
+
+/** {{{ int yaf_view_simple_assign_single(yaf_view_t *view, char *name, uint len, zval *value TSRMLS_DC)
+ */
+int yaf_view_simple_assign_single(yaf_view_t *view, char *name, uint len, zval *value TSRMLS_DC) {
+	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
+	Z_ADDREF_P(value);
+	if (zend_hash_update(Z_ARRVAL_P(tpl_vars), name, len + 1, &value, sizeof(zval *), NULL) == SUCCESS) {
+		return 1;
+	}
+	return 0;
+}
+/* }}} */
+
+/** {{{ int yaf_view_simple_assign_single(yaf_view_t *view, zval *name, zval *value TSRMLS_DC)
+ */
+int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value TSRMLS_DC) {
+	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
+	if (Z_TYPE_P(value) == IS_ARRAY) {
+		zend_hash_copy(Z_ARRVAL_P(tpl_vars), Z_ARRVAL_P(value), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
+		return 1;
+	}
+	return 0;
+}
+/* }}} */
+
+/** {{{ void yaf_view_simple_clear_assign(yaf_view_t *view, char *name, uint len TSRMLS_DC)
+ */
+void yaf_view_simple_clear_assign(yaf_view_t *view, char *name, uint len TSRMLS_DC) {
+	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
+	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
+		if (len) {
+			zend_symtable_del(Z_ARRVAL_P(tpl_vars), name, len + 1);
+		} else {
+			zend_hash_clean(Z_ARRVAL_P(tpl_vars));
+		}
+	} 
 }
 /* }}} */
 
@@ -654,18 +711,12 @@ PHP_METHOD(yaf_view_simple, compose) {
 */
 PHP_METHOD(yaf_view_simple, assign) {
 	uint argc = ZEND_NUM_ARGS();
-	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
 	if (argc == 1) {
 		zval *value;
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &value) == FAILURE) {
 			return;
 		}
-
-		if (Z_TYPE_P(value) == IS_ARRAY) {
-			zend_hash_copy(Z_ARRVAL_P(tpl_vars), Z_ARRVAL_P(value), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
-			RETURN_TRUE;
-		}
-		RETURN_FALSE;
+		RETURN_BOOL(yaf_view_simple_assign_multi(getThis(), value TSRMLS_CC));
 	} else if (argc == 2) {
 		zval *value;
 		char *name;
@@ -673,11 +724,7 @@ PHP_METHOD(yaf_view_simple, assign) {
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &len, &value) == FAILURE) {
 			return;
 		}
-
-		Z_ADDREF_P(value);
-		if (zend_hash_update(Z_ARRVAL_P(tpl_vars), name, len + 1, &value, sizeof(zval *), NULL) == SUCCESS) {
-			RETURN_TRUE;
-		}
+        RETURN_BOOL(yaf_view_simple_assign_single(getThis(), name, len, value TSRMLS_CC));
 	} else {
 		WRONG_PARAM_COUNT;
 	}
@@ -799,7 +846,7 @@ PHP_METHOD(yaf_view_simple, display) {
 		return;
 	}
 
-	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
 	if (!yaf_view_simple_display(getThis(), tpl, vars, return_value TSRMLS_CC)) {
 		RETURN_FALSE;
 	}
@@ -812,21 +859,14 @@ PHP_METHOD(yaf_view_simple, display) {
 */
 PHP_METHOD(yaf_view_simple, clear) {
 	char *name;
-	zval *tpl_vars;
 	uint len = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &len) == FAILURE) {
 		return;
 	}
+    
+	yaf_view_simple_clear_assign(getThis(), name, len TSRMLS_CC);
 
-	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
-	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
-		if (len) {
-			zend_symtable_del(Z_ARRVAL_P(tpl_vars), name, len + 1);
-		} else {
-			zend_hash_clean(Z_ARRVAL_P(tpl_vars));
-		}
-	} 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */

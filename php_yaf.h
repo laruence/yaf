@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 325762 2012-05-21 06:17:39Z laruence $ */
+/* $Id: php_yaf.h 327415 2012-09-01 13:58:02Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -41,10 +41,10 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define YAF_VERSION 					"2.1.17-dev"
+#define YAF_VERSION 					"2.2.0-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
-#define YAF_RINIT_FUNCTION(modle)		ZEND_RINIT_FUNCTION(yaf_##module)
+#define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_SHUTDOWN_FUNCTION(module)  	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
@@ -73,7 +73,6 @@ extern zend_module_entry yaf_module_entry;
 #define yaf_session_t		zval
 #define yaf_exception_t		zval
 
-extern PHPAPI int  php_register_info_logo(char *logo_string, const char *mimetype, const unsigned char *data, int size);
 extern PHPAPI void php_var_dump(zval **struc, int level TSRMLS_DC);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level TSRMLS_DC);
 
@@ -83,7 +82,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	char 		*environ;
 	char 		*directory;
 	char 		*local_library;
-	char        *local_namespace;
+	char        *local_namespaces;
 	char 		*global_library;
 	char 		*view_ext;
 	char 		*default_module;
@@ -91,6 +90,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	char 		*default_action;
 	char 		*bootstrap;
 	char 		*name_separator;
+	long 		name_separator_len;
 	zend_bool 	lowcase_path;
 	zend_bool 	use_spl_autoload;
 	zend_bool 	throw_exception;

@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 325605 2012-05-09 07:16:31Z laruence $ */
+/* $Id: yaf.c 327415 2012-09-01 13:58:02Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -54,6 +54,15 @@ zend_function_entry yaf_functions[] = {
 };
 /* }}} */
 
+/** {{{ PHP_INI_MH(OnUpdateSeparator)
+ */
+PHP_INI_MH(OnUpdateSeparator) {
+	YAF_G(name_separator) = new_value; 
+	YAF_G(name_separator_len) = new_value_length;
+	return SUCCESS;
+}
+/* }}} */
+
 /** {{{ PHP_INI
  */
 PHP_INI_BEGIN()
@@ -63,7 +72,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_BOOLEAN("yaf.use_spl_autoload", "0", PHP_INI_ALL, OnUpdateBool, use_spl_autoload, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_ENTRY("yaf.forward_limit", 		"5", PHP_INI_ALL, OnUpdateLongGEZero, forward_limit, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_BOOLEAN("yaf.name_suffix", 		"1", PHP_INI_ALL, OnUpdateBool, name_suffix, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_ENTRY("yaf.name_separator", 	"",  PHP_INI_ALL, OnUpdateString, name_separator, zend_yaf_globals, yaf_globals)
+	PHP_INI_ENTRY("yaf.name_separator", 		"",  PHP_INI_ALL, OnUpdateSeparator)
 	STD_PHP_INI_BOOLEAN("yaf.cache_config",    	"0", PHP_INI_SYSTEM, OnUpdateBool, cache_config, zend_yaf_globals, yaf_globals)
 /* {{{ This only effects internally */
 	STD_PHP_INI_BOOLEAN("yaf.st_compatible",     "0", PHP_INI_ALL, OnUpdateBool, st_compatible, zend_yaf_globals, yaf_globals)
@@ -100,7 +109,9 @@ PHP_MINIT_FUNCTION(yaf)
 {
 	REGISTER_INI_ENTRIES();
 
+#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 5 
 	php_register_info_logo(YAF_LOGO_GUID, YAF_LOGO_MIME_TYPE, yaf_logo, sizeof(yaf_logo));
+#endif
 
 #ifdef YAF_HAVE_NAMESPACE
 	if(YAF_G(use_namespace)) {
@@ -185,7 +196,7 @@ PHP_RINIT_FUNCTION(yaf)
 	YAF_G(directory)			= NULL;
 	YAF_G(bootstrap)			= NULL;
 	YAF_G(local_library)     	= NULL;
-	YAF_G(local_namespace)     	= NULL;
+	YAF_G(local_namespaces)    	= NULL;
 	YAF_G(modules)				= NULL;
 	YAF_G(base_uri)				= NULL;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
@@ -208,15 +219,14 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 	if (YAF_G(local_library)) {
 		efree(YAF_G(local_library));
 	}
-	if (YAF_G(local_namespace)) {
-		efree(YAF_G(local_namespace));
+	if (YAF_G(local_namespaces)) {
+		efree(YAF_G(local_namespaces));
 	}
 	if (YAF_G(bootstrap)) {
 		efree(YAF_G(bootstrap));
 	}
 	if (YAF_G(modules)) {
-		zval_dtor(YAF_G(modules));
-		efree(YAF_G(modules));
+		zval_ptr_dtor(&(YAF_G(modules)));
 	}
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));
@@ -232,11 +242,12 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 PHP_MINFO_FUNCTION(yaf)
 {
 	php_info_print_table_start();
-	if (PG(expose_php)) {
+	if (PG(expose_php) && !sapi_module.phpinfo_as_text) {
 		php_info_print_table_header(2, "yaf support", YAF_LOGO_IMG"enabled");
 	} else {
 		php_info_print_table_header(2, "yaf support", "enabled");
 	}
+
 
 	php_info_print_table_row(2, "Version", YAF_VERSION);
 	php_info_print_table_row(2, "Supports", YAF_SUPPORT_URL);
