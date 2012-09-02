@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: regex.c 326904 2012-07-31 15:00:05Z laruence $ */
+/* $Id: regex.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 zend_class_entry *yaf_route_regex_ce;
 
@@ -87,8 +87,8 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 		} else {
 			zval  *ret, **name, **ppzval;
 			char	*key = NULL;
-			int		len  = 0;
-			long	idx	 = 0;
+			uint	len  = 0;
+			ulong	idx	 = 0;
 			HashTable 	*ht;
 
 			MAKE_STD_ZVAL(ret);

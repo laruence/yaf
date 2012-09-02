@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327283 2012-08-26 07:58:18Z laruence $ */
+/* $Id: yaf_dispatcher.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -177,7 +177,7 @@ static void yaf_dispatcher_get_call_parmaters(zend_class_entry *request_ce, yaf_
 		} else {
 			char *key;
 			uint  keylen;
-			long idx, llen;
+			ulong idx, llen;
 
 			arg  = NULL;
 			llen = arg_info->name_len + 1;
@@ -939,7 +939,7 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC)
 
 	if (!Z_BVAL_P(return_response)) {
 		(void)yaf_response_send(response TSRMLS_CC);
-		yaf_response_clear_body(response TSRMLS_CC);
+		yaf_response_clear_body(response, NULL, 0 TSRMLS_CC);
 	}
 
 	return response;

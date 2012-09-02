@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_session.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_session.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -290,7 +290,7 @@ PHP_METHOD(yaf_session, current) {
 PHP_METHOD(yaf_session, key) {
 	zval *sess;
 	char *key;
-	long index;
+	ulong index;
 
 	sess = zend_read_property(yaf_session_ce, getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1 TSRMLS_CC);
 	if (zend_hash_get_current_key(Z_ARRVAL_P(sess), &key, &index, 0) == HASH_KEY_IS_LONG) {

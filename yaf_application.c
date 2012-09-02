@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327416 2012-09-01 14:18:04Z laruence $ */
+/* $Id: yaf_application.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -293,7 +293,7 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 				zend_hash_has_more_elements(ht) == SUCCESS;
 				zend_hash_move_forward(ht)) {
 			uint len;
-			long idx;
+			ulong idx;
 			if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) != HASH_KEY_IS_STRING) {
 				continue;
 			}
@@ -641,9 +641,10 @@ PHP_METHOD(yaf_application, bootstrap) {
 		for(zend_hash_internal_pointer_reset(methods);
 				zend_hash_has_more_elements(methods) == SUCCESS;
 				zend_hash_move_forward(methods)) {
-			uint len;
-			long idx;
 			char *func;
+			uint len;
+			ulong idx;
+
 			zend_hash_get_current_key_ex(methods, &func, &len, &idx, 0, NULL);
 			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
 			if (strncasecmp(func, YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {

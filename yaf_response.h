@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_response.h 324384 2012-03-20 11:50:17Z laruence $ */
+/* $Id: yaf_response.h 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifndef PHP_YAF_RESPONSE_H
 #define PHP_YAF_RESPONSE_H
@@ -23,6 +23,7 @@
 #define YAF_RESPONSE_PROPERTY_NAME_BODY				"_body"
 #define YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION	"_sendheader"
 #define YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE		"_response_code"
+#define YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY		"content"
 
 #define YAF_RESPONSE_REPLACE 0
 #define YAF_RESPONSE_PREPEND 1
@@ -36,7 +37,7 @@ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name
 int yaf_response_alter_body(yaf_response_t *response, char *name, int name_len, char *body, long body_len, int flag TSRMLS_DC);
 int yaf_response_send(yaf_response_t *response TSRMLS_DC);
 int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC);
-int yaf_response_clear_body(yaf_response_t *response TSRMLS_DC);
+int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(response);
 

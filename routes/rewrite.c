@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: rewrite.c 326904 2012-07-31 15:00:05Z laruence $ */
+/* $Id: rewrite.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 zend_class_entry *yaf_route_rewrite_ce;
 
@@ -122,8 +122,8 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 		} else {
 			zval *ret, **ppzval;
 			char *key;
-			int	 len = 0;
-			long idx = 0;
+			uint len = 0;
+			ulong idx = 0;
 			HashTable *ht;
 
 			MAKE_STD_ZVAL(ret);

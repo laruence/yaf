@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.c 325513 2012-05-03 08:39:09Z laruence $ */
+/* $Id: yaf_router.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -100,8 +100,8 @@ int yaf_router_route(yaf_router_t *router, yaf_request_t *request TSRMLS_DC) {
 			continue;
 		} else {
 			char *key;
-			int  len = 0;
-			long idx = 0;
+			uint len = 0;
+			ulong idx = 0;
 
 			switch(zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL)) {
 				case HASH_KEY_IS_LONG:
@@ -133,8 +133,8 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs TSRMLS_DC) {
 		return 0;
 	} else {
 		char *key = NULL;
-		uint len  = 0;
-		long idx  = 0;
+		uint len = 0;
+		ulong idx = 0;
 		zval *routes;
 
 		routes = zend_read_property(yaf_router_ce, router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_ROUTERS), 1 TSRMLS_CC);
