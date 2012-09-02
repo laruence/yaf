@@ -1,5 +1,5 @@
 --TEST--
-Check for Sample application
+Check for Sample application with exception
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
@@ -26,8 +26,7 @@ file_put_contents(APPLICATION_PATH . "/application/controllers/Error.php", <<<PH
 <?php
    class ErrorController extends Yaf_Controller_Abstract {
          public function errorAction(\$exception) {
-              var_dump(\$exception->getMessage());
-              return FALSE;
+            \$this->_view->msg = \$exception->getMessage();
          }
    }
 PHP
@@ -41,6 +40,9 @@ file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
         }
         public function _initPlugin(Yaf_Dispatcher \$dispatcher) {
             \$dispatcher->registerPlugin(new TestPlugin());
+        }
+        public function _initReturn(Yaf_Dispatcher \$dispatcher) {
+            \$dispatcher->returnResponse(true);
         }
    }
 PHP
@@ -65,14 +67,11 @@ file_put_contents(APPLICATION_PATH . "/application/plugins/Test.php", <<<PHP
             var_dump("postDispatch");
         }
         public function dispatchLoopShutdown(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            global \$value;
-            var_dump("dispatchLoopShutdown, global var is:" . \$value);
+            var_dump("dispatchLoopShutdown");
         }
    }
 PHP
 );
-
-$value = NULL;
 
 file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PHP
 <?php
@@ -81,17 +80,17 @@ file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PH
             var_dump("init");
          }
          public function indexAction() {
-            global \$value;
             var_dump("action");
-            var_dump(Yaf_Registry::get("config")->application->dispatcher->catchException);
-            \$this->getView()->assignRef("ref", \$value);
          }
    }
 PHP
 );
 
 file_put_contents(APPLICATION_PATH . "/application/views/index/index.phtml",
-                "<?php var_dump('view'); \$ref = \"changed\"; ?>");
+                "<?php throw new Exception('view exception'); ?>");
+mkdir(APPLICATION_PATH . "/application/views/error/");
+file_put_contents(APPLICATION_PATH . "/application/views/error/error.phtml",
+                "catched: <?=\$msg?>");
 
 $app = new Yaf_Application($config);
 $app->bootstrap()->run();
@@ -102,7 +101,4 @@ string(19) "dispatchLoopStartup"
 string(11) "preDispatch"
 string(4) "init"
 string(6) "action"
-bool(true)
-string(12) "postDispatch"
-string(43) "dispatchLoopShutdown, global var is:changed"
-string(4) "view"
+catched: view exception
