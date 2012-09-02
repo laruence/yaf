@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Layout
+Check for Sample application
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
