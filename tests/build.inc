@@ -1,21 +1,27 @@
 <?php
 
 function shutdown($root) {
-    @rmdir($root . "/application/views/index");
-    @rmdir($root . "/application/views");
-    @rmdir($root . "/application/plugins");
-    @rmdir($root . "/application/models");
-    @rmdir($root . "/application/controllers");
-    @rmdir($root . "/application");
+   $dp = opendir($root);
+   while (($dir = readdir($dp))) {
+       if (in_array($dir, array('.', '..'))) {
+           continue;
+       }
+       if (is_dir($root . '/' . $dir)) {
+           shutdown($root . '/' . $dir);
+       } else {
+           unlink($root . '/' . $dir);
+       }
+   }
+   rmdir($root);
 }
 
 function startup($root) {
-    @mkdir($root . "/application");
-    @mkdir($root . "/application/controllers");
-    @mkdir($root . "/application/plugins");
-    @mkdir($root . "/application/models");
-    @mkdir($root . "/application/views");
-    @mkdir($root . "/application/views/index");
+    mkdir($root);
+    mkdir($root . "/controllers");
+    mkdir($root . "/plugins");
+    mkdir($root . "/models");
+    mkdir($root . "/views");
+    mkdir($root . "/views/index");
     register_shutdown_function("shutdown", $root);
 }
 

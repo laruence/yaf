@@ -10,7 +10,7 @@ report_memleaks=0
 <?php 
 require "build.inc";
 define("APPLICATION_PATH", dirname(__FILE__));
-startup(APPLICATION_PATH);
+startup(APPLICATION_PATH . '/application');
 $config = array(
 	"application" => array(
 		"directory" => APPLICATION_PATH . "/application/",
