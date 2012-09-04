@@ -159,7 +159,7 @@ PHP_METHOD(yaf_route_map, __construct) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Route_Map::assemble(zval *mvc, zval *query)
+/** {{{ proto public Yaf_Route_Map::assemble(array $mvc[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_map, assemble) {
 

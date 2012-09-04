@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Simple_Router_assemble
+Check for Yaf_Route_Simple::assemble
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --FILE--
@@ -13,10 +13,10 @@ $router->addRoute("simple", $route);
 
 var_dump($router->getRoute('simple')->assemble(
 		array(
-		      'a' => 'yafaction', 
+		      'action' => 'yafaction', 
 		      'tkey' => 'tval', 
-		      'c' => 'yafcontroller', 
-		      'm' => 'yafmodule'
+		      'controller' => 'yafcontroller', 
+		      'module' => 'yafmodule'
 		), 
 		array(
 		      'tkey1' => 'tval1', 

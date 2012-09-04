@@ -182,7 +182,7 @@ PHP_METHOD(yaf_route_static, match) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Route_Static::assemble(zval *mvc, zval *query)
+/** {{{ proto public Yaf_Route_Static::assemble(array $mvc[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_static, assemble) {
 

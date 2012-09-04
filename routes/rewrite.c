@@ -287,7 +287,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 }
 /** }}} */
 
-/** {{{ proto public Yaf_Route_rewrite::assemble(zval *mvc, zval *query)
+/** {{{ proto public Yaf_Route_rewrite::assemble(array $mvc[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_rewrite, assemble) {
 
