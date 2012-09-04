@@ -182,11 +182,19 @@ PHP_METHOD(yaf_route_static, match) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Route_Static::assemble(zval *mvc, zval *query)
+*/
+PHP_METHOD(yaf_route_static, assemble) {
+
+}
+/* }}} */
+
 /** {{{ yaf_route_static_methods
  */
 zend_function_entry yaf_route_static_methods[] = {
 	PHP_ME(yaf_route_static, match, yaf_route_static_match_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_route_static, route, yaf_route_route_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_static, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

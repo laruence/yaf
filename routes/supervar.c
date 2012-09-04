@@ -101,11 +101,19 @@ PHP_METHOD(yaf_route_supervar, __construct) {
 }
 /** }}} */
 
+/** {{{ proto public Yaf_Route_Supervar::assemble(zval *mvc, zval *query)
+*/
+PHP_METHOD(yaf_route_supervar, assemble) {
+
+}
+/* }}} */
+
 /** {{{ yaf_route_supervar_methods
  */
 zend_function_entry yaf_route_supervar_methods[] = {
 	PHP_ME(yaf_route_supervar, __construct, yaf_route_supervar_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_supervar, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_supervar, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */

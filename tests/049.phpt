@@ -1,104 +1,27 @@
 --TEST--
-Check for Sample application with exception
+Check for Yaf_Simple_Router_assemble
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
---INI--
-yaf.use_spl_autoload=0
-yaf.lowcase_path=0
-report_memleaks=0
 --FILE--
-<?php 
-require "build.inc";
-define("APPLICATION_PATH", dirname(__FILE__));
-startup(APPLICATION_PATH . '/application');
-$config = array(
-	"application" => array(
-		"directory" => APPLICATION_PATH . "/application/",
-        "dispatcher" => array (
-           "catchException" => true,
-        ), 
-        "library" => array(
-        ),
-	),
-);
-
-file_put_contents(APPLICATION_PATH . "/application/controllers/Error.php", <<<PHP
 <?php
-   class ErrorController extends Yaf_Controller_Abstract {
-         public function errorAction(\$exception) {
-            \$this->_view->msg = \$exception->getMessage();
-         }
-   }
-PHP
-);
 
-file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
-<?php
-   class Bootstrap extends Yaf_Bootstrap_Abstract {
-        public function _initConfig(Yaf_Dispatcher \$dispatcher) {
-            Yaf_Registry::set("config", Yaf_Application::app()->getConfig());
-        }
-        public function _initPlugin(Yaf_Dispatcher \$dispatcher) {
-            \$dispatcher->registerPlugin(new TestPlugin());
-        }
-        public function _initReturn(Yaf_Dispatcher \$dispatcher) {
-            \$dispatcher->returnResponse(true);
-        }
-   }
-PHP
-);
+$router = new Yaf_Router();
 
-file_put_contents(APPLICATION_PATH . "/application/plugins/Test.php", <<<PHP
-<?php
-   class TestPlugin extends Yaf_Plugin_Abstract {
-        public function routerStartup(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            var_dump("routerStartup");
-        }
-        public function routerShutdown(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            var_dump("routerShutdown");
-        }
-        public function dispatchLoopStartup(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            var_dump("dispatchLoopStartup");
-        }
-        public function preDispatch(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            var_dump("preDispatch");
-        }
-        public function postDispatch(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            var_dump("postDispatch");
-        }
-        public function dispatchLoopShutdown(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
-            var_dump("dispatchLoopShutdown");
-        }
-   }
-PHP
-);
+$route  = new Yaf_Route_Simple('m', 'c', 'a');
 
-file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PHP
-<?php
-   class IndexController extends Yaf_Controller_Abstract {
-         public function init() {
-            var_dump("init");
-         }
-         public function indexAction() {
-            var_dump("action");
-         }
-   }
-PHP
-);
+$router->addRoute("simple", $route);
 
-file_put_contents(APPLICATION_PATH . "/application/views/index/index.phtml",
-                "<?php throw new Exception('view exception'); ?>");
-mkdir(APPLICATION_PATH . "/application/views/error/");
-file_put_contents(APPLICATION_PATH . "/application/views/error/error.phtml",
-                "catched: <?=\$msg?>");
-
-$app = new Yaf_Application($config);
-$app->bootstrap()->run();
+var_dump($router->getRoute('simple')->assemble(
+		array(
+		      'a' => 'yafaction', 
+		      'tkey' => 'tval', 
+		      'c' => 'yafcontroller', 
+		      'm' => 'yafmodule'
+		), 
+		array(
+		      'tkey1' => 'tval1', 
+		      'tkey2' => 'tval2'
+		)
+));
 --EXPECTF--
-string(13) "routerStartup"
-string(14) "routerShutdown"
-string(19) "dispatchLoopStartup"
-string(11) "preDispatch"
-string(4) "init"
-string(6) "action"
-catched: view exception
+string(64) "?m=yafmodule&c=yafcontroller&a=yafaction&tkey1=tval1&tkey2=tval2"
