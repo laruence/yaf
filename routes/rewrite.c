@@ -287,11 +287,19 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 }
 /** }}} */
 
+/** {{{ proto public Yaf_Route_rewrite::assemble(zval *mvc, zval *query)
+*/
+PHP_METHOD(yaf_route_rewrite, assemble) {
+
+}
+/* }}} */
+
 /** {{{ yaf_route_rewrite_methods
  */
 zend_function_entry yaf_route_rewrite_methods[] = {
 	PHP_ME(yaf_route_rewrite, __construct, yaf_route_rewrite_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_rewrite, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_rewrite, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */
