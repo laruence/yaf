@@ -84,14 +84,14 @@ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zva
 /** {{{ zval * yaf_route_simple_assemble(zval *mvc, zval *query TSRMLS_DC)
  */
 zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
-	char *tvalue;
+	char tvalue[1024];
+	uint tvalue_len = 0;
 	zval *nmodule, *ncontroller, *naction;
 	zval *uri;
 
 	MAKE_STD_ZVAL(uri);
-	tvalue = emalloc(sizeof("?"));
-	tvalue[0] = '\0';
-	strncat(tvalue, "?", strlen("?"));
+	memcpy(tvalue, "?", 1);
+	tvalue_len += 1;
 	
 	nmodule         = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1 TSRMLS_CC);
 	ncontroller   = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1 TSRMLS_CC);
@@ -106,8 +106,8 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 			tlen = strlen("=&") + Z_STRLEN_P(nmodule) + Z_STRLEN_PP(tmp);
 			tlen = snprintf(tsprintf, tlen + 1, "%s=%s&", Z_STRVAL_P(nmodule), Z_STRVAL_PP(tmp));
 			if (tlen) {
-				tvalue = erealloc(tvalue, strlen(tvalue) + tlen + 1);
-				strncat(tvalue, tsprintf, strlen(tsprintf));
+				memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+				tvalue_len += tlen;
 			}
 		}
 	
@@ -119,8 +119,8 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		tlen = strlen("=&") + Z_STRLEN_P(ncontroller) + Z_STRLEN_PP(tmp);
 		tlen = snprintf(tsprintf, tlen + 1, "%s=%s&", Z_STRVAL_P(ncontroller), Z_STRVAL_PP(tmp));
 		if (tlen) {
-			tvalue = erealloc(tvalue, strlen(tvalue) + tlen + 1);
-                	strncat(tvalue, tsprintf, strlen(tsprintf));
+			memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+			tvalue_len += tlen;
 		}
 
 		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), (void **)&tmp) == FAILURE) {
@@ -131,8 +131,8 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		tlen = strlen("=") + Z_STRLEN_P(naction) + Z_STRLEN_PP(tmp);
                 tlen = snprintf(tsprintf, tlen + 1, "%s=%s", Z_STRVAL_P(naction), Z_STRVAL_PP(tmp));
 		if (tlen) {
-			tvalue = erealloc(tvalue, strlen(tvalue) + tlen + 1);
-                	strncat(tvalue, tsprintf, strlen(tsprintf));
+			memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+			tvalue_len += tlen;
 		}
 
 		if ( IS_ARRAY == Z_TYPE_P(query)) {
@@ -147,21 +147,21 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 				if (IS_STRING == Z_TYPE_PP(tmp) 
 					&& HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(query), &key, &key_len, &key_idx, 0, NULL)) {
 
-					tlen = strlen("=&") + key + Z_STRLEN_PP(tmp);
+					tlen = strlen("=&") + key_len + Z_STRLEN_PP(tmp);
 					tlen = snprintf(tsprintf, tlen + 1, "&%s=%s", key, Z_STRVAL_PP(tmp));
                 			if (tlen) {
-                        			tvalue = erealloc(tvalue, strlen(tvalue) + tlen + 1);
-                        			strncat(tvalue, tsprintf, strlen(tsprintf));
+						memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+						tvalue_len += tlen;
                 			}
 				}
 			}
 		}
 
+		tvalue[tvalue_len] = '\0';
 		ZVAL_STRING(uri, tvalue, 0);
 		return uri;
 	} while (0);
 	
-	efree(tvalue);
 	ZVAL_NULL(uri);
 	return uri;
 }
