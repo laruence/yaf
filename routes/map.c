@@ -159,11 +159,19 @@ PHP_METHOD(yaf_route_map, __construct) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Route_Map::assemble(array $mvc[, array $query = NULL])
+*/
+PHP_METHOD(yaf_route_map, assemble) {
+
+}
+/* }}} */
+
 /** {{{ yaf_route_map_methods
 */
 zend_function_entry yaf_route_map_methods[] = {
 	PHP_ME(yaf_route_map, __construct, yaf_route_map_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_map, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_map, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
