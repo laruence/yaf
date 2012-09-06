@@ -232,11 +232,19 @@ PHP_METHOD(yaf_route_regex, __construct) {
 }
 /** }}} */
 
+/** {{{ proto public Yaf_Route_regex::assemble(array $mvc[, array $query = NULL])
+*/
+PHP_METHOD(yaf_route_regex, assemble) {
+
+}
+/* }}} */
+
 /** {{{ yaf_route_regex_methods
  */
 zend_function_entry yaf_route_regex_methods[] = {
 	PHP_ME(yaf_route_regex, __construct, yaf_route_regex_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_regex, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_regex, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */
