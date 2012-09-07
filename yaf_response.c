@@ -208,8 +208,7 @@ zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len
 	zval *zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
 
 	if (!name) {
-		name = YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY;
-		name_len = sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1;
+		return zbody;
 	}
 
 	if (zend_hash_find(Z_ARRVAL_P(zbody), name, name_len + 1, (void **)&ppzval) == FAILURE) {
@@ -380,15 +379,23 @@ PHP_METHOD(yaf_response, clearBody) {
 /** {{{ proto public Yaf_Response_Abstract::getBody(string $name = NULL)
  */
 PHP_METHOD(yaf_response, getBody) {
-	zval *body;
-	char *name = NULL;
-	uint name_len = 0;
+	zval *body = NULL;
+	zval *name = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &name) == FAILURE) {
 		return;
 	}
 
-	body = yaf_response_get_body(getThis(), name, name_len TSRMLS_CC);
+	if (!name) {
+		body = yaf_response_get_body(getThis(), YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1 TSRMLS_CC);
+	} else {
+		if (ZVAL_IS_NULL(name)) {
+			body = yaf_response_get_body(getThis(), NULL, 0 TSRMLS_CC);
+		} else {
+			convert_to_string_ex(&name);
+			body = yaf_response_get_body(getThis(), Z_STRVAL_P(name), Z_STRLEN_P(name) TSRMLS_CC);
+		}
+	}
 
 	if (body) {
 		RETURN_ZVAL(body, 1, 0);
@@ -458,6 +465,7 @@ YAF_STARTUP_FUNCTION(response) {
 	zend_declare_property_null(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_bool(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION), 0, ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_class_constant_stringl(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) TSRMLS_CC);
 
 	YAF_STARTUP(response_http);
 	YAF_STARTUP(response_cli);

@@ -20,7 +20,9 @@ $response->appendBody("kfjdaksljfklajdsfkljasdkljfkjasdf");
 $body = $response->getBody();
 unset($body);
 
-debug_zval_dump($response->getBody());
+var_dump(Yaf_Response_Abstract::DEFAULT_BODY);
+print_r($response->getBody(NULL));
+debug_zval_dump($response->getBody(Yaf_Response_Http::DEFAULT_BODY));
 unset($string);
 debug_zval_dump($response->getBody());
 echo $response;
@@ -29,6 +31,11 @@ $response->response();
 debug_zval_dump($response->getBody());
 ?>
 --EXPECTF--
+string(7) "content"
+Array
+(
+    [content] => laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf
+)
 string(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf" refcount(1)
 string(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf" refcount(1)
 laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdfstring(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf" refcount(1)
