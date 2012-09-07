@@ -41,7 +41,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define YAF_VERSION 					"2.2.1"
+#define YAF_VERSION 					"2.2.2-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
