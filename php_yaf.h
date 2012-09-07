@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327415 2012-09-01 13:58:02Z laruence $ */
+/* $Id: php_yaf.h 327512 2012-09-07 04:20:33Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -41,7 +41,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define YAF_VERSION 					"2.2.0-dev"
+#define YAF_VERSION 					"2.2.0"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
@@ -101,6 +101,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zend_bool  	running;
 	zend_bool  	in_exception;
 	zend_bool  	catch_exception;
+	zend_bool   suppressing_warning;
 /* {{{ This only effects internally */
 	zend_bool  	st_compatible;
 /* }}} */

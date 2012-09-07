@@ -325,7 +325,7 @@ yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, c
  */
 static void (*zend_origin_error_handler)(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args);
 static void yaf_suppress_include_warning(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args) {
-	if (error_num == E_WARNING) {
+	if (YAF_G(suppressing_warning) && error_num == E_WARNING) {
 		char buffer[1024];
 		int buffer_len, display;
 		va_list copy;
@@ -374,15 +374,22 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
 
-	zend_origin_error_handler = zend_error_cb;
+	if (!zend_origin_error_handler) {
+		zend_origin_error_handler = zend_error_cb;
+	}
 	zend_error_cb = yaf_suppress_include_warning;
+	YAF_G(suppressing_warning) = 1;
 	zend_try {
 		op_array = zend_compile_file(&file_handle, ZEND_INCLUDE TSRMLS_CC);
 	} zend_catch {
+		YAF_G(suppressing_warning) = 0;
 		zend_error_cb = zend_origin_error_handler;
+		zend_origin_error_handler = NULL;
 		zend_bailout();
 	} zend_end_try();
+	YAF_G(suppressing_warning) = 0;
 	zend_error_cb = zend_origin_error_handler;
+	zend_origin_error_handler = NULL;
 
 	if (op_array && file_handle.handle.stream.handle) {
 		int dummy = 1;

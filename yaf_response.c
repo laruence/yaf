@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_response.c 327455 2012-09-04 06:38:32Z laruence $ */
+/* $Id: yaf_response.c 327510 2012-09-07 04:16:31Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
