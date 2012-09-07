@@ -325,11 +325,11 @@ yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, c
  */
 static void (*zend_origin_error_handler)(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args);
 static void yaf_suppress_include_warning(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args) {
+	TSRMLS_FETCH();
 	if (YAF_G(suppressing_warning) && error_num == E_WARNING) {
 		char buffer[1024];
 		int buffer_len, display;
 		va_list copy;
-		TSRMLS_FETCH();
 
 /* va_copy() is __va_copy() in old gcc versions.
  * According to the autoconf manual, using
@@ -348,7 +348,6 @@ static void yaf_suppress_include_warning(int error_num, const char *error_filena
 #ifdef va_copy
 		va_end(copy);
 #endif
-
 
 		if (strstr(buffer, "failed to open stream: ") != NULL) {
 			return;
