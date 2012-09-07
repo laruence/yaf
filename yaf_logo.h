@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_logo.h 327064 2012-08-12 03:04:55Z laruence $ */
+/* $Id: yaf_logo.h 327519 2012-09-07 05:41:25Z laruence $ */
 
 #ifndef YAF_LOGO_H
 #define YAF_LOGO_H
@@ -24,7 +24,7 @@
 #define YAF_LOGO_GUID	   "YAF-LOGO-LARUNECE-COM"
 #define YAF_SUPPORT_URL	   "http://pecl.php.net/package/yaf"
 #define YAF_LOGO_IMG       "<a href=" YAF_SUPPORT_URL "> \
-						   <img src=\"" YAF_LOGO_GUID "\" alt=\"Yaf logo\" /></a>\n"
+						   <img src=\"?=" YAF_LOGO_GUID "\" alt=\"Yaf logo\" /></a>\n"
 
 static const unsigned char yaf_logo[] = {
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
