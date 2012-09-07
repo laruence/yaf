@@ -4,7 +4,6 @@ Check for Yaf_Request_Simple
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 report_memleaks=0
-error_reporting=E_ALL & ~E_WARNING;
 --FILE--
 <?php 
 $request  = new Yaf_Request_Simple("CLI", "index", "dummy", "index");

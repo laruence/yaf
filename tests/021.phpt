@@ -3,7 +3,6 @@ Check for Yaf_Application
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
-error_reporting=E_ALL & ~E_WARNING;
 --FILE--
 <?php 
 define("APPLICATION_PATH", dirname(__FILE__));
