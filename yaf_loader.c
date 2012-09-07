@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327515 2012-09-07 04:38:21Z laruence $ */
+/* $Id: yaf_loader.c 327520 2012-09-07 07:59:08Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -366,6 +366,7 @@ static void yaf_suppress_include_warning(int error_num, const char *error_filena
 int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	zend_file_handle file_handle;
 	zend_op_array 	*op_array;
+	zend_bool       restore_cb = 0;
 
 	file_handle.filename = path;
 	file_handle.free_filename = 0;
@@ -374,21 +375,26 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	file_handle.handle.fp = NULL;
 
 	if (!zend_origin_error_handler) {
+		restore_cb = 1;
 		zend_origin_error_handler = zend_error_cb;
+	    zend_error_cb = yaf_suppress_include_warning;
+	    YAF_G(suppressing_warning) = 1;
 	}
-	zend_error_cb = yaf_suppress_include_warning;
-	YAF_G(suppressing_warning) = 1;
 	zend_try {
 		op_array = zend_compile_file(&file_handle, ZEND_INCLUDE TSRMLS_CC);
 	} zend_catch {
-		YAF_G(suppressing_warning) = 0;
-		zend_error_cb = zend_origin_error_handler;
-		zend_origin_error_handler = NULL;
+		if (restore_cb) {
+		    YAF_G(suppressing_warning) = 0;
+			zend_error_cb = zend_origin_error_handler;
+			zend_origin_error_handler = NULL;
+		}
 		zend_bailout();
 	} zend_end_try();
-	YAF_G(suppressing_warning) = 0;
-	zend_error_cb = zend_origin_error_handler;
-	zend_origin_error_handler = NULL;
+	if (restore_cb) {
+	    YAF_G(suppressing_warning) = 0;
+		zend_error_cb = zend_origin_error_handler;
+		zend_origin_error_handler = NULL;
+	}
 
 	if (op_array && file_handle.handle.stream.handle) {
 		int dummy = 1;

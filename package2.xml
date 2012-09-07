@@ -11,10 +11,10 @@
   <active>yes</active>
  </lead>
  <date>2012-09-07</date>
- <time>12:38:17</time>
+ <time>16:01:47</time>
  <version>
-  <release>2.2.0</release>
-  <api>2.2.0</api>
+  <release>2.2.1</release>
+  <api>2.2.1</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,17 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Implemented Yaf_Response::setBody with key(which will make the layout easier to implement)
-  - New method Yaf_View_Simple::eval, Yaf_View_Simple::clear
-  - Support short open tag in view templates regardless of php.short_open_tag
-  - Make Yaf_Autoload faster(30%)
-  - Controller of default module can be autoloaded now
-  - Single class can be local class now (previous is a design issue)
-  - Performance improve in various place
-  - Compatible with php5.5, which droped PHP logo guid
-  - Fixed bug that Supervar should not respect the base_uri
-  - Implemented FR #62702 (Make baseuri case-insensitive)
-  - Implemented FR #62638 (Supports set yaf runtime configuration via application.ini)
+  - Repackage, previous one missed one fix
  </notes>
  <contents> 
   <dir name="/"> 
@@ -150,6 +140,8 @@
     <file name="046.phpt" role="test" />
     <file name="047.phpt" role="test" />
     <file name="048.phpt" role="test" />
+    <file name="049.phpt" role="test" />
+    <file name="050.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
@@ -171,7 +163,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
-   <date>2012-09-02</date> 
+   <date>2012-09-07</date> 
+   <version> 
+    <release>2.2.0</release> 
+    <api>2.2.0</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Repackage, previous one missed one fix
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2012-09-07</date> 
    <version> 
     <release>2.2.0</release> 
     <api>2.2.0</api> 
@@ -183,6 +191,11 @@
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes>
     - Implemented Yaf_Response::setBody with key(which will make the layout easier to implement)
+    - New method Yaf_View_Simple::eval, Yaf_View_Simple::clear
+    - Support short open tag in view templates regardless of php.short_open_tag
+    - Make Yaf_Autoload faster(30%)
+    - Controller of default module can be autoloaded now
+    - Single class can be local class now (previous is a design issue)
     - Performance improve in various place
     - Compatible with php5.5, which droped PHP logo guid
     - Fixed bug that Supervar should not respect the base_uri
@@ -190,7 +203,6 @@
     - Implemented FR #62638 (Supports set yaf runtime configuration via application.ini)
    </notes> 
   </release> 
-
   <release> 
    <date>2012-07-12</date> 
    <version> 
