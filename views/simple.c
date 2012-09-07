@@ -275,7 +275,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 		script 	= Z_STRVAL_P(tpl);
 		len 	= Z_STRLEN_P(tpl);
 
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			YAF_RESTORE_OUTPUT_BUFFER(buffer);
 			CG(short_tags) = short_open_tag;
@@ -316,7 +316,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 
 		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			YAF_RESTORE_OUTPUT_BUFFER(buffer);
 			CG(short_tags) = short_open_tag;
@@ -413,7 +413,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
 		script 	= Z_STRVAL_P(tpl);
 		len 	= Z_STRLEN_P(tpl);
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			CG(short_tags) = short_open_tag;
@@ -445,7 +445,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 		}
 
 		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
-		if (yaf_loader_compose(script, len + 1, 0 TSRMLS_CC) == 0) {
+		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			CG(short_tags) = short_open_tag;

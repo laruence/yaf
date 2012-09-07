@@ -321,62 +321,44 @@ yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, c
 }
 /* }}} */
 
-/** {{{ int yaf_loader_compose(char *path, int lenA, int use_path TSRMLS_DC)
-*/
-int yaf_loader_compose(char *path, int len, int use_path TSRMLS_DC) {
-	zend_file_handle file_handle;
+/** {{{ static void yaf_suppress_include_warning(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args) 
+ */
+static void (*zend_origin_error_handler)(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args);
+static void yaf_suppress_include_warning(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args) {
+	if (error_num == E_WARNING) {
+		char buffer[1024];
+		int buffer_len, display;
+		va_list copy;
+		TSRMLS_FETCH();
 
-	if (php_stream_open_for_zend_ex(path, &file_handle, ENFORCE_SAFE_MODE|IGNORE_URL_WIN|STREAM_OPEN_FOR_INCLUDE TSRMLS_CC) == SUCCESS) {
-		/* if (zend_stream_open(file_path, &file_handle TSRMLS_CC) == SUCCESS) { */
-		zend_op_array 	*new_op_array;
-		uint 			dummy = 1;
+/* va_copy() is __va_copy() in old gcc versions.
+ * According to the autoconf manual, using
+ * memcpy(&dst, &src, sizeof(va_list)) 
+ * gives maximum portability. */
+#ifndef va_copy
+# ifdef __va_copy
+#  define va_copy(dest, src)    __va_copy((dest), (src))
+# else
+#  define va_copy(dest, src)    memcpy(&(dest), &(src), sizeof(va_list))
+# endif
+#endif  
+		va_copy(copy, args);
 
-		if (!file_handle.opened_path) {
-			file_handle.opened_path = estrndup(path, len);
-		}
-
-		if (zend_hash_update(&EG(included_files), file_handle.opened_path, strlen(file_handle.opened_path) + 1, (void *)&dummy, sizeof(int), NULL) == SUCCESS) {
-			new_op_array = zend_compile_file(&file_handle, ZEND_REQUIRE TSRMLS_CC);
-			zend_destroy_file_handle(&file_handle TSRMLS_CC);
-		} else {
-			new_op_array = NULL;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-			zend_file_handle_dtor(&file_handle TSRMLS_CC);
-#else
-			zend_file_handle_dtor(&file_handle);
+		buffer_len = vsnprintf(buffer, sizeof(buffer), format, copy);
+#ifdef va_copy
+		va_end(copy);
 #endif
+
+
+		if (strstr(buffer, "failed to open stream: ") != NULL) {
+			return;
 		}
 
-		if (new_op_array) {
-			zval *result = NULL;
-			YAF_STORE_EG_ENVIRON();
-
-			EG(return_value_ptr_ptr) 	= &result;
-			EG(active_op_array) 		= new_op_array;
-
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-			if (!EG(active_symbol_table)) {
-				zend_rebuild_symbol_table(TSRMLS_C);
-			}
-#endif
-			zend_execute(new_op_array TSRMLS_CC);
-
-			destroy_op_array(new_op_array TSRMLS_CC);
-			efree(new_op_array);
-
-			if (!EG(exception)) {
-				if (EG(return_value_ptr_ptr) && *EG(return_value_ptr_ptr)) {
-					zval_ptr_dtor(EG(return_value_ptr_ptr));
-				}
-			}
-
-			YAF_RESTORE_EG_ENVIRON();
+		if (strstr(buffer, "Failed opening ") != NULL) {
+			return;
 		}
-	} else {
-		return 0;
 	}
-
-	return 1;
+	return zend_origin_error_handler(error_num, error_filename, error_lineno, format, args);
 }
 /* }}} */
 
@@ -384,58 +366,62 @@ int yaf_loader_compose(char *path, int len, int use_path TSRMLS_DC) {
 */
 int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	zend_file_handle file_handle;
+	zend_op_array 	*op_array;
 
-	if (php_stream_open_for_zend_ex(path, &file_handle, ENFORCE_SAFE_MODE|IGNORE_URL_WIN|STREAM_OPEN_FOR_INCLUDE TSRMLS_CC) == SUCCESS) {
-		/* if (zend_stream_open(file_path, &file_handle TSRMLS_CC) == SUCCESS) { */
-		zend_op_array 	*new_op_array;
-		uint 			dummy = 1;
+	file_handle.filename = path;
+	file_handle.free_filename = 0;
+	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.opened_path = NULL;
+	file_handle.handle.fp = NULL;
+
+	zend_origin_error_handler = zend_error_cb;
+	zend_error_cb = yaf_suppress_include_warning;
+	zend_try {
+		op_array = zend_compile_file(&file_handle, ZEND_INCLUDE TSRMLS_CC);
+	} zend_catch {
+		zend_error_cb = zend_origin_error_handler;
+		zend_bailout();
+	} zend_end_try();
+	zend_error_cb = zend_origin_error_handler;
+
+	if (op_array && file_handle.handle.stream.handle) {
+		int dummy = 1;
 
 		if (!file_handle.opened_path) {
-			file_handle.opened_path = estrndup(path, len);
+			file_handle.opened_path = path;
 		}
 
-		if (zend_hash_add(&EG(included_files), file_handle.opened_path, strlen(file_handle.opened_path) + 1, (void *)&dummy, sizeof(int), NULL) == SUCCESS) {
-			new_op_array = zend_compile_file(&file_handle, ZEND_REQUIRE TSRMLS_CC);
-			zend_destroy_file_handle(&file_handle TSRMLS_CC);
-		} else {
-			new_op_array = NULL;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-			zend_file_handle_dtor(&file_handle TSRMLS_CC);
-#else
-			zend_file_handle_dtor(&file_handle);
-#endif
-		}
+		zend_hash_add(&EG(included_files), file_handle.opened_path, strlen(file_handle.opened_path)+1, (void *)&dummy, sizeof(int), NULL);
+	}
+	zend_destroy_file_handle(&file_handle TSRMLS_CC);
 
-		if (new_op_array) {
-			zval *result = NULL;
+	if (op_array) {
+		zval *result = NULL;
 
-			YAF_STORE_EG_ENVIRON();
+		YAF_STORE_EG_ENVIRON();
 
-			EG(return_value_ptr_ptr) = &result;
-			EG(active_op_array) 	 = new_op_array;
+		EG(return_value_ptr_ptr) = &result;
+		EG(active_op_array) 	 = op_array;
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-			if (!EG(active_symbol_table)) {
-				zend_rebuild_symbol_table(TSRMLS_C);
-			}
-#endif
-			zend_execute(new_op_array TSRMLS_CC);
-
-			destroy_op_array(new_op_array TSRMLS_CC);
-			efree(new_op_array);
-			if (!EG(exception)) {
-				if (EG(return_value_ptr_ptr) && *EG(return_value_ptr_ptr)) {
-					zval_ptr_dtor(EG(return_value_ptr_ptr));
-				}
-			}
-			YAF_RESTORE_EG_ENVIRON();
+		if (!EG(active_symbol_table)) {
+			zend_rebuild_symbol_table(TSRMLS_C);
 		}
-	} else {
-		/* return failed only on the file can not be found */
-		return 0;
+#endif
+		zend_execute(op_array TSRMLS_CC);
+
+		destroy_op_array(op_array TSRMLS_CC);
+		efree(op_array);
+		if (!EG(exception)) {
+			if (EG(return_value_ptr_ptr) && *EG(return_value_ptr_ptr)) {
+				zval_ptr_dtor(EG(return_value_ptr_ptr));
+			}
+		}
+		YAF_RESTORE_EG_ENVIRON();
+	    return 1;
 	}
 
-	return 1;
+	return 0;
 }
 /* }}} */
 
