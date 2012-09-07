@@ -102,7 +102,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		char tsprintf[1024];
 		uint tlen;
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), (void **)&tmp) == SUCCESS) {
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_MODULE), (void **)&tmp) == SUCCESS) {
 			tlen = strlen("=&") + Z_STRLEN_P(nmodule) + Z_STRLEN_PP(tmp);
 			tlen = snprintf(tsprintf, tlen + 1, "%s=%s&", Z_STRVAL_P(nmodule), Z_STRVAL_PP(tmp));
 			if (tlen) {
@@ -111,7 +111,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 			}
 		}
 	
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), (void **)&tmp) == FAILURE) {
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_CONTROLLER), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
 			break;
 		} 
@@ -123,7 +123,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 			tvalue_len += tlen;
 		}
 
-		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), (void **)&tmp) == FAILURE) {
+		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_ACTION), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
                         break;
                 }

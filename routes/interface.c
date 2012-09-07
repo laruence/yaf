@@ -23,6 +23,10 @@
 #define YAF_ROUTE_PROPETY_NAME_MAP	 	"_maps"
 #define YAF_ROUTE_PROPETY_NAME_VERIFY 	"_verify"
 
+#define YAF_ROUTE_VAR_NAME_MODULE	"module"
+#define YAF_ROUTE_VAR_NAME_CONTROLLER	"controller"
+#define YAF_ROUTE_VAR_NAME_ACTION	"action"
+
 #define YAF_ROUTER_URL_DELIMIETER  	 "/"
 #define YAF_ROUTE_REGEX_DILIMITER  	 '#'
 
