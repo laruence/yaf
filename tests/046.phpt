@@ -24,6 +24,7 @@ $loader->clearLocalNamespace();
 $loader->registerLocalNamespace("Bar");
 var_dump($loader->isLocalName("Foo_Bar"));
 var_dump($loader->isLocalName("Bar"));
+?>
 --EXPECTF--
 bool(true)
 bool(true)

@@ -23,6 +23,7 @@ var_dump(ini_get("yaf.name_suffix") == "1");
 var_dump(ini_get("yaf.name_separator") == "__");
 
 new Plugin__ABC_EFG();
+?>
 --EXPECTF--
 bool(true)
 bool(true)

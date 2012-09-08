@@ -13,6 +13,7 @@ var_dump(strlen($view->render(dirname(__FILE__) . "/001.phpt")));
 var_dump($view->name);
 var_dump($view->noexists);
 print_r($view);
+?>
 --EXPECTF--
 Yaf_View_Simple Object
 (

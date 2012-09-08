@@ -16,6 +16,7 @@ var_dump($router->getCurrentRoute());
 print_r($router->getRoutes());
 print_r($router->getRoute("simple"));
 var_dump($router->getRoute("noexists"));
+?>
 --EXPECTF--
 Yaf_Router Object
 (

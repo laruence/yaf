@@ -14,5 +14,6 @@ unset($a);
 Yaf_Dispatcher::getInstance();
 $b = Yaf_Dispatcher::getInstance();
 var_dump(get_class($b));
+?>
 --EXPECTF--
 string(14) "Yaf_Dispatcher"

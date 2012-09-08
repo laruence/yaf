@@ -35,6 +35,7 @@ spl_autoload_register("load");
 $a = new Foo();
 
 print_r($a);
+?>
 --EXPECTF--
 string(3) "Foo"
 

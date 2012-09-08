@@ -14,5 +14,6 @@ try {
   print_r($e->getMessage());
 }
 
+?>
 --EXPECTF--
 There is no section 'ex' in '%ssimple.ini'

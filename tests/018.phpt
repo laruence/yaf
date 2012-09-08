@@ -7,7 +7,7 @@ Bug Yaf_Config_Ini crash due to inaccurate refcount
 $file = dirname(__FILE__) . "/simple.ini";
 $config = new Yaf_Config_Ini($file, 'base');
 print_r($config);
-
+?>
 --EXPECTF--
 Yaf_Config_Ini Object
 (

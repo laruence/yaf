@@ -15,6 +15,7 @@ $view->clear("b");
 print_r($view->get());
 $view->clear();
 print_r($view->get());
+?>
 --EXPECTF--
 bArray
 (

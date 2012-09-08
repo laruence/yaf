@@ -94,6 +94,7 @@ file_put_contents(APPLICATION_PATH . "/application/views/error/error.phtml",
 
 $app = new Yaf_Application($config);
 $app->bootstrap()->run();
+?>
 --EXPECTF--
 string(13) "routerStartup"
 string(14) "routerShutdown"

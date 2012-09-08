@@ -42,6 +42,7 @@ $app = new Yaf_Application($config);
 $response = $app->bootstrap()->run();
 var_dump("-------");
 echo $response;
+?>
 --EXPECTF--
 string(7) "-------"
 view

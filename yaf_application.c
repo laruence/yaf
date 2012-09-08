@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: yaf_application.c 327541 2012-09-08 12:46:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -301,14 +301,9 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 			if (zend_hash_get_current_data(ht, (void **)&value) == FAILURE) {
 				continue;
 			}
-
-			len = snprintf(name, sizeof(name), "%s.%s", "yaf", key);
+			snprintf(name, sizeof(name), "%s.%s", "yaf", key);
 			convert_to_string(*value);
-
-			if (zend_alter_ini_entry(name, len + 1, Z_STRVAL_PP(value), Z_STRLEN_PP(value),
-						PHP_INI_USER, PHP_INI_STAGE_RUNTIME) == FAILURE) {
-				/* do nothing */
-			}
+			zend_alter_ini_entry(name, strlen(name) + 1, Z_STRVAL_PP(value), Z_STRLEN_PP(value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
 		}
 	}
 
