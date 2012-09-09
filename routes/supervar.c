@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: supervar.c 326905 2012-07-31 15:18:27Z laruence $ */
+/* $Id: supervar.c 327548 2012-09-09 02:33:16Z laruence $ */
 
 #define YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR "_var_name"
 
@@ -70,12 +70,12 @@ yaf_route_t * yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name TSRM
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Route_Supervar::route(string $uri)
+/** {{{ proto public Yaf_Route_Supervar::route(Yaf_Request_Abstarct $request)
  */
 PHP_METHOD(yaf_route_supervar, route) {
 	yaf_request_t *request;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	} else {
 		RETURN_BOOL(yaf_route_supervar_route(getThis(), request TSRMLS_CC));

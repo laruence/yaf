@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: static.c 327068 2012-08-12 08:04:53Z laruence $ */
+/* $Id: static.c 327548 2012-09-09 02:33:16Z laruence $ */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -167,7 +167,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 PHP_METHOD(yaf_route_static, route) {
 	yaf_request_t *request;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	} else {
 		RETURN_BOOL(yaf_route_static_route(getThis(), request TSRMLS_CC));

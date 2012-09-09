@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: rewrite.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: rewrite.c 327548 2012-09-09 02:33:16Z laruence $ */
 
 zend_class_entry *yaf_route_rewrite_ce;
 
@@ -217,7 +217,7 @@ PHP_METHOD(yaf_route_rewrite, route) {
 
 	route = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	}
 

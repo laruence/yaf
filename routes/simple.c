@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 325432 2012-04-24 09:06:40Z laruence $ */
+/* $Id: simple.c 327548 2012-09-09 02:33:16Z laruence $ */
 
 zend_class_entry *yaf_route_simple_ce;
 
@@ -86,7 +86,7 @@ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zva
 PHP_METHOD(yaf_route_simple, route) {
 	yaf_request_t *request;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	} else {
 		RETURN_BOOL(yaf_route_simple_route(getThis(), request TSRMLS_CC));
