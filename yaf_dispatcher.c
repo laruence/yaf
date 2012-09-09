@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327561 2012-09-09 06:30:22Z laruence $ */
+/* $Id: yaf_dispatcher.c 327562 2012-09-09 06:54:44Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -591,14 +591,13 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				view_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
 			} else {
 				zend_call_method_with_0_params(&view, view_ce, NULL, "getscriptpath", &view_dir);
-			}
-
-			if (EG(exception)) {
-				if (view_dir) {
-					zval_ptr_dtor(&view_dir);
+				if (EG(exception)) {
+					if (view_dir) {
+						zval_ptr_dtor(&view_dir);
+					}
+					zval_ptr_dtor(&icontroller);
+					return 0;
 				}
-				zval_ptr_dtor(&icontroller);
-				return 0;
 			}
 
 			if (!view_dir || IS_STRING != Z_TYPE_P(view_dir) || !Z_STRLEN_P(view_dir)) {
@@ -631,7 +630,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 					zval_ptr_dtor(&icontroller);
 					return 0;
 				}
-
+			} else if (view_ce != yaf_view_simple_ce) {
+				zval_ptr_dtor(&view_dir);
 			}
 
 			zend_update_property(ce, icontroller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME),	controller TSRMLS_CC);

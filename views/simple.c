@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327549 2012-09-09 03:02:48Z laruence $ */
+/* $Id: simple.c 327562 2012-09-09 06:54:44Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -686,7 +686,7 @@ PHP_METHOD(yaf_view_simple, setScriptPath) {
 /** {{{ proto public Yaf_View_Simple::getScriptPath(void)
 */
 PHP_METHOD(yaf_view_simple, getScriptPath) {
-	zval *tpl_dir = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+	zval *tpl_dir = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0 TSRMLS_CC);
 	RETURN_ZVAL(tpl_dir, 1, 0);
 }
 /* }}} */
@@ -904,7 +904,6 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	zend_declare_property_null(yaf_view_simple_ce, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_view_simple_ce, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS),  ZEND_ACC_PROTECTED TSRMLS_CC);
 
-	yaf_view_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 	zend_class_implements(yaf_view_simple_ce TSRMLS_CC, 1, yaf_view_interface_ce);
 
 	return SUCCESS;
