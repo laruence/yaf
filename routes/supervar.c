@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: supervar.c 327548 2012-09-09 02:33:16Z laruence $ */
+/* $Id: supervar.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 #define YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR "_var_name"
 
@@ -89,11 +89,13 @@ PHP_METHOD(yaf_route_supervar, __construct) {
 	zval *var;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &var) ==   FAILURE) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 
 	if (Z_TYPE_P(var) != IS_STRING || !Z_STRLEN_P(var)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a string super var name", yaf_route_supervar_ce->name);
+		YAF_UNINITIALIZED_OBJECT(getThis());
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a valid string super var name", yaf_route_supervar_ce->name);
 		RETURN_FALSE;
 	}
 

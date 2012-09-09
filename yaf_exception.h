@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_exception.h 327283 2012-08-26 07:58:18Z laruence $ */
+/* $Id: yaf_exception.h 327549 2012-09-09 03:02:48Z laruence $ */
 
 #ifndef YAF_EXCEPTION_H
 #define YAF_EXCEPTION_H
@@ -59,6 +59,12 @@
 #define YAF_EXCEPTION_ERASE_EXCEPTION() \
 	do { \
 		EG(current_execute_data)->opline = EG(opline_before_exception); \
+	} while(0)
+
+#define YAF_UNINITIALIZED_OBJECT(obj) \
+	do { \
+		zval_dtor(obj); \
+		ZVAL_FALSE(obj); \
 	} while(0)
 
 extern zend_class_entry *yaf_ce_RuntimeException;

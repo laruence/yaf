@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: http.c 325431 2012-04-24 07:41:42Z laruence $ */
+/* $Id: http.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 #include "ext/standard/url.h"
 
@@ -243,6 +243,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 
 	yaf_request_t *self = getThis();
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ss", &request_uri, &rlen, &base_uri, &blen) == FAILURE) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 

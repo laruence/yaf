@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327541 2012-09-08 12:46:24Z laruence $ */
+/* $Id: yaf_application.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -336,7 +336,7 @@ PHP_METHOD(yaf_application, __construct) {
 	self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &config, &section) == FAILURE) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "%s::__construct expects at least 1 parameter, 0 give", yaf_application_ce->name);
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 
@@ -354,6 +354,7 @@ PHP_METHOD(yaf_application, __construct) {
 			|| !instanceof_function(Z_OBJCE_P(zconfig), yaf_config_ce TSRMLS_CC)
 			|| yaf_application_parse_option(zend_read_property(yaf_config_ce,
 				   	zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC) TSRMLS_CC) == FAILURE) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Initialization of application config failed");
 		RETURN_FALSE;
 	}
@@ -365,6 +366,7 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	if (!request) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Initialization of request failed");
 		RETURN_FALSE;
 	}
@@ -373,6 +375,7 @@ PHP_METHOD(yaf_application, __construct) {
 	if (NULL == zdispatcher
 			|| Z_TYPE_P(zdispatcher) != IS_OBJECT
 			|| !instanceof_function(Z_OBJCE_P(zdispatcher), yaf_dispatcher_ce TSRMLS_CC)) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Instantiation of application dispatcher failed");
 		RETURN_FALSE;
 	}
@@ -399,6 +402,7 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	if (!loader) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Initialization of application auto loader failed");
 		RETURN_FALSE;
 	}

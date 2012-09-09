@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: map.c 327548 2012-09-09 02:33:16Z laruence $*/
+/* $Id: map.c 327549 2012-09-09 03:02:48Z laruence $*/
 
 zend_class_entry *yaf_route_map_ce;
 
@@ -152,6 +152,7 @@ PHP_METHOD(yaf_route_map, __construct) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|bs",
 			   	&controller_prefer, &delim, &delim_len) == FAILURE) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 

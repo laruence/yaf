@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327548 2012-09-09 02:33:16Z laruence $ */
+/* $Id: simple.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 zend_class_entry *yaf_route_simple_ce;
 
@@ -100,12 +100,14 @@ PHP_METHOD(yaf_route_simple, __construct) {
 	zval *module, *controller, *action;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zzz", &module, &controller, &action) == FAILURE) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 
 	if (IS_STRING != Z_TYPE_P(module)
 			|| IS_STRING != Z_TYPE_P(controller)
 			|| IS_STRING != Z_TYPE_P(action)) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expect 3 string paramsters", yaf_route_simple_ce->name);
 		RETURN_FALSE;
 	} else {

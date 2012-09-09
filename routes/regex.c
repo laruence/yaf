@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: regex.c 327548 2012-09-09 02:33:16Z laruence $ */
+/* $Id: regex.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 zend_class_entry *yaf_route_regex_ce;
 
@@ -198,26 +198,18 @@ PHP_METHOD(yaf_route_regex, __construct) {
 	yaf_route_t	*self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zaa|a", &match, &route, &map, &verify) ==  FAILURE) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects an array as third paramter",  yaf_route_regex_ce->name);
-		WRONG_PARAM_COUNT;
+		YAF_UNINITIALIZED_OBJECT(getThis());
+		return;
 	}
 
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a string as the first parameter", yaf_route_regex_ce->name);
-		RETURN_FALSE;
-	}
-
-	if (Z_TYPE_P(route) != IS_ARRAY) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a array as the second parameter", yaf_route_regex_ce->name);
-		RETURN_FALSE;
-	}
-
-	if (IS_ARRAY != Z_TYPE_P(map)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects an array as third parameter",  yaf_route_regex_ce->name);
+		YAF_UNINITIALIZED_OBJECT(getThis());
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a valid string as the first parameter", yaf_route_regex_ce->name);
 		RETURN_FALSE;
 	}
 
 	if (verify && IS_ARRAY != Z_TYPE_P(verify)) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects an array as verify parmater",  yaf_route_regex_ce->name);
 		RETURN_FALSE;
 	}

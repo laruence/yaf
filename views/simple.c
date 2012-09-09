@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327509 2012-09-07 03:26:22Z laruence $ */
+/* $Id: simple.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -643,6 +643,7 @@ PHP_METHOD(yaf_view_simple, __construct) {
 	zval *tpl_dir, *options = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|a", &tpl_dir, &options) == FAILURE) {
+		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 
