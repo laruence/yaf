@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 327552 2012-09-09 03:52:28Z laruence $*/
+/* $Id: yaf_request.c 327565 2012-09-09 07:48:24Z laruence $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -824,9 +824,10 @@ zend_function_entry yaf_request_methods[] = {
 YAF_STARTUP_FUNCTION(request){
 	zend_class_entry ce;
 
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Abstract", "Yaf\\Request_Abstract", yaf_request_methods);
-	yaf_request_ce 			= zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	INIT_CLASS_ENTRY(ce, "Yaf_Request_Abstract", yaf_request_methods);
+	yaf_request_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_request_ce->ce_flags = ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
+	YAF_INIT_CLASS_ALIAS("Yaf\\Request_Abstract", yaf_request_ce);
 
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE),     ZEND_ACC_PUBLIC	TSRMLS_CC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), ZEND_ACC_PUBLIC TSRMLS_CC);

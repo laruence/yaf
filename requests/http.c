@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: http.c 327549 2012-09-09 03:02:48Z laruence $ */
+/* $Id: http.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 #include "ext/standard/url.h"
 
@@ -277,8 +277,9 @@ zend_function_entry yaf_request_http_methods[] = {
  */
 YAF_STARTUP_FUNCTION(request_http){
 	zend_class_entry ce;
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Http", "Yaf\\Request\\Http", yaf_request_http_methods);
+	INIT_CLASS_ENTRY(ce, "Yaf_Request_Http", yaf_request_http_methods);
 	yaf_request_http_ce = zend_register_internal_class_ex(&ce, yaf_request_ce, NULL TSRMLS_CC);
+	YAF_INIT_CLASS_ALIAS("Yaf\\Request\\Http", yaf_request_http_ce);
 
 	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTP"), "http" TSRMLS_CC);
 	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTPS"), "https" TSRMLS_CC);

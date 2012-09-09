@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_namespace.h 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_namespace.h 327565 2012-09-09 07:48:24Z laruence $ */
 
 #ifndef YAF_NAMESPACE_H
 #define YAF_NAMESPACE_H
@@ -23,26 +23,19 @@
 #define YAF_BEGIN_ARG_INFO		ZEND_BEGIN_ARG_INFO
 #define YAF_BEGIN_ARG_INFO_EX	ZEND_BEGIN_ARG_INFO_EX
 
-#define namespace_switch(n) \
-	(YAF_G(use_namespace)? n##_ns : n)
-
-#define YAF_INIT_CLASS_ENTRY(ce, name, name_ns, methods) \
-	if(YAF_G(use_namespace)) { \
-		INIT_CLASS_ENTRY(ce, name_ns, methods); \
-	} else { \
-		INIT_CLASS_ENTRY(ce, name, methods); \
-	}
+#define YAF_INIT_CLASS_ALIAS(name, ce) \
+	do {\
+		zend_register_class_alias_ex(name, sizeof(name) - 1, ce TSRMLS_CC); \
+    } while(0)
 #else
 
 #ifdef YAF_HAVE_NAMESPACE
 #undef YAF_HAVE_NAMESPACE
 #endif
 
-#define namespace_switch(n)	(n)
-#define YAF_INIT_CLASS_ENTRY(ce, name, name_ns, methods)  INIT_CLASS_ENTRY(ce, name, methods)
+#define YAF_INIT_CLASS_ALIAS(name, ce)
 #define YAF_BEGIN_ARG_INFO		static ZEND_BEGIN_ARG_INFO
 #define YAF_BEGIN_ARG_INFO_EX	static ZEND_BEGIN_ARG_INFO_EX
-
 #endif
 
 #define YAF_END_ARG_INFO		ZEND_END_ARG_INFO

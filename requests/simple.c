@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327554 2012-09-09 04:49:24Z laruence $ */
+/* $Id: simple.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 static zend_class_entry *yaf_request_simple_ce;
 
@@ -255,9 +255,11 @@ zend_function_entry yaf_request_simple_methods[] = {
  */
 YAF_STARTUP_FUNCTION(request_simple){
 	zend_class_entry ce;
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Simple", "Yaf\\Request\\Simple", yaf_request_simple_methods);
+
+	INIT_CLASS_ENTRY(ce, "Yaf_Request_Simple", yaf_request_simple_methods);
 	yaf_request_simple_ce = zend_register_internal_class_ex(&ce, yaf_request_ce, NULL TSRMLS_CC);
 	yaf_request_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+	YAF_INIT_CLASS_ALIAS("Yaf\\Request\\Simple", yaf_request_simple_ce);
 
 	zend_declare_class_constant_string(yaf_request_simple_ce, ZEND_STRL("SCHEME_HTTP"),  "http" TSRMLS_CC);
 	zend_declare_class_constant_string(yaf_request_simple_ce, ZEND_STRL("SCHEME_HTTPS"), "https" TSRMLS_CC);

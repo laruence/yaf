@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_session.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: yaf_session.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -353,10 +353,10 @@ zend_function_entry yaf_session_methods[] = {
 YAF_STARTUP_FUNCTION(session) {
 	zend_class_entry ce;
 
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Session", "Yaf\\Session", yaf_session_methods);
-
+	INIT_CLASS_ENTRY(ce, "Yaf_Session", yaf_session_methods);
 	yaf_session_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_session_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+	YAF_INIT_CLASS_ALIAS("Yaf\\Session", yaf_session_ce);
 
 #ifdef HAVE_SPL
 	zend_class_implements(yaf_session_ce TSRMLS_CC, 3, zend_ce_iterator, zend_ce_arrayaccess, spl_ce_Countable);

@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327562 2012-09-09 06:54:44Z laruence $ */
+/* $Id: yaf_dispatcher.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -1364,10 +1364,10 @@ zend_function_entry yaf_dispatcher_methods[] = {
 YAF_STARTUP_FUNCTION(dispatcher) {
 	zend_class_entry ce;
 
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Dispatcher", "Yaf\\Dispatcher", yaf_dispatcher_methods);
-
+	INIT_CLASS_ENTRY(ce, "Yaf_Dispatcher", yaf_dispatcher_methods);
 	yaf_dispatcher_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_dispatcher_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+	YAF_INIT_CLASS_ALIAS("Yaf\\Dispatcher", yaf_dispatcher_ce);
 
 	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 	ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 	ZEND_ACC_PROTECTED TSRMLS_CC);

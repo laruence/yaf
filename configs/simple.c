@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: simple.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 zend_class_entry *yaf_config_simple_ce;
 
@@ -343,7 +343,7 @@ zend_function_entry yaf_config_simple_methods[] = {
 YAF_STARTUP_FUNCTION(config_simple) {
 	zend_class_entry ce;
 
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Config_Simple", "Yaf\\Config\\Simple", yaf_config_simple_methods);
+	INIT_CLASS_ENTRY(ce, "Yaf_Config_Simple", yaf_config_simple_methods);
 	yaf_config_simple_ce = zend_register_internal_class_ex(&ce, yaf_config_ce, NULL TSRMLS_CC);
 
 #ifdef HAVE_SPL
@@ -354,6 +354,7 @@ YAF_STARTUP_FUNCTION(config_simple) {
 	zend_declare_property_bool(yaf_config_simple_ce, ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY), 0, ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	yaf_config_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+	YAF_INIT_CLASS_ALIAS("Yaf\\Config\\Simple", yaf_config_simple_ce);
 
 	return SUCCESS;
 }

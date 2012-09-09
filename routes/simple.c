@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327549 2012-09-09 03:02:48Z laruence $ */
+/* $Id: simple.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 zend_class_entry *yaf_route_simple_ce;
 
@@ -130,9 +130,10 @@ zend_function_entry yaf_route_simple_methods[] = {
 YAF_STARTUP_FUNCTION(route_simple) {
 	zend_class_entry ce;
 
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Simple", "Yaf\\Route\\Simple", yaf_route_simple_methods);
+	INIT_CLASS_ENTRY(ce, "Yaf_Route_Simple", yaf_route_simple_methods);
 	yaf_route_simple_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	zend_class_implements(yaf_route_simple_ce TSRMLS_CC, 1, yaf_route_ce);
+	YAF_INIT_CLASS_ALIAS("Yaf\\Route\\Simple", yaf_route_simple_ce);
 
 	yaf_route_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 

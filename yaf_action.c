@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_action.c 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_action.c 327565 2012-09-09 07:48:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -61,9 +61,11 @@ zend_function_entry yaf_action_methods[] = {
 */
 YAF_STARTUP_FUNCTION(action) {
 	zend_class_entry ce;
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Action_Abstract", "Yaf\\Action_Abstract", yaf_action_methods);
+
+	INIT_CLASS_ENTRY(ce, "Yaf_Action_Abstract", yaf_action_methods);
 	yaf_action_ce = zend_register_internal_class_ex(&ce, yaf_controller_ce, NULL TSRMLS_CC);
 	yaf_action_ce->ce_flags |= ZEND_ACC_IMPLICIT_ABSTRACT_CLASS;
+	YAF_INIT_CLASS_ALIAS("Yaf\\Action_Abstract", yaf_action_ce);
 
 	zend_declare_property_null(yaf_action_ce, ZEND_STRL(YAF_ACTION_PROPERTY_NAME_CTRL),	ZEND_ACC_PROTECTED TSRMLS_CC);
 
