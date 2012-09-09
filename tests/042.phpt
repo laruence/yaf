@@ -2,8 +2,6 @@
 Check for throw exception in Yaf_Controller::init
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
---INI--
-report_memleaks=0
 --FILE--
 <?php 
 $config = array(
