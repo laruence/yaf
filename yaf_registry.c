@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_registry.c 327565 2012-09-09 07:48:24Z laruence $  */
+/* $Id: yaf_registry.c 321289 2011-12-21 02:53:29Z laruence $  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -208,10 +208,10 @@ zend_function_entry yaf_registry_methods[] = {
 YAF_STARTUP_FUNCTION(registry) {
 	zend_class_entry ce;
 
-	INIT_CLASS_ENTRY(ce, "Yaf_Registry", yaf_registry_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Registry", "Yaf\\Registry", yaf_registry_methods);
+
 	yaf_registry_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_registry_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Registry", yaf_registry_ce);
 
 	zend_declare_property_null(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC TSRMLS_CC);
 	zend_declare_property_null(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS),  ZEND_ACC_PROTECTED TSRMLS_CC);

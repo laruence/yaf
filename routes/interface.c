@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: interface.c 326042 2012-06-08 10:49:59Z laruence $ */
 
 #include "ext/standard/php_smart_str.h"
 
@@ -146,10 +146,8 @@ zend_function_entry yaf_route_methods[] = {
  */
 YAF_STARTUP_FUNCTION(route) {
 	zend_class_entry ce;
-
-	INIT_CLASS_ENTRY(ce, "Yaf_Route_Interface", yaf_route_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Interface", "Yaf\\Route_Interface", yaf_route_methods);
 	yaf_route_ce = zend_register_internal_interface(&ce TSRMLS_CC);
-	YAF_INIT_CLASS_ALIAS("Yaf\\Route_Interface", yaf_route_ce);
 
 	YAF_STARTUP(route_static);
 	YAF_STARTUP(route_simple);

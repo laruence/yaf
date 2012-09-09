@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: php_yaf.h 327561 2012-09-09 06:30:22Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -119,6 +119,9 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zval        *active_ini_file_section;
 	zval        *ini_wanted_section;
 	uint        parsing_flag;
+#ifdef YAF_HAVE_NAMESPACE
+	zend_bool	use_namespace;
+#endif
 ZEND_END_MODULE_GLOBALS(yaf)
 
 PHP_MINIT_FUNCTION(yaf);

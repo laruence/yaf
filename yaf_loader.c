@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: yaf_loader.c 327560 2012-09-09 06:09:27Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -987,10 +987,9 @@ zend_function_entry yaf_loader_methods[] = {
 YAF_STARTUP_FUNCTION(loader) {
 	zend_class_entry ce;
 
-	INIT_CLASS_ENTRY(ce, "Yaf_Loader", yaf_loader_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Loader",  "Yaf\\Loader", yaf_loader_methods);
 	yaf_loader_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_loader_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Loader", yaf_loader_ce);
 
 	zend_declare_property_null(yaf_loader_ce, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_LIBRARY), 	 ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_loader_ce, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB), ZEND_ACC_PROTECTED TSRMLS_CC);

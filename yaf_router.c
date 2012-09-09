@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: yaf_router.c 327425 2012-09-02 03:58:49Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -363,10 +363,10 @@ zend_function_entry yaf_router_methods[] = {
 YAF_STARTUP_FUNCTION(router) {
 	zend_class_entry ce;
 
-	INIT_CLASS_ENTRY(ce, "Yaf_Router", yaf_router_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Router", "Yaf\\Router", yaf_router_methods);
 	yaf_router_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+
 	yaf_router_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Router", yaf_router_ce);
 
 	zend_declare_property_null(yaf_router_ce, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_ROUTERS), 		 ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_router_ce, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE), ZEND_ACC_PROTECTED TSRMLS_CC);

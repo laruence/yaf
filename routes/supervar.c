@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: supervar.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: supervar.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 #define YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR "_var_name"
 
@@ -116,12 +116,10 @@ zend_function_entry yaf_route_supervar_methods[] = {
  */
 YAF_STARTUP_FUNCTION(route_supervar) {
 	zend_class_entry ce;
-
-	INIT_CLASS_ENTRY(ce, "Yaf_Route_Supervar", yaf_route_supervar_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Supervar", "Yaf\\Route\\Supervar", yaf_route_supervar_methods);
 	yaf_route_supervar_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	zend_class_implements(yaf_route_supervar_ce TSRMLS_CC, 1, yaf_route_ce);
 	yaf_route_supervar_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Route\\Supervar", yaf_route_supervar_ce);
 
 	zend_declare_property_null(yaf_route_supervar_ce, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR),  ZEND_ACC_PROTECTED TSRMLS_CC);
 

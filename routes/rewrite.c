@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: rewrite.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: rewrite.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 zend_class_entry *yaf_route_rewrite_ce;
 
@@ -298,12 +298,10 @@ zend_function_entry yaf_route_rewrite_methods[] = {
  */
 YAF_STARTUP_FUNCTION(route_rewrite) {
 	zend_class_entry ce;
-
-	INIT_CLASS_ENTRY(ce, "Yaf_Route_Rewrite", yaf_route_rewrite_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Rewrite", "Yaf\\Route\\Rewrite", yaf_route_rewrite_methods);
 	yaf_route_rewrite_ce = zend_register_internal_class_ex(&ce, yaf_route_ce, NULL TSRMLS_CC);
 	zend_class_implements(yaf_route_rewrite_ce TSRMLS_CC, 1, yaf_route_ce);
 	yaf_route_rewrite_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Route\\Rewrite", yaf_route_rewrite_ce);
 
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE),  ZEND_ACC_PROTECTED TSRMLS_CC);

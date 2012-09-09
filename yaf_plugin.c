@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_plugin.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: yaf_plugin.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -42,6 +42,13 @@ ZEND_BEGIN_ARG_INFO_EX(plugin_arg, 0, 0, 2)
 	ZEND_ARG_OBJ_INFO(0, request, Yaf_Request_Abstract, 0)
 	ZEND_ARG_OBJ_INFO(0, response, Yaf_Response_Abstract, 0)
 ZEND_END_ARG_INFO()
+
+#ifdef YAF_HAVE_NAMESPACE
+ZEND_BEGIN_ARG_INFO_EX(plugin_arg_ns, 0, 0, 2)
+	ZEND_ARG_OBJ_INFO(0, request, Yaf\\Request_Abstract, 0)
+	ZEND_ARG_OBJ_INFO(0, response, Yaf\\Response_Abstract, 0)
+ZEND_END_ARG_INFO()
+#endif
 /* }}} */
 
 /** {{{ proto public Yaf_Plugin::routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
@@ -97,24 +104,36 @@ PHP_METHOD(yaf_plugin, preResponse) {
 */
 zend_function_entry yaf_plugin_methods[] = {
 	PHP_ME(yaf_plugin, routerStartup,  		 plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, routerShutdown, 		 plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerShutdown,  		 plugin_arg, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_plugin, dispatchLoopStartup,   plugin_arg, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_plugin, dispatchLoopShutdown,  plugin_arg, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_plugin, preDispatch,  		 plugin_arg, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_plugin, postDispatch, 		 plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preResponse, 		 plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preResponse, 			 plugin_arg, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
+
+#ifdef YAF_HAVE_NAMESPACE
+zend_function_entry yaf_plugin_methods_ns[] = {
+	PHP_ME(yaf_plugin, routerStartup,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerShutdown,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopStartup,   plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopShutdown,  plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preDispatch,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, postDispatch, 		 plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preResponse, 			 plugin_arg_ns, ZEND_ACC_PUBLIC)
+	{NULL, NULL, NULL}
+};
+#endif
 /* }}} */
 
 /** {{{ YAF_STARTUP_FUNCTION
 */
 YAF_STARTUP_FUNCTION(plugin) {
 	zend_class_entry ce;
-	INIT_CLASS_ENTRY(ce, "Yaf_Plugin_Abstract", yaf_plugin_methods);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Plugin_Abstract", "Yaf\\Plugin_Abstract", namespace_switch(yaf_plugin_methods));
 	yaf_plugin_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_plugin_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Plugin_Abstract", yaf_plugin_ce);
 
 	return SUCCESS;
 }

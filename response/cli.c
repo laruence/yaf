@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: cli.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: cli.c 321289 2011-12-21 02:53:29Z laruence $ */
 
 
 zend_class_entry * yaf_response_cli_ce;
@@ -30,9 +30,10 @@ zend_function_entry yaf_response_cli_methods[] = {
 */
 YAF_STARTUP_FUNCTION(response_cli) {
 	zend_class_entry ce;
-	INIT_CLASS_ENTRY(ce, "Yaf_Response_Cli", yaf_response_cli_methods);
+
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Cli", "Yaf\\Response\\Cli", yaf_response_cli_methods);
+
 	yaf_response_cli_ce = zend_register_internal_class_ex(&ce, yaf_response_ce, NULL TSRMLS_CC);
-	YAF_INIT_CLASS_ALIAS("Yaf\\Response\\Cli", yaf_response_cli_ce);
 
 	return SUCCESS;
 }

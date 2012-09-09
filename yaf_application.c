@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327565 2012-09-09 07:48:24Z laruence $ */
+/* $Id: yaf_application.c 327549 2012-09-09 03:02:48Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -750,11 +750,10 @@ zend_function_entry yaf_application_methods[] = {
 */
 YAF_STARTUP_FUNCTION(application) {
 	zend_class_entry ce;
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Application", "Yaf\\Application", yaf_application_methods);
 
-	INIT_CLASS_ENTRY(ce, "Yaf_Application", yaf_application_methods);
-	yaf_application_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	yaf_application_ce 			  = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
-	YAF_INIT_CLASS_ALIAS("Yaf\\Application", yaf_application_ce);
 
 	zend_declare_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), 	ZEND_ACC_PROTECTED 	TSRMLS_CC);
 	zend_declare_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), ZEND_ACC_PROTECTED 	TSRMLS_CC);
