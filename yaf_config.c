@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_config.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: yaf_config.c 327559 2012-09-09 06:05:25Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -260,6 +260,8 @@ static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *f
 			array_init(props);
 			yaf_config_copy_losable(Z_ARRVAL_P(props), (*ppval)->data TSRMLS_CC);
 			efree(key);
+			/* tricky way */
+			Z_SET_REFCOUNT_P(props, 0);
 			return yaf_config_ini_instance(this_ptr, props, section TSRMLS_CC);
 		}
 		efree(key);
