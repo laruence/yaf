@@ -23,6 +23,7 @@
 #include "php.h"
 #include "php_ini.h"
 #include "main/SAPI.h"
+#include "ext/standard/php_string.h" /* for php_implode */
 #include "Zend/zend_interfaces.h"
 
 #include "php_yaf.h"

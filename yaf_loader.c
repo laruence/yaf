@@ -328,7 +328,7 @@ static void yaf_suppress_include_warning(int error_num, const char *error_filena
 	TSRMLS_FETCH();
 	if (YAF_G(suppressing_warning) && error_num == E_WARNING) {
 		char buffer[1024];
-		int buffer_len, display;
+		int buffer_len;
 		va_list copy;
 
 /* va_copy() is __va_copy() in old gcc versions.
