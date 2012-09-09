@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327556 2012-09-09 04:59:31Z laruence $ */
+/* $Id: yaf_dispatcher.c 327557 2012-09-09 05:11:59Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -670,7 +670,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				efree(func_name);
 
 				if (!ret) {
-					Z_DELREF_P(action);
+					zval_ptr_dtor(&action);
 					zval_ptr_dtor(&icontroller);
 					return 0;
 				}
@@ -679,7 +679,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 							&& !Z_BVAL_P(ret))) {
 					/* no auto-render */
 					zval_ptr_dtor(&ret);
-					Z_DELREF_P(action);
+					zval_ptr_dtor(&action);
 					zval_ptr_dtor(&icontroller);
 					return 1;
 				}
@@ -717,7 +717,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				}
 
 				if (!ret) {
-					Z_DELREF_P(action);
+					zval_ptr_dtor(&action);
 					zval_ptr_dtor(&iaction);
 					zval_ptr_dtor(&icontroller);
 					return 0;
@@ -727,7 +727,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 							&& !Z_BVAL_P(ret))) {
 					/* no auto-render */
 					zval_ptr_dtor(&ret);
-					Z_DELREF_P(action);
+					zval_ptr_dtor(&action);
 					zval_ptr_dtor(&iaction);
 					zval_ptr_dtor(&icontroller);
 					return 1;
@@ -760,7 +760,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 							zval_ptr_dtor(&ret);
 						} else if (ret) {
 							zval_ptr_dtor(&ret);
-							Z_DELREF_P(action);
+							zval_ptr_dtor(&action);
 							return 0;
 						}
 					} else {
@@ -768,22 +768,22 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 						zval_ptr_dtor(&executor);
 
 						if (!ret) {
-							Z_DELREF_P(action);
+							zval_ptr_dtor(&action);
 							return 0;
 						}
 
 						if ((Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret))) {
 							zval_ptr_dtor(&ret);
-							Z_DELREF_P(action);
+							zval_ptr_dtor(&action);
 							return 0;
 						}
 					}
 				} else {
 					zval_ptr_dtor(&executor);
-					Z_DELREF_P(action);
+					zval_ptr_dtor(&action);
 				}
 			}
-			Z_DELREF_P(action);
+			zval_ptr_dtor(&action);
 		}
 		return 1;
 	}
@@ -824,7 +824,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_EXCEPTION), exception TSRMLS_CC);
 
 	Z_DELREF_P(controller);
-	Z_DELREF_P(action);
+	zval_ptr_dtor(&action);
 
 	/** use $request->getException() instand of */
 	yaf_request_set_params_single(request, ZEND_STRL("exception"), exception TSRMLS_CC);

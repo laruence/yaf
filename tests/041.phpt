@@ -2,8 +2,6 @@
 Check for controller return false preventing auto-renderring
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
---INI--
-report_memleaks=0
 --FILE--
 <?php 
 $config = array(
