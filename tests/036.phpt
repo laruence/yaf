@@ -3,8 +3,6 @@ Check for Yaf_Route_Static with arbitrary urls
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
-;@TODO fix memleaks
-report_memleaks=Off
 --FILE--
 <?php
 $url = array(

@@ -5,7 +5,6 @@ Fixed bug that segfault while a abnormal object set to Yaf_Route*::route
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
-report_memleaks=0
 --FILE--
 <?php
 error_reporting(E_ALL & ~E_WARNING);
