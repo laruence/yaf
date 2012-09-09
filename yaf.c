@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 327514 2012-09-07 04:31:34Z laruence $ */
+/* $Id: yaf.c 327563 2012-09-09 07:02:00Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -233,6 +233,10 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		efree(YAF_G(base_uri));
 	}
 	YAF_G(default_route) = NULL;
+
+	if (YAF_G(view_ext) != YAF_DEFAULT_VIEW_EXT) {
+		efree(YAF_G(view_ext));
+	}
 
 	return SUCCESS;
 }
