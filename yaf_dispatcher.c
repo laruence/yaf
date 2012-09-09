@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327558 2012-09-09 05:59:24Z laruence $ */
+/* $Id: yaf_dispatcher.c 327561 2012-09-09 06:30:22Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -751,58 +751,35 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 				if (auto_render) {
 					ret = NULL;
-					if (ce == yaf_controller_ce || ce == yaf_action_ce) {
-						if (!Z_BVAL_P(instantly_flush)) {
-							ret = yaf_controller_render(executor, Z_STRVAL_P(action), Z_STRLEN_P(action), NULL TSRMLS_CC);
-							zval_ptr_dtor(&executor);
-							zval_ptr_dtor(&action);
-							if (ret) {
-								yaf_response_alter_body(response, NULL, 0, Z_STRVAL_P(ret), Z_STRLEN_P(ret), YAF_RESPONSE_APPEND  TSRMLS_CC);
-								zval_ptr_dtor(&ret);
-								return 1;
-							}
-							return 0;
-						} else {
-							if (yaf_controller_display(executor, Z_STRVAL_P(action), Z_STRLEN_P(action), NULL TSRMLS_CC)) {
-								zval_ptr_dtor(&executor);
-								zval_ptr_dtor(&action);
-								return 1;
-							} 
-							zval_ptr_dtor(&executor);
+					if (!Z_BVAL_P(instantly_flush)) {
+						zend_call_method_with_1_params(&executor, ce, NULL, "render", &ret, action);
+						zval_ptr_dtor(&executor);
+
+						if (ret && Z_TYPE_P(ret) == IS_STRING && Z_STRLEN_P(ret)) {
+							yaf_response_alter_body(response, NULL, 0, Z_STRVAL_P(ret), Z_STRLEN_P(ret), YAF_RESPONSE_APPEND  TSRMLS_CC);
+							zval_ptr_dtor(&ret);
+						} else if (ret) {
+							zval_ptr_dtor(&ret);
 							zval_ptr_dtor(&action);
 							return 0;
 						}
 					} else {
-						if (!Z_BVAL_P(instantly_flush)) {
-							zend_call_method_with_1_params(&executor, ce, NULL, "render", &ret, action);
-							zval_ptr_dtor(&executor);
+						zend_call_method_with_1_params(&executor, ce, NULL, "display", &ret, action);
+						zval_ptr_dtor(&executor);
 
-							if (ret && Z_TYPE_P(ret) == IS_STRING && Z_STRLEN_P(ret)) {
-								yaf_response_alter_body(response, NULL, 0, Z_STRVAL_P(ret), Z_STRLEN_P(ret), YAF_RESPONSE_APPEND  TSRMLS_CC);
-								zval_ptr_dtor(&ret);
-							} else if (ret) {
-								zval_ptr_dtor(&ret);
-								zval_ptr_dtor(&action);
-								return 0;
-							}
+						if (!ret) {
+							zval_ptr_dtor(&action);
+							return 0;
+						}
+
+						if ((Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret))) {
+							zval_ptr_dtor(&ret);
+							zval_ptr_dtor(&action);
+							return 0;
 						} else {
-							zend_call_method_with_1_params(&executor, ce, NULL, "display", &ret, action);
-							zval_ptr_dtor(&executor);
-
-							if (!ret) {
-								zval_ptr_dtor(&action);
-								return 0;
-							}
-
-							if ((Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret))) {
-								zval_ptr_dtor(&ret);
-								zval_ptr_dtor(&action);
-								return 0;
-							} else {
-								zval_ptr_dtor(&ret);
-								zval_ptr_dtor(&action);
-								return 1;
-							}
+							zval_ptr_dtor(&ret);
+							zval_ptr_dtor(&action);
+							return 1;
 						}
 					}
 				} else {

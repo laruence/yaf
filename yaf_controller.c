@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_controller.c 327558 2012-09-09 05:59:24Z laruence $ */
+/* $Id: yaf_controller.c 327561 2012-09-09 06:30:22Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -502,9 +502,14 @@ PHP_METHOD(yaf_controller, render) {
 	} else {
 		zval *output = yaf_controller_render(getThis(), action_name, action_name_len, var_array TSRMLS_CC);
 		if (output) {
-			ZVAL_STRINGL(return_value, Z_STRVAL_P(output), Z_STRLEN_P(output), 0);
-			efree(output);
-			return;
+			if (IS_STRING == Z_TYPE_P(output)) {
+				/* save a string copy here */
+				ZVAL_STRINGL(return_value, Z_STRVAL_P(output), Z_STRLEN_P(output), 0);
+				efree(output);
+				return;
+			} else {
+				RETURN_ZVAL(output, 1, 1);
+			}
 		} else {
 			RETURN_FALSE;
 		}
@@ -536,19 +541,19 @@ PHP_METHOD(yaf_controller, __clone) {
 /** {{{ yaf_controller_methods
 */
 zend_function_entry yaf_controller_methods[] = {
-	PHP_ME(yaf_controller, render,	    yaf_controller_render_arginfo, 	ZEND_ACC_PROTECTED|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, display,	    yaf_controller_display_arginfo, ZEND_ACC_PROTECTED|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getRequest,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getResponse,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getModuleName,yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getView,		yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, initView,	yaf_controller_initview_arginfo,ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, setViewpath,	yaf_controller_setvdir_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getViewpath,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, forward,	   	yaf_controller_forward_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, redirect,    yaf_controller_redirect_arginfo,ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getInvokeArgs,yaf_controller_void_arginfo,   ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
-	PHP_ME(yaf_controller, getInvokeArg, yaf_controller_getiarg_arginfo,ZEND_ACC_PUBLIC|ZEND_ACC_FINAL)
+	PHP_ME(yaf_controller, render,	    yaf_controller_render_arginfo, 	ZEND_ACC_PROTECTED)
+	PHP_ME(yaf_controller, display,	    yaf_controller_display_arginfo, ZEND_ACC_PROTECTED)
+	PHP_ME(yaf_controller, getRequest,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, getResponse,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, getModuleName,yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, getView,		yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, initView,	yaf_controller_initview_arginfo,ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, setViewpath,	yaf_controller_setvdir_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, getViewpath,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, forward,	   	yaf_controller_forward_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, redirect,    yaf_controller_redirect_arginfo,ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, getInvokeArgs,yaf_controller_void_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, getInvokeArg, yaf_controller_getiarg_arginfo,ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_controller, __construct,	NULL, 							ZEND_ACC_CTOR|ZEND_ACC_FINAL|ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_controller, __clone, 	NULL, 							ZEND_ACC_PRIVATE|ZEND_ACC_FINAL)
 	{NULL, NULL, NULL}
