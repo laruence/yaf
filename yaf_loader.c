@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327520 2012-09-07 07:59:08Z laruence $ */
+/* $Id: yaf_loader.c 327558 2012-09-09 05:59:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -854,7 +854,8 @@ PHP_METHOD(yaf_loader, autoload) {
 	if (!YAF_G(use_spl_autoload)) {
 		/** directory might be NULL since we passed a NULL */
 		if (yaf_internal_autoload(file_name, file_name_len, &directory TSRMLS_CC)) {
-			if (zend_hash_exists(EG(class_table), zend_str_tolower_dup(origin_classname, class_name_len), class_name_len + 1)) {
+			char *lc_classname = zend_str_tolower_dup(origin_classname, class_name_len);
+			if (zend_hash_exists(EG(class_table), lc_classname, class_name_len + 1)) {
 #ifdef YAF_HAVE_NAMESPACE
 				if (origin_lcname) {
 					efree(origin_lcname);
@@ -868,8 +869,10 @@ PHP_METHOD(yaf_loader, autoload) {
 					efree(file_name);
 				}
 
+				efree(lc_classname);
 				RETURN_TRUE;
 			} else {
+				efree(lc_classname);
 				php_error_docref(NULL TSRMLS_CC, E_STRICT, "Could not find class %s in %s", class_name, directory);
 			}
 		}  else {

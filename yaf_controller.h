@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_controller.h 324667 2012-03-31 13:55:08Z laruence $ */
+/* $Id: yaf_controller.h 327558 2012-09-09 05:59:24Z laruence $ */
 
 #ifndef YAF_CONTROLLER_H
 #define YAF_CONTROLLER_H
@@ -33,6 +33,8 @@
 extern zend_class_entry *yaf_controller_ce;
 int yaf_controller_construct(zend_class_entry *ce, yaf_controller_t *self,
 		yaf_request_t *request, yaf_response_t *response, yaf_view_t *view, zval *args TSRMLS_DC);
+zval * yaf_controller_render(zval *instance, char *action_name, int len, zval *var_array TSRMLS_DC);
+int yaf_controller_display(zval *instance, char *action_name, int len, zval *var_array TSRMLS_DC);
 YAF_STARTUP_FUNCTION(controller);
 #endif
 /*

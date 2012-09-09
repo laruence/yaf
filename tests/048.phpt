@@ -5,7 +5,7 @@ Check for Sample application
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
-report_memleaks=0
+
 --FILE--
 <?php 
 require "build.inc";

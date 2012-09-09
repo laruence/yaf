@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_controller.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: yaf_controller.c 327558 2012-09-09 05:59:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -79,7 +79,7 @@ ZEND_END_ARG_INFO()
 
 /** {{{ zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC)
  */
-static zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
+zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
 	char 	*path, *view_ext, *self_name, *tmp;
 	zval 	*name, *param, *ret = NULL;
 	int 	path_len;
@@ -134,7 +134,13 @@ static zval * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 		}
 	}
 
-	if (!ret || EG(exception)) {
+	if (!ret) {
+		zval_ptr_dtor(&param);
+		return NULL;
+	}
+	
+	if (EG(exception)) {
+		zval_ptr_dtor(&ret);
 		zval_ptr_dtor(&param);
 		return NULL;
 	}
@@ -151,17 +157,17 @@ static zval * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 }
 /* }}} */
 
-/** {{{ static int yaf_controller_display(zend_class_entry *ce, yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC)
+/** {{{ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC)
  */
-static int yaf_controller_display(zend_class_entry *ce, yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
+int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
 	char *path, *view_ext, *self_name, *tmp;
 	zval *name, *param, *ret = NULL;
 	int  path_len;
 	yaf_view_t	*view;
 	zend_class_entry *view_ce;
 
-	view   	  = zend_read_property(ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
-	name	  = zend_read_property(ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), 1 TSRMLS_CC);
+	view   	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
+	name	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), 1 TSRMLS_CC);
 	view_ext  = YAF_G(view_ext);
 
 	self_name = zend_str_tolower_dup(Z_STRVAL_P(name), Z_STRLEN_P(name));
@@ -496,7 +502,9 @@ PHP_METHOD(yaf_controller, render) {
 	} else {
 		zval *output = yaf_controller_render(getThis(), action_name, action_name_len, var_array TSRMLS_CC);
 		if (output) {
-			RETURN_ZVAL(output, 0, 0);
+			ZVAL_STRINGL(return_value, Z_STRVAL_P(output), Z_STRLEN_P(output), 0);
+			efree(output);
+			return;
 		} else {
 			RETURN_FALSE;
 		}
@@ -514,7 +522,7 @@ PHP_METHOD(yaf_controller, display) {
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|z", &action_name, &action_name_len, &var_array) == FAILURE) {
 		return;
 	} else {
-		RETURN_BOOL(yaf_controller_display(yaf_controller_ce, getThis(), action_name, action_name_len, var_array TSRMLS_CC));
+		RETURN_BOOL(yaf_controller_display(getThis(), action_name, action_name_len, var_array TSRMLS_CC));
 	}
 }
 /* }}} */
