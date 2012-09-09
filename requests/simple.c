@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327549 2012-09-09 03:02:48Z laruence $ */
+/* $Id: simple.c 327553 2012-09-09 04:04:10Z laruence $ */
 
 static zend_class_entry *yaf_request_simple_ce;
 
@@ -22,6 +22,13 @@ static zend_class_entry *yaf_request_simple_ce;
 */
 yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params TSRMLS_DC) {
 	yaf_request_t *instance;
+
+	if (this_ptr) {
+		instance = this_ptr;
+	} else {
+		MAKE_STD_ZVAL(instance);
+		object_init_ex(instance, yaf_request_simple_ce);
+	}
 
 	if (!method) {
 		MAKE_STD_ZVAL(method);
@@ -34,16 +41,12 @@ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *modul
 		} else {
 			ZVAL_STRING(method, (char *)SG(request_info).request_method, 1);
 		}
-	}
-
-	if (this_ptr) {
-		instance = this_ptr;
 	} else {
-		MAKE_STD_ZVAL(instance);
-		object_init_ex(instance, yaf_request_simple_ce);
+		Z_ADDREF_P(method);
 	}
 
 	zend_update_property(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), method TSRMLS_CC);
+	zval_ptr_dtor(&method);
 
 	if (module || controller || action) {
 		if (!module || Z_TYPE_P(module) != IS_STRING) {
@@ -131,7 +134,7 @@ PHP_METHOD(yaf_request_simple, __construct) {
 		return;
 	} else {
 		if ((params && IS_ARRAY != Z_TYPE_P(params))) {
-		    YAF_UNINITIALIZED_OBJECT(getThis());
+			YAF_UNINITIALIZED_OBJECT(getThis());
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC,
 				   	"Expects the params is an array", yaf_request_simple_ce->name);
 			RETURN_FALSE;

@@ -3,8 +3,7 @@ Check for Yaf_View_Simple with predefined template dir
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
-;@TODO fix memory leak
-report_memleaks=Off
+report_memleaks=0
 --FILE--
 <?php 
 $config = array(
