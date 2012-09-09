@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327554 2012-09-09 04:49:24Z laruence $ */
+/* $Id: yaf_dispatcher.c 327556 2012-09-09 04:59:31Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -683,6 +683,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 					zval_ptr_dtor(&icontroller);
 					return 1;
 				}
+				zval_ptr_dtor(&ret);
 			} else if ((ce = yaf_dispatcher_get_action(app_dir, icontroller,
 							Z_STRVAL_P(module), is_def_module, Z_STRVAL_P(action), Z_STRLEN_P(action) TSRMLS_CC))
 					&& (zend_hash_find(&(ce)->function_table, YAF_ACTION_EXECUTOR_NAME,
@@ -1142,7 +1143,7 @@ PHP_METHOD(yaf_dispatcher, dispatch) {
 	self = getThis();
 	zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request TSRMLS_CC);
 	if ((response = yaf_dispatcher_dispatch(self TSRMLS_CC))) {
-		RETURN_ZVAL(response, 0, 0);
+		RETURN_ZVAL(response, 1, 1);
 	}
 
 	RETURN_FALSE;
