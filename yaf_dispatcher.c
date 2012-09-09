@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: yaf_dispatcher.c 327554 2012-09-09 04:49:24Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -239,48 +239,49 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 		zval *default_module = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), default_module TSRMLS_CC);
 	} else {
-		ZVAL_STRINGL(module, zend_str_tolower_dup(Z_STRVAL_P(module), Z_STRLEN_P(module)), Z_STRLEN_P(module), 0);
-		*(Z_STRVAL_P(module)) = toupper(*(Z_STRVAL_P(module)));
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+		char *p = zend_str_tolower_dup(Z_STRVAL_P(module), Z_STRLEN_P(module));
+		*p = toupper(*p);
+		zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), p, Z_STRLEN_P(module) TSRMLS_CC);
+		efree(p);
 	}
 
 	if (!controller || Z_TYPE_P(controller) != IS_STRING || !Z_STRLEN_P(controller)) {
 		zval *default_controller = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), default_controller TSRMLS_CC);
 	} else {
-		char *p;
-		ZVAL_STRINGL(controller, zend_str_tolower_dup(Z_STRVAL_P(controller), Z_STRLEN_P(controller)), Z_STRLEN_P(controller), 0);
-		p = Z_STRVAL_P(controller);
+		char *q, *p = zend_str_tolower_dup(Z_STRVAL_P(controller), Z_STRLEN_P(controller));
 
 		/**
-		 * upper contolerr name
+		 * upper controller name
 		 * eg: Index_sub -> Index_Sub
 		 */
-		*p = toupper(*p);
-		while (*p != '\0') {
-			if (*p == '_'
+		q = p;
+		*q = toupper(*q);
+		while (*q != '\0') {
+			if (*q == '_'
 #ifdef YAF_HAVE_NAMESPACE
-					|| *p == '\\'
+					|| *q == '\\'
 #endif
 			   ) {
-				if (*(p+1) != '\0') {
-					*(p+1) = toupper(*(p+1));
-					p++;
+				if (*(q+1) != '\0') {
+					*(q+1) = toupper(*(q+1));
+					q++;
 				}
 			}
-			p++;
+			q++;
 		}
 
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
+		zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), p, Z_STRLEN_P(controller) TSRMLS_CC);
+		efree(p);
 	}
-
 
 	if (!action || Z_TYPE_P(action) != IS_STRING || !Z_STRLEN_P(action)) {
 		zval *default_action = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), default_action TSRMLS_CC);
 	} else {
-		ZVAL_STRINGL(action, zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action)), Z_STRLEN_P(action), 0);
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
+		char *p = zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action));
+		zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), p, Z_STRLEN_P(action) TSRMLS_CC);
+		efree(p);
 	}
 }
 /* }}} */

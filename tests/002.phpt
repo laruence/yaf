@@ -2,11 +2,9 @@
 Check for Yaf_Request_Simple
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
---INI--
-report_memleaks=0
 --FILE--
 <?php 
-$request  = new Yaf_Request_Simple("CLI", "index", "dummy", "index");
+$request  = new Yaf_Request_Simple("CLI", "index", "dummy", NULL, array());
 print_r($request);
 var_dump((bool)$request->setParam("name", "Laruence"));
 var_dump($request->isCli());
