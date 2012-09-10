@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: ini.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: ini.c 327591 2012-09-10 10:56:13Z laruence $ */
 
 zend_class_entry *yaf_config_ini_ce;
 
@@ -548,9 +548,13 @@ yaf_config_t * yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, z
 						return NULL;
 					}
 				}
+			} else {
+				zval_ptr_dtor(&configs);
+				yaf_trigger_error(E_ERROR TSRMLS_CC, "Argument is not a valid ini file '%s'", ini_file);
+				return NULL;
 			}
 		} else {
-			efree(configs);
+			zval_ptr_dtor(&configs);
 			yaf_trigger_error(E_ERROR TSRMLS_CC, "Unable to find config file '%s'", ini_file);
 			return NULL;
 		}

@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 327552 2012-09-09 03:52:28Z laruence $ */
+/* $Id: yaf_request.h 327591 2012-09-10 10:56:13Z laruence $ */
 
 #ifndef YAF_REQUEST_H
 #define YAF_REQUEST_H
@@ -44,7 +44,7 @@
 
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\
-	zval * method  = zend_read_property(Z_OBJCE_P(getThis()), getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 1 TSRMLS_CC);\
+	zval * method  = zend_read_property(Z_OBJCE_P(getThis()), getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 0 TSRMLS_CC);\
 	if (strncasecmp(#x, Z_STRVAL_P(method), Z_STRLEN_P(method)) == 0) { \
 		RETURN_TRUE; \
 	} \

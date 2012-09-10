@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327580 2012-09-10 06:31:34Z laruence $ */
+/* $Id: simple.c 327591 2012-09-10 10:56:13Z laruence $ */
 
 static zend_class_entry *yaf_request_simple_ce;
 
@@ -30,7 +30,7 @@ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *modul
 		object_init_ex(instance, yaf_request_simple_ce);
 	}
 
-	if (!method) {
+	if (!method || IS_STRING != Z_TYPE_P(method)) {
 		MAKE_STD_ZVAL(method);
 		if (!SG(request_info).request_method) {
 			if (!strncasecmp(sapi_module.name, "cli", 3)) {
