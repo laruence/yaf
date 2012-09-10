@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 327552 2012-09-09 03:52:28Z laruence $*/
+/* $Id: yaf_request.c 327580 2012-09-10 06:31:34Z laruence $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -345,7 +345,7 @@ zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC) {
 		zval * accept_langs = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("HTTP_ACCEPT_LANGUAGE") TSRMLS_CC);
 
 		if (IS_STRING != Z_TYPE_P(accept_langs) || !Z_STRLEN_P(accept_langs)) {
-			return lang;
+			return accept_langs;
 		} else {
 			char  	*ptrptr, *seg;
 			uint	prefer_len = 0;

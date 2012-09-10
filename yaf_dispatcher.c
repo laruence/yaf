@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327562 2012-09-09 06:54:44Z laruence $ */
+/* $Id: yaf_dispatcher.c 327580 2012-09-10 06:31:34Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -700,6 +700,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 				zend_update_property(ce, iaction, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), controller TSRMLS_CC);
 				zend_update_property(ce, iaction, ZEND_STRL(YAF_ACTION_PROPERTY_NAME_CTRL), icontroller TSRMLS_CC);
+				zval_ptr_dtor(&icontroller);
 
 				if (fptr->common.num_args) {
 					zval *method_name = NULL;
@@ -784,7 +785,6 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 					}
 				} else {
 					zval_ptr_dtor(&executor);
-					zval_ptr_dtor(&action);
 				}
 			}
 			zval_ptr_dtor(&action);

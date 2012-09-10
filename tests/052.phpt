@@ -26,6 +26,10 @@ echo "------params-------\n";
 var_dump($request->setParam("xxxx"));
 var_dump($request->getParam("xxxx"));
 var_dump($request->getParams());
+echo "-----others-----\n";
+var_dump($request->isXmlHttpRequest());
+var_dump($request->isCli());
+var_dump($request->isPost());
 ?>
 --EXPECTF--
 Warning: Yaf_Request_Http::__construct() expects at most 2 parameters, 3 given in %s052.php on line %d
@@ -56,3 +60,7 @@ NULL
 NULL
 array(0) {
 }
+-----others-----
+bool(false)
+bool(true)
+bool(false)
