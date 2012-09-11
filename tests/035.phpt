@@ -27,7 +27,7 @@ var_dump(ini_get("short_open_tag"));
 $view->display($tpl, array('name' => 'template'));
 echo "\n";
 print_r($view);
-
+unlink($tpl);
 ?>
 --EXPECTF--
 template
