@@ -16,6 +16,9 @@ try {
 $request = new Yaf_Request_Simple(NULL);
 var_dump($request->isOptions());
 
+
+$config = new Yaf_Config_Simple(array());
+$config->key();
 echo "okey";
 ?>
 --EXPECTF--

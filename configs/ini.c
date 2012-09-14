@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: ini.c 327591 2012-09-10 10:56:13Z laruence $ */
+/* $Id: ini.c 327626 2012-09-13 02:57:39Z laruence $ */
 
 zend_class_entry *yaf_config_ini_ce;
 
@@ -751,11 +751,16 @@ PHP_METHOD(yaf_config_ini, key) {
 	char *string;
 	ulong index;
 
-	prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
-	if (zend_hash_get_current_key(Z_ARRVAL_P(prop), &string, &index, 0) == HASH_KEY_IS_LONG) {
-		RETURN_LONG(index);
-	} else {
-		RETURN_STRING(string, 1);
+	prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 0 TSRMLS_CC);
+	switch (zend_hash_get_current_key(Z_ARRVAL_P(prop), &string, &index, 0)) {
+		case HASH_KEY_IS_LONG:
+			RETURN_LONG(index);
+			break;
+		case HASH_KEY_IS_STRING:
+			RETURN_STRING(string, 1);
+			break;
+		default:
+			RETURN_FALSE;
 	}
 }
 /* }}} */

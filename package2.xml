@@ -10,8 +10,8 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-09-07</date>
- <time>16:01:47</time>
+ <date>2012-09-14</date>
+ <time>16:56:28</time>
  <version>
   <release>2.2.2</release>
   <api>2.2.2</api>
@@ -144,6 +144,10 @@
     <file name="048.phpt" role="test" />
     <file name="049.phpt" role="test" />
     <file name="050.phpt" role="test" />
+    <file name="051.phpt" role="test" />
+    <file name="052.phpt" role="test" />
+    <file name="053.phpt" role="test" />
+    <file name="054.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
@@ -165,10 +169,28 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-09-14</date> 
+   <version> 
+    <release>2.2.2</release> 
+    <api>2.2.2</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Yaf_Controller's methods are not final anymore
+    - Yaf_View_Simple is not final anymore
+    - Memleaks fixed in various place
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-09-07</date> 
    <version> 
-    <release>2.2.0</release> 
-    <api>2.2.0</api> 
+    <release>2.2.1</release> 
+    <api>2.2.1</api> 
    </version> 
    <stability> 
     <release>beta</release> 
@@ -179,7 +201,6 @@
     - Repackage, previous one missed one fix
    </notes> 
   </release> 
-
   <release> 
    <date>2012-09-07</date> 
    <version> 

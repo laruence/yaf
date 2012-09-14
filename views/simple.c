@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327562 2012-09-09 06:54:44Z laruence $ */
+/* $Id: simple.c 327628 2012-09-13 06:23:11Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -875,7 +875,7 @@ PHP_METHOD(yaf_view_simple, clear) {
 /** {{{ yaf_view_simple_methods
 */
 zend_function_entry yaf_view_simple_methods[] = {
-	PHP_ME(yaf_view_simple, __construct, yaf_view_simple_construct_arginfo, ZEND_ACC_CTOR|ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, __construct, yaf_view_simple_construct_arginfo, ZEND_ACC_CTOR|ZEND_ACC_FINAL|ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, __isset, yaf_view_simple_isset_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, get, yaf_view_simple_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, assign, yaf_view_assign_arginfo, ZEND_ACC_PUBLIC)

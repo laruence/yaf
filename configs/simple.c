@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: simple.c 327626 2012-09-13 02:57:39Z laruence $ */
 
 zend_class_entry *yaf_config_simple_ce;
 
@@ -267,10 +267,15 @@ PHP_METHOD(yaf_config_simple, key) {
 
 	prop = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
 	zend_hash_get_current_key(Z_ARRVAL_P(prop), &string, &index, 0);
-	if (zend_hash_get_current_key_type(Z_ARRVAL_P(prop)) == HASH_KEY_IS_LONG) {
-		RETURN_LONG(index);
-	} else {
-		RETURN_STRING(string, 1);
+	switch(zend_hash_get_current_key_type(Z_ARRVAL_P(prop))) {
+		case HASH_KEY_IS_LONG:
+			RETURN_LONG(index);
+			break;
+		case HASH_KEY_IS_STRING:
+			RETURN_STRING(string, 1);
+			break;
+		default:
+			RETURN_FALSE;
 	}
 }
 /* }}} */
