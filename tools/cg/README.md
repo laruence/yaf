@@ -1,9 +1,10 @@
-==== Yaf Codes Generator ===
+##Yaf Codes Generator
 
-===== Usage =====
+###Usage
 ```
 php yaf_cg Sample
-``
+```
+
 will generator folder "Sample" under output:
 ```
 $ ls output/Sample/
