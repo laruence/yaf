@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327714 2012-09-20 15:19:31Z laruence $ */
+/* $Id: php_yaf.h 327650 2012-09-14 02:46:00Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -81,7 +81,7 @@ extern PHPAPI void php_debug_zval_dump(zval **struc, int level TSRMLS_DC);
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	char 		*ext;
 	char		*base_uri;
-	char 		*app_env;
+	char 		*environ;
 	char 		*directory;
 	char 		*local_library;
 	char        *local_namespaces;

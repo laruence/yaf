@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 327714 2012-09-20 15:19:31Z laruence $ */
+/* $Id: yaf.c 327580 2012-09-10 06:31:34Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -77,7 +77,7 @@ PHP_INI_BEGIN()
 /* {{{ This only effects internally */
 	STD_PHP_INI_BOOLEAN("yaf.st_compatible",     "0", PHP_INI_ALL, OnUpdateBool, st_compatible, zend_yaf_globals, yaf_globals)
 /* }}} */
-	STD_PHP_INI_ENTRY("yaf.environ",        	"product", PHP_INI_SYSTEM, OnUpdateString, app_env, zend_yaf_globals, yaf_globals)
+	STD_PHP_INI_ENTRY("yaf.environ",        	"product", PHP_INI_SYSTEM, OnUpdateString, environ, zend_yaf_globals, yaf_globals)
 #ifdef YAF_HAVE_NAMESPACE
 	STD_PHP_INI_BOOLEAN("yaf.use_namespace",   	"0", PHP_INI_SYSTEM, OnUpdateBool, use_namespace, zend_yaf_globals, yaf_globals)
 #endif
@@ -118,7 +118,7 @@ PHP_MINIT_FUNCTION(yaf)
 	if(YAF_G(use_namespace)) {
 
 		REGISTER_STRINGL_CONSTANT("YAF\\VERSION", YAF_VERSION, 	sizeof(YAF_VERSION) - 1, 	CONST_PERSISTENT | CONST_CS);
-		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(app_env), strlen(YAF_G(app_env)), 	CONST_PERSISTENT | CONST_CS);
+		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(environ), strlen(YAF_G(environ)), 	CONST_PERSISTENT | CONST_CS);
 
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\STARTUP_FAILED", 		YAF_ERR_STARTUP_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\ROUTE_FAILED", 		YAF_ERR_ROUTE_FAILED, CONST_PERSISTENT | CONST_CS);
@@ -134,7 +134,7 @@ PHP_MINIT_FUNCTION(yaf)
 	} else {
 #endif
 		REGISTER_STRINGL_CONSTANT("YAF_VERSION", YAF_VERSION, 	sizeof(YAF_VERSION) - 1, 	CONST_PERSISTENT | CONST_CS);
-		REGISTER_STRINGL_CONSTANT("YAF_ENVIRON", YAF_G(app_env), strlen(YAF_G(app_env)), 	CONST_PERSISTENT | CONST_CS);
+		REGISTER_STRINGL_CONSTANT("YAF_ENVIRON", YAF_G(environ),strlen(YAF_G(environ)), 	CONST_PERSISTENT | CONST_CS);
 
 		REGISTER_LONG_CONSTANT("YAF_ERR_STARTUP_FAILED", 		YAF_ERR_STARTUP_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF_ERR_ROUTE_FAILED", 			YAF_ERR_ROUTE_FAILED, CONST_PERSISTENT | CONST_CS);

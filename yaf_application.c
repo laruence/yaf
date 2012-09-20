@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327714 2012-09-20 15:19:31Z laruence $ */
+/* $Id: yaf_application.c 327603 2012-09-11 03:27:16Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -345,7 +345,7 @@ PHP_METHOD(yaf_application, __construct) {
 
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
 		MAKE_STD_ZVAL(section);
-		ZVAL_STRING(section, YAF_G(app_env), 0);
+		ZVAL_STRING(section, YAF_G(environ), 0);
 		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
 		efree(section);
 	} else {
@@ -411,7 +411,7 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0 TSRMLS_CC);
-	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(app_env) TSRMLS_CC);
+	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ) TSRMLS_CC);
 
 	if (YAF_G(modules)) {
 		zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), YAF_G(modules) TSRMLS_CC);
@@ -764,7 +764,7 @@ YAF_STARTUP_FUNCTION(application) {
 	zend_declare_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 	ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	zend_declare_property_bool(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN),	 0, ZEND_ACC_PROTECTED 	TSRMLS_CC);
-	zend_declare_property_string(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(app_env), ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_string(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ), ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	zend_declare_property_long(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), 0, ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_string(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRMSG), "", ZEND_ACC_PROTECTED TSRMLS_CC);
