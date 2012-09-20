@@ -29,6 +29,6 @@ $app->run();
 ?>
 --EXPECTF--
 int(516)
-string(%d) "Could not find controller script %s"
+string(%d) "Failed opening controller script %s: %s"
 int(0)
 string(0) ""

@@ -66,7 +66,7 @@ bool(false)
 bool(false)
 string(8) "Laruence"
 NULL
-string(%d) "Could not find controller script %scontrollers/Dummy.php"
+string(%d) "Failed opening controller script %scontrollers/Dummy.php: %s"
 NULL
 NULL
 NULL

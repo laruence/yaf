@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327580 2012-09-10 06:31:34Z laruence $ */
+/* $Id: yaf_loader.c 327707 2012-09-20 10:05:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -876,7 +876,7 @@ PHP_METHOD(yaf_loader, autoload) {
 				php_error_docref(NULL TSRMLS_CC, E_STRICT, "Could not find class %s in %s", class_name, directory);
 			}
 		}  else {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Could not find script %s", directory);
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed opening script %s: %s", directory, strerror(errno));
 		}
 
 #ifdef YAF_HAVE_NAMESPACE

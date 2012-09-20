@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327580 2012-09-10 06:31:34Z laruence $ */
+/* $Id: yaf_dispatcher.c 327707 2012-09-20 10:05:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -327,7 +327,7 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void *)&ce) != SUCCESS) {
 
 			if (!yaf_internal_autoload(controller, len, &directory TSRMLS_CC)) {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER TSRMLS_CC, "Could not find controller script %s", directory);
+				yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER TSRMLS_CC, "Failed opening controller script %s: %s", directory, strerror(errno));
 				efree(class);
 				efree(class_lowercase);
 				efree(directory);
@@ -409,7 +409,7 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 				efree(class_lowercase);
 
 			} else {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Could not find action script %s", action_path);
+				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Failed opening action script %s: %s", action_path, strerror(errno));
 				efree(action_path);
 			}
 		} else {
@@ -461,7 +461,7 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 
 		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void *)&ce) != SUCCESS) {
 			if (!yaf_internal_autoload(action_upper, len, &directory TSRMLS_CC)) {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Could not find action script %s", directory);
+				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Failed opening action script %s: %s", directory, strerror(errno));
 
 				efree(class);
 				efree(action_upper);

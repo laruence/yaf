@@ -31,8 +31,8 @@ try {
 string(21) "Baidu:Sina:Wb:Inf:123"
 bool(true)
 
-Warning: Yaf_Loader::autoload(): Could not find script %s/Baidu/Name.php in %s
+Warning: Yaf_Loader::autoload(): Failed opening script %s/Baidu/Name.php: %s in %s
 bool(true)
 
-Warning: Yaf_Loader::autoload(): Could not find script %s/global/Global/Name.php in %s
+Warning: Yaf_Loader::autoload(): Failed opening script %s/global/Global/Name.php: %s in %s
 bool(true)

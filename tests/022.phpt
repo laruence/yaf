@@ -25,4 +25,4 @@ $app->run();
 string(%d) "%stests"
 string(4) "/tmp"
 
-Catchable fatal error: Yaf_Application::run(): Could not find controller script /tmp/controllers/Index.php in %s022.php on line %d
+Catchable fatal error: Yaf_Application::run(): Failed opening controller script /tmp/controllers/Index.php:%s in %s022.php on line %d
