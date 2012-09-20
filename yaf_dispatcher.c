@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327707 2012-09-20 10:05:55Z laruence $ */
+/* $Id: yaf_dispatcher.c 327708 2012-09-20 10:32:28Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -1030,16 +1030,19 @@ PHP_METHOD(yaf_dispatcher, enableView) {
 /** {{{ proto public Yaf_Dispatcher::returnResponse()
 */
 PHP_METHOD(yaf_dispatcher, returnResponse) {
-	long auto_response;
+	zend_bool auto_response;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &auto_response) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &auto_response) == FAILURE) {
 		return;
 	}
 
-	zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), (auto_response)? 1:0 TSRMLS_CC);
-
-	RETURN_ZVAL(self, 1, 0);
+	if (ZEND_NUM_ARGS()) {
+		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), (auto_response)? 1:0 TSRMLS_CC);
+		RETURN_ZVAL(self, 1, 0);
+	} else {
+		RETURN_BOOL(Z_BVAL_P(zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1 TSRMLS_CC)));
+	}
 }
 /* }}} */
 
@@ -1053,7 +1056,7 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 		return;
 	}
 
-	if (ZEND_NUM_ARGS() != 0) {
+	if (ZEND_NUM_ARGS()) {
 		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), (instantly_flush)? 1:0 TSRMLS_CC);
 		RETURN_ZVAL(self, 1, 0);
 	} else {
@@ -1171,7 +1174,7 @@ PHP_METHOD(yaf_dispatcher, throwException) {
 		return;
 	}
 
-	if (ZEND_NUM_ARGS() != 0) {
+	if (ZEND_NUM_ARGS()) {
 		YAF_G(throw_exception) = flag? 1: 0;
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
@@ -1188,7 +1191,7 @@ PHP_METHOD(yaf_dispatcher, catchException) {
 		return;
 	}
 
-	if (ZEND_NUM_ARGS() != 0) { 
+	if (ZEND_NUM_ARGS()) { 
 		YAF_G(catch_exception) = flag? 1: 0;
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
@@ -1201,17 +1204,17 @@ PHP_METHOD(yaf_dispatcher, catchException) {
  */
 PHP_METHOD(yaf_dispatcher, autoRender) {
 	zend_bool flag;
-    	yaf_dispatcher_t *self = getThis();
+	yaf_dispatcher_t *self = getThis();
 
-    	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &flag) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &flag) == FAILURE) {
 		return;
-    	}
+	}
 
-	if (ZEND_NUM_ARGS() != 0) {
+	if (ZEND_NUM_ARGS()) {
 		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), flag? 1 : 0 TSRMLS_CC);
-                RETURN_ZVAL(self, 1, 0);
+		RETURN_ZVAL(self, 1, 0);
 	} else {
-                RETURN_BOOL(Z_BVAL_P(zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1 TSRMLS_CC)));
+		RETURN_BOOL(Z_BVAL_P(zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1 TSRMLS_CC)));
 	} 
 }
 /* }}} */
