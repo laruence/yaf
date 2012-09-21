@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327716 2012-09-20 15:37:18Z laruence $ */
+/* $Id: php_yaf.h 327721 2012-09-21 07:14:28Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -59,10 +59,6 @@ extern zend_module_entry yaf_module_entry;
 #define Z_DELREF_P 	 ZVAL_DELREF
 #endif
 
-#ifdef environ
-#undef environ
-#endif
-
 #define yaf_application_t	zval
 #define yaf_view_t 			zval
 #define yaf_controller_t	zval
@@ -78,6 +74,8 @@ extern zend_module_entry yaf_module_entry;
 #define yaf_plugin_t		zval
 #define yaf_session_t		zval
 #define yaf_exception_t		zval
+
+#define YAF_ME(mname, name, arg_info, flags) {name, mname, arg_info, (zend_uint) (sizeof(arg_info)/sizeof(struct _zend_arg_info)-1), flags},
 
 extern PHPAPI void php_var_dump(zval **struc, int level TSRMLS_DC);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level TSRMLS_DC);

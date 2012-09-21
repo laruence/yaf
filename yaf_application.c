@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327715 2012-09-20 15:24:26Z laruence $ */
+/* $Id: yaf_application.c 327721 2012-09-21 07:14:28Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -731,7 +731,7 @@ zend_function_entry yaf_application_methods[] = {
 	PHP_ME(yaf_application, run, 	 	 	yaf_application_run_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, execute,	  	yaf_application_execute_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, app, 	 	 	yaf_application_app_arginfo, 		ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
-	PHP_ME(yaf_application, environ, 	  	yaf_application_environ_arginfo, 	ZEND_ACC_PUBLIC)
+	YAF_ME(PHP_MN(yaf_application_environ), "environ", yaf_application_environ_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, bootstrap,   	yaf_application_bootstrap_arginfo,  ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, getConfig,   	yaf_application_getconfig_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, getModules,   	yaf_application_getmodule_arginfo,  ZEND_ACC_PUBLIC)
