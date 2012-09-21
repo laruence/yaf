@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-09-14</date>
+ <date>2012-?-?</date>
  <time>16:56:28</time>
  <version>
-  <release>2.2.2</release>
-  <api>2.2.2</api>
+  <release>2.2.3</release>
+  <api>2.2.3</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,9 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Yaf_Controller's methods are not final anymore
-  - Yaf_View_Simple is not final anymore
-  - Memleaks fixed in various place
+  - Fixed bug that Yaf_Application::environ is undefined on windows
+  - Improve warning message while script can not be loaded
  </notes>
  <contents> 
   <dir name="/"> 
