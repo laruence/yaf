@@ -592,7 +592,7 @@ PHP_METHOD(yaf_application, getModules) {
 
 /** {{{ proto public Yaf_Application::environ(void)
 */
-PHP_NAMED_FUNCTION(PHP_MN(yaf_application_environ)) {
+PHP_METHOD(yaf_application, environ) {
 	zval *env = zend_read_property(yaf_application_ce, getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), 1 TSRMLS_CC);
 	RETURN_STRINGL(Z_STRVAL_P(env), Z_STRLEN_P(env), 1);
 }
