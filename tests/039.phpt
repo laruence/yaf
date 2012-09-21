@@ -11,8 +11,8 @@ display_errors=1
 $view = new Yaf_View_Simple(dirname(__FILE__));
 
 $view->assign("name", "laruence");
-$tpl = dirname(__FILE__) . '/foo.phtml';
-$tpl2 = dirname(__FILE__) . '/foo2.phtml';
+$tpl  = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'foo.phtml';
+$tpl2 = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'foo2.phtml';
 function cleartpl() {
 	global $tpl, $tpl2;
 	unlink($tpl);

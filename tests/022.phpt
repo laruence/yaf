@@ -17,12 +17,18 @@ $config = array(
 
 $app = new Yaf_Application($config);
 var_dump($app->getAppDirectory());
-$app->setAppDirectory('/tmp');
+$dir = $app->getAppDirectory() . "/tmp";
+mkdir($dir);
+$app->setAppDirectory($dir);
 var_dump($app->getAppDirectory());
 $app->run();
 ?>
+--CLEAN--
+<?php
+rmdir(dirname(__FILE__) . "/tmp");
+?>
 --EXPECTF--
 string(%d) "%stests"
-string(4) "/tmp"
+string(%d) "%stmp"
 
-Catchable fatal error: Yaf_Application::run(): Failed opening controller script /tmp/controllers/Index.php:%s in %s022.php on line %d
+Catchable fatal error: Yaf_Application::run(): Failed opening controller script %stmp%ccontrollers%cIndex.php: No such file or directory in %s022.php on line %d

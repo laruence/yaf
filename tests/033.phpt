@@ -55,6 +55,6 @@ try {
 }
 ?>
 --EXPECTF--
-Unable to find template %stests/modules/Module/views/controller/action.phtml
-Unable to find template %s/testsno-exists/controller/action.phtml
-Unable to find template %s/testsno-exists/controller/dummy.phtml
+Unable to find template %stests%cmodules%cModule%cviews%ccontroller%caction.phtml
+Unable to find template %stestsno-exists%ccontroller%caction.phtml
+Unable to find template %stestsno-exists%ccontroller%cdummy.phtml

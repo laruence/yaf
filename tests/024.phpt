@@ -23,5 +23,5 @@ var_dump($loader->getLibraryPath(TRUE));
 --EXPECTF--
 string(4) "/foo"
 string(4) "/bar"
-string(%d) "%s/library"
+string(%d) "%slibrary"
 string(15) "/php/global/dir"

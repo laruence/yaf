@@ -32,6 +32,6 @@ bool(true)
 bool(false)
 bool(true)
 
-Warning: Yaf_Loader::autoload(): Failed opening script %sapplcation/plugins/ABC/EFG.php: %s in %s043.php on line %d
+Warning: Yaf_Loader::autoload(): Failed opening script %sapplcation%cplugins%cABC%cEFG.php: No such file or directory in %s043.php on line %d
 
 Fatal error: Class 'Plugin__ABC_EFG' not found in %s043.php on line %d

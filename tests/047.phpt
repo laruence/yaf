@@ -39,7 +39,7 @@ print_r($a);
 --EXPECTF--
 string(3) "Foo"
 
-Warning: Yaf_Loader::autoload(): Failed opening script /tmp/Foo.php: %s in %s047.php on line %d
+Warning: Yaf_Loader::autoload(): Failed opening script %stmp%cFoo.php: No such file or directory in %s047.php on line %d
 Foo Object
 (
 )
