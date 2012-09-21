@@ -6,10 +6,10 @@ function shutdown($root) {
        if (in_array($dir, array('.', '..'))) {
            continue;
        }
-       if (is_dir($root . '/' . $dir)) {
-           shutdown($root . '/' . $dir);
+       if (is_dir($root . DIRECTORY_SEPARATOR  . $dir)) {
+           shutdown($root . DIRECTORY_SEPARATOR . $dir);
        } else {
-           unlink($root . '/' . $dir);
+           unlink($root . DIRECTORY_SEPARATOR  . $dir);
        }
    }
    rmdir($root);
@@ -17,11 +17,11 @@ function shutdown($root) {
 
 function startup($root) {
     mkdir($root);
-    mkdir($root . "/controllers");
-    mkdir($root . "/plugins");
-    mkdir($root . "/models");
-    mkdir($root . "/views");
-    mkdir($root . "/views/index");
+    mkdir($root . DIRECTORY_SEPARATOR . "controllers");
+    mkdir($root . DIRECTORY_SEPARATOR . "plugins");
+    mkdir($root . DIRECTORY_SEPARATOR . "models");
+    mkdir($root . DIRECTORY_SEPARATOR . "views");
+    mkdir($root . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR  . "index");
     register_shutdown_function("shutdown", $root);
 }
 
