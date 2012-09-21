@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: php_yaf.h 327716 2012-09-20 15:37:18Z laruence $ */
+/* $Id: php_yaf.h 327650 2012-09-14 02:46:00Z laruence $ */
 
 #ifndef PHP_YAF_H
 #define PHP_YAF_H
@@ -57,10 +57,6 @@ extern zend_module_entry yaf_module_entry;
 #define Z_ADDREF_P 	 ZVAL_ADDREF
 #define Z_REFCOUNT_P ZVAL_REFCOUNT
 #define Z_DELREF_P 	 ZVAL_DELREF
-#endif
-
-#ifdef environ
-#undef environ
 #endif
 
 #define yaf_application_t	zval
