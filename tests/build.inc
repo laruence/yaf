@@ -14,7 +14,7 @@ function shutdown($root = APPLICATION_PATH) {
         if (is_dir($path)) {
             shutdown($path);
         } else if (is_file($path)) {
-                unlink($path);
+            unlink($path);
         }
     }
     rmdir($root);

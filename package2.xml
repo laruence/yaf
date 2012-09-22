@@ -22,6 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
+  - Call autoRender, flushInstantly, returnResponse of Yaf_Dispatcher without args return current state now (Demon)
   - Fixed bug that Yaf_Application::environ is undefined on windows
   - Improve warning message while script can not be loaded
  </notes>
