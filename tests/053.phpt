@@ -8,12 +8,11 @@ yaf.lowcase_path=0
 --FILE--
 <?php 
 require "build.inc";
+startup();
 
-define("APPLICATION_PATH", dirname(__FILE__));
-startup(APPLICATION_PATH . '/application');
 $config = array(
 	"application" => array(
-		"directory" => APPLICATION_PATH . "/application/",
+		"directory" => APPLICATION_PATH,
 	),
 );
 
@@ -26,18 +25,18 @@ class SimpleView extends Yaf_View_Simple {
       }
 }
 
-$tpl_dir = APPLICATION_PATH . "/application/views";
-file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
+$tpl_dir = APPLICATION_PATH . "/views";
+file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
 <?php
    class Bootstrap extends Yaf_Bootstrap_Abstract {
         public function _initView(Yaf_Dispatcher \$dispatcher) {
-            \$dispatcher->setView(new SimpleView("{$tpl_dir}"));
+            \$dispatcher->setView(new SimpleView('{$tpl_dir}'));
         }
    }
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
          public function indexAction() {
@@ -47,11 +46,17 @@ file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PH
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/views/index/index.phtml", "<?=\$name?>");
+file_put_contents($tpl_dir . "/index/index.phtml", "<?=\$name?>");
 
 $app = new Yaf_Application($config);
 $response = $app->bootstrap()->run();
 echo $response;
+?>
+--CLEAN--
+<?php
+/* unlink foo2.phtml permission denied */
+require "build.inc"; 
+shutdown();
 ?>
 --EXPECTF--
 custom view

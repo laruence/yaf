@@ -6,15 +6,13 @@ Bug segfault while call exit in a view template
 yaf.library="/php/global/dir"
 --FILE--
 <?php
+require "build.inc";
+startup();
+
 $view = new Yaf_View_Simple(dirname(__FILE__));
 
 $view->assign("name", "laruence");
-$tpl = dirname(__FILE__) . '/foo.phtml';
-function cleartpl() {
-	global $tpl;
-	@unlink($tpl);
-}
-register_shutdown_function("cleartpl");
+$tpl  =  APPLICATION_PATH . '/tpls/foo.phtml';
 
 file_put_contents($tpl, <<<HTML
 okey
@@ -22,6 +20,12 @@ okey
 HTML
 );
 echo $view->render($tpl);
+?>
+--CLEAN--
+<?php
+/* unlink foo2.phtml permission denied */
+require "build.inc"; 
+shutdown();
 ?>
 --EXPECTF--
 okey
