@@ -7,13 +7,13 @@ yaf.use_spl_autoload=0
 yaf.lowcase_path=0
 
 --FILE--
-<?php 
+<?php
 require "build.inc";
-define("APPLICATION_PATH", dirname(__FILE__));
-startup(APPLICATION_PATH . '/application');
+startup();
+
 $config = array(
 	"application" => array(
-		"directory" => APPLICATION_PATH . "/application/",
+		"directory" => APPLICATION_PATH,
         "dispatcher" => array (
            "catchException" => true,
         ), 
@@ -22,7 +22,7 @@ $config = array(
 	),
 );
 
-file_put_contents(APPLICATION_PATH . "/application/controllers/Error.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/controllers/Error.php", <<<PHP
 <?php
    class ErrorController extends Yaf_Controller_Abstract {
          public function errorAction(\$exception) {
@@ -33,7 +33,7 @@ file_put_contents(APPLICATION_PATH . "/application/controllers/Error.php", <<<PH
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
 <?php
    class Bootstrap extends Yaf_Bootstrap_Abstract {
         public function _initConfig(Yaf_Dispatcher \$dispatcher) {
@@ -46,7 +46,7 @@ file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/plugins/Test.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/plugins/Test.php", <<<PHP
 <?php
    class TestPlugin extends Yaf_Plugin_Abstract {
         public function routerStartup(Yaf_Request_Abstract \$request, Yaf_Response_Abstract \$response) {
@@ -74,7 +74,7 @@ PHP
 
 $value = NULL;
 
-file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
          public function init() {
@@ -90,12 +90,18 @@ file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PH
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/views/index/index.phtml",
+file_put_contents(APPLICATION_PATH . "/views/index/index.phtml",
                 "<?php var_dump('view'); \$ref = \"changed\"; ?>");
 
 $app = new Yaf_Application($config);
 $app->bootstrap()->run();
 
+?>
+--CLEAN--
+<?php
+/* unlink foo2.phtml permission denied */
+require "build.inc"; 
+shutdown();
 ?>
 --EXPECTF--
 string(13) "routerStartup"

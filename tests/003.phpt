@@ -28,7 +28,7 @@ try {
 
 ?>
 --EXPECTF--
-string(21) "Baidu:Sina:Wb:Inf:123"
+string(21) "Baidu%cSina%cWb%cInf%c123"
 bool(true)
 
 Warning: Yaf_Loader::autoload(): Failed opening script %sBaidu%cName.php: No such file or directory in %s

@@ -9,15 +9,15 @@ yaf.lowcase_path=0
 --FILE--
 <?php 
 require "build.inc";
-define("APPLICATION_PATH", dirname(__FILE__));
-startup(APPLICATION_PATH . '/application');
+startup();
+
 $config = array(
 	"application" => array(
-		"directory" => APPLICATION_PATH . "/application/",
+		"directory" => APPLICATION_PATH,
 	),
 );
 
-file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
 <?php
    class Bootstrap extends Yaf_Bootstrap_Abstract {
         public function _initReturn(Yaf_Dispatcher \$dispatcher) {
@@ -27,7 +27,7 @@ file_put_contents(APPLICATION_PATH . "/application/Bootstrap.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
          public function indexAction() {
@@ -36,12 +36,18 @@ file_put_contents(APPLICATION_PATH . "/application/controllers/Index.php", <<<PH
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/application/views/index/index.phtml", "view");
+file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "view");
 
 $app = new Yaf_Application($config);
 $response = $app->bootstrap()->run();
 var_dump("-------");
 echo $response;
+?>
+--CLEAN--
+<?php
+/* unlink foo2.phtml permission denied */
+require "build.inc"; 
+shutdown();
 ?>
 --EXPECTF--
 string(7) "-------"
