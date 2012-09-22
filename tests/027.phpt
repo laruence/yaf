@@ -34,6 +34,6 @@ int(2)
 
 Warning: Yaf_Application::execute(%sbe a valid callback%sin %s027.php on line %d
 
-Warning: Yaf_Loader::autoload(): Failed opening script %scontrollers%cNoExists.php: %s in %s027.php on line %d
+Warning: Yaf_Loader::autoload(): Failed opening script %scontrollers%cNoExists.php: No such file or directory in %s027.php on line %d
 
 Fatal error: Class 'NoExistsController' not found in %s027.php on line %d
