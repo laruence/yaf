@@ -10,8 +10,8 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-?-?</date>
- <time>16:56:28</time>
+ <date>2012-09-26</date>
+ <time>11:45:02</time>
  <version>
   <release>2.2.3</release>
   <api>2.2.3</api>
@@ -169,6 +169,24 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-09-26</date> 
+   <version> 
+    <release>2.2.3</release> 
+    <api>2.2.3</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Call autoRender, flushInstantly, returnResponse of Yaf_Dispatcher without args return current state now (Demon)
+    - Fixed bug that Yaf_Application::environ is undefined on windows
+    - Improve warning message while script can not be loaded
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-09-14</date> 
    <version> 
     <release>2.2.2</release> 
@@ -185,7 +203,6 @@
     - Memleaks fixed in various place
    </notes> 
   </release> 
-
   <release> 
    <date>2012-09-07</date> 
    <version> 
