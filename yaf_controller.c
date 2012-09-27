@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_controller.c 327580 2012-09-10 06:31:34Z laruence $ */
+/* $Id: yaf_controller.c 327816 2012-09-27 10:10:04Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -119,39 +119,27 @@ zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int 
 	ZVAL_STRINGL(param, path, path_len, 0);
 
 	view_ce = Z_OBJCE_P(view);
-	if (view_ce == yaf_view_simple_ce) {
-		MAKE_STD_ZVAL(ret);
-		if (!yaf_view_simple_render(view, param, var_array, ret TSRMLS_CC)) {
-			zval_ptr_dtor(&ret);
-			zval_ptr_dtor(&param);
-			return NULL;
-		}
+	if (var_array) {
+		zend_call_method_with_2_params(&view, view_ce, NULL, "render", &ret, param, var_array);
 	} else {
-		if (var_array) {
-			zend_call_method_with_2_params(&view, view_ce, NULL, "render", &ret, param, var_array);
-		} else {
-			zend_call_method_with_1_params(&view, view_ce, NULL, "render", &ret, param);
-		}
+		zend_call_method_with_1_params(&view, view_ce, NULL, "render", &ret, param);
 	}
+	
+	zval_ptr_dtor(&param);
 
 	if (!ret) {
-		zval_ptr_dtor(&param);
 		return NULL;
 	}
 	
 	if (EG(exception)) {
 		zval_ptr_dtor(&ret);
-		zval_ptr_dtor(&param);
 		return NULL;
 	}
 
 	if (Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret)) {
-		zval_ptr_dtor(&param);
 		zval_ptr_dtor(&ret);
 		return NULL;
 	}
-
-	zval_ptr_dtor(&param);
 
 	return ret;
 }
@@ -173,7 +161,7 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 	self_name = zend_str_tolower_dup(Z_STRVAL_P(name), Z_STRLEN_P(name));
 
 	tmp = self_name;
- 	while (*tmp != '\0') {
+	while (*tmp != '\0') {
 		if (*tmp == '_') {
 			*tmp = DEFAULT_SLASH;
 		}
@@ -199,18 +187,19 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 	ZVAL_STRINGL(param, path, path_len, 0);
 
 	view_ce = Z_OBJCE_P(view);
-	if (view_ce == yaf_view_simple_ce) {
-		yaf_view_simple_display(view, param, var_array, NULL TSRMLS_CC);
+	if (var_array) {
+		zend_call_method_with_2_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param, var_array);
 	} else {
-		if (var_array) {
-			zend_call_method_with_2_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param, var_array);
-		} else {
-			zend_call_method_with_1_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param);
-		}
+		zend_call_method_with_1_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param);
 	}
 	zval_ptr_dtor(&param);
 
-	if (!ret || EG(exception)) {
+	if (!ret) {
+		return 0;
+	}
+
+	if (EG(exception)) {
+		zval_ptr_dtor(&ret);
 		return 0;
 	}
 
@@ -218,6 +207,8 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 		zval_ptr_dtor(&ret);
 		return 0;
 	}
+
+	zval_ptr_dtor(&ret);
 
 	return 1;
 }
