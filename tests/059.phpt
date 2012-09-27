@@ -39,8 +39,8 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "<?print_r(\$this); \$this->display('index/sub.phtml', array('content' => 'dummy'));?>");
-file_put_contents(APPLICATION_PATH . "/views/index/sub.phtml", "<?echo \$content; echo \$this->eval('foobar'); ?>");
+file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "<?php print_r(\$this); \$this->display('index/sub.phtml', array('content' => 'dummy'));?>");
+file_put_contents(APPLICATION_PATH . "/views/index/sub.phtml", "<?php echo \$content; echo \$this->eval('foobar'); ?>");
 
 $app = new Yaf_Application($config);
 $response = $app->bootstrap()->run();
