@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327707 2012-09-20 10:05:55Z laruence $ */
+/* $Id: yaf_loader.c 327825 2012-09-27 14:19:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -374,6 +374,7 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
 
+	/* we do such trick for performance issue */
 	if (!zend_origin_error_handler) {
 		restore_cb = 1;
 		zend_origin_error_handler = zend_error_cb;
