@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327628 2012-09-13 06:23:11Z laruence $ */
+/* $Id: simple.c 327817 2012-09-27 10:28:28Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -288,7 +288,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 				EG(active_symbol_table) = calling_symbol_table;
 			}
 
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Failed opening template %s: %s", script, strerror(errno));
 			return 0;
 		}
 	} else {
@@ -329,7 +329,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 				EG(active_symbol_table) = calling_symbol_table;
 			}
 
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Failed opening template %s: %s" , script, strerror(errno));
 			efree(script);
 			return 0;
 		}
@@ -414,7 +414,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 		script 	= Z_STRVAL_P(tpl);
 		len 	= Z_STRLEN_P(tpl);
 		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s" , script);
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Failed opening template %s: %s" , script, strerror(errno));
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			CG(short_tags) = short_open_tag;
 #endif
@@ -446,7 +446,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 
 		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Unable to find template %s", script);
+			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Failed opening template %s: %s", script, strerror(errno));
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 			CG(short_tags) = short_open_tag;
 #endif
