@@ -148,6 +148,12 @@
     <file name="052.phpt" role="test" />
     <file name="053.phpt" role="test" />
     <file name="054.phpt" role="test" />
+    <file name="055.phpt" role="test" />
+    <file name="056.phpt" role="test" />
+    <file name="057.phpt" role="test" />
+    <file name="058.phpt" role="test" />
+    <file name="059.phpt" role="test" />
+    <file name="060.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
