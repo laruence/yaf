@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327708 2012-09-20 10:32:28Z laruence $ */
+/* $Id: yaf_dispatcher.c 327959 2012-10-09 02:45:32Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -756,14 +756,20 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 						zend_call_method_with_1_params(&executor, ce, NULL, "render", &ret, action);
 						zval_ptr_dtor(&executor);
 
-						if (ret && Z_TYPE_P(ret) == IS_STRING && Z_STRLEN_P(ret)) {
-							yaf_response_alter_body(response, NULL, 0, Z_STRVAL_P(ret), Z_STRLEN_P(ret), YAF_RESPONSE_APPEND  TSRMLS_CC);
-							zval_ptr_dtor(&ret);
-						} else if (ret) {
+						if (!ret) {
+							zval_ptr_dtor(&action);
+							return 0;
+						} else if (IS_BOOL == Z_TYPE_P(ret) && !Z_BVAL_P(ret)) {
 							zval_ptr_dtor(&ret);
 							zval_ptr_dtor(&action);
 							return 0;
 						}
+
+						if (Z_TYPE_P(ret) == IS_STRING && Z_STRLEN_P(ret)) {
+							yaf_response_alter_body(response, NULL, 0, Z_STRVAL_P(ret), Z_STRLEN_P(ret), YAF_RESPONSE_APPEND  TSRMLS_CC);
+						} 
+
+						zval_ptr_dtor(&ret);
 					} else {
 						zend_call_method_with_1_params(&executor, ce, NULL, "display", &ret, action);
 						zval_ptr_dtor(&executor);
@@ -779,8 +785,6 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 							return 0;
 						} else {
 							zval_ptr_dtor(&ret);
-							zval_ptr_dtor(&action);
-							return 1;
 						}
 					}
 				} else {

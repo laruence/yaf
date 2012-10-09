@@ -10,7 +10,7 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-10-08</date>
+ <date>2012-?-?</date>
  <time>10:21:46</time>
  <version>
   <release>2.2.4</release>
@@ -22,9 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Improving warning info while failed opening template script
-  - Fixed bug that $this is not Yaf_View_Simple in render method which was introduced in 2.2.3
-  - Fixed memleak in Yaf_View_Simple::display()
+  - Fixed bug empty template file interrupts forwarding chain
  </notes>
  <contents> 
   <dir name="/"> 
@@ -69,6 +67,7 @@
     <file name="simple.c" role="src" />
    </dir>
    <file name="config.w32" role="src" />
+   <file name="LICENSE" role="src" />
    <file name="CREDITS" role="src" />
    <file name="EXPERIMENTAL" role="src" />
    <file name="php_yaf.h" role="src" />
@@ -154,6 +153,7 @@
     <file name="058.phpt" role="test" />
     <file name="059.phpt" role="test" />
     <file name="060.phpt" role="test" />
+    <file name="061.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="simple.ini" role="test" />
