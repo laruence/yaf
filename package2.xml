@@ -10,19 +10,21 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-?-?</date>
- <time>10:21:46</time>
+ <date>2012-10-22</date>
+ <time>11:17:35</time>
  <version>
-  <release>2.2.4</release>
-  <api>2.2.4</api>
+  <release>2.2.5</release>
+  <api>2.2.5</api>
  </version>
  <stability>
-  <release>beta</release>
-  <api>beta</api>
+  <release>stable</release>
+  <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
+  - Release stable version
   - Fixed bug empty template file interrupts forwarding chain
+  - Add LICENSE file according to FR #63239
  </notes>
  <contents> 
   <dir name="/"> 
@@ -175,6 +177,24 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-10-22</date> 
+   <version> 
+    <release>2.2.5</release> 
+    <api>2.2.5</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Release stable version
+    - Fixed bug empty template file interrupts forwarding chain
+    - Add LICENSE file according to FR #63239
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-10-08</date> 
    <version> 
     <release>2.2.4</release> 
@@ -191,7 +211,6 @@
     - Fixed memleak in Yaf_View_Simple::display()
    </notes> 
   </release> 
-
   <release> 
    <date>2012-09-26</date> 
    <version> 
