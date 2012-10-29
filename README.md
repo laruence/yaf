@@ -16,7 +16,7 @@ $pecl install yaf
 ### Compile Yaf in Linux
 ```
 $/path/to/phpize
-$./configure --with-php-config=/path/to/php-config/
+$./configure --with-php-config=/path/to/php-config
 $make && make install
 ```
 ### For windows 
