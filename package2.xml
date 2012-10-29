@@ -22,9 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Release stable version
-  - Fixed bug empty template file interrupts forwarding chain
-  - Add LICENSE file according to FR #63239
+  - Fixed bug #63381 ($_SERVER['SCRIPT_NAME'] changed by yaf)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -158,6 +156,7 @@
     <file name="061.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
+    <file name="bug63881.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
    </dir>

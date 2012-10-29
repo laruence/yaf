@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 327580 2012-09-10 06:31:34Z laruence $*/
+/* $Id: yaf_request.c 328176 2012-10-29 06:20:10Z laruence $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -188,16 +188,15 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 
 			return 1;
 		} else if (basename) {
-			char 	*dir;
 			size_t  dir_len;
+			char 	*dir = estrndup(basename, basename_len); /* php_dirname might alter the string */
 
-			dir_len = php_dirname(basename, basename_len);
+			dir_len = php_dirname(dir, basename_len);
 			if (*(basename + dir_len - 1) == '/') {
 				--dir_len;
 			}
 
 			if (dir_len) {
-				dir = estrndup(basename, dir_len);
 				if (strstr(request_uri, dir) == request_uri) {
 					zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), dir TSRMLS_CC);
 					efree(dir);
@@ -207,8 +206,8 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 					}
 					return 1;
 				}
-				efree(dir);
 			}
+			efree(dir);
 		}
 
 		if (container) {
