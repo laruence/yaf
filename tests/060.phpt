@@ -1,5 +1,5 @@
 --TEST--
-Check nesting view render
+Check for working with other autoloaders
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
