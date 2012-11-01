@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-10-22</date>
- <time>11:17:35</time>
+ <date>2012-11-01</date>
+ <time>11:11:11</time>
  <version>
-  <release>2.2.5</release>
-  <api>2.2.5</api>
+  <release>2.2.6</release>
+  <api>2.2.6</api>
  </version>
  <stability>
   <release>stable</release>
@@ -152,7 +152,6 @@
     <file name="057.phpt" role="test" />
     <file name="058.phpt" role="test" />
     <file name="059.phpt" role="test" />
-    <file name="060.phpt" role="test" />
     <file name="061.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
@@ -176,6 +175,22 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-11-01</date> 
+   <version> 
+    <release>2.2.6</release> 
+    <api>2.2.6</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug #63381 ($_SERVER['SCRIPT_NAME'] changed by yaf)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-10-22</date> 
    <version> 
     <release>2.2.5</release> 
@@ -192,7 +207,6 @@
     - Add LICENSE file according to FR #63239
    </notes> 
   </release> 
-
   <release> 
    <date>2012-10-08</date> 
    <version> 
