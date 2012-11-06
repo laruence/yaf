@@ -51,14 +51,14 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-string(%d) "%sviews"
+string(%d) "%sapplication%cviews"
 Yaf_View_Simple Object
 (
     [_tpl_vars:protected] => Array
         (
         )
 
-    [_tpl_dir:protected] => %sapplication%cviews
+    [_tpl_dir:protected] => 
     [_options:protected] => 
 )
 dummyfoobar

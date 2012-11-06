@@ -22,6 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
+  - Improve the templates directory handling
   - Fixed bug #63438 (Strange behavior with nested rendering)
  </notes>
  <contents> 
@@ -153,6 +154,7 @@
     <file name="058.phpt" role="test" />
     <file name="059.phpt" role="test" />
     <file name="061.phpt" role="test" />
+    <file name="062.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 328257 2012-11-06 09:06:38Z laruence $ */
+/* $Id: simple.c 328262 2012-11-06 10:31:55Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -207,11 +207,17 @@ yaf_view_t * yaf_view_simple_instance(yaf_view_t *view, zval *tpl_dir, zval *opt
 	zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), tpl_vars TSRMLS_CC);
 	zval_ptr_dtor(&tpl_vars);
 
-	if (tpl_dir && Z_TYPE_P(tpl_dir) == IS_STRING && IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl_dir), Z_STRLEN_P(tpl_dir))) {
-		zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), tpl_dir TSRMLS_CC);
-	} else {
-		zend_update_property_stringl(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), "", 0 TSRMLS_CC);
-	}
+	if (tpl_dir && Z_TYPE_P(tpl_dir) == IS_STRING) {
+		if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl_dir), Z_STRLEN_P(tpl_dir))) {
+			zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), tpl_dir TSRMLS_CC);
+		} else {
+			if (!view) {
+				zval_ptr_dtor(&instance);
+			}
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects an absolute path for templates directory");
+			return NULL;
+		}
+	} 
 
 	if (options && IS_ARRAY == Z_TYPE_P(options)) {
 		zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), options TSRMLS_CC);
@@ -294,27 +300,31 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret T
 	} else {
 		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0 TSRMLS_CC);
 
-		if (ZVAL_IS_NULL(tpl_dir)) {
+		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
+			if (YAF_G(view_directory)) {
+				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+			} else {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-			YAF_RESTORE_OUTPUT_BUFFER(buffer);
-			CG(short_tags) = short_open_tag;
+				YAF_RESTORE_OUTPUT_BUFFER(buffer);
+				CG(short_tags) = short_open_tag;
 #else
-			php_output_end(TSRMLS_C);
+				php_output_end(TSRMLS_C);
 #endif
 
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
+				if (calling_symbol_table) {
+					zend_hash_destroy(EG(active_symbol_table));
+					FREE_HASHTABLE(EG(active_symbol_table));
+					EG(active_symbol_table) = calling_symbol_table;
+				}
+
+				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
+						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
+						yaf_view_simple_ce->name);
+				return 0;
 			}
-
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
-				   	"Could not determine the view script path, you should call %s::setScriptPath to specific it",
-					yaf_view_simple_ce->name);
-			return 0;
+		} else {
+			len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		}
-
-		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 
 		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
@@ -429,22 +439,27 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret T
 	} else {
 		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0 TSRMLS_CC);
 
-		if (ZVAL_IS_NULL(tpl_dir)) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
-					"Could not determine the view script path, you should call %s::setScriptPath to specific it", yaf_view_simple_ce->name);
+		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
+			if (YAF_G(view_directory)) {
+				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+			} else {
+				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC,
+						"Could not determine the view script path, you should call %s::setScriptPath to specific it", yaf_view_simple_ce->name);
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-			CG(short_tags) = short_open_tag;
+				CG(short_tags) = short_open_tag;
 #endif
-			EG(scope) = old_scope;
-			if (calling_symbol_table) {
-				zend_hash_destroy(EG(active_symbol_table));
-				FREE_HASHTABLE(EG(active_symbol_table));
-				EG(active_symbol_table) = calling_symbol_table;
+				EG(scope) = old_scope;
+				if (calling_symbol_table) {
+					zend_hash_destroy(EG(active_symbol_table));
+					FREE_HASHTABLE(EG(active_symbol_table));
+					EG(active_symbol_table) = calling_symbol_table;
+				}
+				return 0;
 			}
-			return 0;
+		} else {
+			len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		}
 
-		len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		if (yaf_loader_import(script, len + 1, 0 TSRMLS_CC) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW TSRMLS_CC, "Failed opening template %s: %s", script, strerror(errno));
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
@@ -687,6 +702,9 @@ PHP_METHOD(yaf_view_simple, setScriptPath) {
 */
 PHP_METHOD(yaf_view_simple, getScriptPath) {
 	zval *tpl_dir = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0 TSRMLS_CC);
+	if (IS_STRING != Z_TYPE_P(tpl_dir) && YAF_G(view_directory)) {
+		RETURN_STRING(YAF_G(view_directory), 1);
+	} 
 	RETURN_ZVAL(tpl_dir, 1, 0);
 }
 /* }}} */

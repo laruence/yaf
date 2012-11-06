@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 327959 2012-10-09 02:45:32Z laruence $ */
+/* $Id: yaf_dispatcher.c 328262 2012-11-06 10:31:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -211,7 +211,7 @@ static void yaf_dispatcher_get_call_parmaters(zend_class_entry *request_ce, yaf_
 
 /** {{{ static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options TSRMLS_DC)
 */
- yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options TSRMLS_DC) {
+static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options TSRMLS_DC) {
 	yaf_view_t *view = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
 	if (view && IS_OBJECT == Z_TYPE_P(view)
 			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce TSRMLS_CC)) {
@@ -219,6 +219,10 @@ static void yaf_dispatcher_get_call_parmaters(zend_class_entry *request_ce, yaf_
 	}
 
 	view = yaf_view_instance(NULL, tpl_dir, options TSRMLS_CC);
+	if (!view) {
+		return NULL;
+	}
+
 	zend_update_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), view TSRMLS_CC);
 	zval_ptr_dtor(&view);
 
@@ -557,9 +561,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 		if (!ce) {
 			return 0;
 		} else {
-			zend_class_entry *view_ce = NULL;
-			zval  *action, *render, *view_dir = NULL, *ret = NULL;
-			char  *action_lower, *func_name;
+			zval  *action, *render, *ret = NULL;
+			char  *action_lower, *func_name, *view_dir;
 			uint  func_name_len;
 
 			yaf_controller_t *icontroller;
@@ -586,53 +589,17 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				return 0;
 			}
 		
-
-			if ((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce) {
-				view_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+			/* view template directory for application, please notice that view engine's directory has high priority */
+			if (is_def_module) {
+				spprintf(&view_dir, 0, "%s/%s", app_dir ,"views");
 			} else {
-				zend_call_method_with_0_params(&view, view_ce, NULL, "getscriptpath", &view_dir);
-				if (EG(exception)) {
-					if (view_dir) {
-						zval_ptr_dtor(&view_dir);
-					}
-					zval_ptr_dtor(&icontroller);
-					return 0;
-				}
+				spprintf(&view_dir, 0, "%s/%s/%s/%s", app_dir, "modules", Z_STRVAL_P(module), "views");
 			}
 
-			if (!view_dir || IS_STRING != Z_TYPE_P(view_dir) || !Z_STRLEN_P(view_dir)) {
-				/* view directory might be set by _constructor */
-				MAKE_STD_ZVAL(view_dir);
-				Z_TYPE_P(view_dir) = IS_STRING;
-
-				if (is_def_module) {
-					Z_STRLEN_P(view_dir) = spprintf(&(Z_STRVAL_P(view_dir)), 0, "%s/%s", app_dir ,"views");
-				} else {
-					Z_STRLEN_P(view_dir) = spprintf(&(Z_STRVAL_P(view_dir)), 0, "%s/%s/%s/%s", app_dir,
-							"modules", Z_STRVAL_P(module), "views");
-				}
-
-				/** tell the view engine where to find templates */
-				if (view_ce == yaf_view_simple_ce) {
-					zend_update_property(view_ce, view,  ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), view_dir TSRMLS_CC);
-				} else {
-					zend_call_method_with_1_params(&view, view_ce, NULL, "setscriptpath", &ret, view_dir);
-				}
-
-				if (ret) {
-					zval_ptr_dtor(&ret);
-					ret = NULL;
-				}
-
-			    zval_ptr_dtor(&view_dir);
-
-				if (EG(exception)) {
-					zval_ptr_dtor(&icontroller);
-					return 0;
-				}
-			} else if (view_ce != yaf_view_simple_ce) {
-				zval_ptr_dtor(&view_dir);
+			if (YAF_G(view_directory)) {
+				efree(YAF_G(view_directory));
 			}
+			YAF_G(view_directory) = view_dir;
 
 			zend_update_property(ce, icontroller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME),	controller TSRMLS_CC);
 
@@ -845,6 +812,9 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 	yaf_request_set_dispatched(request, 0 TSRMLS_CC);
 
 	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL TSRMLS_CC);
+	if (!view) {
+		return NULL;
+	}
 
 	if (!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC)) {
 		if (EG(exception) 
@@ -928,6 +898,9 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC)
 	YAF_EXCEPTION_HANDLE(dispatcher, request, response);
 
 	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL TSRMLS_CC);
+	if (!view) {
+		return NULL;
+	}
 
 	do {
 		YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_PREDISPATCH, request, response);

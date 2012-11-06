@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 327715 2012-09-20 15:24:26Z laruence $ */
+/* $Id: yaf.c 328262 2012-11-06 10:31:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -91,8 +91,8 @@ PHP_GINIT_FUNCTION(yaf)
 	yaf_globals->autoload_started   = 0;
 	yaf_globals->configs			= NULL;
 	yaf_globals->directory			= NULL;
-	yaf_globals->local_library  = NULL;
-	yaf_globals->ext			    = YAF_DEFAULT_EXT;
+	yaf_globals->local_library		= NULL;
+	yaf_globals->ext				= YAF_DEFAULT_EXT;
 	yaf_globals->view_ext			= YAF_DEFAULT_VIEW_EXT;
 	yaf_globals->default_module		= YAF_ROUTER_DEFAULT_MODULE;
 	yaf_globals->default_controller = YAF_ROUTER_DEFAULT_CONTROLLER;
@@ -190,20 +190,21 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 */
 PHP_RINIT_FUNCTION(yaf)
 {
-	YAF_G(running)  			= 0;
-	YAF_G(in_exception) 		= 0;
-	YAF_G(throw_exception)   	= 1;
-	YAF_G(catch_exception)   	= 0;
-	YAF_G(directory)			= NULL;
-	YAF_G(bootstrap)			= NULL;
-	YAF_G(local_library)     	= NULL;
-	YAF_G(local_namespaces)    	= NULL;
-	YAF_G(modules)				= NULL;
-	YAF_G(base_uri)				= NULL;
+	YAF_G(running)			= 0;
+	YAF_G(in_exception)		= 0;
+	YAF_G(throw_exception)	= 1;
+	YAF_G(catch_exception)	= 0;
+	YAF_G(directory)		= NULL;
+	YAF_G(bootstrap)		= NULL;
+	YAF_G(local_library)	= NULL;
+	YAF_G(local_namespaces)	= NULL;
+	YAF_G(modules)			= NULL;
+	YAF_G(base_uri)			= NULL;
+	YAF_G(view_directory)	= NULL;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-	YAF_G(buffer)				= NULL;
-	YAF_G(owrite_handler)		= NULL;
-	YAF_G(buf_nesting)			= 0;
+	YAF_G(buffer)			= NULL;
+	YAF_G(owrite_handler)	= NULL;
+	YAF_G(buf_nesting)		= 0;
 #endif
 
 	return SUCCESS;
@@ -231,6 +232,9 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 	}
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));
+	}
+	if (YAF_G(view_directory)) {
+		efree(YAF_G(view_directory));
 	}
 	YAF_G(default_route) = NULL;
 

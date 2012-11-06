@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_controller.c 327816 2012-09-27 10:10:04Z laruence $ */
+/* $Id: yaf_controller.c 328262 2012-11-06 10:31:55Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -372,6 +372,9 @@ PHP_METHOD(yaf_controller, getViewpath) {
 	zval *view = zend_read_property(yaf_controller_ce, getThis(), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
 	if ((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce) {
 		zval *tpl_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1 TSRMLS_CC);
+		if (IS_STRING != Z_TYPE_P(tpl_dir) && YAF_G(view_directory)) {
+			RETURN_STRING(YAF_G(view_directory), 1);
+		}
 		RETURN_ZVAL(tpl_dir, 1, 0);
 	} else {
 		zval *ret;
