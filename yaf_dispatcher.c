@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 328262 2012-11-06 10:31:55Z laruence $ */
+/* $Id: yaf_dispatcher.c 328263 2012-11-06 10:34:31Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -813,7 +813,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 
 	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL TSRMLS_CC);
 	if (!view) {
-		return NULL;
+		return;
 	}
 
 	if (!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC)) {
