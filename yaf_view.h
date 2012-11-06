@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_view.h 327425 2012-09-02 03:58:49Z laruence $ */
+/* $Id: yaf_view.h 328256 2012-11-06 08:44:52Z laruence $ */
 
 #ifndef YAF_VIEW_H
 #define YAF_VIEW_H
@@ -55,10 +55,10 @@ typedef int(*yaf_body_write_func)(const char *str, uint str_length TSRMLS_DC);
 
 #define YAF_RESTORE_OUTPUT_BUFFER(seg) \
 	do { \
-		OG(php_body_write) 	= (yaf_body_write_func)YAF_G(owrite_handler); \
 		EG(scope) 			= old_scope; \
 		YAF_G(buffer)  		= seg->prev; \
 		if (!(--YAF_G(buf_nesting))) { \
+		    OG(php_body_write) 	= (yaf_body_write_func)YAF_G(owrite_handler); \
 			if (YAF_G(buffer)) { \
 				php_error_docref(NULL TSRMLS_CC, E_ERROR, "Yaf output buffer collapsed"); \
 			} else { \

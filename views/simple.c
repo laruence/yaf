@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 327817 2012-09-27 10:28:28Z laruence $ */
+/* $Id: simple.c 328257 2012-11-06 09:06:38Z laruence $ */
 
 #include "main/php_output.h"
 
@@ -800,9 +800,11 @@ PHP_METHOD(yaf_view_simple, render) {
 	} zend_catch {
 		yaf_view_simple_buffer *buffer;
 
-		if (YAF_G(owrite_handler)) {
-			OG(php_body_write) 	= (yaf_body_write_func)YAF_G(owrite_handler);
-			YAF_G(owrite_handler) = NULL;
+		if (!(--YAF_G(buf_nesting))) {
+			if (YAF_G(owrite_handler)) {
+				OG(php_body_write) 	= (yaf_body_write_func)YAF_G(owrite_handler);
+				YAF_G(owrite_handler) = NULL;
+			}
 		}
 
 		if (YAF_G(buffer)) {
@@ -812,7 +814,6 @@ PHP_METHOD(yaf_view_simple, render) {
 				PHPWRITE(buffer->buffer, buffer->len);
 				efree(buffer->buffer);
 			}
-			--(YAF_G(buf_nesting));
 			efree(buffer);
 		}
 		zend_bailout();
