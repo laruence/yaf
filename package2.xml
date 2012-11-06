@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-11-01</date>
+ <date>2012-?-?</date>
  <time>11:11:11</time>
  <version>
-  <release>2.2.6</release>
-  <api>2.2.6</api>
+  <release>2.2.7</release>
+  <api>2.2.7</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug #63381 ($_SERVER['SCRIPT_NAME'] changed by yaf)
+  - Fixed bug #63438 (Strange behavior with nested rendering)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -156,6 +156,7 @@
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
+    <file name="bug63438.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
    </dir>
