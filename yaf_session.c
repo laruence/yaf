@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_session.c 327580 2012-09-10 06:31:34Z laruence $ */
+/* $Id: yaf_session.c 328268 2012-11-07 14:44:04Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -207,7 +207,7 @@ PHP_METHOD(yaf_session, get) {
 }
 /* }}} */
 
-/** {{{ proto public staitc Yaf_Session::set($name, $value)
+/** {{{ proto public static Yaf_Session::set($name, $value)
 */
 PHP_METHOD(yaf_session, set) {
 	zval *value;
@@ -228,7 +228,7 @@ PHP_METHOD(yaf_session, set) {
 }
 /* }}} */
 
-/** {{{ proto public staitc Yaf_Session::del($name)
+/** {{{ proto public static Yaf_Session::del($name)
 */
 PHP_METHOD(yaf_session, del) {
 	char *name;

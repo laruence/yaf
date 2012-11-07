@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_registry.c 321289 2011-12-21 02:53:29Z laruence $  */
+/* $Id: yaf_registry.c 328268 2012-11-07 14:44:04Z laruence $  */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -122,7 +122,7 @@ PHP_METHOD(yaf_registry, get) {
 }
 /* }}} */
 
-/** {{{ proto public staitc Yaf_Registry::set($name, $value)
+/** {{{ proto public static Yaf_Registry::set($name, $value)
 */
 PHP_METHOD(yaf_registry, set) {
 	zval *value;
@@ -148,7 +148,7 @@ PHP_METHOD(yaf_registry, set) {
 }
 /* }}} */
 
-/** {{{ proto public staitc Yaf_Registry::del($name)
+/** {{{ proto public static Yaf_Registry::del($name)
 */
 PHP_METHOD(yaf_registry, del) {
 	char *name;
