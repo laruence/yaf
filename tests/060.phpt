@@ -5,8 +5,6 @@ Check for working with other autoloaders
 --INI--
 yaf.use_spl_autoload=1
 yaf.lowcase_path=0
---XFAIL--
-We can not suppress EG(user_error_handler) for now
 --FILE--
 <?php 
 require "build.inc";

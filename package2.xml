@@ -153,9 +153,7 @@
     <file name="057.phpt" role="test" />
     <file name="058.phpt" role="test" />
     <file name="059.phpt" role="test" />
-    <!--
     <file name="060.phpt" role="test" />
-    -->
     <file name="061.phpt" role="test" />
     <file name="062.phpt" role="test" />
     <file name="build.inc" role="test" />

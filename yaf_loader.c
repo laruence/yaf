@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.c 327825 2012-09-27 14:19:55Z laruence $ */
+/* $Id: yaf_loader.c 328439 2012-11-21 07:58:03Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -321,52 +321,16 @@ yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, c
 }
 /* }}} */
 
-/** {{{ static void yaf_suppress_include_warning(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args) 
- */
-static void (*zend_origin_error_handler)(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args);
-static void yaf_suppress_include_warning(int error_num, const char *error_filename, const uint error_lineno, const char *format, va_list args) {
-	TSRMLS_FETCH();
-	if (YAF_G(suppressing_warning) && error_num == E_WARNING) {
-		char buffer[1024];
-		int buffer_len;
-		va_list copy;
-
-/* va_copy() is __va_copy() in old gcc versions.
- * According to the autoconf manual, using
- * memcpy(&dst, &src, sizeof(va_list)) 
- * gives maximum portability. */
-#ifndef va_copy
-# ifdef __va_copy
-#  define va_copy(dest, src)    __va_copy((dest), (src))
-# else
-#  define va_copy(dest, src)    memcpy(&(dest), &(src), sizeof(va_list))
-# endif
-#endif  
-		va_copy(copy, args);
-
-		buffer_len = vsnprintf(buffer, sizeof(buffer), format, copy);
-#ifdef va_copy
-		va_end(copy);
-#endif
-
-		if (strstr(buffer, "failed to open stream: ") != NULL) {
-			return;
-		}
-
-		if (strstr(buffer, "Failed opening ") != NULL) {
-			return;
-		}
-	}
-	return zend_origin_error_handler(error_num, error_filename, error_lineno, format, args);
-}
-/* }}} */
-
 /** {{{ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC)
 */
 int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	zend_file_handle file_handle;
 	zend_op_array 	*op_array;
-	zend_bool       restore_cb = 0;
+	char realpath[MAXPATHLEN];
+
+	if (!VCWD_REALPATH(path, realpath)) {
+		return 0;
+	}
 
 	file_handle.filename = path;
 	file_handle.free_filename = 0;
@@ -374,28 +338,7 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
 
-	/* we do such trick for performance issue */
-	if (!zend_origin_error_handler) {
-		restore_cb = 1;
-		zend_origin_error_handler = zend_error_cb;
-	    zend_error_cb = yaf_suppress_include_warning;
-	    YAF_G(suppressing_warning) = 1;
-	}
-	zend_try {
-		op_array = zend_compile_file(&file_handle, ZEND_INCLUDE TSRMLS_CC);
-	} zend_catch {
-		if (restore_cb) {
-		    YAF_G(suppressing_warning) = 0;
-			zend_error_cb = zend_origin_error_handler;
-			zend_origin_error_handler = NULL;
-		}
-		zend_bailout();
-	} zend_end_try();
-	if (restore_cb) {
-	    YAF_G(suppressing_warning) = 0;
-		zend_error_cb = zend_origin_error_handler;
-		zend_origin_error_handler = NULL;
-	}
+	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE TSRMLS_CC);
 
 	if (op_array && file_handle.handle.stream.handle) {
 		int dummy = 1;
