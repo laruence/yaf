@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.c 327732 2012-09-21 13:45:28Z laruence $ */
+/* $Id: yaf_application.c 328604 2012-12-02 05:47:27Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -102,7 +102,7 @@ int yaf_application_is_module_name(char *name, int len TSRMLS_DC) {
 	ht = Z_ARRVAL_P(modules);
 	zend_hash_internal_pointer_reset(ht);
 	while (zend_hash_get_current_data(ht, (void **)&ppzval) == SUCCESS) {
-		if (Z_TYPE_PP(ppzval) == IS_STRING
+		if (Z_TYPE_PP(ppzval) == IS_STRING && Z_STRLEN_PP(ppzval) == len
 				&& strncasecmp(Z_STRVAL_PP(ppzval), name, len) == 0) {
 			return 1;
 		}
