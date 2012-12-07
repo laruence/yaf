@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 328263 2012-11-06 10:34:31Z laruence $ */
+/* $Id: yaf_dispatcher.c 328702 2012-12-07 02:20:15Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -156,9 +156,9 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC)
 }
 /* }}} */
 
-/** {{{ static void yaf_dispatcher_get_call_parmaters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval ****params, uint *count TSRMLS_DC)
+/** {{{ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval ****params, uint *count TSRMLS_DC)
  */
-static void yaf_dispatcher_get_call_parmaters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval ****params, uint *count TSRMLS_DC) {
+static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval ****params, uint *count TSRMLS_DC) {
 	zval 		  	*args, **arg;
 	zend_arg_info 	*arg_info;
 	uint 		 	current;
@@ -622,7 +622,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				if (fptr->common.num_args) {
 					zval *method_name;
 
-					yaf_dispatcher_get_call_parmaters(request_ce, request, fptr, &call_args, &count TSRMLS_CC);
+					yaf_dispatcher_get_call_parameters(request_ce, request, fptr, &call_args, &count TSRMLS_CC);
 					MAKE_STD_ZVAL(method_name);
 					ZVAL_STRINGL(method_name, func_name, func_name_len, 0);
 
@@ -672,7 +672,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				if (fptr->common.num_args) {
 					zval *method_name = NULL;
 
-					yaf_dispatcher_get_call_parmaters(request_ce, request, fptr, &call_args, &count TSRMLS_CC);
+					yaf_dispatcher_get_call_parameters(request_ce, request, fptr, &call_args, &count TSRMLS_CC);
 					MAKE_STD_ZVAL(method_name);
 					ZVAL_STRINGL(method_name, YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1, 0);
 
