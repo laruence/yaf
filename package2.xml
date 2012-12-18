@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-11-19</date>
- <time>14:06:22</time>
+ <date>2012-12-18</date>
+ <time>13:29:05</time>
  <version>
-  <release>2.2.7</release>
-  <api>2.2.7</api>
+  <release>2.2.8</release>
+  <api>2.2.8</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,8 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Improve the templates directory handling
-  - Fixed bug #63438 (Strange behavior with nested rendering)
+  - Fixed bug that partial module name taken
  </notes>
  <contents> 
   <dir name="/"> 
@@ -179,6 +178,22 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2012-12-18</date> 
+   <version> 
+    <release>2.2.8</release> 
+    <api>2.2.8</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug that partial module name taken
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-11-19</date> 
    <version> 
     <release>2.2.7</release> 
@@ -194,7 +209,6 @@
     - Fixed bug #63438 (Strange behavior with nested rendering)
    </notes> 
   </release> 
-
   <release> 
    <date>2012-11-01</date> 
    <version> 
