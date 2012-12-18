@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 328262 2012-11-06 10:31:55Z laruence $ */
+/* $Id: simple.c 328823 2012-12-18 10:10:55Z remi $ */
 
 #include "main/php_output.h"
 
@@ -801,13 +801,13 @@ PHP_METHOD(yaf_view_simple, get) {
 /** {{{ proto public Yaf_View_Simple::render(string $tpl, array $vars = NULL)
 */
 PHP_METHOD(yaf_view_simple, render) {
-	zval *tpl, *vars = NULL, *tpl_vars;
+	zval *tpl, *vars = NULL; /*, *tpl_vars;*/
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &tpl, &vars) == FAILURE) {
 		return;
 	}
 
-	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	/*tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);*/
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	zend_try {
 #endif
@@ -844,13 +844,13 @@ PHP_METHOD(yaf_view_simple, render) {
 /** {{{ proto public Yaf_View_Simple::eval(string $tpl_content, array $vars = NULL)
 */
 PHP_METHOD(yaf_view_simple, eval) {
-	zval *tpl, *vars = NULL, *tpl_vars;
+	zval *tpl, *vars = NULL; /*, *tpl_vars;*/
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &tpl, &vars) == FAILURE) {
 		return;
 	}
 
-	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);
+	/*tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1 TSRMLS_CC);*/
 	if (!yaf_view_simple_eval(getThis(), tpl, vars, return_value TSRMLS_CC)) {
 		RETURN_FALSE;
 	}
@@ -860,13 +860,13 @@ PHP_METHOD(yaf_view_simple, eval) {
 /** {{{ proto public Yaf_View_Simple::display(string $tpl, array $vars = NULL)
 */
 PHP_METHOD(yaf_view_simple, display) {
-	zval *tpl, *tpl_vars, *vars = NULL;
+	zval *tpl, *vars = NULL; /* , *tpl_vars*/
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &tpl, &vars) == FAILURE) {
 		return;
 	}
 
-	tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);
+	/*tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0 TSRMLS_CC);*/
 	if (!yaf_view_simple_display(getThis(), tpl, vars, return_value TSRMLS_CC)) {
 		RETURN_FALSE;
 	}

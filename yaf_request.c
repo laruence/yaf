@@ -14,7 +14,7 @@
    +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.c 328176 2012-10-29 06:20:10Z laruence $*/
+/* $Id: yaf_request.c 328820 2012-12-18 08:16:24Z remi $*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -226,7 +226,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 /** {{{ zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC)
 */
 zval * yaf_request_query(uint type, char * name, uint len TSRMLS_DC) {
-	zval 		**carrier, **ret;
+	zval 		**carrier = NULL, **ret;
 
 #if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4)
 	zend_bool 	jit_initialization = (PG(auto_globals_jit) && !PG(register_globals) && !PG(register_long_arrays));

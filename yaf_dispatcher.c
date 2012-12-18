@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 328702 2012-12-07 02:20:15Z laruence $ */
+/* $Id: yaf_dispatcher.c 328822 2012-12-18 08:25:56Z remi $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -424,7 +424,7 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 /* {{{ This only effects internally */
 	   	if (YAF_G(st_compatible)) {
 		char *directory, *class, *class_lowercase, *p;
-		uint directory_len, class_len;
+		uint class_len;
 		zend_class_entry **ce;
 		char *action_upper = estrndup(action, len);
 
@@ -449,9 +449,9 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 		}
 
 		if (def_module) {
-			directory_len = spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "actions");
+			spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "actions");
 		} else {
-			directory_len = spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+			spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
 					"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, "actions");
 		}
 
@@ -522,7 +522,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 		return 0;
 	} else {
 		int	is_def_module = 0;
-		int is_def_ctr = 0;
+		/* int is_def_ctr = 0; */
 		zval *module, *controller, *dmodule, *dcontroller, *instantly_flush;
 		zend_class_entry *ce;
 		yaf_controller_t *executor;
@@ -553,9 +553,9 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			is_def_module = 1;
 		}
 
-		if (strncasecmp(Z_STRVAL_P(dcontroller), Z_STRVAL_P(controller), Z_STRLEN_P(controller)) == 0) {
+		/* if (strncasecmp(Z_STRVAL_P(dcontroller), Z_STRVAL_P(controller), Z_STRLEN_P(controller)) == 0) {
 			is_def_ctr = 1;
-		}
+		} */
 
 		ce = yaf_dispatcher_get_controller(app_dir, Z_STRVAL_P(module), Z_STRVAL_P(controller), Z_STRLEN_P(controller), is_def_module TSRMLS_CC);
 		if (!ce) {
