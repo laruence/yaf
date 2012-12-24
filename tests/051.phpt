@@ -14,7 +14,7 @@ $x->route($x);
 $x = new Yaf_Route_Static();
 $x->route($x);
 
-$x = new Yaf_Route_Rewrite("#^/test#", array("controller" => "info"), array());
+$x = new Yaf_Route_Rewrite("#^/test#", array("controller" => "info"), "");
 $x->route($x);
 
 $x = new Yaf_Route_Supervar("r");
