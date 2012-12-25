@@ -16,14 +16,16 @@
 
 /* $Id: rewrite.c 327549 2012-09-09 03:02:48Z laruence $ */
 
+#include "ext/standard/php_string.h"
+
 zend_class_entry *yaf_route_rewrite_ce;
 
 /** {{{ ARG_INFO
  */
 ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_construct_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, match)
-    ZEND_ARG_ARRAY_INFO(0, route, 0)
-    ZEND_ARG_ARRAY_INFO(0, verify, 1)
+	ZEND_ARG_ARRAY_INFO(0, route, 0)
+	ZEND_ARG_INFO(0, verify)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -42,7 +44,7 @@ yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zva
 	zend_update_property(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), match TSRMLS_CC);
 	zend_update_property(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE), route TSRMLS_CC);
 
-	if (!verify) {
+	if (!verify || IS_STRING != Z_TYPE_P(verify)) {
 		zend_update_property_null(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY) TSRMLS_CC);
 	} else {
 		zend_update_property(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), verify TSRMLS_CC);
@@ -231,6 +233,92 @@ PHP_METHOD(yaf_route_rewrite, route) {
 }
 /** }}} */
 
+/** {{{ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC)
+ */
+zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+	char    tvalue[1024];
+	uint    tvalue_len = 0;
+	zval    *verify, *uri = NULL;
+
+	MAKE_STD_ZVAL(uri);
+
+	verify = zend_read_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), 1 TSRMLS_CC);
+
+	do {
+		char tsprintf[1024];
+		char *t_str;
+		uint tlen = 0;
+		zval **tmp;
+
+		if (!verify) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Undefined the 'verify' parameter for this route");
+			break;
+		}
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_MODULE), (void **)&tmp) == SUCCESS) {
+			t_str = php_str_to_str(Z_STRVAL_P(verify), Z_STRLEN_P(verify),
+							ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT),
+							Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
+			ZVAL_STRING(verify, t_str, 1);
+		}
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_CONTROLLER), (void **)&tmp) == SUCCESS) {
+			t_str = php_str_to_str(Z_STRVAL_P(verify), Z_STRLEN_P(verify),
+							ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT),
+							Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
+			ZVAL_STRING(verify, t_str, 1);
+		}
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_ACTION), (void **)&tmp) == SUCCESS) {
+			t_str = php_str_to_str(Z_STRVAL_P(verify), Z_STRLEN_P(verify),
+							ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT),
+							Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
+			ZVAL_STRING(verify, t_str, 1);
+		}
+
+		if (tlen) {
+			memcpy(&tvalue[tvalue_len], t_str, tlen);
+			tvalue_len += tlen;
+		}
+
+		if ( IS_ARRAY == Z_TYPE_P(query)) {
+			uint key_type, key_len;
+			char *key;
+			ulong key_idx;
+			uint i = 0;
+
+			for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(query));
+					zend_hash_get_current_data(Z_ARRVAL_P(query), (void **)&tmp) == SUCCESS;
+					zend_hash_move_forward(Z_ARRVAL_P(query))) {
+
+				if (IS_STRING == Z_TYPE_PP(tmp)
+						&& HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(query), &key, &key_len, &key_idx, 0, NULL)) {
+
+					tlen = strlen("=&") + key_len + Z_STRLEN_PP(tmp);
+					if (i == 0) {
+						tlen = snprintf(tsprintf, tlen + 1, "?%s=%s", key, Z_STRVAL_PP(tmp));
+					} else {
+						tlen = snprintf(tsprintf, tlen + 1, "&%s=%s", key, Z_STRVAL_PP(tmp));
+					}
+					if (tlen) {
+						memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+						tvalue_len += tlen;
+					}
+				}
+				i++;
+			}
+		}
+
+		tvalue[tvalue_len] = '\0';
+		ZVAL_STRING(uri, tvalue, 1);
+		return uri;
+
+	} while (0);
+
+	ZVAL_NULL(uri);
+	return uri;
+}
+
 /** {{{ proto public Yaf_Route_Rewrite::match(string $uri)
  */
 PHP_METHOD(yaf_route_rewrite, match) {
@@ -252,13 +340,13 @@ PHP_METHOD(yaf_route_rewrite, match) {
 }
 /** }}} */
 
-/** {{{ proto public Yaf_Route_Rewrite::__construct(string $match, array $route, array $verify = NULL)
+/** {{{ proto public Yaf_Route_Rewrite::__construct(string $match, array $route, string $verify = NULL)
  */
 PHP_METHOD(yaf_route_rewrite, __construct) {
-	zval 		*match, *route, *verify = NULL;
+	zval 		*match, *route, *verify;
 	yaf_route_t	*self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "za|a", &match, &route, &verify) ==  FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "za|z", &match, &route, &verify) ==  FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
@@ -269,7 +357,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 		RETURN_FALSE;
 	}
 
-	if (verify && IS_ARRAY != Z_TYPE_P(verify)) {
+	if (ZEND_NUM_ARGS() == 3 && IS_STRING != Z_TYPE_P(verify)) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects an array as third parameter",  yaf_route_rewrite_ce->name);
 		RETURN_FALSE;
@@ -285,11 +373,26 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 }
 /** }}} */
 
+/** {{{ proto public Yaf_Route_rewrite::assemble(array $mvc[, array $query = NULL])
+*/
+PHP_METHOD(yaf_route_rewrite, assemble) {
+	zval    *mvc, *query, *return_uri = NULL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+		return;
+	} else {
+		return_uri = yaf_route_rewrite_assemble(getThis(), mvc, query TSRMLS_CC);
+		RETURN_ZVAL(return_uri, 0, 1); 
+	}
+}
+/* }}} */
+
 /** {{{ yaf_route_rewrite_methods
  */
 zend_function_entry yaf_route_rewrite_methods[] = {
 	PHP_ME(yaf_route_rewrite, __construct, yaf_route_rewrite_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_rewrite, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_rewrite, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */

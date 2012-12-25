@@ -162,6 +162,85 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 }
 /* }}} */
 
+/** {{{ zval * yaf_route_static_assemble(zval *mvc, zval *query TSRMLS_DC)
+ */
+zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+	char tvalue[1024];
+	uint tvalue_len = 0;
+	zval *uri;
+
+	MAKE_STD_ZVAL(uri);
+
+	do {
+		zval **tmp;
+		char tsprintf[1024];
+		int tlen;
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_MODULE), (void **)&tmp) == SUCCESS) {
+			tlen = strlen("/") + Z_STRLEN_PP(tmp);
+			tlen = snprintf(tsprintf, tlen + 1, "/%s", Z_STRVAL_PP(tmp));
+			if (tlen) {
+				memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+				tvalue_len += tlen;
+			}
+		}
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_CONTROLLER), (void **)&tmp) == FAILURE) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
+			break;
+		}
+
+		tlen = strlen("/") + Z_STRLEN_PP(tmp);
+		tlen = snprintf(tsprintf, tlen + 1, "/%s", Z_STRVAL_PP(tmp));
+		if (tlen) {
+			memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+			tvalue_len += tlen;
+		}
+
+		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_ACTION), (void **)&tmp) == FAILURE) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
+			break;
+		}
+
+		tlen = strlen("/") + Z_STRLEN_PP(tmp);
+		tlen = snprintf(tsprintf, tlen + 1, "/%s", Z_STRVAL_PP(tmp));
+		if (tlen) {
+			memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+			tvalue_len += tlen;
+		}
+
+		if ( IS_ARRAY == Z_TYPE_P(query)) {
+			uint key_type, key_len;
+			char *key;
+			ulong key_idx;
+
+			for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(query));
+					zend_hash_get_current_data(Z_ARRVAL_P(query), (void **)&tmp) == SUCCESS;
+					zend_hash_move_forward(Z_ARRVAL_P(query))) {
+
+				if (IS_STRING == Z_TYPE_PP(tmp)
+						&& HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(query), &key, &key_len, &key_idx, 0, NULL)) {
+
+					tlen = strlen("//") + key_len + Z_STRLEN_PP(tmp);
+					tlen = snprintf(tsprintf, tlen + 1, "/%s/%s", key, Z_STRVAL_PP(tmp));
+					if (tlen) {
+						memcpy(&tvalue[tvalue_len], tsprintf, strlen(tsprintf));
+						tvalue_len += tlen;
+					}
+				}
+			}
+		}
+
+		tvalue[tvalue_len] = '\0';
+		ZVAL_STRING(uri, tvalue, 1);
+		return uri;
+	} while (0);
+
+	ZVAL_NULL(uri);
+	return uri;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Router_Classical::route(Yaf_Request $req)
 */
 PHP_METHOD(yaf_route_static, route) {
@@ -182,11 +261,27 @@ PHP_METHOD(yaf_route_static, match) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Route_Static::assemble(array $mvc[, array $query = NULL])
+*/
+PHP_METHOD(yaf_route_static, assemble) {
+	zval *mvc, *query;
+	zval *return_uri;
+
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+                return;
+        } else {
+                return_uri = yaf_route_static_assemble(getThis(), mvc, query TSRMLS_CC);
+                RETURN_ZVAL(return_uri, 0, 1);
+        }
+}
+/* }}} */
+
 /** {{{ yaf_route_static_methods
  */
 zend_function_entry yaf_route_static_methods[] = {
 	PHP_ME(yaf_route_static, match, yaf_route_static_match_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_route_static, route, yaf_route_route_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_static, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
