@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2012-12-18</date>
- <time>13:29:05</time>
+ <date>2013-01-04</date>
+ <time>18:27:23</time>
  <version>
-  <release>2.2.8</release>
-  <api>2.2.8</api>
+  <release>2.2.9</release>
+  <api>2.2.9</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug that partial module name taken
+  - Fixed bug #63900 (Segfault if separated action executes failed)
+  - Fixed some compiler warnings (Remi)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -159,6 +160,7 @@
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
     <file name="bug63438.phpt" role="test" />
+    <file name="bug63900.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
    </dir>
@@ -178,6 +180,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2013-01-04</date> 
+   <version> 
+    <release>2.2.9</release> 
+    <api>2.2.9</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug #63900 (Segfault if separated action executes failed)
+    - Fixed some compiler warnings (Remi)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2012-12-18</date> 
    <version> 
     <release>2.2.8</release> 
@@ -192,7 +211,6 @@
     - Fixed bug that partial module name taken
    </notes> 
   </release> 
-
   <release> 
    <date>2012-11-19</date> 
    <version> 
