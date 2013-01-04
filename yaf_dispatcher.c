@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_dispatcher.c 328976 2013-01-04 10:30:40Z laruence $ */
+/* $Id: yaf_dispatcher.c 328978 2013-01-04 10:41:50Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -659,6 +659,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				yaf_action_t *iaction;
 				uint count = 0;
 
+				efree(func_name);
+
 				MAKE_STD_ZVAL(iaction);
 				object_init_ex(iaction, ce);
 
@@ -700,6 +702,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				}
 				zval_ptr_dtor(&ret);
 			} else {
+				efree(func_name);
 				zval_ptr_dtor(&icontroller);
 				return 0;
 			}
