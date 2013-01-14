@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_response.h 327510 2012-09-07 04:16:31Z laruence $ */
+/* $Id: yaf_response.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef PHP_YAF_RESPONSE_H
 #define PHP_YAF_RESPONSE_H

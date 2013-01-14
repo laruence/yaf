@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 326042 2012-06-08 10:49:59Z laruence $ */
+/* $Id: interface.c 329002 2013-01-07 12:55:53Z laruence $ */
 
 #include "ext/standard/php_smart_str.h"
 

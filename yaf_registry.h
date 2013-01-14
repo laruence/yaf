@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_registry.h 321289 2011-12-21 02:53:29Z laruence $ */
+/* $Id: yaf_registry.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_REGISTRY_H
 #define YAF_REGISTRY_H

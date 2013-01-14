@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_controller.h 327558 2012-09-09 05:59:24Z laruence $ */
+/* $Id: yaf_controller.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_CONTROLLER_H
 #define YAF_CONTROLLER_H

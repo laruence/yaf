@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 327591 2012-09-10 10:56:13Z laruence $ */
+/* $Id: yaf_request.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_REQUEST_H
 #define YAF_REQUEST_H

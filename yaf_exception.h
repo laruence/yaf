@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_exception.h 327549 2012-09-09 03:02:48Z laruence $ */
+/* $Id: yaf_exception.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_EXCEPTION_H
 #define YAF_EXCEPTION_H
