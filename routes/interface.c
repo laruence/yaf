@@ -79,10 +79,10 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) 
 			return NULL;
 		}
 		if (zend_hash_find(Z_ARRVAL_P(config), ZEND_STRS("map"), (void **)&map) == FAILURE || Z_TYPE_PP(map) != IS_ARRAY) {
-			return NULL;
+			map = NULL;
 		}
 
-		instance = yaf_route_regex_instance(NULL, *match, *def, *map, NULL TSRMLS_CC);
+		instance = yaf_route_regex_instance(NULL, *match, *def, map? *map : NULL, NULL TSRMLS_CC);
 	} else if (Z_STRLEN_PP(ppzval) == (sizeof("map") - 1)
 			&& strncasecmp(Z_STRVAL_PP(ppzval), "map", sizeof("map") - 1) == 0) {
 		char *delimiter = NULL;

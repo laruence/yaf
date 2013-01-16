@@ -42,7 +42,10 @@ yaf_route_t * yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval 
 
 	zend_update_property(yaf_route_regex_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), route TSRMLS_CC);
 	zend_update_property(yaf_route_regex_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE), def TSRMLS_CC);
-	zend_update_property(yaf_route_regex_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MAP), map TSRMLS_CC);
+
+	if (map) {
+		zend_update_property(yaf_route_regex_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MAP), map TSRMLS_CC);
+	}
 
 	if (!verify) {
 		zend_update_property_null(yaf_route_regex_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY) TSRMLS_CC);
@@ -76,6 +79,9 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 		ZVAL_NULL(subparts);
 
 		map = zend_read_property(yaf_route_regex_ce, route, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MAP), 1 TSRMLS_CC);
+		if (IS_ARRAY != Z_TYPE_P(map)) {
+			map = NULL;
+		}
 
 		php_pcre_match_impl(pce_regexp, uir, len, matches, subparts /* subpats */,
 				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */ TSRMLS_CC);
@@ -104,7 +110,7 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 				}
 
 				if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) == HASH_KEY_IS_LONG) {
-					if (zend_hash_index_find(Z_ARRVAL_P(map), idx, (void **)&name) == SUCCESS) {
+					if (map && zend_hash_index_find(Z_ARRVAL_P(map), idx, (void **)&name) == SUCCESS) {
 						Z_ADDREF_P(*ppzval);
 						zend_hash_update(Z_ARRVAL_P(ret), Z_STRVAL_PP(name), Z_STRLEN_PP(name) + 1, (void **)ppzval, sizeof(zval *), NULL);
 					}
@@ -215,10 +221,10 @@ PHP_METHOD(yaf_route_regex, route) {
 /** {{{ proto public Yaf_Route_Regex::__construct(string $match, array $route, array $map = NULL, array $verify = NULL)
  */
 PHP_METHOD(yaf_route_regex, __construct) {
-	zval 		*match, *route, *map, *verify = NULL;
+	zval 		*match, *route, *map = NULL, *verify = NULL;
 	yaf_route_t	*self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zaa|a", &match, &route, &map, &verify) ==  FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "za|aa", &match, &route, &map, &verify) ==  FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
