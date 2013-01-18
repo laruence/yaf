@@ -22,34 +22,25 @@
 
 #include "php.h"
 #include "php_ini.h"
-#include "main/SAPI.h"
-#include "Zend/zend_interfaces.h"
-#include "Zend/zend_exceptions.h"
-#include "Zend/zend_alloc.h"
-#include "ext/standard/php_string.h"
-#include "ext/standard/php_filestat.h"
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
 #include "yaf_config.h"
 
+#include "configs/ini.h"
+#include "configs/simple.h"
+
 zend_class_entry *yaf_config_ce;
-#ifdef HAVE_SPL
-extern PHPAPI zend_class_entry *spl_ce_Countable;
-#endif
+
+static zval * yaf_config_ini_zval_persistent(zval *zvalue TSRMLS_DC);
+static zval * yaf_config_ini_zval_losable(zval *zvalue TSRMLS_DC);
 
 /* {{{ ARG_INFO
  */
 ZEND_BEGIN_ARG_INFO_EX(yaf_config_void_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
-
-#include "configs/ini.c"
-#include "configs/simple.c"
-
-static zval * yaf_config_ini_zval_persistent(zval *zvalue TSRMLS_DC);
-static zval * yaf_config_ini_zval_losable(zval *zvalue TSRMLS_DC);
 
 /** {{{ yaf_config_ini_modified
 */

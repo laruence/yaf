@@ -34,7 +34,14 @@
 #include "yaf_request.h"
 #include "yaf_router.h"
 #include "yaf_config.h"
-#include "routes/interface.c"
+
+#include "routes/interface.h"
+#include "routes/static.h"
+#include "routes/simple.h"
+#include "routes/supervar.h"
+#include "routes/regex.h"
+#include "routes/rewrite.h"
+#include "routes/map.h"
 
 zend_class_entry *yaf_router_ce;
 
@@ -372,6 +379,12 @@ YAF_STARTUP_FUNCTION(router) {
 	zend_declare_property_null(yaf_router_ce, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE), ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	YAF_STARTUP(route);
+	YAF_STARTUP(route_static);
+	YAF_STARTUP(route_simple);
+	YAF_STARTUP(route_supervar);
+	YAF_STARTUP(route_rewrite);
+	YAF_STARTUP(route_regex);
+	YAF_STARTUP(route_map);
 
 	return SUCCESS;
 }

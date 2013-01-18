@@ -16,7 +16,20 @@
 
 /* $Id: supervar.c 329002 2013-01-07 12:55:53Z laruence $ */
 
-#define YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR "_var_name"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_request.h"
+
+#include "yaf_router.h"
+#include "routes/interface.h"
+#include "routes/supervar.h"
 
 zend_class_entry *yaf_route_supervar_ce;
 

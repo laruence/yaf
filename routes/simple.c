@@ -16,11 +16,22 @@
 
 /* $Id: simple.c 329002 2013-01-07 12:55:53Z laruence $ */
 
-zend_class_entry *yaf_route_simple_ce;
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-#define YAF_ROUTE_SIMPLE_VAR_NAME_MODULE		"module"
-#define	YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER 	"controller"
-#define YAF_ROUTE_SIMPLE_VAR_NAME_ACTION		"action"
+#include "php.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_request.h"
+
+#include "yaf_router.h"
+#include "routes/interface.h"
+#include "routes/simple.h"
+
+zend_class_entry *yaf_route_simple_ce;
 
 /** {{{ ARG_INFO
  */

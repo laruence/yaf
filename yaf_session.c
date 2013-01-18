@@ -21,10 +21,7 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "Zend/zend_interfaces.h"
-#include "Zend/zend_objects.h"
-#include "main/SAPI.h"
+#include "Zend/zend_interfaces.h"  /* for zend_ce_iterator */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -32,6 +29,7 @@
 #include "yaf_exception.h"
 
 zend_class_entry * yaf_session_ce;
+
 #ifdef HAVE_SPL
 extern PHPAPI zend_class_entry * spl_ce_Countable;
 #endif

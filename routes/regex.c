@@ -14,7 +14,23 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: regex.c 329133 2013-01-14 07:24:17Z laruence $ */
+/* $Id: regex.c 329154 2013-01-16 04:02:46Z laruence $ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+#include "ext/pcre/php_pcre.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_request.h"
+
+#include "yaf_router.h"
+#include "routes/interface.h"
+#include "routes/regex.h"
 
 zend_class_entry *yaf_route_regex_ce;
 

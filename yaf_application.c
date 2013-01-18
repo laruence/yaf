@@ -21,11 +21,8 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "main/SAPI.h"
-#include "Zend/zend_interfaces.h"
-#include "ext/standard/php_var.h"
-#include "ext/standard/basic_functions.h"
+#include "php_ini.h" /* for zend_alter_ini_entry */
+#include "Zend/zend_interfaces.h" /* for zend_call_method_with_* */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"

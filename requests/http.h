@@ -14,47 +14,15 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 329002 2013-01-07 12:55:53Z laruence $ */
+/* $Id: yaf_request.h 329002 2013-01-07 12:55:53Z laruence $ */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
+#ifndef YAF_REQUEST_HTTP_H
+#define YAF_REQUEST_HTTP_H
+
+yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request_uri, char *base_uri TSRMLS_DC);
+YAF_STARTUP_FUNCTION(request_http);
+
 #endif
-
-#include "php.h"
-
-#include "php_yaf.h"
-#include "yaf_namespace.h"
-#include "yaf_exception.h"
-#include "yaf_loader.h"
-#include "yaf_view.h"
-
-#include "views/interface.h"
-
-zend_class_entry *yaf_view_interface_ce;
-
-/** {{{ yaf_view_interface_methods
- */
-zend_function_entry yaf_view_interface_methods[] = {
-	ZEND_ABSTRACT_ME(yaf_view, assign,  yaf_view_assign_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, display, yaf_view_display_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, render, yaf_view_render_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, setScriptPath, yaf_view_setpath_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, getScriptPath, yaf_view_getpath_arginfo)
-	{NULL, NULL, NULL}
-};
-/* }}} */
-
-/** {{{ YAF_STARTUP_FUNCTION
- */
-YAF_STARTUP_FUNCTION(view_interface) {
-	zend_class_entry ce;
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_View_Interface", "Yaf\\View_Interface", yaf_view_interface_methods);
-	yaf_view_interface_ce = zend_register_internal_interface(&ce TSRMLS_CC);
-
-	return SUCCESS;
-}
-/* }}} */
-
 /*
  * Local variables:
  * tab-width: 4
@@ -63,4 +31,3 @@ YAF_STARTUP_FUNCTION(view_interface) {
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
-

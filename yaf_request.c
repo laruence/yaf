@@ -21,20 +21,15 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "main/SAPI.h"
-#include "Zend/zend_interfaces.h"
-#include "Zend/zend_exceptions.h"
-#include "Zend/zend_alloc.h"
-#include "ext/standard/php_string.h"
+#include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
 
 #include "php_yaf.h"
 #include "yaf_request.h"
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
 
-#include "requests/simple.c"
-#include "requests/http.c"
+#include "requests/simple.h"
+#include "requests/http.h"
 
 zend_class_entry *yaf_request_ce;
 

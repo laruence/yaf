@@ -16,6 +16,18 @@
 
 /* $Id: http.c 329002 2013-01-07 12:55:53Z laruence $ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_response.h"
+#include "yaf_exception.h"
+#include "response/http.h"
+
 zend_class_entry *yaf_response_http_ce;
 
 /** {{{ yaf_response_methods

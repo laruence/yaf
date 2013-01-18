@@ -21,7 +21,6 @@
 #endif
 
 #include "php.h"
-#include "main/SAPI.h"
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"

@@ -16,6 +16,23 @@
 
 /* $Id: rewrite.c 329133 2013-01-14 07:24:17Z laruence $ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+#include "ext/standard/php_smart_str.h" /* for smart_str */
+#include "ext/pcre/php_pcre.h" /* for pcre */
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_request.h"
+
+#include "yaf_router.h"
+#include "routes/interface.h"
+#include "routes/rewrite.h"
+
 zend_class_entry *yaf_route_rewrite_ce;
 
 /** {{{ ARG_INFO

@@ -16,6 +16,19 @@
 
 /* $Id: simple.c 329002 2013-01-07 12:55:53Z laruence $ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+#include "main/SAPI.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_request.h"
+#include "yaf_exception.h"
+#include "requests/simple.h"
+
 static zend_class_entry *yaf_request_simple_ce;
 
 /** {{{ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params TSRMLS_DC)

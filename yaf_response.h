@@ -43,3 +43,12 @@ int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len 
 YAF_STARTUP_FUNCTION(response);
 
 #endif
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

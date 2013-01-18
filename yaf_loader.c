@@ -21,11 +21,7 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "main/SAPI.h"
-#include "Zend/zend_alloc.h"
-#include "ext/standard/php_smart_str.h"
-#include "TSRM/tsrm_virtual_cwd.h"
+#include "ext/standard/php_smart_str.h" /* for smart_str */
 
 #include "php_yaf.h"
 #include "yaf_application.h"

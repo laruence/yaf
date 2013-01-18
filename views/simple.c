@@ -16,10 +16,21 @@
 
 /* $Id: simple.c 329002 2013-01-07 12:55:53Z laruence $ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
 #include "main/php_output.h"
 
-#define VIEW_BUFFER_BLOCK_SIZE	4096
-#define VIEW_BUFFER_SIZE_MASK 	4095
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_loader.h"
+#include "yaf_view.h"
+
+#include "views/interface.h"
+#include "views/simple.h"
 
 zend_class_entry *yaf_view_simple_ce;
 
@@ -31,7 +42,7 @@ ZEND_END_ARG_INFO();
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_get_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO();
+ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_isset_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)

@@ -16,10 +16,30 @@
 
 /* $Id: simple.c 329002 2013-01-07 12:55:53Z laruence $ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+#include "Zend/zend_interfaces.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_config.h"
+#include "configs/simple.h"
+
 zend_class_entry *yaf_config_simple_ce;
+
+#ifdef HAVE_SPL
+extern PHPAPI zend_class_entry *spl_ce_Countable;
+#endif
 
 /** {{{ ARG_INFO
  */
+ZEND_BEGIN_ARG_INFO_EX(yaf_config_simple_void_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(yaf_config_simple_construct_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, config_file)
 	ZEND_ARG_INFO(0, section)
@@ -325,15 +345,15 @@ zend_function_entry yaf_config_simple_methods[] = {
 	PHP_ME(yaf_config_simple, __isset, yaf_config_simple_isset_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_simple, get, yaf_config_simple_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_simple, set, yaf_config_simple_set_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, count, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, count, yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_simple, offsetUnset,	yaf_config_simple_unset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, rewind, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, current, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, next,	yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, valid, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, key, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, readonly,	yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple, toArray, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, rewind, yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, current, yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, next,	yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, valid, yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, key, yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, readonly,	yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, toArray, yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_simple, __set, set, yaf_config_simple_set_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_simple, __get, get, yaf_config_simple_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_simple, offsetGet, get, yaf_config_simple_rget_arginfo, ZEND_ACC_PUBLIC)

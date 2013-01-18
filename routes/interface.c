@@ -14,33 +14,29 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 329002 2013-01-07 12:55:53Z laruence $ */
+/* $Id: interface.c 329154 2013-01-16 04:02:46Z laruence $ */
 
-#include "ext/standard/php_smart_str.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-#define YAF_ROUTE_PROPETY_NAME_MATCH  	"_route"
-#define YAF_ROUTE_PROPETY_NAME_ROUTE  	"_default"
-#define YAF_ROUTE_PROPETY_NAME_MAP	 	"_maps"
-#define YAF_ROUTE_PROPETY_NAME_VERIFY 	"_verify"
+#include "php.h"
 
-#define YAF_ROUTER_URL_DELIMIETER  	 "/"
-#define YAF_ROUTE_REGEX_DILIMITER  	 '#'
+#include "php_yaf.h"
 
-/* {{{ YAF_ARG_INFO
- */
-YAF_BEGIN_ARG_INFO_EX(yaf_route_route_arginfo, 0, 0, 1)
-	YAF_ARG_INFO(0, request)
-YAF_END_ARG_INFO()
-/* }}} */
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_router.h"
+
+#include "routes/interface.h"
+#include "routes/static.h"
+#include "routes/simple.h"
+#include "routes/supervar.h"
+#include "routes/regex.h"
+#include "routes/rewrite.h"
+#include "routes/map.h"
 
 zend_class_entry *yaf_route_ce;
-
-#include "static.c"
-#include "simple.c"
-#include "supervar.c"
-#include "rewrite.c"
-#include "regex.c"
-#include "map.c"
 
 /* {{{ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr,  zval *config TSRMLS_DC)
  */
@@ -146,15 +142,9 @@ zend_function_entry yaf_route_methods[] = {
  */
 YAF_STARTUP_FUNCTION(route) {
 	zend_class_entry ce;
+
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Interface", "Yaf\\Route_Interface", yaf_route_methods);
 	yaf_route_ce = zend_register_internal_interface(&ce TSRMLS_CC);
-
-	YAF_STARTUP(route_static);
-	YAF_STARTUP(route_simple);
-	YAF_STARTUP(route_supervar);
-	YAF_STARTUP(route_rewrite);
-	YAF_STARTUP(route_regex);
-	YAF_STARTUP(route_map);
 
 	return SUCCESS;
 }

@@ -21,8 +21,7 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "main/SAPI.h"
+#include "main/SAPI.h" /* for sapi_header_line */
 #include "ext/standard/php_string.h" /* for php_implode */
 #include "Zend/zend_interfaces.h"
 
@@ -30,6 +29,9 @@
 #include "yaf_namespace.h"
 #include "yaf_response.h"
 #include "yaf_exception.h"
+
+#include "response/http.h"
+#include "response/cli.h"
 
 zend_class_entry *yaf_response_ce;
 
@@ -61,9 +63,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_header_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, replace)
 ZEND_END_ARG_INFO()
 /* }}} */
-
-#include "response/http.c"
-#include "response/cli.c"
 
 /** {{{ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC)
  */

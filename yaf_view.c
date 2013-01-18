@@ -21,11 +21,6 @@
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "main/SAPI.h"
-#include "Zend/zend_interfaces.h"
-#include "Zend/zend_exceptions.h"
-#include "Zend/zend_alloc.h"
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -33,8 +28,8 @@
 #include "yaf_loader.h"
 #include "yaf_view.h"
 
-#include "views/interface.c"
-#include "views/simple.c"
+#include "views/interface.h"
+#include "views/simple.h"
 
 #if 0
 static yaf_view_struct yaf_buildin_views[] = {

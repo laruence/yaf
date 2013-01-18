@@ -16,6 +16,21 @@
 
 /* $Id: static.c 329002 2013-01-07 12:55:53Z laruence $ */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "php.h"
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_request.h"
+
+#include "yaf_router.h"
+#include "routes/interface.h"
+#include "routes/static.h"
+
 zend_class_entry * yaf_route_static_ce;
 
 /** {{{ ARG_INFO
@@ -162,7 +177,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Router_Classical::route(Yaf_Request $req)
+/** {{{ proto public Yaf_Router_Static::route(Yaf_Request $req)
 */
 PHP_METHOD(yaf_route_static, route) {
 	yaf_request_t *request;
@@ -175,7 +190,7 @@ PHP_METHOD(yaf_route_static, route) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Router_Classical::match(string $uri)
+/** {{{ proto public Yaf_Router_Static::match(string $uri)
 */
 PHP_METHOD(yaf_route_static, match) {
 	RETURN_TRUE;

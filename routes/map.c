@@ -16,10 +16,23 @@
 
 /* $Id: map.c 329002 2013-01-07 12:55:53Z laruence $*/
 
-zend_class_entry *yaf_route_map_ce;
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-#define YAF_ROUTE_MAP_VAR_NAME_DELIMETER	"_delimeter"
-#define YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER	"_ctl_router"
+#include "php.h"
+#include "ext/standard/php_smart_str.h" /* for smart_str */
+
+#include "php_yaf.h"
+#include "yaf_namespace.h"
+#include "yaf_exception.h"
+#include "yaf_request.h"
+
+#include "yaf_router.h"
+#include "routes/interface.h"
+#include "routes/map.h"
+
+zend_class_entry *yaf_route_map_ce;
 
 /** {{{ ARG_INFO
  */

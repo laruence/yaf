@@ -41,5 +41,37 @@ if test "$PHP_YAF" != "no"; then
   else
     AC_MSG_RESULT([$php_version, ok])
   fi
-  PHP_NEW_EXTENSION(yaf, yaf.c yaf_application.c yaf_bootstrap.c yaf_dispatcher.c yaf_exception.c yaf_config.c yaf_request.c yaf_response.c yaf_view.c yaf_controller.c yaf_action.c yaf_router.c yaf_loader.c yaf_registry.c yaf_plugin.c yaf_session.c, $ext_shared)
+  PHP_NEW_EXTENSION(yaf, 
+    yaf.c \
+    yaf_application.c   \
+    yaf_bootstrap.c     \
+    yaf_dispatcher.c    \
+    yaf_exception.c     \
+    yaf_config.c        \
+    configs/ini.c       \
+    configs/simple.c    \
+    yaf_request.c       \
+    requests/http.c     \
+    requests/simple.c   \
+    yaf_response.c      \
+    response/http.c     \
+    response/cli.c      \
+    yaf_view.c          \
+    views/interface.c   \
+    views/simple.c      \
+    yaf_controller.c    \
+    yaf_action.c        \
+    yaf_router.c        \
+    routes/interface.c  \
+    routes/static.c     \
+    routes/simple.c     \
+    routes/supervar.c   \
+    routes/regex.c      \
+    routes/rewrite.c    \ 
+    routes/map.c        \
+    yaf_loader.c        \
+    yaf_registry.c      \
+    yaf_plugin.c        \
+    yaf_session.c,
+  $ext_shared)
 fi
