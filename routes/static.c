@@ -40,7 +40,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_static_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_len TSRMLS_DC) /* {{{ */ {
+int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_len TSRMLS_DC) /* {{{ */ {
 	zval *params;
 	char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
 
