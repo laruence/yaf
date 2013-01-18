@@ -176,6 +176,14 @@ SOURCE=.\yaf_config.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\configs\ini.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\configs\simple.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\yaf_registry.c
 # End Source File
 # Begin Source File
@@ -192,7 +200,23 @@ SOURCE=.\yaf_view.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\views\interface.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\views\simple.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\yaf_request.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\requests\http.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\requests\simple.c
 # End Source File
 # Begin Source File
 
@@ -200,7 +224,43 @@ SOURCE=.\yaf_response.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\response\cli.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\response\http.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\yaf_router.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\interface.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\static.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\simple.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\supervar.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\regex.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\rewrite.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\routes\map.c
 # End Source File
 # Begin Source File
 
