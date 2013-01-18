@@ -14,24 +14,18 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.c 329002 2013-01-07 12:55:53Z laruence $ */
+/* $Id: yaf_router.c 329199 2013-01-18 05:59:44Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "php.h"
-#include "php_ini.h"
-#include "main/SAPI.h"
-#include "Zend/zend_alloc.h"
 #include "Zend/zend_interfaces.h"
-#include "ext/pcre/php_pcre.h"
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
-#include "yaf_application.h"
 #include "yaf_exception.h"
-#include "yaf_request.h"
 #include "yaf_router.h"
 #include "yaf_config.h"
 
