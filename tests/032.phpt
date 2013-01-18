@@ -1,7 +1,12 @@
 --TEST--
 Check for Yaf_Config_Ini with env
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php 
+if (!extension_loaded("yaf")) print "skip"; 
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip seems windows doesnt support this');
+}
+?>
 --INI--
 yaf.directory=/foo/bar
 --FILE--
