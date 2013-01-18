@@ -14,7 +14,7 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.c 329199 2013-01-18 05:59:44Z laruence $ */
+/* $Id: yaf_router.c 329200 2013-01-18 06:26:40Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -47,7 +47,6 @@ yaf_router_t * yaf_router_instance(yaf_router_t *this_ptr TSRMLS_DC) {
 	zval 			*routes;
 	yaf_router_t 	*instance;
 	yaf_route_t		*route;
-	(void)yaf_route_route_arginfo; /* tricky, supress warning "defined but not used" */
 
 	if (this_ptr) {
 		instance = this_ptr;
@@ -366,6 +365,7 @@ zend_function_entry yaf_router_methods[] = {
  */
 YAF_STARTUP_FUNCTION(router) {
 	zend_class_entry ce;
+	(void)yaf_route_route_arginfo; /* tricky, supress warning "defined but not used" */
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Router", "Yaf\\Router", yaf_router_methods);
 	yaf_router_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
