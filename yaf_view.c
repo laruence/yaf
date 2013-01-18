@@ -28,8 +28,8 @@
 #include "yaf_loader.h"
 #include "yaf_view.h"
 
-#include "views/interface.h"
-#include "views/simple.h"
+#include "views/yaf_view_interface.h"
+#include "views/yaf_view_simple.h"
 
 /** {{{ yaf_view_t * yaf_view_instance(yaf_view_t *this_ptr TSRMLS_DC)
 */

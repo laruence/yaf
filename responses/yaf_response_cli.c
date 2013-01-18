@@ -26,7 +26,8 @@
 #include "yaf_namespace.h"
 #include "yaf_response.h"
 #include "yaf_exception.h"
-#include "response/cli.h"
+
+#include "responses/yaf_response_cli.h"
 
 zend_class_entry * yaf_response_cli_ce;
 

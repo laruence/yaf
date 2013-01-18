@@ -28,9 +28,9 @@
 #include "yaf_request.h"
 
 #include "yaf_router.h"
-#include "routes/interface.h"
-#include "routes/static.h" /* for yaf_route_pathinfo_route */
-#include "routes/supervar.h"
+#include "routes/yaf_route_interface.h"
+#include "routes/yaf_route_static.h" /* for yaf_route_pathinfo_route */
+#include "routes/yaf_route_supervar.h"
 
 zend_class_entry *yaf_route_supervar_ce;
 

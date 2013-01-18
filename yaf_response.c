@@ -30,8 +30,8 @@
 #include "yaf_response.h"
 #include "yaf_exception.h"
 
-#include "response/http.h"
-#include "response/cli.h"
+#include "responses/yaf_response_http.h"
+#include "responses/yaf_response_cli.h"
 
 zend_class_entry *yaf_response_ce;
 

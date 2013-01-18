@@ -29,8 +29,8 @@
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
 
-#include "requests/simple.h"
-#include "requests/http.h"
+#include "requests/yaf_request_simple.h"
+#include "requests/yaf_request_http.h"
 
 zend_class_entry *yaf_request_ce;
 

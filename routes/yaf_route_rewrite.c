@@ -30,8 +30,8 @@
 #include "yaf_request.h"
 
 #include "yaf_router.h"
-#include "routes/interface.h"
-#include "routes/rewrite.h"
+#include "routes/yaf_route_interface.h"
+#include "routes/yaf_route_rewrite.h"
 
 zend_class_entry *yaf_route_rewrite_ce;
 

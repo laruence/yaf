@@ -28,13 +28,13 @@
 #include "yaf_exception.h"
 #include "yaf_router.h"
 
-#include "routes/interface.h"
-#include "routes/static.h"
-#include "routes/simple.h"
-#include "routes/supervar.h"
-#include "routes/regex.h"
-#include "routes/rewrite.h"
-#include "routes/map.h"
+#include "routes/yaf_route_interface.h"
+#include "routes/yaf_route_static.h"
+#include "routes/yaf_route_simple.h"
+#include "routes/yaf_route_supervar.h"
+#include "routes/yaf_route_regex.h"
+#include "routes/yaf_route_rewrite.h"
+#include "routes/yaf_route_map.h"
 
 zend_class_entry *yaf_route_ce;
 

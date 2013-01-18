@@ -29,8 +29,8 @@
 #include "yaf_request.h"
 
 #include "yaf_router.h"
-#include "routes/interface.h"
-#include "routes/regex.h"
+#include "routes/yaf_route_interface.h"
+#include "routes/yaf_route_regex.h"
 
 zend_class_entry *yaf_route_regex_ce;
 

@@ -12,9 +12,9 @@
   +----------------------------------------------------------------------+
   | Author: Xinchen Hui  <laruence@php.net>                              |
   +----------------------------------------------------------------------+
- */
+*/
 
-/* $Id: http.c 329197 2013-01-18 05:55:37Z laruence $ */
+/* $Id: interface.c 329197 2013-01-18 05:55:37Z laruence $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -24,30 +24,32 @@
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
-#include "yaf_response.h"
 #include "yaf_exception.h"
-#include "response/http.h"
+#include "yaf_loader.h"
+#include "yaf_view.h"
 
-zend_class_entry *yaf_response_http_ce;
+#include "views/yaf_view_interface.h"
 
-/** {{{ yaf_response_methods
-*/
-zend_function_entry yaf_response_http_methods[] = {
+zend_class_entry *yaf_view_interface_ce;
+
+/** {{{ yaf_view_interface_methods
+ */
+zend_function_entry yaf_view_interface_methods[] = {
+	ZEND_ABSTRACT_ME(yaf_view, assign,  yaf_view_assign_arginfo)
+	ZEND_ABSTRACT_ME(yaf_view, display, yaf_view_display_arginfo)
+	ZEND_ABSTRACT_ME(yaf_view, render, yaf_view_render_arginfo)
+	ZEND_ABSTRACT_ME(yaf_view, setScriptPath, yaf_view_setpath_arginfo)
+	ZEND_ABSTRACT_ME(yaf_view, getScriptPath, yaf_view_getpath_arginfo)
 	{NULL, NULL, NULL}
 };
 /* }}} */
 
 /** {{{ YAF_STARTUP_FUNCTION
-*/
-YAF_STARTUP_FUNCTION(response_http) {
+ */
+YAF_STARTUP_FUNCTION(view_interface) {
 	zend_class_entry ce;
-
-	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Http", "Yaf\\Response\\Http", yaf_response_http_methods);
-
-	yaf_response_http_ce = zend_register_internal_class_ex(&ce, yaf_response_ce, NULL TSRMLS_CC);
-
-	zend_declare_property_bool(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION), 1, ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_long(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE),	200, ZEND_ACC_PROTECTED TSRMLS_CC);
+	YAF_INIT_CLASS_ENTRY(ce, "Yaf_View_Interface", "Yaf\\View_Interface", yaf_view_interface_methods);
+	yaf_view_interface_ce = zend_register_internal_interface(&ce TSRMLS_CC);
 
 	return SUCCESS;
 }
@@ -61,3 +63,4 @@ YAF_STARTUP_FUNCTION(response_http) {
  * vim600: noet sw=4 ts=4 fdm=marker
  * vim<600: noet sw=4 ts=4
  */
+

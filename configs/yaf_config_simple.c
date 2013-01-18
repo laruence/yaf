@@ -27,7 +27,8 @@
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
 #include "yaf_config.h"
-#include "configs/simple.h"
+
+#include "configs/yaf_config_simple.h"
 
 zend_class_entry *yaf_config_simple_ce;
 

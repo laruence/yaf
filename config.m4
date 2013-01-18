@@ -42,36 +42,36 @@ if test "$PHP_YAF" != "no"; then
     AC_MSG_RESULT([$php_version, ok])
   fi
   PHP_NEW_EXTENSION(yaf, 
-    yaf.c \
-    yaf_application.c   \
-    yaf_bootstrap.c     \
-    yaf_dispatcher.c    \
-    yaf_exception.c     \
-    yaf_config.c        \
-    configs/ini.c       \
-    configs/simple.c    \
-    yaf_request.c       \
-    requests/http.c     \
-    requests/simple.c   \
-    yaf_response.c      \
-    response/http.c     \
-    response/cli.c      \
-    yaf_view.c          \
-    views/interface.c   \
-    views/simple.c      \
-    yaf_controller.c    \
-    yaf_action.c        \
-    yaf_router.c        \
-    routes/interface.c  \
-    routes/static.c     \
-    routes/simple.c     \
-    routes/supervar.c   \
-    routes/regex.c      \
-    routes/rewrite.c    \ 
-    routes/map.c        \
-    yaf_loader.c        \
-    yaf_registry.c      \
-    yaf_plugin.c        \
+    yaf.c                           \
+    yaf_application.c               \
+    yaf_bootstrap.c                 \
+    yaf_dispatcher.c                \
+    yaf_exception.c                 \
+    yaf_config.c                    \
+    configs/yaf_config_ini.c        \
+    configs/yaf_config_simple.c     \
+    yaf_request.c                   \
+    requests/yaf_request_http.c     \
+    requests/yaf_request_simple.c   \
+    yaf_response.c                  \
+    responses/yaf_response_http.c   \
+    responses/yaf_response_cli.c    \
+    yaf_view.c                      \
+    views/yaf_view_interface.c      \
+    views/yaf_view_simple.c         \
+    yaf_controller.c                \
+    yaf_action.c                    \
+    yaf_router.c                    \
+    routes/yaf_route_interface.c    \
+    routes/yaf_route_static.c       \
+    routes/yaf_route_simple.c       \
+    routes/yaf_route_supervar.c     \
+    routes/yaf_route_regex.c        \
+    routes/yaf_route_rewrite.c      \ 
+    routes/yaf_route_map.c          \
+    yaf_loader.c                    \
+    yaf_registry.c                  \
+    yaf_plugin.c                    \
     yaf_session.c,
   $ext_shared)
 fi

@@ -29,8 +29,8 @@
 #include "yaf_loader.h"
 #include "yaf_view.h"
 
-#include "views/interface.h"
-#include "views/simple.h"
+#include "views/yaf_view_interface.h"
+#include "views/yaf_view_simple.h"
 
 zend_class_entry *yaf_view_simple_ce;
 

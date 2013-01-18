@@ -22,14 +22,14 @@
 
 #include "php.h"
 #include "main/SAPI.h"
+#include "ext/standard/url.h" /* for php_url */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
 #include "yaf_request.h"
 #include "yaf_exception.h"
-#include "requests/http.h"
 
-#include "ext/standard/url.h" /* for php_url */
+#include "requests/yaf_request_http.h"
 
 static zend_class_entry * yaf_request_http_ce;
 

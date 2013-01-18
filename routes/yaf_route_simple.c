@@ -27,10 +27,10 @@
 #include "yaf_exception.h"
 #include "yaf_application.h" /* for yaf_application_is_module_name */
 #include "yaf_request.h"
-
 #include "yaf_router.h"
-#include "routes/interface.h"
-#include "routes/simple.h"
+
+#include "routes/yaf_route_interface.h"
+#include "routes/yaf_route_simple.h"
 
 zend_class_entry *yaf_route_simple_ce;
 
