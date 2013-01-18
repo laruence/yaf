@@ -27,7 +27,7 @@ extern zend_class_entry *yaf_route_simple_ce;
 
 yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action TSRMLS_DC);
 
-YAF_STARTUP_FUNCTION(router_simple);
+YAF_STARTUP_FUNCTION(route_simple);
 
 #endif
 /*

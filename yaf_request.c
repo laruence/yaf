@@ -21,6 +21,7 @@
 #endif
 
 #include "php.h"
+#include "standard/php_string.h" /* for php_basename */
 #include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
 
 #include "php_yaf.h"

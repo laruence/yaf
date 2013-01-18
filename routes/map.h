@@ -26,7 +26,7 @@ extern zend_class_entry *yaf_route_map_ce;
 
 yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len TSRMLS_DC);
 
-YAF_STARTUP_FUNCTION(router_map);
+YAF_STARTUP_FUNCTION(route_map);
 
 #endif
 /*

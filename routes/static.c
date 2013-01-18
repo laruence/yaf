@@ -25,6 +25,7 @@
 #include "php_yaf.h"
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
+#include "yaf_application.h" /* for yaf_application_is_module_name */
 #include "yaf_request.h"
 
 #include "yaf_router.h"

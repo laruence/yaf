@@ -26,6 +26,8 @@
 #include "php_yaf.h"
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
+#include "yaf_application.h" /* for yaf_application_is_module_name */
+#include "yaf_request.h" /* for yaf_request_set_routed */ 
 #include "yaf_router.h"
 #include "yaf_config.h"
 
@@ -45,6 +47,7 @@ yaf_router_t * yaf_router_instance(yaf_router_t *this_ptr TSRMLS_DC) {
 	zval 			*routes;
 	yaf_router_t 	*instance;
 	yaf_route_t		*route;
+	(void)yaf_route_route_arginfo; /* tricky, supress warning "defined but not used" */
 
 	if (this_ptr) {
 		instance = this_ptr;

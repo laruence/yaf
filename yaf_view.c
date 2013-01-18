@@ -31,16 +31,9 @@
 #include "views/interface.h"
 #include "views/simple.h"
 
-#if 0
-static yaf_view_struct yaf_buildin_views[] = {
-	{"classical", &yaf_view_simple_ce, yaf_view_simple_init},
-	{NULL, NULL, NULL}
-};
-#endif
-
-#if 0
 /** {{{ yaf_view_t * yaf_view_instance(yaf_view_t *this_ptr TSRMLS_DC)
 */
+#if 0
 yaf_view_t * yaf_view_instance(yaf_view_t *this_ptr TSRMLS_DC) {
 	yaf_view_t		*view	= NULL;
 	yaf_view_struct 	*p 		= yaf_buildin_views;
@@ -65,12 +58,19 @@ yaf_view_t * yaf_view_instance(yaf_view_t *this_ptr TSRMLS_DC) {
 
 	return view;
 }
-/* }}} */
 #endif
+/* }}} */
 
 /** {{{ YAF_STARTUP_FUNCTION
 */
 YAF_STARTUP_FUNCTION(view) {
+	/* tricky way to supress warning "defined but not used" */
+	(void)yaf_view_assign_arginfo;
+	(void)yaf_view_display_arginfo;
+	(void)yaf_view_render_arginfo;
+	(void)yaf_view_getpath_arginfo;
+	(void)yaf_view_setpath_arginfo;
+
 	YAF_STARTUP(view_interface);
 	YAF_STARTUP(view_simple);
 

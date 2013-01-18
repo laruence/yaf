@@ -25,7 +25,7 @@ extern zend_class_entry *yaf_route_supervar_ce;
 
 yaf_route_t * yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name TSRMLS_DC);
 
-YAF_STARTUP_FUNCTION(router_supervar);
+YAF_STARTUP_FUNCTION(route_supervar);
 
 #endif
 /*

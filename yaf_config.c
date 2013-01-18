@@ -22,6 +22,7 @@
 
 #include "php.h"
 #include "php_ini.h"
+#include "standard/php_filestat.h" /* for php_stat */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"

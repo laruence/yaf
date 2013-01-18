@@ -35,7 +35,7 @@ extern zend_class_entry *yaf_route_ce;
 
 yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr,  zval *config TSRMLS_DC);
 
-YAF_STARTUP_FUNCTION(router_interface);
+YAF_STARTUP_FUNCTION(route);
 
 #endif
 /*

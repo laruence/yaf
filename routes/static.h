@@ -23,7 +23,7 @@ extern zend_class_entry *yaf_route_static_ce;
 
 int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_len TSRMLS_DC);
 
-YAF_STARTUP_FUNCTION(router_static);
+YAF_STARTUP_FUNCTION(route_static);
 
 #endif
 /*

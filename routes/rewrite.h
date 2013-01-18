@@ -23,7 +23,7 @@ extern zend_class_entry *yaf_route_rewrite_ce;
 
 yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *router, zval *verify TSRMLS_DC);
 
-YAF_STARTUP_FUNCTION(router_rewrite);
+YAF_STARTUP_FUNCTION(route_rewrite);
 
 #endif
 /*
