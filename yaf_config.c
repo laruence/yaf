@@ -108,8 +108,9 @@ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC
 			}
 
 			tmp = yaf_config_ini_zval_persistent(*ppzval TSRMLS_CC);
-			if (tmp)
-			zend_hash_index_update(pdst, idx, (void **)&tmp, sizeof(zval *), NULL);
+			if (tmp) {
+				zend_hash_index_update(pdst, idx, (void **)&tmp, sizeof(zval *), NULL);
+			}
 
 		} else {
 			zval *tmp;
@@ -118,8 +119,9 @@ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC
 			}
 
 			tmp = yaf_config_ini_zval_persistent(*ppzval TSRMLS_CC);
-			if (tmp)
-			zend_hash_update(pdst, key, keylen, (void **)&tmp, sizeof(zval *), NULL);
+			if (tmp) {
+				zend_hash_update(pdst, key, keylen, (void **)&tmp, sizeof(zval *), NULL);
+			}
 		}
 	}
 }
@@ -180,6 +182,7 @@ static zval * yaf_config_ini_zval_persistent(zval *zvalue TSRMLS_DC) {
 		case IS_ARRAY:
 		case IS_CONSTANT_ARRAY: {
 				HashTable *tmp_ht, *original_ht = zvalue->value.ht;
+
 				tmp_ht = (HashTable *)pemalloc(sizeof(HashTable), 1);
 				if (!tmp_ht) {
 					return NULL;
