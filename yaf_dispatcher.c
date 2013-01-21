@@ -211,7 +211,7 @@ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf
 */
 static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options TSRMLS_DC) {
 	yaf_view_t *view = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
-	if (view && IS_OBJECT == Z_TYPE_P(view)
+	if (IS_OBJECT == Z_TYPE_P(view)
 			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce TSRMLS_CC)) {
 		return view;
 	}
@@ -237,7 +237,7 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 	action	 	= zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
 	controller 	= zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
 
-	if (!module || Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module)) {
+	if (Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module)) {
 		zval *default_module = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), default_module TSRMLS_CC);
 	} else {
@@ -247,7 +247,7 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 		efree(p);
 	}
 
-	if (!controller || Z_TYPE_P(controller) != IS_STRING || !Z_STRLEN_P(controller)) {
+	if (Z_TYPE_P(controller) != IS_STRING || !Z_STRLEN_P(controller)) {
 		zval *default_controller = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), default_controller TSRMLS_CC);
 	} else {
@@ -277,7 +277,7 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 		efree(p);
 	}
 
-	if (!action || Z_TYPE_P(action) != IS_STRING || !Z_STRLEN_P(action)) {
+	if (Z_TYPE_P(action) != IS_STRING || !Z_STRLEN_P(action)) {
 		zval *default_action = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), default_action TSRMLS_CC);
 	} else {
@@ -782,7 +782,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 
 	module = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
 
-	if (!module || Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module)) {
+	if (Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module)) {
 		module = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
 	}
@@ -869,7 +869,7 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC)
 	request	 = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 1 TSRMLS_CC);
 	plugins	 = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 1 TSRMLS_CC);
 
-	if (!request || IS_OBJECT != Z_TYPE_P(request)) {
+	if (IS_OBJECT != Z_TYPE_P(request)) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expect a %s instance", yaf_request_ce->name);
 		zval_ptr_dtor(&response);
 		return NULL;
@@ -1207,11 +1207,8 @@ PHP_METHOD(yaf_dispatcher, initView) {
 	}
 
 	view = yaf_dispatcher_init_view(getThis(), tpl_dir, options TSRMLS_CC);
-	if (view) {
-		RETURN_ZVAL(view, 1, 0);
-	}
 
-	RETURN_FALSE;
+	RETURN_ZVAL(view, 1, 0);
 }
 /* }}} */
 
@@ -1225,7 +1222,7 @@ PHP_METHOD(yaf_dispatcher, setView) {
 		return;
 	}
 
-	if (view && IS_OBJECT == Z_TYPE_P(view)
+	if (IS_OBJECT == Z_TYPE_P(view)
 			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce TSRMLS_CC)) {
 		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), view TSRMLS_CC);
 		RETURN_ZVAL(self, 1, 0);
@@ -1295,7 +1292,7 @@ PHP_METHOD(yaf_dispatcher, setDefaultAction) {
 		return;
 	}
 
-	if (action && IS_STRING == Z_TYPE_P(action) && Z_STRLEN_P(action)) {
+	if (IS_STRING == Z_TYPE_P(action) && Z_STRLEN_P(action)) {
 		zval *action_lower;
 		MAKE_STD_ZVAL(action_lower);
 		ZVAL_STRING(action_lower, zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action)), 0);

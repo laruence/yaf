@@ -87,20 +87,19 @@ int yaf_application_is_module_name(char *name, int len TSRMLS_DC) {
 	yaf_application_t 	*app;
 
 	app = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1 TSRMLS_CC);
-	if (!app || Z_TYPE_P(app) != IS_OBJECT) {
+	if (Z_TYPE_P(app) != IS_OBJECT) {
 		return 0;
 	}
 
 	modules = zend_read_property(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 1 TSRMLS_CC);
-	if (!modules || Z_TYPE_P(modules) != IS_ARRAY) {
+	if (Z_TYPE_P(modules) != IS_ARRAY) {
 		return 0;
 	}
 
 	ht = Z_ARRVAL_P(modules);
 	zend_hash_internal_pointer_reset(ht);
 	while (zend_hash_get_current_data(ht, (void **)&ppzval) == SUCCESS) {
-		if (Z_TYPE_PP(ppzval) == IS_STRING && Z_STRLEN_PP(ppzval) == len
-				&& strncasecmp(Z_STRVAL_PP(ppzval), name, len) == 0) {
+		if (Z_STRLEN_PP(ppzval) == len && strncasecmp(Z_STRVAL_PP(ppzval), name, len) == 0) {
 			return 1;
 		}
 		zend_hash_move_forward(ht);
@@ -263,7 +262,7 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 			char *seg, *modules;
 			modules = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
 			seg = php_strtok_r(modules, ",", &ptrptr);
-			while(seg) {
+			while (seg) {
 				if (seg && strlen(seg)) {
 					MAKE_STD_ZVAL(module);
 					ZVAL_STRINGL(module, seg, strlen(seg), 1);
