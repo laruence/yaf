@@ -217,21 +217,27 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 		prefix_len = len;
 	}
 
-	if (!prefix) {
-		return 0;
-	}
-
 	while ((pos = strstr(ns, prefix))) {
 		if ((pos == ns) && (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
 			if (backup) {
 				*backup = orig_char;
 			}
+#ifdef YAF_HAVE_NAMESPACE
+			if (prefix != class_name) {
+				efree(prefix);
+			}
+#endif
 			return 1;
 		} else if (*(pos - 1) == DEFAULT_DIR_SEPARATOR 
 				&& (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
 			if (backup) {
 				*backup = orig_char;
 			}
+#ifdef YAF_HAVE_NAMESPACE
+			if (prefix != class_name) {
+				efree(prefix);
+			}
+#endif
 			return 1;
 		}
 		ns = pos + prefix_len;
@@ -240,6 +246,11 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 	if (backup) {
 		*backup = orig_char;
 	}
+#ifdef YAF_HAVE_NAMESPACE
+	if (prefix != class_name) {
+		efree(prefix);
+	}
+#endif
 
 	return 0;
 }
