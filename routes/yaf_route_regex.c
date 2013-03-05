@@ -124,7 +124,7 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 				}
 
 				if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) == HASH_KEY_IS_LONG) {
-					if (map && zend_hash_index_find(Z_ARRVAL_P(map), idx, (void **)&name) == SUCCESS) {
+					if (map && zend_hash_index_find(Z_ARRVAL_P(map), idx, (void **)&name) == SUCCESS && Z_TYPE_PP(name) == IS_STRING) {
 						Z_ADDREF_P(*ppzval);
 						zend_hash_update(Z_ARRVAL_P(ret), Z_STRVAL_PP(name), Z_STRLEN_PP(name) + 1, (void **)ppzval, sizeof(zval *), NULL);
 					}
