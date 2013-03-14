@@ -88,9 +88,8 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 	if ((pce_regexp = pcre_get_compiled_regex_cache(Z_STRVAL_P(match), Z_STRLEN_P(match) TSRMLS_CC)) == NULL) {
 		return NULL;
 	} else {
-		zval *matches, *subparts, *map;
+		zval matches, *subparts, *map;
 
-		MAKE_STD_ZVAL(matches);
 		MAKE_STD_ZVAL(subparts);
 		ZVAL_NULL(subparts);
 
@@ -99,11 +98,10 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 			map = NULL;
 		}
 
-		php_pcre_match_impl(pce_regexp, uir, len, matches, subparts /* subpats */,
+		php_pcre_match_impl(pce_regexp, uir, len, &matches, subparts /* subpats */,
 				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */ TSRMLS_CC);
 
-		if (!Z_LVAL_P(matches)) {
-			zval_ptr_dtor(&matches);
+		if (!zend_hash_num_elements(Z_ARRVAL_P(subparts))) {
 			zval_ptr_dtor(&subparts);
 			return NULL;
 		} else {
@@ -126,7 +124,7 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 				}
 
 				if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) == HASH_KEY_IS_LONG) {
-					if (map && zend_hash_index_find(Z_ARRVAL_P(map), idx, (void **)&name) == SUCCESS) {
+					if (map && zend_hash_index_find(Z_ARRVAL_P(map), idx, (void **)&name) == SUCCESS && Z_TYPE_PP(name) == IS_STRING) {
 						Z_ADDREF_P(*ppzval);
 						zend_hash_update(Z_ARRVAL_P(ret), Z_STRVAL_PP(name), Z_STRLEN_PP(name) + 1, (void **)ppzval, sizeof(zval *), NULL);
 					}
@@ -136,7 +134,6 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uir, int len TSRML
 				}
 			}
 
-			zval_ptr_dtor(&matches);
 			zval_ptr_dtor(&subparts);
 			return ret;
 		}

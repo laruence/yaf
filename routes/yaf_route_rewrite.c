@@ -120,20 +120,17 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 		smart_str_free(&pattern);
 		return NULL;
 	} else {
-		zval *matches, *subparts;
+		zval matches, *subparts;
 
 		smart_str_free(&pattern);
 
-		MAKE_STD_ZVAL(matches);
 		MAKE_STD_ZVAL(subparts);
-		ZVAL_LONG(matches, 0);
 		ZVAL_NULL(subparts);
 
-		php_pcre_match_impl(pce_regexp, uir, len, matches, subparts /* subpats */,
+		php_pcre_match_impl(pce_regexp, uir, len, &matches, subparts /* subpats */,
 				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */ TSRMLS_CC);
 
-		if (!Z_LVAL_P(matches)) {
-			zval_ptr_dtor(&matches);
+		if (!zend_hash_num_elements(Z_ARRVAL_P(subparts))) {
 			zval_ptr_dtor(&subparts);
 			return NULL;
 		} else {
@@ -172,7 +169,6 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uir, int len TS
 				}
 			}
 
-			zval_ptr_dtor(&matches);
 			zval_ptr_dtor(&subparts);
 			return ret;
 		}

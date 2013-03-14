@@ -324,7 +324,7 @@ PHP_METHOD(yaf_application, __construct) {
 	app	 = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1 TSRMLS_CC);
 
 #if PHP_YAF_DEBUG
-	php_error_docref(NULL, E_STRICT, "Yaf is running in debug mode");
+	php_error_docref(NULL TSRMLS_CC, E_STRICT, "Yaf is running in debug mode");
 #endif
 
 	if (!ZVAL_IS_NULL(app)) {
