@@ -183,7 +183,7 @@ PHP_METHOD(yaf_config_simple, set) {
 			return;
 		}
 
-		if (Z_TYPE_P(name) != IS_STRING || Z_TYPE_P(name) != IS_STRING) {
+		if (Z_TYPE_P(name) != IS_STRING || Z_TYPE_P(value) != IS_STRING) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a string key name");
 			RETURN_FALSE;
 		}
