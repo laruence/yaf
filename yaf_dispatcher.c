@@ -168,7 +168,7 @@ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf
 
 	arg_info  = fptr->common.arg_info;
 	*params   = safe_emalloc(sizeof(zval **), fptr->common.num_args, 0);
-	for (current = 0;current < fptr->common.num_args; current++, arg_info++) {
+	for (current = 0; current < fptr->common.num_args; current++, arg_info++) {
 		if (zend_hash_find(params_ht, arg_info->name, arg_info->name_len + 1, (void **)&arg) == SUCCESS) {
 			(*params)[current] = arg;
 			(*count)++;
