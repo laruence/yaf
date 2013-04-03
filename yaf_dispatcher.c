@@ -366,48 +366,62 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 	zval **ppaction, *actions_map;
 
 	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1 TSRMLS_CC);
+
 	if (IS_ARRAY == Z_TYPE_P(actions_map)) {
+		zend_class_entry **ce;
+		uint  class_len;
+		char *class_name, *class_lowercase;
+		char *action_upper = estrndup(action, len);
+
+		*(action_upper) = toupper(*action_upper);
+
+		if (YAF_G(name_suffix)) {
+			class_len = spprintf(&class_name, 0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
+		} else {
+			class_len = spprintf(&class_name, 0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
+		}
+
+		class_lowercase = zend_str_tolower_dup(class_name, class_len);
+
+		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void **) &ce) == SUCCESS) {
+			efree(action_upper);
+			efree(class_lowercase);
+			if (instanceof_function(*ce, yaf_action_ce TSRMLS_CC)) {
+				efree(class_name);
+				return *ce;
+			} else {
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Action %s must extends from %s", class_name, yaf_action_ce->name);
+				efree(class_name);
+				return NULL;
+			}
+		}
+
 		if (zend_hash_find(Z_ARRVAL_P(actions_map), action, len + 1, (void **)&ppaction) == SUCCESS) {
 			char *action_path;
 			uint action_path_len;
 
 			action_path_len = spprintf(&action_path, 0, "%s%c%s", app_dir, DEFAULT_SLASH, Z_STRVAL_PP(ppaction));
 			if (yaf_loader_import(action_path, action_path_len, 0 TSRMLS_CC)) {
-				zend_class_entry **ce;
-				char *class, *class_lowercase;
-				uint  class_len;
-				char *action_upper = estrndup(action, len);
-
-				*(action_upper) = toupper(*action_upper);
-
-				if (YAF_G(name_suffix)) {
-					class_len = spprintf(&class, 0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
-				} else {
-					class_len = spprintf(&class, 0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
-				}
-
-				class_lowercase = zend_str_tolower_dup(class, class_len);
-
 				if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void **) &ce) == SUCCESS) {
 					efree(action_path);
 					efree(action_upper);
 					efree(class_lowercase);
 
 					if (instanceof_function(*ce, yaf_action_ce TSRMLS_CC)) {
-						efree(class);
+						efree(class_name);
 						return *ce;
 					} else {
-						yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Action %s must extends from %s", class, yaf_action_ce->name);
-						efree(class);
+						yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Action %s must extends from %s", class_name, yaf_action_ce->name);
+						efree(class_name);
 					}
 
 				} else {
-					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Could not find action %s in %s", class, action_path);
+					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Could not find action %s in %s", class_name, action_path);
 				}
 
 				efree(action_path);
 				efree(action_upper);
-				efree(class);
+				efree(class_name);
 				efree(class_lowercase);
 
 			} else {
