@@ -276,7 +276,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 			}
 
 			/* remove the tail space, thinking of 'foo : bar : test' */
-            section = seg + strlen(seg) - 1;
+            		section = seg + strlen(seg) - 1;
 			while (*section == ' ' || *section == ':') {
 				*(section--) = '\0';
 			}
@@ -286,8 +286,8 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 						(copy_ctor_func_t)yaf_config_ini_zval_deep_copy, NULL, sizeof(zval *));
 			}
 		}
-	    seg = skey + strlen(skey) - 1;
-        while (*seg == ' ' || *seg == ':') {
+		seg = skey + strlen(skey) - 1;
+		while (*seg == ' ' || *seg == ':') {
 			*(seg--) = '\0';
 		}
 		skey_len = strlen(skey);
@@ -476,7 +476,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, int callback_type, 
 			}
 
 			/* remove the tail space, thinking of 'foo : bar : test' */
-            section = seg + strlen(seg) - 1;
+			section = seg + strlen(seg) - 1;
 			while (*section == ' ' || *section == ':') {
 				*(section--) = '\0';
 			}
@@ -486,8 +486,8 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, int callback_type, 
 						(copy_ctor_func_t)yaf_config_ini_zval_deep_copy, NULL, sizeof(zval *));
 			}
 		}
-	    seg = skey + strlen(skey) - 1;
-        while (*seg == ' ' || *seg == ':') {
+		seg = skey + strlen(skey) - 1;
+		while (*seg == ' ' || *seg == ':') {
 			*(seg--) = '\0';
 		}	
 		skey_len = strlen(skey);

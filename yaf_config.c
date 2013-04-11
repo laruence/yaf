@@ -215,15 +215,15 @@ static zval * yaf_config_ini_zval_losable(zval *zvalue TSRMLS_DC) {
 			break;
 		case IS_CONSTANT:
 		case IS_STRING:
-				CHECK_ZVAL_STRING(zvalue);
-				ZVAL_STRINGL(ret, zvalue->value.str.val, zvalue->value.str.len, 1);
+			CHECK_ZVAL_STRING(zvalue);
+			ZVAL_STRINGL(ret, zvalue->value.str.val, zvalue->value.str.len, 1);
 			break;
 		case IS_ARRAY:
 		case IS_CONSTANT_ARRAY: {
-				HashTable *original_ht = zvalue->value.ht;
-				array_init(ret);
-				yaf_config_copy_losable(Z_ARRVAL_P(ret), original_ht TSRMLS_CC);
-			}
+			HashTable *original_ht = zvalue->value.ht;
+			array_init(ret);
+			yaf_config_copy_losable(Z_ARRVAL_P(ret), original_ht TSRMLS_CC);
+		}
 			break;
 	}
 
