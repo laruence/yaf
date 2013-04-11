@@ -92,7 +92,13 @@ Array
                     [2] => value
                 )
 
-            [_verify:protected] => 
+            [_verify:protected] => Array
+                (
+                    [controller] => Index
+                    [action] => action
+                )
+
+            [_reverse:protected] => 
         )
 
     [simple] => Yaf_Route_Simple Object
@@ -116,7 +122,13 @@ Array
                     [action] => action
                 )
 
-            [_verify:protected] => 
+            [_verify:protected] => Array
+                (
+                    [controller] => Index
+                    [action] => action
+                )
+
+            [_reverse:protected] => 
         )
 
 )
