@@ -139,7 +139,7 @@ PHP_METHOD(yaf_request_simple, __construct) {
 	zval *action 	 = NULL;
 	zval *params	 = NULL;
 	zval *method	 = NULL;
-	zval *self 		 = getThis();
+	zval *self	 = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zzzzz", &method, &module, &controller, &action, &params) == FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());

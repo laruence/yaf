@@ -67,7 +67,7 @@ ZEND_END_ARG_INFO()
 /** {{{ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC)
  */
 yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC) {
-	zval *header, *body;
+	zval 			*header, *body;
 	zend_class_entry 	*ce;
 	yaf_response_t 		*instance;
 
@@ -253,8 +253,8 @@ PHP_METHOD(yaf_response, __destruct) {
 /** {{{ proto public Yaf_Response_Abstract::appenBody($body, $name = NULL)
 */
 PHP_METHOD(yaf_response, appendBody) {
-	char		  	*body, *name = NULL;
-	uint			body_len, name_len = 0;
+	char		*body, *name = NULL;
+	uint		body_len, name_len = 0;
 	yaf_response_t 	*self;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &body, &body_len, &name, &name_len) == FAILURE) {
@@ -274,8 +274,8 @@ PHP_METHOD(yaf_response, appendBody) {
 /** {{{ proto public Yaf_Response_Abstract::prependBody($body, $name = NULL)
 */
 PHP_METHOD(yaf_response, prependBody) {
-	char		  	*body, *name = NULL;
-	uint			body_len, name_len = 0;
+	char		*body, *name = NULL;
+	uint		body_len, name_len = 0;
 	yaf_response_t 	*self;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &body, &body_len, &name, &name_len) == FAILURE) {
@@ -323,8 +323,8 @@ PHP_METHOD(yaf_response, clearHeaders) {
 /** {{{ proto public Yaf_Response_Abstract::setRedirect(string $url)
 */
 PHP_METHOD(yaf_response, setRedirect) {
-	char *url;
-	uint  url_len;
+	char 	*url;
+	uint 	url_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &url, &url_len) == FAILURE) {
 		return;
@@ -341,8 +341,8 @@ PHP_METHOD(yaf_response, setRedirect) {
 /** {{{ proto public Yaf_Response_Abstract::setBody($body, $name = NULL)
 */
 PHP_METHOD(yaf_response, setBody) {
-	char		  	*body, *name = NULL;
-	uint			body_len, name_len = 0;
+	char		*body, *name = NULL;
+	uint		body_len, name_len = 0;
 	yaf_response_t 	*self;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &body, &body_len, &name, &name_len) == FAILURE) {
@@ -433,21 +433,21 @@ PHP_METHOD(yaf_response, __clone) {
 /** {{{ yaf_response_methods
 */
 zend_function_entry yaf_response_methods[] = {
-	PHP_ME(yaf_response, __construct, 	yaf_response_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_response, __destruct,  	yaf_response_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_DTOR)
-	PHP_ME(yaf_response, __clone,		NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_response, __toString,	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setBody,		yaf_response_set_body_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, appendBody,	yaf_response_set_body_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, prependBody,	yaf_response_set_body_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, clearBody,		yaf_response_clear_body_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, getBody,		yaf_response_get_body_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setHeader,		NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setAllHeaders,	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, getHeader,		NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, clearHeaders,  NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setRedirect,	yaf_response_set_redirect_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, __construct, 	yaf_response_void_arginfo, 		ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_response, __destruct,  	yaf_response_void_arginfo, 		ZEND_ACC_PUBLIC|ZEND_ACC_DTOR)
+	PHP_ME(yaf_response, __clone,		NULL, 					ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_response, __toString,	NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, setBody,		yaf_response_set_body_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, appendBody,	yaf_response_set_body_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, prependBody,	yaf_response_set_body_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, clearBody,		yaf_response_clear_body_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, getBody,		yaf_response_get_body_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, setHeader,		NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, setAllHeaders,	NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, getHeader,		NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, clearHeaders, 	NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, setRedirect,	yaf_response_set_redirect_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, 		ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
