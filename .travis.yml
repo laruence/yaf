@@ -17,4 +17,5 @@ before_script:
     - ./travis/compile.sh
 
 # Run PHPs run-tests.php 
-script: make test
+script:
+    - ./travis/run-test.sh
