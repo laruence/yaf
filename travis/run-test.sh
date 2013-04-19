@@ -1,11 +1,11 @@
-#!/bin/sh
-TEST_DIR="`pwd`/tests"
+#!/bin/bash
+TEST_DIR="`pwd`/tests/"
 
 make test 
 
 for file in `find $TEST_DIR -name "*.diff" 2>/dev/null`
 do
-	grep "\-\-XFAIL--" ${file/%".diff"/".phpt"} >/dev/null 2>&1
+	grep "\-\-XFAIL--" ${file/%diff/phpt} >/dev/null 2>&1
 	if [ $? -gt 0 ]
 	then
 		FAILS[${#FAILS[@]}]="$file"
