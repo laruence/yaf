@@ -44,7 +44,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_application_construct_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, config)
-	ZEND_ARG_INFO(0, envrion)
+	ZEND_ARG_INFO(0, environ)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_application_app_arginfo, 0, 0, 0)
