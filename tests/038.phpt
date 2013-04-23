@@ -6,6 +6,7 @@ Check for Yaf_View_Simple error message outputing
 yaf.library="/php/global/dir"
 log_errors=0
 display_errors=1
+yaf.use_namespace=0
 --FILE--
 <?php
 require "build.inc";

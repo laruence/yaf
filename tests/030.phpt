@@ -4,6 +4,7 @@ Check for Yaf_Config_Ini::__construct with section
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
+yaf.use_namespace=0
 --FILE--
 <?php
 $file = dirname(__FILE__) . "/simple.ini";

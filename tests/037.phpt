@@ -11,6 +11,8 @@ if (version_compare(PHP_VERSION, "5.3", "lt")) {
 ?>
 --INI--
 yaf.lowcase_path=0
+yaf.use_spl_autoload=0
+yaf.use_namespace=0
 --FILE--
 <?php
 $dir = __DIR__;

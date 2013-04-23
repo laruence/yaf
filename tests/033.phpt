@@ -2,6 +2,8 @@
 Check for Yaf_View_Simple with predefined template dir
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = array(

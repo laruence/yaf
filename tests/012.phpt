@@ -2,6 +2,8 @@
 Check for Yaf_Route_Regex
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $request = new Yaf_Request_Http("/subdir/ap/1.2/name/value", "/subdir");
