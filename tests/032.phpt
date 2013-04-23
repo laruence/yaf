@@ -9,6 +9,7 @@ if (substr(PHP_OS, 0, 3) == 'WIN') {
 ?>
 --INI--
 yaf.directory=/foo/bar
+yaf.use_namespace=0
 --FILE--
 <?php 
 putenv("FOO=bar");

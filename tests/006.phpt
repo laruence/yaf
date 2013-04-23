@@ -2,6 +2,8 @@
 Check for Yaf_Route_Static
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $request_uri = "/prefix/controller/action/name/laruence/age/28";

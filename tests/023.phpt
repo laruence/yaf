@@ -5,6 +5,7 @@ Check for Yaf_Loader::set/get(library_path)
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
+yaf.use_namespace=0
 --FILE--
 <?php 
 $loader = Yaf_Loader::getInstance('/foo', '/bar');

@@ -4,6 +4,7 @@ Check for application.dispatcher.defaultRoute
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = array(

@@ -4,6 +4,7 @@ Bug segfault while call exit in a view template
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
+yaf.use_namespace=0
 --FILE--
 <?php
 require "build.inc";

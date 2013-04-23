@@ -2,6 +2,8 @@
 Check for Yaf_Session
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $session = Yaf_Session::getInstance();

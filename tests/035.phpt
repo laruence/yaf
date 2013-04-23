@@ -9,6 +9,7 @@ if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
 ?>
 --INI--
 short_open_tag = 0
+yaf.use_namespace=0
 --FILE--
 <?php 
 $view = new Yaf_View_Simple(dirname(__FILE__));
