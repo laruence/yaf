@@ -3,6 +3,7 @@ Check for Yaf_Route_Static with arbitrary urls
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
+yaf.use_namespace=0
 --FILE--
 <?php
 $url = array(

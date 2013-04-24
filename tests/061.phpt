@@ -5,6 +5,7 @@ Bug empty template file interrupts forward chain
 --INI--
 yaf.use_spl_autoload=1
 yaf.lowcase_path=0
+yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";

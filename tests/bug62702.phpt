@@ -2,6 +2,8 @@
 FR #62702 (Make baseuri case-insensitive)
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php
 

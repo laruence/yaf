@@ -2,6 +2,8 @@
 Check for controller return false preventing auto-renderring
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = array(

@@ -4,6 +4,7 @@ Check for Yaf_Request APis
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.use_spl_autoload=0
+yaf.use_namespace=0
 --FILE--
 <?php
 $request = new Yaf_Request_Http(new stdClass(), "xxxx", false);

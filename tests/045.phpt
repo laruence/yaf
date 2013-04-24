@@ -5,6 +5,8 @@ Check for segfault while use closure as error handler
 if (!extension_loaded("yaf")) print "skip";
 if (!version_compare(PHP_VERSION, "5.3", "ge")) print "skip only for 5.3+";
 ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = array(

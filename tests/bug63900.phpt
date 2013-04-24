@@ -7,6 +7,7 @@ yaf.use_spl_autoload=1
 yaf.lowcase_path=0
 yaf.throw_exception=0
 yaf.catch_exception=1
+yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";

@@ -5,6 +5,7 @@ Check for Sample application with return response
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
+yaf.use_namespace=0
 
 --FILE--
 <?php 

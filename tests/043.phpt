@@ -9,6 +9,8 @@ yaf.cache_config=0
 yaf.name_suffix=1
 yaf.name_separator=""
 yaf.lowcase_path=1
+yaf.environ="product"
+yaf.use_namespace=0
 --FILE--
 <?php
 define("APPLICATION_PATH", dirname(__FILE__));
