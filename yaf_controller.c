@@ -56,7 +56,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_controller_forward_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, module)
     ZEND_ARG_INFO(0, controller)
     ZEND_ARG_INFO(0, action)
-    ZEND_ARG_ARRAY_INFO(0, paramters, 1)
+    ZEND_ARG_ARRAY_INFO(0, parameters, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_controller_redirect_arginfo, 0, 0, 1)
