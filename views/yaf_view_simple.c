@@ -36,7 +36,7 @@ zend_class_entry *yaf_view_simple_ce;
 
 /** {{{ ARG_INFO */
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, tempalte_dir)
+	ZEND_ARG_INFO(0, template_dir)
 	ZEND_ARG_ARRAY_INFO(0, options, 1)
 ZEND_END_ARG_INFO();
 
