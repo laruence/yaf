@@ -96,10 +96,8 @@ static inline php_yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 					php_yaf_deep_copy_section(value, *dstppzval);
 					php_yaf_deep_copy_section(value, *ppzval);
 				} else {
-					ALLOC_ZVAL(value);
-					*value = **ppzval;
-					zval_copy_ctor(value);
-					INIT_PZVAL(value);
+					value = *ppzval;
+					Z_ADDREF_P(value);
 				}
 				zend_hash_update(Z_ARRVAL_P(dst), key, key_len, (void *)&value, sizeof(zval *), NULL);
 				break;
@@ -112,10 +110,8 @@ static inline php_yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 					php_yaf_deep_copy_section(value, *dstppzval);
 					php_yaf_deep_copy_section(value, *ppzval);
 				} else {
-					ALLOC_ZVAL(value);
-					*value = **ppzval;
-					zval_copy_ctor(value);
-					INIT_PZVAL(value);
+					value = *ppzval;
+					Z_ADDREF_P(value);
 				}
 				zend_hash_index_update(Z_ARRVAL_P(dst), idx, (void *)&value, sizeof(zval *), NULL);
 				break;
