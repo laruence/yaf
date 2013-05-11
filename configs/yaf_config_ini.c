@@ -337,7 +337,6 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 			}
 			skey_len = strlen(skey);
 		}
-
 		zend_symtable_update(Z_ARRVAL_P(arr), skey, skey_len + 1, &YAF_G(active_ini_file_section), sizeof(zval *), NULL);
 		if (YAF_G(ini_wanted_section) && Z_STRLEN_P(YAF_G(ini_wanted_section)) == skey_len
 				&& !strncasecmp(Z_STRVAL_P(YAF_G(ini_wanted_section)), skey, skey_len)) {
@@ -552,7 +551,6 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, int callback_type, 
 			}
 			skey_len = strlen(skey);
 		}
-
 		zend_symtable_update(Z_ARRVAL_P(arr), skey, skey_len + 1, &YAF_G(active_ini_file_section), sizeof(zval *), NULL);
 		if (YAF_G(ini_wanted_section) && Z_STRLEN_P(YAF_G(ini_wanted_section)) == skey_len
 				&& !strncasecmp(Z_STRVAL_P(YAF_G(ini_wanted_section)), skey, Z_STRLEN_P(YAF_G(ini_wanted_section)))) {

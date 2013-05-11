@@ -23,6 +23,7 @@ function shutdown($root = APPLICATION_PATH) {
 function startup($root = APPLICATION_PATH) {
     $dirs = array();
     $dirs[] = 'controllers';
+	$dirs[] = 'actions';
     $dirs[] = 'plugins';
     $dirs[] = 'models';
     $dirs[] = 'views';

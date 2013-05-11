@@ -184,8 +184,8 @@ PHP_METHOD(yaf_session, start) {
 /** {{{ proto public static Yaf_Session::get($name)
 */
 PHP_METHOD(yaf_session, get) {
-	char *name  = NULL;
-	int  len	= 0;
+	char *name 	= NULL;
+	int  len 	= 0;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &len) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	} else {

@@ -5,7 +5,8 @@ Check for Yaf autoload controller
 --INI--
 yaf.use_spl_autoload=0
 yaf.library="/php/global/dir"
-yar.environ="product"
+yaf.environ="product"
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = array(

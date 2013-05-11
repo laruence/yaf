@@ -4,6 +4,7 @@ php:
   - 5.2
   - 5.3
   - 5.4
+  - 5.5
 
 notifications:
   email: false
@@ -16,5 +17,6 @@ env:
 before_script:
     - ./travis/compile.sh
 
-#Run PHPs run-tests.php 
-script: make test
+# Run PHPs run-tests.php 
+script:
+    - ./travis/run-test.sh

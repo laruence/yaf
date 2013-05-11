@@ -5,6 +5,8 @@ check for Yaf_Dispatcher::flushInstantly
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
+yaf.environ="product"
+yaf.use_namespace=0
 --FILE--
 <?php
 define("APPLICATION_PATH", dirname(__FILE__));

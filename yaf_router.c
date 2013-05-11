@@ -45,7 +45,7 @@ zend_class_entry *yaf_router_ce;
  */
 yaf_router_t * yaf_router_instance(yaf_router_t *this_ptr TSRMLS_DC) {
 	zval 			*routes;
-	yaf_router_t 	*instance;
+	yaf_router_t 		*instance;
 	yaf_route_t		*route;
 
 	if (this_ptr) {
@@ -130,7 +130,7 @@ int yaf_router_route(yaf_router_t *router, yaf_request_t *request TSRMLS_DC) {
 int yaf_router_add_config(yaf_router_t *router, zval *configs TSRMLS_DC) {
 	zval 		**entry;
 	HashTable 	*ht;
-	yaf_route_t *route;
+	yaf_route_t 	*route;
 
 	if (!configs || IS_ARRAY != Z_TYPE_P(configs)) {
 		return 0;
@@ -267,8 +267,8 @@ PHP_METHOD(yaf_router, addRoute) {
 /** {{{  proto public Yaf_Router::addConfig(Yaf_Config_Abstract $config)
  */
 PHP_METHOD(yaf_router, addConfig) {
-	yaf_config_t *config;
-	zval		 *routes;
+	yaf_config_t 	*config;
+	zval		*routes;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &config) == FAILURE) {
 		return;
@@ -350,13 +350,13 @@ PHP_METHOD(yaf_router, getCurrentRoute) {
 /** {{{ yaf_router_methods
  */
 zend_function_entry yaf_router_methods[] = {
-	PHP_ME(yaf_router, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_router, addRoute,  NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, addConfig, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, route,	 NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, getRoute,  NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, getRoutes, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, getCurrentRoute, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, __construct, 	NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+	PHP_ME(yaf_router, addRoute,  		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, addConfig, 		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, route,		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, getRoute,  		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, getRoutes, 		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, getCurrentRoute, 	NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

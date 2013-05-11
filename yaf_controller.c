@@ -56,7 +56,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_controller_forward_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, module)
     ZEND_ARG_INFO(0, controller)
     ZEND_ARG_INFO(0, action)
-    ZEND_ARG_ARRAY_INFO(0, paramters, 1)
+    ZEND_ARG_ARRAY_INFO(0, parameters, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_controller_redirect_arginfo, 0, 0, 1)
@@ -77,11 +77,11 @@ ZEND_END_ARG_INFO()
 /** {{{ zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC)
  */
 zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
-	char 	*path, *view_ext, *self_name, *tmp;
-	zval 	*name, *param, *ret = NULL;
-	int 	path_len;
-	yaf_view_t *view;
-	zend_class_entry *view_ce;
+	char 			*path, *view_ext, *self_name, *tmp;
+	zval 			*name, *param, *ret = NULL;
+	int 			path_len;
+	yaf_view_t 		*view;
+	zend_class_entry 	*view_ce;
 
 	view   	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 0 TSRMLS_CC);
 	name	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), 0 TSRMLS_CC);
@@ -145,9 +145,9 @@ zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int 
 /** {{{ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC)
  */
 int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
-	char *path, *view_ext, *self_name, *tmp;
-	zval *name, *param, *ret = NULL;
-	int  path_len;
+	char 		*path, *view_ext, *self_name, *tmp;
+	zval 		*name, *param, *ret = NULL;
+	int  		path_len;
 	yaf_view_t	*view;
 
 	view   	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
@@ -244,11 +244,11 @@ PHP_METHOD(yaf_controller, init) {
 /** {{{ proto protected Yaf_Controller_Abstract::__construct(Yaf_Request_Abstract $request, Yaf_Response_abstrct $response, Yaf_View_Interface $view, array $invokeArgs = NULL)
 */
 PHP_METHOD(yaf_controller, __construct) {
-	yaf_request_t 	*request;
-	yaf_response_t	*response;
+	yaf_request_t 		*request;
+	yaf_response_t		*response;
 	yaf_view_t		*view;
 	zval 			*invoke_arg = NULL;
-	yaf_controller_t *self = getThis();
+	yaf_controller_t 	*self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ooo|z",
 				&request, yaf_request_ce, &response, yaf_response_ce, &view, yaf_view_interface_ce, &invoke_arg) == FAILURE) {
@@ -337,8 +337,8 @@ PHP_METHOD(yaf_controller, getModuleName) {
 /** {{{ proto public Yaf_Controller_Abstract::setViewpath(string $view_directory)
 */
 PHP_METHOD(yaf_controller, setViewpath) {
-	zval 		*path;
-	yaf_view_t 	*view;
+	zval 		 *path;
+	yaf_view_t 	 *view;
 	zend_class_entry *view_ce;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &path) == FAILURE) {
@@ -424,6 +424,7 @@ PHP_METHOD(yaf_controller, forward) {
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), module TSRMLS_CC);
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), controller TSRMLS_CC);
 			} else if (Z_TYPE_P(controller) == IS_ARRAY) {
+				parameters = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 0 TSRMLS_CC);
 				zend_hash_copy(Z_ARRVAL_P(parameters), Z_ARRVAL_P(controller), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), module TSRMLS_CC);
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), parameters TSRMLS_CC);
@@ -437,6 +438,7 @@ PHP_METHOD(yaf_controller, forward) {
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
 			} else if (Z_TYPE_P(action) == IS_ARRAY) {
+				parameters = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 0 TSRMLS_CC);
 				zend_hash_copy(Z_ARRVAL_P(parameters), Z_ARRVAL_P(action), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), module TSRMLS_CC);
 				zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), controller TSRMLS_CC);
@@ -450,6 +452,7 @@ PHP_METHOD(yaf_controller, forward) {
 				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Parameters must be an array");
 				RETURN_FALSE;
 			}
+			parameters = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 0 TSRMLS_CC);
 			zend_hash_copy(Z_ARRVAL_P(parameters), Z_ARRVAL_P(args), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
 			zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
 			zend_update_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
@@ -468,8 +471,8 @@ PHP_METHOD(yaf_controller, forward) {
 PHP_METHOD(yaf_controller, redirect) {
 	char 			*location;
 	uint 			location_len;
-	yaf_response_t 	*response;
-	yaf_controller_t *self = getThis();
+	yaf_response_t 		*response;
+	yaf_controller_t 	*self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &location, &location_len) == FAILURE) {
 		return;

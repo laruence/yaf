@@ -36,7 +36,7 @@ zend_class_entry *yaf_view_simple_ce;
 
 /** {{{ ARG_INFO */
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, tempalte_dir)
+	ZEND_ARG_INFO(0, template_dir)
 	ZEND_ARG_ARRAY_INFO(0, options, 1)
 ZEND_END_ARG_INFO();
 
@@ -754,7 +754,7 @@ PHP_METHOD(yaf_view_simple, assign) {
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &len, &value) == FAILURE) {
 			return;
 		}
-        RETURN_BOOL(yaf_view_simple_assign_single(getThis(), name, len, value TSRMLS_CC));
+		RETURN_BOOL(yaf_view_simple_assign_single(getThis(), name, len, value TSRMLS_CC));
 	} else {
 		WRONG_PARAM_COUNT;
 	}
