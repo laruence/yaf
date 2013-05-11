@@ -69,9 +69,9 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_config_ini_isset_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ static inline php_yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC)
+/** {{{ static inline yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC)
  */
-static inline php_yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
+static inline yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 	zval **ppzval, **dstppzval, *value;
 	HashTable *ht;
 	ulong idx;
@@ -93,8 +93,8 @@ static inline php_yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 						&& Z_TYPE_PP(dstppzval) == IS_ARRAY) {
 					MAKE_STD_ZVAL(value);
 					array_init(value);
-					php_yaf_deep_copy_section(value, *dstppzval);
-					php_yaf_deep_copy_section(value, *ppzval);
+					yaf_deep_copy_section(value, *dstppzval TSRMLS_CC);
+					yaf_deep_copy_section(value, *ppzval TSRMLS_CC);
 				} else {
 					value = *ppzval;
 					Z_ADDREF_P(value);
@@ -107,8 +107,8 @@ static inline php_yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 						&& Z_TYPE_PP(dstppzval) == IS_ARRAY) {
 					MAKE_STD_ZVAL(value);
 					array_init(value);
-					php_yaf_deep_copy_section(value, *dstppzval);
-					php_yaf_deep_copy_section(value, *ppzval);
+					yaf_deep_copy_section(value, *dstppzval TSRMLS_CC);
+					yaf_deep_copy_section(value, *ppzval TSRMLS_CC);
 				} else {
 					value = *ppzval;
 					Z_ADDREF_P(value);
@@ -323,13 +323,13 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 						*(section++) = '\0';
 					}
 					if (zend_symtable_find(Z_ARRVAL_P(arr), section, strlen(section) + 1, (void **)&parent) == SUCCESS) {
-						php_yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
+						yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
 					}
 				} while ((section = strrchr(seg, ':')));
 			}
 
 			if (zend_symtable_find(Z_ARRVAL_P(arr), seg, strlen(seg) + 1, (void **)&parent) == SUCCESS) {
-				php_yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
+				yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
 			}
 			skey_len = strlen(skey);
 		}
@@ -537,13 +537,13 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, int callback_type, 
 						*(section++) = '\0';
 					}
 					if (zend_symtable_find(Z_ARRVAL_P(arr), section, strlen(section) + 1, (void **)&parent) == SUCCESS) {
-						php_yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
+						yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
 					}
 				} while ((section = strrchr(seg, ':')));
 			}
 
 			if (zend_symtable_find(Z_ARRVAL_P(arr), seg, strlen(seg) + 1, (void **)&parent) == SUCCESS) {
-				php_yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
+				yaf_deep_copy_section(YAF_G(active_ini_file_section), *parent TSRMLS_CC);
 			}
 			skey_len = strlen(skey);
 		}
