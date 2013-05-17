@@ -9,7 +9,7 @@
 
 $useNamespace = (bool) ini_get("yaf.use_namespace");
 $yafClassPrefix = sprintf("Yaf%s", $useNamespace ? "\\" : "_");
-$classes = get_declared_classes();
+$classes = array_merge(get_declared_classes(), get_declared_interfaces());
 foreach ($classes as $key => $value) {
     if (strncasecmp($value, $yafClassPrefix, 4)) {
         unset($classes[$key]);
@@ -68,7 +68,7 @@ foreach ($classes as $class_name) {
       echo $indent, "/* constants */\n";
 
       foreach ($constants as $k => $v) {
-           echo $indent, "const ", $k , " = ", $v , ";\n";
+           echo $indent, "const ", $k , " = \"", $v , "\";\n";
       }
       echo "\n";
     }
