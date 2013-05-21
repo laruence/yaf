@@ -8,11 +8,19 @@
 */
 
 $classes = get_declared_classes();
+$interfaces = get_declared_interfaces();
+
 foreach ($classes as $key => $value) {
     if (strncasecmp($value, "Yaf_", 3)) {
         unset($classes[$key]);
     }
 }
+foreach ($interfaces as $key => $value) {
+    if (strncasecmp($value, "Yaf_", 3)) {
+        unset($interfaces[$key]);
+    }
+}
+$classes = array_merge($interfaces,$classes);
 
 echo "<?php\n";
 
@@ -20,24 +28,16 @@ foreach ($classes as $class_name) {
      $class = new ReflectionClass($class_name);
      $indent  = "";
 
-     if ($class->isFinal()) {
-         echo "final ";
-     }
-
-     if ($class->isAbstract()) {
-         echo "abstract ";
-     }
-
      if ($class->isInterface()) {
          echo "Interface ", $class_name;
      } else {
+        if ($class->isFinal()) {
+             echo "final ";
+         }
+        if ($class->isAbstract()) {
+             echo "abstract ";
+         }
          echo "class ", $class_name;
-     }
-
-     /* parent */
-     $parent = $class->getParentClass();
-     if ($parent) {
-         echo " extends ", $parent->getName();
      }
 
      /* interface */
@@ -45,6 +45,17 @@ foreach ($classes as $class_name) {
      if (count($interfaces)) {
          echo " implements ", join(", ", $interfaces);
      }
+     else
+     {
+         /* parent */
+         $parent = $class->getParentClass();
+         if ($parent) {
+             echo " extends ", $parent->getName();
+         }
+     }
+
+
+
      echo " { \n";
 
      $indent .= "\t";
