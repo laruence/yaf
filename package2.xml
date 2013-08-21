@@ -156,6 +156,13 @@
     <file name="060.phpt" role="test" />
     <file name="061.phpt" role="test" />
     <file name="062.phpt" role="test" />
+    <file name="063.phpt" role="test" />
+    <file name="064.phpt" role="test" />
+    <file name="065.phpt" role="test" />
+    <file name="066.phpt" role="test" />
+    <file name="067.phpt" role="test" />
+    <file name="068.phpt" role="test" />
+    <file name="069.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
