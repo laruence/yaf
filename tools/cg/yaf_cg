@@ -22,7 +22,7 @@ $app_name = $argv[1];
 if (empty($argv[2])) {
 	$app_path = dirname(__FILE__) . "/output/{$app_name}";
 } else {
-	$app_name = $argv[2];
+	$app_path = rtrim($argv[2], '/\\');
 }
 
 $author 	= trim(`whoami`);
