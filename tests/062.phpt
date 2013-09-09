@@ -4,6 +4,7 @@ Check for Yaf_View_Simple and application's template directory
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
+yaf.use_namespace=0
 --FILE--
 <?php
 $view = new Yaf_View_Simple(dirname(__FILE__));

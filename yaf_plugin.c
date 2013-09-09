@@ -43,49 +43,49 @@ ZEND_END_ARG_INFO()
 #endif
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, routerStartup) {
 	RETURN_TRUE;
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::routerShutdown(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::routerShutdown(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, routerShutdown) {
 	RETURN_TRUE;
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::dispatchLoopStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::dispatchLoopStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, dispatchLoopStartup) {
 	RETURN_TRUE;
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::preDispatch(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::preDispatch(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, preDispatch) {
 	RETURN_TRUE;
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::postDispatch(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::postDispatch(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, postDispatch) {
 	RETURN_TRUE;
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::dispatchLoopShutdown(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::dispatchLoopShutdown(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, dispatchLoopShutdown) {
 	RETURN_TRUE;
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Plugin::preResponse(Yaf_Request_Abstract $request, Yaf_Response_Abstarct $response)
+/** {{{ proto public Yaf_Plugin::preResponse(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
 PHP_METHOD(yaf_plugin, preResponse) {
 	RETURN_TRUE;

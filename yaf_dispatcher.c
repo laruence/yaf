@@ -109,7 +109,7 @@ ZEND_END_ARG_INFO()
 /** {{{ yaf_dispatcher_t * yaf_dispatcher_instance(zval *this_ptr TSRMLS_DC)
 */
 yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC) {
-	zval				*plugins;
+	zval			*plugins;
 	yaf_router_t	 	*router;
 	yaf_dispatcher_t 	*instance;
 
@@ -140,7 +140,7 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC)
 	zend_update_property(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), plugins TSRMLS_CC);
 	zval_ptr_dtor(&plugins);
 
-	router	 = yaf_router_instance(NULL TSRMLS_CC);
+	router = yaf_router_instance(NULL TSRMLS_CC);
 
 	zend_update_property(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), router TSRMLS_CC);
 	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 	YAF_G(default_module) TSRMLS_CC);
@@ -158,7 +158,7 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC)
  */
 static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval ****params, uint *count TSRMLS_DC) {
 	zval 		  	*args, **arg;
-	zend_arg_info 	*arg_info;
+	zend_arg_info 		*arg_info;
 	uint 		 	current;
 	HashTable 		*params_ht;
 
@@ -302,7 +302,7 @@ int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *requ
 /** {{{ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, char *controller, int len, int def_module TSRMLS_DC)
  */
 zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, char *controller, int len, int def_module TSRMLS_DC) {
-	char *directory 	= NULL;
+	char 	 *directory 	= NULL;
 	int	 directory_len 	= 0;
 
 	if (def_module) {
@@ -313,10 +313,10 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 	}
 
 	if (directory_len) {
-		char *class			  = NULL;
-		char *class_lowercase = NULL;
-		int	 class_len		  = 0;
-		zend_class_entry **ce = NULL;
+		char *class 		= NULL;
+		char *class_lowercase 	= NULL;
+		int class_len		= 0;
+		zend_class_entry **ce 	= NULL;
 
 		if (YAF_G(name_suffix)) {
 			class_len = spprintf(&class, 0, "%s%s%s", controller, YAF_G(name_separator), "Controller");
@@ -1230,7 +1230,7 @@ PHP_METHOD(yaf_dispatcher, initView) {
 */
 PHP_METHOD(yaf_dispatcher, setView) {
 	yaf_view_t		*view;
-	yaf_dispatcher_t *self = getThis();
+	yaf_dispatcher_t 	*self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &view) == FAILURE) {
 		return;
@@ -1335,30 +1335,30 @@ PHP_METHOD(yaf_dispatcher, __clone) {
 /** {{{ yaf_dispatcher_methods
 */
 zend_function_entry yaf_dispatcher_methods[] = {
-	PHP_ME(yaf_dispatcher, __construct, 		NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-	PHP_ME(yaf_dispatcher, __clone,				NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CLONE)
-	PHP_ME(yaf_dispatcher, __sleep,				NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_dispatcher, __wakeup,			NULL, ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_dispatcher, __construct, 			NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+	PHP_ME(yaf_dispatcher, __clone,				NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CLONE)
+	PHP_ME(yaf_dispatcher, __sleep,				NULL, 					ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_dispatcher, __wakeup,			NULL, 					ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_dispatcher, enableView,			yaf_dispatcher_void_arginfo,  		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, disableView,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, initView,			yaf_dispatcher_initview_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, setView,				yaf_dispatcher_setview_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, setRequest,			yaf_dispatcher_setrequest_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getApplication,		yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getApplication,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getRouter,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getRequest,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setErrorHandler,		yaf_dispatcher_seterrhdler_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultModule,	yaf_dispatcher_setmodule_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultController,yaf_dispatcher_setctrl_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultAction,	yaf_dispatcher_setaction_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, returnResponse,		yaf_dispatcher_returnresp_arginfo,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setErrorHandler,			yaf_dispatcher_seterrhdler_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultModule,		yaf_dispatcher_setmodule_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultController, 		yaf_dispatcher_setctrl_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultAction,		yaf_dispatcher_setaction_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, returnResponse,			yaf_dispatcher_returnresp_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, autoRender,			yaf_dispatcher_autorender_arginfo,	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, flushInstantly,		yaf_dispatcher_flush_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getInstance,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+	PHP_ME(yaf_dispatcher, flushInstantly,			yaf_dispatcher_flush_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getInstance,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(yaf_dispatcher, dispatch,			yaf_dispatcher_dispatch_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, throwException,		yaf_dispatcher_throwex_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, catchException,		yaf_dispatcher_catchex_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, registerPlugin,		yaf_dispatcher_regplugin_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, throwException,			yaf_dispatcher_throwex_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, catchException,			yaf_dispatcher_catchex_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, registerPlugin,			yaf_dispatcher_regplugin_arginfo, 	ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

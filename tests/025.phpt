@@ -4,6 +4,7 @@ Check for Yaf_Loader with namespace configuration
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = array(

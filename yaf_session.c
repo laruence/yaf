@@ -184,8 +184,8 @@ PHP_METHOD(yaf_session, start) {
 /** {{{ proto public static Yaf_Session::get($name)
 */
 PHP_METHOD(yaf_session, get) {
-	char *name  = NULL;
-	int  len	= 0;
+	char *name 	= NULL;
+	int  len 	= 0;
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &len) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	} else {
@@ -243,6 +243,15 @@ PHP_METHOD(yaf_session, del) {
 	}
 
 	RETURN_FALSE;
+}
+/* }}} */
+
+/** {{{ proto public static Yaf_Session::clear()
+*/
+PHP_METHOD(yaf_session, clear) {
+	zval *sess = zend_read_property(yaf_session_ce, getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1 TSRMLS_CC);
+
+	zend_hash_clean(Z_ARRVAL_P(sess));
 }
 /* }}} */
 
@@ -334,6 +343,7 @@ zend_function_entry yaf_session_methods[] = {
 	PHP_ME(yaf_session, current, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, key, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, valid, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, clear, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetGet, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetSet, set, yaf_session_set_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetExists, has, yaf_session_has_arginfo, ZEND_ACC_PUBLIC)

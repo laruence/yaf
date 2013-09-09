@@ -1,35 +1,63 @@
 --TEST--
-Check for Yaf_Route_Regex::assemble
+Check for multi inheritance of section
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --FILE--
-<?php
+<?php 
+$config = new Yaf_Config_Ini(dirname(__FILE__) . "/multi-section.ini");
+print_r($config->toArray());
 
-$router = new Yaf_Router();
-
-$route  = new Yaf_Route_Regex(
-                "#^/product/([^/]+)/([^/])+#",
-                array(
-                        'controller' => "product",  //route to product controller,
-                ),
-                array(),
-		array(),
-                '/:m/:c/:a'
-);
-
-$router->addRoute("regex", $route);
-
-var_dump($router->getRoute('regex')->assemble(
-                        array(
-                                ':m' => 'module',
-                                ':c' => 'controller',
-                                ':a' => 'action'
-                        ),
-                        array(
-                                'tkey1' => 'tval1',
-                                'tkey2' => 'tval2'
-                             )
-                        )
-);
+?>
 --EXPECTF--
-string(49) "/module/controller/action?tkey1=tval1&tkey2=tval2"
+Array
+(
+    [base] => Array
+        (
+            [base] => Array
+                (
+                    [a] => 1
+                    [b] => 2
+                )
+
+        )
+
+    [extra] => Array
+        (
+            [base] => Array
+                (
+                    [c] => 3
+                )
+
+        )
+
+    [foo] => Array
+        (
+            [base] => Array
+                (
+                    [d] => 4
+                )
+
+        )
+
+    [multi] => Array
+        (
+            [base] => Array
+                (
+                    [d] => 4
+                    [a] => 1
+                    [b] => 2
+                    [c] => 3
+                )
+
+        )
+
+    [] => Array
+        (
+            [base] => Array
+                (
+                    [d] => 4
+                )
+
+        )
+
+)

@@ -5,6 +5,7 @@ Bug #63438 (Strange behavior with nested rendering)
 --INI--
 yaf.use_spl_autoload=1
 yaf.lowcase_path=0
+yaf.use_namespace=0
 --FILE--
 <?php
 

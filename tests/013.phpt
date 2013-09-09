@@ -2,6 +2,8 @@
 Check for Yaf_Router and Config Routes
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $file = dirname(__FILE__) . "/simple.ini";
