@@ -41,7 +41,7 @@ zend_class_entry *yaf_route_ce;
 /* {{{ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr,  zval *config TSRMLS_DC)
  */
 yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) {
-	zval **match, **def, **map, **ppzval;
+	zval **match, **def, **map, **verify, **reverse, **ppzval;
 	yaf_route_t *instance = NULL;
 
 	if (!config || IS_ARRAY != Z_TYPE_P(config)) {
@@ -64,7 +64,11 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) 
 			return NULL;
 		}
 
-		instance = yaf_route_rewrite_instance(NULL, *match, *def, NULL TSRMLS_CC);
+		if (zend_hash_find(Z_ARRVAL_P(config), ZEND_STRS("route"), (void **)&verify) == FAILURE) {
+                        verify = NULL;
+                }
+
+		instance = yaf_route_rewrite_instance(NULL, *match, *def, verify? *verify : NULL TSRMLS_CC);
 	} else if (Z_STRLEN_PP(ppzval) == (sizeof("regex") - 1)
 			&& strncasecmp(Z_STRVAL_PP(ppzval), "regex", sizeof("regex") - 1) == 0) {
 		if (zend_hash_find(Z_ARRVAL_P(config), ZEND_STRS("match"), (void **)&match) == FAILURE || Z_TYPE_PP(match) != IS_STRING) {
@@ -78,7 +82,15 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) 
 			map = NULL;
 		}
 
-		instance = yaf_route_regex_instance(NULL, *match, *def, map? *map : NULL, NULL TSRMLS_CC);
+		if (zend_hash_find(Z_ARRVAL_P(config), ZEND_STRS("route"), (void **)&verify) == FAILURE) {
+			verify = NULL;
+		}
+
+		if (zend_hash_find(Z_ARRVAL_P(config), ZEND_STRS("route"), (void **)&reverse) == FAILURE) {
+			reverse = NULL;
+		}
+
+		instance = yaf_route_regex_instance(NULL, *match, *def, map? *map : NULL, verify? *verify : NULL, reverse? *reverse : NULL TSRMLS_CC);
 	} else if (Z_STRLEN_PP(ppzval) == (sizeof("map") - 1)
 			&& strncasecmp(Z_STRVAL_PP(ppzval), "map", sizeof("map") - 1) == 0) {
 		char *delimiter = NULL;
@@ -134,6 +146,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config TSRMLS_DC) 
  */
 zend_function_entry yaf_route_methods[] = {
 	PHP_ABSTRACT_ME(yaf_route, route, yaf_route_route_arginfo)
+	PHP_ABSTRACT_ME(yaf_route, assemble, yaf_route_assemble_arginfo)
     {NULL, NULL, NULL}
 };
 /* }}} */

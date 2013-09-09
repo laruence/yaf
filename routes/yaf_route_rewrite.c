@@ -33,14 +33,16 @@
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_rewrite.h"
 
+#include "ext/standard/php_string.h"
+
 zend_class_entry *yaf_route_rewrite_ce;
 
 /** {{{ ARG_INFO
  */
 ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_construct_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, match)
-    ZEND_ARG_ARRAY_INFO(0, route, 0)
-    ZEND_ARG_ARRAY_INFO(0, verify, 1)
+	ZEND_ARG_ARRAY_INFO(0, route, 0)
+	ZEND_ARG_ARRAY_INFO(0, verify, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -82,7 +84,7 @@ static zval * yaf_route_rewrite_match(yaf_route_t *router, char *uri, int len TS
 		return NULL;
 	}
 
-	match  = zend_read_property(yaf_route_rewrite_ce, router, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 1 TSRMLS_CC);
+	match  = zend_read_property(yaf_route_rewrite_ce, router, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 0 TSRMLS_CC);
 	pmatch = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
 
 	smart_str_appendc(&pattern, YAF_ROUTE_REGEX_DILIMITER);
@@ -184,8 +186,8 @@ int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *request TSRMLS_D
 	char *request_uri;
 	zval *args, *base_uri, *zuri;
 
-	zuri 	 = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1 TSRMLS_CC);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1 TSRMLS_CC);
+	zuri 	 = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 0 TSRMLS_CC);
+	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 0 TSRMLS_CC);
 
 	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
 			&& !strncasecmp(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri), Z_STRLEN_P(base_uri))) {
@@ -265,6 +267,103 @@ PHP_METHOD(yaf_route_rewrite, route) {
 }
 /** }}} */
 
+/** {{{ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *query TSRMLS_DC)
+ */
+zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *query TSRMLS_DC) {
+	zval *reverse, *uri, *match, *pidents;
+	zval **tmp;
+	char *tstr, *inter, *seg, *pmatch, *ptrptr, *key;
+	uint tlen, seg_len, key_len;
+	ulong key_idx;
+	smart_str squery = {0};
+	smart_str wildcard = {0};
+	
+	MAKE_STD_ZVAL(uri);
+	MAKE_STD_ZVAL(pidents);
+	array_init(pidents);
+
+	match  = zend_read_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 0 TSRMLS_CC);
+	pmatch = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
+	tstr = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
+	tlen = Z_STRLEN_P(match);
+	zend_hash_copy(Z_ARRVAL_P(pidents), Z_ARRVAL_P(idents), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
+
+	seg = php_strtok_r(pmatch, YAF_ROUTER_URL_DELIMIETER, &ptrptr);	
+	while (seg) {
+		seg_len = strlen(seg);
+		if (seg_len) {
+			if(*(seg) == '*') {
+				for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(pidents));
+						zend_hash_get_current_data(Z_ARRVAL_P(pidents), (void **)&tmp) == SUCCESS;
+						zend_hash_move_forward(Z_ARRVAL_P(pidents))) {
+
+					if (HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(pidents), &key, &key_len, &key_idx, 0, NULL)) {
+						if (IS_STRING == Z_TYPE_PP(tmp)) {
+							smart_str_appendl(&wildcard, key + 1, key_len);
+							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
+							smart_str_appendl(&wildcard, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
+							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
+						}
+					}
+				}
+				smart_str_0(&wildcard);
+				inter = php_str_to_str(tstr, tlen, "*", 1, wildcard.c, wildcard.len, &tlen);	
+				efree(tstr);
+				tstr = inter;
+				break;
+			}
+
+			if(*(seg) == ':') {
+				if (zend_hash_find(Z_ARRVAL_P(idents), seg, seg_len + 1, (void **)&tmp) == SUCCESS) {
+					inter = php_str_to_str(tstr, tlen, seg, seg_len, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
+					efree(tstr);
+					tstr = inter;
+					zend_hash_del(Z_ARRVAL_P(pidents), seg, seg_len + 1);
+				} 
+			} 
+		}
+		seg = php_strtok_r(NULL, YAF_ROUTER_URL_DELIMIETER, &ptrptr);
+	}
+	
+	smart_str_free(&wildcard);
+	efree(pmatch);
+	zval_ptr_dtor(&pidents);
+
+	if (IS_ARRAY == Z_TYPE_P(query)) {
+		uint key_type;
+		HashTable *ht = Z_ARRVAL_P(query);
+
+		smart_str_appendc(&squery, '?');
+		for (zend_hash_internal_pointer_reset(ht);
+				zend_hash_get_current_data(ht, (void **)&tmp) == SUCCESS;
+				zend_hash_move_forward(ht)) {
+
+			if (HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(ht, &key, &key_len, &key_idx, 0, NULL)) {
+				if (IS_STRING == Z_TYPE_PP(tmp)) {
+					smart_str_appendl(&squery, key, key_len - 1);
+					smart_str_appendc(&squery, '=');
+					smart_str_appendl(&squery, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
+					smart_str_appendc(&squery, '&');
+				}
+			}
+		}
+	}
+
+	if (squery.len) {
+		squery.len--; /* get rid of the tail & */
+		smart_str_0(&squery);
+		tstr = erealloc(tstr, tlen + squery.len + 1);
+		memcpy(tstr + tlen, squery.c, squery.len);
+		tlen += squery.len;
+		tstr[tlen] = '\0';
+	}
+
+	ZVAL_STRINGL(uri, tstr, tlen, 0);
+	smart_str_free(&squery);
+	return uri;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Route_Rewrite::match(string $uri)
  */
 PHP_METHOD(yaf_route_rewrite, match) {
@@ -286,7 +385,7 @@ PHP_METHOD(yaf_route_rewrite, match) {
 }
 /** }}} */
 
-/** {{{ proto public Yaf_Route_Rewrite::__construct(string $match, array $route, array $verify = NULL)
+/** {{{ proto public Yaf_Route_Rewrite::__construct(string $match, array $route, array $verify, string $reverse = NULL)
  */
 PHP_METHOD(yaf_route_rewrite, __construct) {
 	zval 		*match, *route, *verify = NULL;
@@ -299,7 +398,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a valid string as the first parameter", yaf_route_rewrite_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a valid string match as the first parameter");
 		RETURN_FALSE;
 	}
 
@@ -319,11 +418,28 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 }
 /** }}} */
 
+/** {{{ proto public Yaf_Route_rewrite::assemble(array $idents[, array $query = NULL])
+*/
+PHP_METHOD(yaf_route_rewrite, assemble) {
+	zval *idents, *query, *return_uri = NULL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &idents, &query) == FAILURE) {
+		return;
+	} else {
+		if ((return_uri = yaf_route_rewrite_assemble(getThis(), idents, query TSRMLS_CC))) {
+			RETURN_ZVAL(return_uri, 0, 1); 
+		}
+	}
+	RETURN_FALSE;
+}
+/* }}} */
+
 /** {{{ yaf_route_rewrite_methods
  */
 zend_function_entry yaf_route_rewrite_methods[] = {
 	PHP_ME(yaf_route_rewrite, __construct, yaf_route_rewrite_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_rewrite, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_rewrite, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */
@@ -340,6 +456,7 @@ YAF_STARTUP_FUNCTION(route_rewrite) {
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_REVERSE), ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	return SUCCESS;
 }
