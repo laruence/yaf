@@ -175,14 +175,14 @@ zval * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRM
 
 	do {
 		if (Z_BVAL_P(ctl_prefer)) {
-			if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_ACTION), (void **)&tmp_data) == SUCCESS) {
+			if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp_data) == SUCCESS) {
 				pname = estrndup(Z_STRVAL_PP(tmp_data), Z_STRLEN_PP(tmp_data));
 			} else {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Undefined the 'action' parameter for the 1st parameter");
 				break;
 			}
 		} else {
-			if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_CONTROLLER), (void **)&tmp_data) == SUCCESS) {
+			if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp_data) == SUCCESS) {
 				pname = estrndup(Z_STRVAL_PP(tmp_data), Z_STRLEN_PP(tmp_data));
 			} else {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Undefined the 'controller' parameter for the 1st parameter");
@@ -275,12 +275,13 @@ PHP_METHOD(yaf_route_map, assemble) {
 	zval *mvc, *query;
 	zval *return_uri;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
-		return;
-	} else {
-		return_uri = yaf_route_map_assemble(getThis(), mvc, query TSRMLS_CC);
-		RETURN_ZVAL(return_uri, 0, 1);
-	}
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+        return;
+    } else {
+        if (return_uri = yaf_route_map_assemble(getThis(), mvc, query TSRMLS_CC)) {
+            RETURN_ZVAL(return_uri, 0, 1);
+        }
+    }
 }
 /* }}} */
 

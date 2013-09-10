@@ -124,14 +124,14 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 	do {
 		zval **tmp;
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_MODULE), (void **)&tmp) == SUCCESS) {
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
 			smart_str_appendl(&tvalue, Z_STRVAL_P(nmodule), Z_STRLEN_P(nmodule));
 			smart_str_appendc(&tvalue, '=');
 			smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 			smart_str_appendc(&tvalue, '&');
 		} 
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_CONTROLLER), (void **)&tmp) == FAILURE) {
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
 			break;
 		}
@@ -141,7 +141,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 		smart_str_appendc(&tvalue, '&');
 
-		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_ACTION), (void **)&tmp) == FAILURE) {
+		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
 			break;
 		}
@@ -205,15 +205,16 @@ PHP_METHOD(yaf_route_simple, __construct) {
 /** {{{ proto public Yaf_Route_Simple::assemble(array $mvc[, array $query = NULL])
  */
 PHP_METHOD(yaf_route_simple, assemble) {
-	zval *mvc, *query;
-	zval *return_uri;
+    zval *mvc, *query;
+    zval *return_uri;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
-		return;
-	} else {
-		return_uri = yaf_route_simple_assemble(getThis(), mvc, query TSRMLS_CC);
-		RETURN_ZVAL(return_uri, 0, 1);
-	}
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+        return;
+    } else {
+        if (return_uri = yaf_route_simple_assemble(getThis(), mvc, query TSRMLS_CC)) {
+            RETURN_ZVAL(return_uri, 0, 1);
+        }
+    }
 }
 /* }}} */
 

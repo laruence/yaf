@@ -13,10 +13,10 @@ $router->addRoute("supervar", $route);
 
 var_dump($router->getRoute('supervar')->assemble(
 		array(
-		      'action' => 'yafaction', 
+		      ':a' => 'yafaction', 
 		      'tkey' => 'tval', 
-		      'controller' => 'yafcontroller', 
-		      'module' => 'yafmodule'
+		      ':c' => 'yafcontroller', 
+		      ':m' => 'yafmodule'
 		), 
 		array(
 		      'tkey1' => 'tval1', 

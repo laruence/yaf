@@ -273,7 +273,8 @@ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *que
 	zval *reverse, *uri, *match, *pidents;
 	zval **tmp;
 	char *tstr, *inter, *seg, *pmatch, *ptrptr, *key;
-	uint tlen, seg_len, key_len;
+	int tlen;
+	uint seg_len, key_len;
 	ulong key_idx;
 	smart_str squery = {0};
 	smart_str wildcard = {0};
@@ -299,7 +300,7 @@ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *que
 
 					if (HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(pidents), &key, &key_len, &key_idx, 0, NULL)) {
 						if (IS_STRING == Z_TYPE_PP(tmp)) {
-							smart_str_appendl(&wildcard, key + 1, key_len);
+							smart_str_appendl(&wildcard, key + 1, key_len - 2);
 							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
 							smart_str_appendl(&wildcard, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);

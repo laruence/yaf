@@ -107,7 +107,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 
 	MAKE_STD_ZVAL(uri);
 
-	pname           = zend_read_property(yaf_route_supervar_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), 1 TSRMLS_CC);
+	pname = zend_read_property(yaf_route_supervar_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), 1 TSRMLS_CC);
 
 	do {
 		zval **tmp;
@@ -116,12 +116,12 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		smart_str_appendl(&tvalue, Z_STRVAL_P(pname), Z_STRLEN_P(pname));
 		smart_str_appendc(&tvalue, '=');
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_MODULE), (void **)&tmp) == SUCCESS) {
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
 			smart_str_appendc(&tvalue, '/');
 			smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 		}
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_CONTROLLER), (void **)&tmp) == FAILURE) {
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
 			break;
 		}
@@ -129,7 +129,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		smart_str_appendc(&tvalue, '/');
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
-		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_VAR_NAME_ACTION), (void **)&tmp) == FAILURE) {
+		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
 			break;
 		}
@@ -169,43 +169,44 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 
 
 /** {{{ proto public Yaf_Route_Supervar::__construct(string $varname)
- */
+*/
 PHP_METHOD(yaf_route_supervar, __construct) {
-	zval *var;
+    zval *var;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &var) ==   FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
-		return;
-	}
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &var) ==   FAILURE) {
+        YAF_UNINITIALIZED_OBJECT(getThis());
+        return;
+    }
 
-	if (Z_TYPE_P(var) != IS_STRING || !Z_STRLEN_P(var)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a valid string super var name", yaf_route_supervar_ce->name);
-		RETURN_FALSE;
-	}
+    if (Z_TYPE_P(var) != IS_STRING || !Z_STRLEN_P(var)) {
+        YAF_UNINITIALIZED_OBJECT(getThis());
+        yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a valid string super var name", yaf_route_supervar_ce->name);
+        RETURN_FALSE;
+    }
 
-	zend_update_property(yaf_route_supervar_ce, getThis(), ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), var TSRMLS_CC);
+    zend_update_property(yaf_route_supervar_ce, getThis(), ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), var TSRMLS_CC);
 }
 /** }}} */
 
 /** {{{ proto public Yaf_Route_Supervar::assemble(array $mvc[, array $query = NULL])
- */
+*/
 PHP_METHOD(yaf_route_supervar, assemble) {
-	zval *mvc, *query;
-	zval *return_uri;
+    zval *mvc, *query;
+    zval *return_uri;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
-		return;
-	} else {
-		return_uri = yaf_route_supervar_assemble(getThis(), mvc, query TSRMLS_CC);
-		RETURN_ZVAL(return_uri, 0, 1);
-	}
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+        return;
+    } else {
+        if (return_uri = yaf_route_supervar_assemble(getThis(), mvc, query TSRMLS_CC)) {
+            RETURN_ZVAL(return_uri, 0, 1);
+        }
+    }
 
 }
 /* }}} */
 
 /** {{{ yaf_route_supervar_methods
- */
+*/
 zend_function_entry yaf_route_supervar_methods[] = {
 	PHP_ME(yaf_route_supervar, __construct, yaf_route_supervar_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_supervar, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)

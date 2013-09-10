@@ -13,16 +13,16 @@ $router->addRoute("static", $route);
 
 var_dump($router->getRoute('static')->assemble(
 			array(
-				'action' => 'yafaction',
+				':a' => 'yafaction',
 				'tkey' => 'tval',
-				'controller' => 'yafcontroller',
-				'module' => 'yafmodule'
-			     ),
+				':c' => 'yafcontroller',
+				':m' => 'yafmodule'
+	        ),
 			array(
 				'tkey1' => 'tval1',
 				'tkey2' => 'tval2'
-			     )
-			)
+		    )
+		)
 );
 --EXPECTF--
 string(59) "/yafmodule/yafcontroller/yafaction?tkey1=tval1&tkey2=tval2&"

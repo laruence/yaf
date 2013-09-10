@@ -159,7 +159,7 @@ zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TS
 	zval *reverse, *uri;
 	zval **tmp;
 	char *tstr, *inter;
-	uint tlen;
+	int tlen;
 	smart_str squery = {0};
 
 	reverse = zend_read_property(yaf_route_regex_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_REVERSE), 0 TSRMLS_CC);
