@@ -78,7 +78,7 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 			if (Z_TYPE_P(uri) != IS_NULL) {
 				zval *rewrited = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("IIS_WasUrlRewritten") TSRMLS_CC);
 				zval *unencode = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("UNENCODED_URL") TSRMLS_CC);
-				if (Z_TYPE_P(rewrited) = IS_LONG
+				if (Z_TYPE_P(rewrited) == IS_LONG
 						&& Z_LVAL_P(rewrited) == 1
 						&& Z_TYPE_P(unencode) == IS_STRING
 						&& Z_STRLEN_P(unencode) > 0) {
