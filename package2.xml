@@ -163,6 +163,7 @@
     <file name="067.phpt" role="test" />
     <file name="068.phpt" role="test" />
     <file name="069.phpt" role="test" />
+    <file name="070.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
