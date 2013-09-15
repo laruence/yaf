@@ -120,7 +120,7 @@ PHP_METHOD(yaf_route_simple, __construct) {
 			|| IS_STRING != Z_TYPE_P(controller)
 			|| IS_STRING != Z_TYPE_P(action)) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expect 3 string paramsters", yaf_route_simple_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expect 3 string parameters", yaf_route_simple_ce->name);
 		RETURN_FALSE;
 	} else {
 		(void)yaf_route_simple_instance(getThis(), module, controller, action TSRMLS_CC);
