@@ -28,6 +28,9 @@ Yaf manual could be found at: http://www.php.net/manual/en/book.yaf.php
 ## IRC
 efnet.org #php.yaf
 
+## For IDE
+you could find a documented prototype script here: https://github.com/elad-yosifon/php-yaf-doc
+
 ## Tutorial
 
 ### layout
