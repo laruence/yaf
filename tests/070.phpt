@@ -17,7 +17,13 @@ try {
 	$app->run();
 }
 catch (Exception $e){
-	print $e->getPrevious()->getMessage();
+	if(PHP_MAJOR_VERSION >= 5 && PHP_MINOR_VERSION > 3)
+	{
+		print $e->getMessage();
+	}
+	else{
+		print $e->getPrevious()->getMessage();
+	}
 }
 
 ?>
