@@ -6,7 +6,7 @@ Fixed misleading error message when providing a string in Yaf_Application constr
 --FILE--
 <?php
 
-$config = <<<'INI'
+$config = <<<INI
 [product]
 ;CONSTANTS is supported
 application.directory = APP_PATH "/application/"
