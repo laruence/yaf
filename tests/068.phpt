@@ -2,6 +2,8 @@
 Check for multi inheritance of section
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.use_namespace=0
 --FILE--
 <?php 
 $config = new Yaf_Config_Ini(dirname(__FILE__) . "/multi-section.ini");
