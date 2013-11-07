@@ -108,6 +108,29 @@ int yaf_application_is_module_name(char *name, int len TSRMLS_DC) {
 }
 /* }}} */
 
+/** {{{ int yaf_application_module_num(zval *return_value TSRMLS_CC)
+*/
+int yaf_application_module_num(zval *return_value TSRMLS_DC) {
+	zval 				*modules;
+	HashTable 			*ht;
+	yaf_application_t 	*app;
+
+	app = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1 TSRMLS_CC);
+	if (Z_TYPE_P(app) != IS_OBJECT) {
+		return 0;
+	}
+
+	modules = zend_read_property(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 1 TSRMLS_CC);
+	if (Z_TYPE_P(modules) != IS_ARRAY) {
+		return 0;
+	}
+
+	ht = Z_ARRVAL_P(modules);
+	return zend_hash_num_elements(ht);
+}
+/* }}} */
+
+
 /** {{{ static int yaf_application_parse_option(zval *options TSRMLS_DC)
 */
 static int yaf_application_parse_option(zval *options TSRMLS_DC) {

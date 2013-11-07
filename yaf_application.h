@@ -31,6 +31,7 @@
 extern zend_class_entry *yaf_application_ce;
 
 int yaf_application_is_module_name(char *name, int len TSRMLS_DC);
+int yaf_application_module_num(zval *return_value TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(application);
 #endif

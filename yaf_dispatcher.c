@@ -23,6 +23,8 @@
 #include "php.h"
 #include "main/SAPI.h" /* for sapi_module */
 #include "Zend/zend_interfaces.h" /* for zend_call_method_with_* */
+#include "ext/standard/php_filestat.h"
+#include "Zend/zend_hash.h"
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -307,6 +309,20 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 
 	if (def_module) {
 		directory_len = spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
+        
+        zval *dir_exists;
+        uint module_num;
+        MAKE_STD_ZVAL(dir_exists);
+
+        php_stat(directory, directory_len, FS_IS_DIR, dir_exists TSRMLS_CC);
+        module_num = yaf_application_module_num(NULL TSRMLS_CC);
+
+        if (!Z_BVAL_P(dir_exists) && module_num > 1) {
+        	efree(directory);
+            directory_len = spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+                    YAF_MODULE_DIRECTORY_NAME, DEFAULT_SLASH, module, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
+        } 
+        zval_ptr_dtor(&dir_exists);
 	} else {
 		directory_len = spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
 				YAF_MODULE_DIRECTORY_NAME, DEFAULT_SLASH, module, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
@@ -575,7 +591,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 		} else {
 			zval  *action, *render, *ret = NULL;
 			char  *action_lower, *func_name, *view_dir;
-			uint  func_name_len;
+			uint  func_name_len, view_dir_len;
 
 			yaf_controller_t *icontroller;
 
@@ -603,7 +619,20 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 		
 			/* view template directory for application, please notice that view engine's directory has high priority */
 			if (is_def_module) {
-				spprintf(&view_dir, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "views");
+				view_dir_len = spprintf(&view_dir, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "views");
+
+                zval *dir_exists;
+		        uint module_num;
+		        MAKE_STD_ZVAL(dir_exists);
+
+				php_stat(view_dir, view_dir_len, FS_IS_DIR, dir_exists TSRMLS_CC);		
+        		module_num = yaf_application_module_num(NULL TSRMLS_CC);
+
+        		if (!Z_BVAL_P(dir_exists) && module_num > 1) {
+                	efree(view_dir);
+                    spprintf(&view_dir, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH, "modules", DEFAULT_SLASH, Z_STRVAL_P(module), DEFAULT_SLASH, "views");
+                } 
+                zval_ptr_dtor(&dir_exists);
 			} else {
 				spprintf(&view_dir, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH, "modules", DEFAULT_SLASH, Z_STRVAL_P(module), DEFAULT_SLASH, "views");
 			}
