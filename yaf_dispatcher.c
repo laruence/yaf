@@ -452,7 +452,7 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 /* {{{ This only effects internally */
 	   	if (YAF_G(st_compatible)) {
 		char *directory, *class, *class_lowercase, *p;
-		uint class_len;
+		uint class_len, directory_len;
 		zend_class_entry **ce;
 		char *action_upper = estrndup(action, len);
 
@@ -477,7 +477,22 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 		}
 
 		if (def_module) {
-			spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "actions");
+			directory_len = spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "actions");
+
+			zval *dir_exists;
+        	uint module_num;
+        	MAKE_STD_ZVAL(dir_exists);
+
+        	php_stat(directory, directory_len, FS_IS_DIR, dir_exists TSRMLS_CC);
+        	module_num = yaf_application_module_num(NULL TSRMLS_CC);
+
+        	if (!Z_BVAL_P(dir_exists) && module_num > 1) {
+        		efree(directory);
+            	spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+						"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, "actions");
+        	} 
+        zval_ptr_dtor(&dir_exists);
+
 		} else {
 			spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
 					"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, "actions");
