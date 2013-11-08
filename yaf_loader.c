@@ -771,13 +771,45 @@ PHP_METHOD(yaf_loader, autoload) {
 			break;
 		}
 
+		if (yaf_loader_is_category(class_name, class_name_len, YAF_LOADER_SERVICE, YAF_LOADER_LEN_SERVICE TSRMLS_CC)) {
+			/* this is a service class */
+			spprintf(&directory, 0, "%s/%s", app_directory, YAF_SERVICE_DIRECTORY_NAME);
+			file_name_len = class_name_len - separator_len - YAF_LOADER_LEN_SERVICE;
+
+			if (YAF_G(name_suffix)) {
+				file_name = estrndup(class_name, file_name_len);
+			} else {
+				file_name = estrdup(class_name + YAF_LOADER_LEN_SERVICE + separator_len);
+			}
+
+			break;
+		}
+
+		if (yaf_loader_is_category(class_name, class_name_len, YAF_LOADER_DAO, YAF_LOADER_LEN_DAO TSRMLS_CC)) {
+			/* this is a dao class */
+			spprintf(&directory, 0, "%s/%s", app_directory, YAF_DAO_DIRECTORY_NAME);
+			file_name_len = class_name_len - separator_len - YAF_LOADER_LEN_DAO;
+
+			if (YAF_G(name_suffix)) {
+				file_name = estrndup(class_name, file_name_len);
+			} else {
+				file_name = estrdup(class_name + YAF_LOADER_LEN_DAO + separator_len);
+			}
+
+			break;
+		}
+
 
 /* {{{ This only effects internally */
-		if (YAF_G(st_compatible) && (strncmp(class_name, YAF_LOADER_DAO, YAF_LOADER_LEN_DAO) == 0
-					|| strncmp(class_name, YAF_LOADER_SERVICE, YAF_LOADER_LEN_SERVICE) == 0)) {
+
+		// if (YAF_G(st_compatible) && (strncmp(class_name, YAF_LOADER_DAO, YAF_LOADER_LEN_DAO) == 0
+		// 			|| strncmp(class_name, YAF_LOADER_SERVICE, YAF_LOADER_LEN_SERVICE) == 0)) {
+
 			/* this is a model class */
-			spprintf(&directory, 0, "%s/%s", app_directory, YAF_MODEL_DIRECTORY_NAME);
-		}
+
+		// 	spprintf(&directory, 0, "%s/%s", app_directory, YAF_MODEL_DIRECTORY_NAME);
+		// }
+
 /* }}} */
 
 		file_name_len = class_name_len;

@@ -28,6 +28,8 @@
 #define YAF_MODULE_DIRECTORY_NAME     		"modules"
 #define YAF_VIEW_DIRECTORY_NAME       		"views"
 #define YAF_MODEL_DIRECTORY_NAME      		"models"
+#define YAF_SERVICE_DIRECTORY_NAME          "services"
+#define YAF_DAO_DIRECTORY_NAME              "daos"
 
 #define YAF_SPL_AUTOLOAD_REGISTER_NAME 		"spl_autoload_register"
 #define YAF_AUTOLOAD_FUNC_NAME 				"autoload"
@@ -44,10 +46,14 @@
 #define YAF_LOADER_LEN_RESERVERD			3
 
 /* {{{ This only effects internally */
-#define YAF_LOADER_DAO						"Dao_"
-#define YAF_LOADER_LEN_DAO					4
-#define YAF_LOADER_SERVICE					"Service_"
-#define YAF_LOADER_LEN_SERVICE				8
+#define YAF_LOADER_DAO						"Dao"
+#define YAF_LOADER_LEN_DAO					3
+#define YAF_LOADER_SERVICE					"Service"
+#define YAF_LOADER_LEN_SERVICE				7
+// #define YAF_LOADER_DAO                      "Dao_"
+// #define YAF_LOADER_LEN_DAO                  4
+// #define YAF_LOADER_SERVICE                  "Service_"
+// #define YAF_LOADER_LEN_SERVICE              8
 /* }}} */
 
 #define	YAF_LOADER_PROPERTY_NAME_LIBRARY	"_library"
