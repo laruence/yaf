@@ -21,7 +21,7 @@
 
 extern zend_class_entry *yaf_route_regex_ce;
 
-yaf_route_t * yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval *def, zval *map, zval *verify TSRMLS_DC);
+yaf_route_t * yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval *def, zval *map, zval *verify, zval *reverse TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(route_regex);
 
