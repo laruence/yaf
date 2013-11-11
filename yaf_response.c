@@ -346,14 +346,12 @@ PHP_METHOD(yaf_response, clearHeaders) {
     	return;
     }
 
-    if (0 == ZEND_NUM_ARGS()) {
-		sapi_header_op(SAPI_HEADER_DELETE_ALL, &ctr TSRMLS_CC);    	
-    } else {
+    if (ZEND_NUM_ARGS()) {
 		ctr.line 	 = name;
     	ctr.line_len = name_len;
-
-		sapi_header_op(SAPI_HEADER_DELETE, &ctr TSRMLS_CC);    	
     }
+
+    RETURN_BOOL(!sapi_header_op(SAPI_HEADER_DELETE_ALL, &ctr TSRMLS_CC));    	
 }
 /* }}} */
 
