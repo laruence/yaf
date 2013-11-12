@@ -67,6 +67,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_headers_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_response_get_header_arginfo, 0, 0, 0)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
 /* }}} */
 
 /** {{{ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC)
@@ -328,10 +332,58 @@ PHP_METHOD(yaf_response, setAllHeaders) {
 }
 /* }}} */
 
+/* {{{ php_head_apply_header_list_to_hash
+   Turn an llist of sapi_header_struct headers into a numerically indexed zval hash */
+static void php_head_apply_header_list_to_hash(void *data, void *arg TSRMLS_DC)
+{
+        sapi_header_struct *sapi_header = (sapi_header_struct *)data;
+
+        if (arg && sapi_header) {
+                add_next_index_string((zval *)arg, (char *)(sapi_header->header), 1);
+        }
+}
+
+/* {{{ php_heade_apply_find_header_name 
+	through header name find header to list */
+static void php_heade_apply_find_header_name_to_hash(zend_llist *l, char *name, int name_len, zval *arg TSRMLS_DC) {
+	zend_llist_element *element;
+	sapi_header_struct *sapi_header;	
+
+	for (element = l->head; element; element = element->next) {
+
+		sapi_header = (sapi_header_struct *)element->data;
+		
+		if (!strncasecmp(sapi_header->header, name, name_len)) {
+			add_next_index_string(arg, (sapi_header->header), 1);
+		}
+
+	}
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Response_Abstract::getHeader(void)
 */
 PHP_METHOD(yaf_response, getHeader) {
-	RETURN_NULL();
+	char 	*name, *name_head;
+	uint 	name_len, name_head_len;
+	sapi_header_line ctr = {0};
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) == FAILURE) {
+		return;
+	}
+
+	if (!&SG(sapi_headers).headers) {
+		RETURN_FALSE;
+	}
+
+	array_init(return_value);
+
+	if (!ZEND_NUM_ARGS()) {
+		zend_llist_apply_with_argument(&SG(sapi_headers).headers, php_head_apply_header_list_to_hash, return_value TSRMLS_CC);
+	} else {
+		name_head_len = spprintf(&name_head, 0, "%s:", name);
+		php_heade_apply_find_header_name_to_hash(&SG(sapi_headers).headers, name_head, name_head_len, return_value TSRMLS_CC);
+	}
 }
 /* }}} */
 
@@ -479,7 +531,7 @@ zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, getBody,		yaf_response_get_body_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setHeader,		yaf_response_set_header_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setAllHeaders,	NULL, 					ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, getHeader,		NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, getHeader,		yaf_response_get_header_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, clearHeaders, 	yaf_response_clear_headers_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setRedirect,	yaf_response_set_redirect_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, 		ZEND_ACC_PUBLIC)
