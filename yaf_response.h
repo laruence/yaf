@@ -39,6 +39,7 @@ int yaf_response_alter_body(yaf_response_t *response, char *name, int name_len, 
 int yaf_response_send(yaf_response_t *response TSRMLS_DC);
 int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC);
 int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC);
+int yaf_response_alter_header(yaf_response_t *response, char *name, uint name_len, char *value, long value_len, uint rep TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(response);
 

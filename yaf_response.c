@@ -60,7 +60,20 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_header_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(0, value)
-	ZEND_ARG_INFO(0, replace)
+	ZEND_ARG_INFO(0, rep)
+	ZEND_ARG_INFO(0, response_code)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_headers_arginfo, 0, 0, 0)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_response_get_header_arginfo, 0, 0, 0)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_all_headers_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0, headers)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -256,6 +269,33 @@ int yaf_response_send(yaf_response_t *response TSRMLS_DC) {
 }
 /* }}} */
 
+/** {{{ int yaf_response_alter_header(yaf_response_t *response, char *name, uint name_len, char *value, long value_len, int flag TSRMLS_DC)
+*/
+int yaf_response_alter_header(yaf_response_t *response, char *name, uint name_len, char *value, long value_len, uint rep TSRMLS_DC) {
+	zval *z_headers, **ppzval;
+
+	if (!name_len || !value_len) {
+		return 1;
+	}
+
+	z_headers = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), 1 TSRMLS_CC);
+
+	if (zend_hash_find(Z_ARRVAL_P(z_headers), name, name_len + 1, (void **)&ppzval) == FAILURE) {
+		add_assoc_stringl(z_headers, name, value, value_len, 1);
+
+		return 1;
+	}
+
+	if (rep) {
+		ZVAL_STRINGL(*ppzval, value, value_len, 1);
+	} else {
+		Z_STRLEN_PP(ppzval) = spprintf(&Z_STRVAL_PP(ppzval), 0, "%s, %s", Z_STRVAL_PP(ppzval), value);
+	}
+
+	return 1;
+}
+/* }}} */
+
 /** {{{ proto private Yaf_Response_Abstract::__construct()
 */
 PHP_METHOD(yaf_response, __construct) {
@@ -314,6 +354,26 @@ PHP_METHOD(yaf_response, prependBody) {
 /** {{{ proto public Yaf_Response_Abstract::setHeader($name, $value, $replace = 0)
 */
 PHP_METHOD(yaf_response, setHeader) {
+	zval 		*response_code;
+	char 		*name, *value;
+	uint 		name_len, value_len;
+	zend_bool   rep = 1;
+	yaf_response_t 	*self;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|bz", &name, &name_len, &value, &value_len, &rep, &response_code) == FAILURE) {
+		return;
+	}
+
+	self = getThis();
+	
+	if (response_code) {
+		zend_update_property(yaf_response_ce, self, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), response_code TSRMLS_CC);
+	}
+	
+	if (yaf_response_alter_header(self, name, name_len, value, value_len, rep ? 1 : 0 TSRMLS_CC)) {
+		RETURN_TRUE;
+	}
+
 	RETURN_FALSE;
 }
 /* }}} */
@@ -461,7 +521,7 @@ zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, prependBody,	yaf_response_set_body_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, clearBody,		yaf_response_clear_body_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, getBody,		yaf_response_get_body_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setHeader,		NULL, 					ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, setHeader,		yaf_response_set_header_arginfo, 					ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setAllHeaders,	NULL, 					ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, getHeader,		NULL, 					ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, clearHeaders, 	NULL, 					ZEND_ACC_PUBLIC)
