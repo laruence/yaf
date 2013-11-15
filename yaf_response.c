@@ -314,7 +314,7 @@ PHP_METHOD(yaf_response, prependBody) {
 /** {{{ proto public Yaf_Response_Abstract::setHeader($name, $value, $replace = 0)
 */
 PHP_METHOD(yaf_response, setHeader) {
-	//todo: implement
+	/* todo: implement */
 	RETURN_FALSE;
 }
 /* }}} */
@@ -322,7 +322,7 @@ PHP_METHOD(yaf_response, setHeader) {
 /** {{{ proto protected Yaf_Response_Abstract::setAllHeaders(void)
 */
 PHP_METHOD(yaf_response, setAllHeaders) {
-	//todo: implement
+	/* todo: implement */
 	RETURN_FALSE;
 }
 /* }}} */
@@ -330,7 +330,7 @@ PHP_METHOD(yaf_response, setAllHeaders) {
 /** {{{ proto public Yaf_Response_Abstract::getHeader(void)
 */
 PHP_METHOD(yaf_response, getHeader) {
-	//todo: implement
+	/* todo: implement */
 	RETURN_NULL();
 }
 /* }}} */
@@ -338,7 +338,7 @@ PHP_METHOD(yaf_response, getHeader) {
 /** {{{ proto public Yaf_Response_Abstract::clearHeaders(void)
 */
 PHP_METHOD(yaf_response, clearHeaders) {
-	//todo: implement
+	/* todo: implement */
 	RETURN_FALSE;
 }
 /* }}} */
