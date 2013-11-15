@@ -243,7 +243,7 @@ int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *request TSRMLS_D
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Route_Rewrite::route(Yaf_Request_Abstarct $request)
+/** {{{ proto public Yaf_Route_Rewrite::route(Yaf_Request_Abstract $request)
  */
 PHP_METHOD(yaf_route_rewrite, route) {
 	yaf_route_t 	*route;
