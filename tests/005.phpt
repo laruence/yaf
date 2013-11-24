@@ -6,7 +6,7 @@ Check for Yaf_Response
 yaf.use_namespace=0
 --FILE--
 <?php 
-$response = new Yaf_Response_Http();
+$response = new Yaf_Response_Cli();
 
 
 $body  = <<<HTML

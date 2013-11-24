@@ -44,10 +44,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_get_body_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_redirect_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, url)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_body_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, body)
 	ZEND_ARG_INFO(0, name)
@@ -198,21 +194,7 @@ int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len 
 }
 /* }}} */
 
-/** {{{ int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC)
- */
-int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC) {
-	sapi_header_line ctr = {0};
 
-	ctr.line_len 		= spprintf(&(ctr.line), 0, "%s %s", "Location:", url);
-	ctr.response_code 	= 0;
-	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr TSRMLS_CC) == SUCCESS) {
-		efree(ctr.line);
-		return 1;
-	}
-	efree(ctr.line);
-	return 0;
-}
-/* }}} */
 
 /** {{{ zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC)
  */
@@ -237,38 +219,6 @@ zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len
 int yaf_response_send(yaf_response_t *response TSRMLS_DC) {
 	zval 			*zbody;
 	zval 			**val;
-
-	if (strncasecmp(sapi_module.name, "cli", 3)) {
-		zval 			*zresponse_code, *zheader, *zbody;
-		zval 			**val, **entry;
-		char 			*header_name;
-		uint 			header_name_len;
-		ulong 			num_key;
-		HashPosition 	pos;
-		sapi_header_line ctr = {0};
-
-		zresponse_code = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), 1 TSRMLS_CC);	
-		SG(sapi_headers).http_response_code = Z_LVAL_P(zresponse_code);
-
-		zheader = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), 1 TSRMLS_CC);
-		for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(zheader), &pos);
-				zend_hash_get_current_data_ex(Z_ARRVAL_P(zheader), (void **)&entry, &pos) == SUCCESS;
-				zend_hash_move_forward_ex(Z_ARRVAL_P(zheader), &pos)) {
-
-			if (zend_hash_get_current_key_ex(Z_ARRVAL_P(zheader), &header_name, &header_name_len, &num_key, 0, &pos) == HASH_KEY_IS_STRING) {
-				ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", header_name, Z_STRVAL_PP(entry));
-			} else {
-				ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", num_key, Z_STRVAL_PP(entry));
-			}
-
-        	ctr.response_code = 0;
-        	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr TSRMLS_CC) != SUCCESS) {
-                efree(ctr.line);
-                return 0;
-        	}
-		}
-		efree(ctr.line);		
-	}
 
 	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
 
@@ -335,24 +285,6 @@ PHP_METHOD(yaf_response, prependBody) {
 	}
 
 	RETURN_FALSE;
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Response_Abstract::setRedirect(string $url)
-*/
-PHP_METHOD(yaf_response, setRedirect) {
-	char 	*url;
-	uint 	url_len;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &url, &url_len) == FAILURE) {
-		return;
-	}
-
-	if (!url_len) {
-		RETURN_FALSE;
-	}
-
-	RETURN_BOOL(yaf_response_set_redirect(getThis(), url, url_len TSRMLS_CC));
 }
 /* }}} */
 
@@ -460,8 +392,7 @@ zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, prependBody,	yaf_response_set_body_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, clearBody,		yaf_response_clear_body_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, getBody,		yaf_response_get_body_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setRedirect,	yaf_response_set_redirect_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, 			ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
