@@ -66,7 +66,7 @@ array(3) {
   ["MyName3"]=>
   string(8) "Header32"
 }
-string(0) ""
+NULL
 string(8) "Header12"
 object(Yaf_Response_Http)#1 (4) {
   ["_header":protected]=>
