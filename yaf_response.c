@@ -44,10 +44,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_get_body_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_redirect_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, url)
-ZEND_END_ARG_INFO()
-
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_body_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, body)
 	ZEND_ARG_INFO(0, name)
@@ -55,12 +51,6 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_body_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_header_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, value)
-	ZEND_ARG_INFO(0, replace)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -204,22 +194,6 @@ int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len 
 }
 /* }}} */
 
-/** {{{ int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC)
- */
-int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC) {
-	sapi_header_line ctr = {0};
-
-	ctr.line_len 		= spprintf(&(ctr.line), 0, "%s %s", "Location:", url);
-	ctr.response_code 	= 0;
-	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr TSRMLS_CC) == SUCCESS) {
-		efree(ctr.line);
-		return 1;
-	}
-	efree(ctr.line);
-	return 0;
-}
-/* }}} */
-
 /** {{{ zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC)
  */
 zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC) {
@@ -241,9 +215,10 @@ zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len
 /** {{{ int yaf_response_send(yaf_response_t *response TSRMLS_DC)
  */
 int yaf_response_send(yaf_response_t *response TSRMLS_DC) {
-	zval **val;
+	zval 			*zbody;
+	zval 			**val;
 
-	zval *zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
 
 	zend_hash_internal_pointer_reset(Z_ARRVAL_P(zbody));
 	while (SUCCESS == zend_hash_get_current_data(Z_ARRVAL_P(zbody), (void**)&val)) {
@@ -314,7 +289,6 @@ PHP_METHOD(yaf_response, prependBody) {
 /** {{{ proto public Yaf_Response_Abstract::setHeader($name, $value, $replace = 0)
 */
 PHP_METHOD(yaf_response, setHeader) {
-	/* todo: implement */
 	RETURN_FALSE;
 }
 /* }}} */
@@ -322,7 +296,6 @@ PHP_METHOD(yaf_response, setHeader) {
 /** {{{ proto protected Yaf_Response_Abstract::setAllHeaders(void)
 */
 PHP_METHOD(yaf_response, setAllHeaders) {
-	/* todo: implement */
 	RETURN_FALSE;
 }
 /* }}} */
@@ -330,7 +303,6 @@ PHP_METHOD(yaf_response, setAllHeaders) {
 /** {{{ proto public Yaf_Response_Abstract::getHeader(void)
 */
 PHP_METHOD(yaf_response, getHeader) {
-	/* todo: implement */
 	RETURN_NULL();
 }
 /* }}} */
@@ -338,7 +310,6 @@ PHP_METHOD(yaf_response, getHeader) {
 /** {{{ proto public Yaf_Response_Abstract::clearHeaders(void)
 */
 PHP_METHOD(yaf_response, clearHeaders) {
-	/* todo: implement */
 	RETURN_FALSE;
 }
 /* }}} */
@@ -465,12 +436,7 @@ zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, prependBody,	yaf_response_set_body_arginfo, 		ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, clearBody,		yaf_response_clear_body_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, getBody,		yaf_response_get_body_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setHeader,		NULL, 					ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setAllHeaders,	NULL, 					ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, getHeader,		NULL, 					ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, clearHeaders, 	NULL, 					ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setRedirect,	yaf_response_set_redirect_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, 		ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, response,		yaf_response_void_arginfo, 			ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
