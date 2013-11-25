@@ -704,7 +704,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 					return 0;
 				}
 
-				if (( Z_TYPE_P(ret) == IS_BOOL
+				if ((Z_TYPE_P(ret) == IS_BOOL
 							&& !Z_BVAL_P(ret))) {
 					/* no auto-render */
 					zval_ptr_dtor(&ret);

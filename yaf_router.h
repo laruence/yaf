@@ -24,7 +24,7 @@
 #define YAF_ROUTER_DEFAULT_MODULE	  	"Index"
 #define YAF_DEFAULT_EXT 		 	   	"php"
 
-#define YAF_ROUTER_PROPERTY_NAME_ROUTERS 		"_routes"
+#define YAF_ROUTER_PROPERTY_NAME_ROUTES 		"_routes"
 #define YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE	"_current"
 
 extern zend_class_entry * yaf_router_ce;
