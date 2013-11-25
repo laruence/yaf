@@ -19,7 +19,7 @@
 #ifndef YAF_ROUTER_MAP_H
 #define YAF_ROUTER_MAP_H
 
-#define YAF_ROUTE_MAP_VAR_NAME_DELIMETER	"_delimeter"
+#define YAF_ROUTE_MAP_VAR_NAME_DELIMETER	"_delimiter"
 #define YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER	"_ctl_router"
 
 extern zend_class_entry *yaf_route_map_ce;

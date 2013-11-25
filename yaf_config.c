@@ -341,6 +341,8 @@ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg
 
 			return instance;
 		}
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a path to *.ini configuration file as parameter");
+		return NULL;
 	}
 
 	if (Z_TYPE_P(arg1) == IS_ARRAY) {
