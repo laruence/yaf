@@ -341,7 +341,7 @@ PHP_METHOD(yaf_application, __construct) {
 
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
 		MAKE_STD_ZVAL(section);
-		ZVAL_STRING(section, YAF_G(environ), 0);
+		ZVAL_STRING(section, YAF_G(environ), 1);
 		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
 	} else {
 		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
