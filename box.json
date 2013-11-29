@@ -1,6 +1,8 @@
 {
     "files": ["LICENSE"],
+    "compression": "GZ",
     "git-version": "git_tag",
+    "directories": ["tools/cg"],
     "main": "tools/cg/yaf_cg",
     "output": "yaf_cg.phar",
     "stub": true
