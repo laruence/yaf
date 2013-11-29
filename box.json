@@ -1,9 +1,9 @@
 {
-    "files": ["LICENSE"],
+    "base-path": "tools/cg",
     "compression": "GZ",
     "git-version": "git_tag",
-    "directories": ["tools/cg"],
-    "main": "tools/cg/yaf_cg",
+    "directories": ["templates"],
+    "main": "yaf_cg",
     "output": "yaf_cg.phar",
     "stub": true
 }
