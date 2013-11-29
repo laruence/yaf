@@ -343,9 +343,9 @@ PHP_METHOD(yaf_application, __construct) {
 		MAKE_STD_ZVAL(section);
 		ZVAL_STRING(section, YAF_G(environ), 0);
 		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
-		efree(section);
 	} else {
 		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
+		Z_ADDREF_P(section);
 	}
 
 	if  (zconfig == NULL
@@ -407,7 +407,9 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0 TSRMLS_CC);
-	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ) TSRMLS_CC);
+	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), section TSRMLS_CC);
+
+	zval_ptr_dtor(&section);
 
 	if (YAF_G(modules)) {
 		zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), YAF_G(modules) TSRMLS_CC);
