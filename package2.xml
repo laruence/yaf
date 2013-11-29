@@ -13,8 +13,8 @@
  <date>2013-01-04</date>
  <time>18:27:23</time>
  <version>
-  <release>2.2.9</release>
-  <api>2.2.9</api>
+  <release>2.2.10</release>
+  <api>2.2.10</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,8 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug #63900 (Segfault if separated action executes failed)
-  - Fixed some compiler warnings (Remi)
+  - Added Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
  </notes>
  <contents> 
   <dir name="/"> 
@@ -68,9 +67,8 @@
     <file name="yaf_config_simple.c" role="src" />
    </dir>
    <file name="config.w32" role="src" />
-   <file name="LICENSE" role="src" />
-   <file name="CREDITS" role="src" />
-   <file name="EXPERIMENTAL" role="src" />
+   <file name="LICENSE" role="doc" />
+   <file name="CREDITS" role="doc" />
    <file name="php_yaf.h" role="src" />
    <dir name="requests">
     <file name="yaf_request_http.c" role="src" />
@@ -165,6 +163,7 @@
     <file name="069.phpt" role="test" />
     <file name="070.phpt" role="test" />
     <file name="071.phpt" role="test" />
+    <file name="072.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

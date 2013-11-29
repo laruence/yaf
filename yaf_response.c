@@ -36,7 +36,7 @@
 zend_class_entry *yaf_response_ce;
 
 /** {{{ ARG_INFO
- *  */
+ */
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_void_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
