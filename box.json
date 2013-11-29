@@ -1,0 +1,7 @@
+{
+    "files": ["LICENSE"],
+    "git-version": "git_tag",
+    "main": "tools/cg/yaf_cg",
+    "output": "yaf_cg.phar",
+    "stub": true
+}
