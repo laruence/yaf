@@ -31,6 +31,7 @@
 
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_simple.h"
+#include "ext/standard/php_smart_str.h" /* for smart_str */
 
 zend_class_entry *yaf_route_simple_ce;
 
@@ -106,6 +107,79 @@ PHP_METHOD(yaf_route_simple, route) {
 }
 /* }}} */
 
+/** {{{ zval * yaf_route_simple_assemble(zval *mvc, zval *query TSRMLS_DC)
+ */
+zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+	smart_str tvalue = {0};
+	zval *nmodule, *ncontroller, *naction;
+	zval *uri;
+
+	MAKE_STD_ZVAL(uri);
+	smart_str_appendc(&tvalue, '?');
+
+	nmodule         = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1 TSRMLS_CC);
+	ncontroller   = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1 TSRMLS_CC);
+	naction         = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1 TSRMLS_CC);
+
+	do {
+		zval **tmp;
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
+			smart_str_appendl(&tvalue, Z_STRVAL_P(nmodule), Z_STRLEN_P(nmodule));
+			smart_str_appendc(&tvalue, '=');
+			smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
+			smart_str_appendc(&tvalue, '&');
+		} 
+
+		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
+			break;
+		}
+
+		smart_str_appendl(&tvalue, Z_STRVAL_P(ncontroller), Z_STRLEN_P(ncontroller));
+		smart_str_appendc(&tvalue, '=');
+		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
+		smart_str_appendc(&tvalue, '&');
+
+		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
+			break;
+		}
+
+		smart_str_appendl(&tvalue, Z_STRVAL_P(naction), Z_STRLEN_P(naction));
+		smart_str_appendc(&tvalue, '=');
+		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
+
+		if (IS_ARRAY == Z_TYPE_P(query)) {
+			uint key_type, key_len;
+			char *key;
+			ulong key_idx;
+
+			for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(query));
+					zend_hash_get_current_data(Z_ARRVAL_P(query), (void **)&tmp) == SUCCESS;
+					zend_hash_move_forward(Z_ARRVAL_P(query))) {
+
+				if (IS_STRING == Z_TYPE_PP(tmp)
+						&& HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(query), &key, &key_len, &key_idx, 0, NULL)) {
+					smart_str_appendc(&tvalue, '&');
+					smart_str_appendl(&tvalue, key, key_len - 1);
+					smart_str_appendc(&tvalue, '=');
+					smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
+				}
+			}
+		}
+
+		smart_str_0(&tvalue);
+		ZVAL_STRING(uri, tvalue.c, 1);
+		smart_str_free(&tvalue);
+		return uri;
+	} while (0);
+
+	ZVAL_NULL(uri);
+	return uri;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Route_Simple::__construct(string $module, string $controller, string $action)
  */
 PHP_METHOD(yaf_route_simple, __construct) {
@@ -128,11 +202,28 @@ PHP_METHOD(yaf_route_simple, __construct) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Route_Simple::assemble(array $mvc[, array $query = NULL])
+ */
+PHP_METHOD(yaf_route_simple, assemble) {
+    zval *mvc, *query;
+    zval *return_uri;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+        return;
+    } else {
+        if (return_uri = yaf_route_simple_assemble(getThis(), mvc, query TSRMLS_CC)) {
+            RETURN_ZVAL(return_uri, 0, 1);
+        }
+    }
+}
+/* }}} */
+
 /** {{{ yaf_route_simple_methods
  */
 zend_function_entry yaf_route_simple_methods[] = {
 	PHP_ME(yaf_route_simple, __construct, yaf_route_simple_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	PHP_ME(yaf_route_simple, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_simple, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
