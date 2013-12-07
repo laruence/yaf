@@ -122,7 +122,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		}
 
 		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
 
@@ -130,7 +130,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
 		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
 			break;
 		}
 
@@ -162,11 +162,11 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		return uri;
 	} while (0);
 
+	smart_str_free(&tvalue);
 	ZVAL_NULL(uri);
 	return uri;
 }
 /* }}} */
-
 
 /** {{{ proto public Yaf_Route_Supervar::__construct(string $varname)
 */

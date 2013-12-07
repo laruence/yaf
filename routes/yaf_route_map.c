@@ -156,7 +156,6 @@ PHP_METHOD(yaf_route_map, route) {
 }
 /* }}} */
 
-
 /** {{{ zval * yaf_route_map_assemble(zval *mvc, zval *query TSRMLS_DC)
  */
 zval * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {

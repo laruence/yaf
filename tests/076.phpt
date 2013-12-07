@@ -2,6 +2,8 @@
 Check for Yaf_Route_Supervar::assemble
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
+--INI--
+yaf.throw_exception=1
 --FILE--
 <?php
 
@@ -23,5 +25,23 @@ var_dump($router->getRoute('supervar')->assemble(
 		      'tkey2' => 'tval2'
 		)
 ));
+
+try { 
+var_dump($router->getRoute('supervar')->assemble(
+		array(
+		      ':a' => 'yafaction', 
+		      'tkey' => 'tval', 
+		      ':m' => 'yafmodule'
+		), 
+		array(
+		      'tkey1' => 'tval1', 
+		      'tkey2' => 'tval2',
+			  1 => array(),
+		)
+));
+} catch (Exception $e) {
+	var_dump($e->getMessage());
+}
 --EXPECTF--
-string(61) "?r=/yafmodule/yafcontroller/yafaction&tkey1=tval1&tkey2=tval2"
+string(%d) "?r=/yafmodule/yafcontroller/yafaction&tkey1=tval1&tkey2=tval2"
+string(%d) "You need to specify the controller by ':c'"

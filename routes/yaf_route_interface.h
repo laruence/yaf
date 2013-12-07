@@ -37,8 +37,8 @@ YAF_BEGIN_ARG_INFO_EX(yaf_route_route_arginfo, 0, 0, 1)
 YAF_END_ARG_INFO()
 
 YAF_BEGIN_ARG_INFO_EX(yaf_route_assemble_arginfo, 0, 0, 1)
-	YAF_ARG_INFO(0, mvc)
-	YAF_ARG_INFO(0, query)
+	YAF_ARG_ARRAY_INFO(0, mvc, 0)
+	YAF_ARG_ARRAY_INFO(0, query, 1)
 YAF_END_ARG_INFO()
 
 

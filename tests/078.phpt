@@ -37,5 +37,5 @@ var_dump($router->getRoute('map')->assemble(
 );
 
 --EXPECTF--
-string(32) "/foo/bar?tkey1=tval1&tkey2=tval2"
-string(34) "/foo/bar/_/tkey1/tval1/tkey2/tval2"
+string(%d) "/foo/bar?tkey1=tval1&tkey2=tval2"
+string(%d) "/foo/bar/_/tkey1/tval1/tkey2/tval2"

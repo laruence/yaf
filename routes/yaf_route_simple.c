@@ -117,9 +117,9 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 	MAKE_STD_ZVAL(uri);
 	smart_str_appendc(&tvalue, '?');
 
-	nmodule         = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1 TSRMLS_CC);
-	ncontroller   = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1 TSRMLS_CC);
-	naction         = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1 TSRMLS_CC);
+	nmodule = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1 TSRMLS_CC);
+	ncontroller = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1 TSRMLS_CC);
+	naction = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1 TSRMLS_CC);
 
 	do {
 		zval **tmp;
@@ -132,7 +132,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		} 
 
 		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
 
@@ -142,7 +142,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		smart_str_appendc(&tvalue, '&');
 
 		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
 			break;
 		}
 
@@ -175,6 +175,7 @@ zval * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		return uri;
 	} while (0);
 
+	smart_str_free(&tvalue);
 	ZVAL_NULL(uri);
 	return uri;
 }

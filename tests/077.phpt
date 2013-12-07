@@ -24,5 +24,20 @@ var_dump($router->getRoute('static')->assemble(
 		    )
 		)
 );
+
+var_dump($router->getRoute('static')->assemble(
+			array(
+				':a' => 'yafaction',
+				'tkey' => 'tval',
+				':c' => 'yafcontroller',
+				':m' => 'yafmodule'
+	        ),
+			array(
+				1 => 2,
+				array(),
+		    )
+		)
+);
 --EXPECTF--
-string(59) "/yafmodule/yafcontroller/yafaction?tkey1=tval1&tkey2=tval2&"
+string(%d) "/yafmodule/yafcontroller/yafaction?tkey1=tval1&tkey2=tval2"
+string(%d) "/yafmodule/yafcontroller/yafaction"

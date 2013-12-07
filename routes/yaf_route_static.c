@@ -196,7 +196,7 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		}
 
 		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
 
@@ -204,7 +204,7 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
 		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
 			break;
 		}
 
@@ -215,18 +215,27 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 			uint key_type, key_len;
 			char *key;
 			ulong key_idx;
+			int start = 0, end = 0;
 
-			smart_str_appendc(&tvalue, '?');
 			for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(query));
 					zend_hash_get_current_data(Z_ARRVAL_P(query), (void **)&tmp) == SUCCESS;
 					zend_hash_move_forward(Z_ARRVAL_P(query))) {
 
 				if (IS_STRING == Z_TYPE_PP(tmp)
-						&& HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(query), &key, &key_len, &key_idx, 0, NULL)) {
+						&& HASH_KEY_IS_STRING == zend_hash_get_current_key_ex(Z_ARRVAL_P(query),
+							&key, &key_len, &key_idx, 0, NULL)) {
+					if (!start) {
+						smart_str_appendc(&tvalue, '?');
+						start = 1;
+					}
+					if (end) {
+						smart_str_appendc(&tvalue, '&');
+						end = 0;
+					}
 					smart_str_appendl(&tvalue, key, key_len - 1);
 					smart_str_appendc(&tvalue, '=');
 					smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
-					smart_str_appendc(&tvalue, '&');
+					end = 1;
 				}
 			}
 		}
@@ -236,7 +245,8 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		smart_str_free(&tvalue);
 		return uri;
 	} while (0);
-
+		
+	smart_str_free(&tvalue);
 	ZVAL_NULL(uri);
 	return uri;
 }
