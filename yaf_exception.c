@@ -45,7 +45,13 @@ void yaf_trigger_error(int type TSRMLS_DC, char *format, ...) {
 	va_end(args);
 
 	if (YAF_G(throw_exception)) {
+#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 3
+		if (!EG(exception)) {
+			yaf_throw_exception(type, message TSRMLS_CC);
+		}
+#else
 		yaf_throw_exception(type, message TSRMLS_CC);
+#endif
 	} else {
 		yaf_application_t *app = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1 TSRMLS_CC);
 		zend_update_property_long(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), type TSRMLS_CC);
@@ -89,7 +95,7 @@ void yaf_throw_exception(long code, char *message TSRMLS_DC) {
 
 	if ((code & YAF_ERR_BASE) == YAF_ERR_BASE
 			&& yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(code)]) {
-		base_exception  = yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(code)];
+		base_exception = yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(code)];
 	}
 
 	zend_throw_exception(base_exception, message, code TSRMLS_CC);

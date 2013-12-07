@@ -164,6 +164,12 @@
     <file name="070.phpt" role="test" />
     <file name="071.phpt" role="test" />
     <file name="072.phpt" role="test" />
+    <file name="073.phpt" role="test" />
+    <file name="074.phpt" role="test" />
+    <file name="075.phpt" role="test" />
+    <file name="076.phpt" role="test" />
+    <file name="077.phpt" role="test" />
+    <file name="078.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
