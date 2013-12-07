@@ -13,7 +13,7 @@ var_dump($response->setHeader('MyName1', 'Header1'));
 var_dump($response->setHeader('MyName2', 'Header2'));
 var_dump($response->setHeader('MyName2', 'Header22'));
 var_dump($response->setHeader('MyName1', 'Header11', false));
-var_dump($response);
+print_r($response);
 
 var_dump($response->setHeader('MyName1', 'Header1'));
 var_dump($response->setHeader('MyName3', 'Header31', false, 301));
@@ -23,7 +23,7 @@ var_dump($response->setHeader('MyName1', 'Header2', false, 302));
 var_dump($response->getHeader());
 var_dump($response->getHeader('MyName'));
 var_dump($response->getHeader('MyName1'));
-var_dump($response->clearHeaders());
+print_r($response->clearHeaders());
 
 $headers = array(
     'MyName1' => 'Header1x',
@@ -39,22 +39,21 @@ bool(true)
 bool(true)
 bool(true)
 bool(true)
-object(Yaf_Response_Http)#%d (4) {
-  ["_header:protected"]=>
-  array(2) {
-    ["MyName1"]=>
-    string(17) "Header1, Header11"
-    ["MyName2"]=>
-    string(8) "Header22"
-  }
-  ["_body:protected"]=>
-  array(0) {
-  }
-  ["_sendheader:protected"]=>
-  bool(true)
-  ["_response_code:protected"]=>
-  int(200)
-}
+Yaf_Response_Http Object
+(
+    [_header:protected] => Array
+        (
+            [MyName1] => Header1, Header11
+            [MyName2] => Header22
+        )
+
+    [_body:protected] => Array
+        (
+        )
+
+    [_sendheader:protected] => 1
+    [_response_code:protected] => 200
+)
 bool(true)
 bool(true)
 bool(true)
@@ -69,18 +68,19 @@ array(3) {
 }
 NULL
 string(16) "Header1, Header2"
-object(Yaf_Response_Http)#%d (4) {
-  ["_header:protected"]=>
-  array(0) {
-  }
-  ["_body:protected"]=>
-  array(0) {
-  }
-  ["_sendheader:protected"]=>
-  bool(true)
-  ["_response_code:protected"]=>
-  int(302)
-}
+Yaf_Response_Http Object
+(
+    [_header:protected] => Array
+        (
+        )
+
+    [_body:protected] => Array
+        (
+        )
+
+    [_sendheader:protected] => 1
+    [_response_code:protected] => 302
+)
 bool(true)
 array(3) {
   ["MyName1"]=>
