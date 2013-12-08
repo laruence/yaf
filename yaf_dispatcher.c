@@ -326,7 +326,7 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 
 		class_lowercase = zend_str_tolower_dup(class, class_len);
 
-		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void *)&ce) != SUCCESS) {
+		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void **)&ce) != SUCCESS) {
 
 			if (!yaf_internal_autoload(controller, len, &directory TSRMLS_CC)) {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER TSRMLS_CC, "Failed opening controller script %s: %s", directory, strerror(errno));
@@ -475,7 +475,7 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 
 		class_lowercase = zend_str_tolower_dup(class, class_len);
 
-		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void *)&ce) != SUCCESS) {
+		if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void **)&ce) != SUCCESS) {
 			if (!yaf_internal_autoload(action_upper, len, &directory TSRMLS_CC)) {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Failed opening action script %s: %s", directory, strerror(errno));
 
