@@ -400,7 +400,12 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 			char *action_path;
 			uint action_path_len;
 
-			action_path_len = spprintf(&action_path, 0, "%s%c%s", app_dir, DEFAULT_SLASH, Z_STRVAL_PP(ppaction));
+			if (def_module) {
+				action_path_len = spprintf(&action_path, 0, "%s%c%s", app_dir, DEFAULT_SLASH, Z_STRVAL_PP(ppaction));
+			} else {
+				action_path_len = spprintf(&action_path, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+					"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, Z_STRVAL_PP(ppaction));
+			}
 			if (yaf_loader_import(action_path, action_path_len, 0 TSRMLS_CC)) {
 				if (zend_hash_find(EG(class_table), class_lowercase, class_len + 1, (void **) &ce) == SUCCESS) {
 					efree(action_path);
