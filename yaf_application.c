@@ -130,7 +130,7 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 	}
 
 	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("directory"), (void **)&ppzval) == FAILURE
-			|| Z_TYPE_PP(ppzval) != IS_STRING) {
+			|| Z_TYPE_PP(ppzval) != IS_STRING || Z_STRLEN_PP(ppzval) == 0) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "%s", "Expected a directory entry in application configures");
 		return FAILURE;
 	}
