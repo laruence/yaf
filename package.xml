@@ -11,10 +11,10 @@
   <active>yes</active>
  </lead>
  <date>2014-01-08</date>
- <time>15:26:23</time>
+ <time>21:47:00</time>
  <version>
-  <release>2.3.0</release>
-  <api>2.3.0</api>
+  <release>2.3.1</release>
+  <api>2.3.1</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,9 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed Issue #80 (Segfault if empty application.directory is set)
-  - Implemented Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
-  - Added Yaf_Route_*::assemble()
+  - Fix package
  </notes>
  <contents> 
   <dir name="/"> 
@@ -215,6 +213,22 @@
   <release> 
    <date>2014-01-08</date> 
    <version> 
+    <release>2.3.1</release> 
+    <api>2.3.1</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fix package
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2014-01-08</date> 
+   <version> 
     <release>2.3.0</release> 
     <api>2.3.0</api> 
    </version> 
@@ -228,7 +242,6 @@
     - Added Yaf_Route::assemble 
    </notes> 
   </release> 
-
   <release> 
    <date>2013-01-04</date> 
    <version> 
