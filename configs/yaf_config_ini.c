@@ -71,7 +71,7 @@ ZEND_END_ARG_INFO()
 
 /** {{{ static inline yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC)
  */
-static inline yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
+static inline void yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 	zval **ppzval, **dstppzval, *value;
 	HashTable *ht;
 	ulong idx;
