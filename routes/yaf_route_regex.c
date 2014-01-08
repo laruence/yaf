@@ -193,7 +193,7 @@ zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TS
 	}
 
 	if (IS_ARRAY == Z_TYPE_P(query)) {
-		uint key_type, key_len;
+		uint key_len;
 		char *key;
 		ulong key_idx;
 		HashTable *ht = Z_ARRVAL_P(query);
@@ -364,7 +364,7 @@ PHP_METHOD(yaf_route_regex, assemble) {
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
 		return;
 	} else {
-		if (return_uri = yaf_route_regex_assemble(getThis(), mvc, query TSRMLS_CC)) {
+		if ((return_uri = yaf_route_regex_assemble(getThis(), mvc, query TSRMLS_CC))) {
 			RETURN_ZVAL(return_uri, 0, 1);
 		}
 	}
