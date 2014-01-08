@@ -262,18 +262,14 @@ PHP_METHOD(yaf_response_http, setAllHeaders) {
 */
 PHP_METHOD(yaf_response_http, getHeader) {
   zval *header = NULL;
-  char *name;
-  uint name_len;
+  char *name = NULL;
+  uint name_len = 0;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) == FAILURE) {
     return;
   }
   
-  if (!name_len) {
-    header = yaf_response_get_header(getThis(), NULL, 0 TSRMLS_CC);
-  } else {
-    header = yaf_response_get_header(getThis(), name, name_len TSRMLS_CC);
-  }
+  header = yaf_response_get_header(getThis(), name, name_len TSRMLS_CC);
 
   if (header) {
     RETURN_ZVAL(header, 1, 0);
