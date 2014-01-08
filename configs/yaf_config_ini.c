@@ -125,8 +125,7 @@ static inline yaf_deep_copy_section(zval *dst, zval *src TSRMLS_DC) {
 /** {{{ zval * yaf_config_ini_format(yaf_config_t *instance, zval **ppzval TSRMLS_DC)
 */
 zval * yaf_config_ini_format(yaf_config_t *instance, zval **ppzval TSRMLS_DC) {
-	zval *readonly, *ret;
-	readonly = zend_read_property(yaf_config_ini_ce, instance, ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY), 1 TSRMLS_CC);
+	zval *ret;
 	ret = yaf_config_ini_instance(NULL, *ppzval, NULL TSRMLS_CC);
 	return ret;
 }
