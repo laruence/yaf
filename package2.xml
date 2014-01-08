@@ -22,8 +22,9 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Added Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
-  - Added Yaf_Route::assemble 
+  - Fixed Issue #80 (Segfault if empty application.directory is set)
+  - Implemented Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
+  - Added Yaf_Route_*::assemble()
  </notes>
  <contents> 
   <dir name="/"> 
