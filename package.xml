@@ -66,7 +66,9 @@
    <file name="yaf_view.h" role="src" />
    <dir name="configs">
     <file name="yaf_config_ini.c" role="src" />
+    <file name="yaf_config_ini.h" role="src" />
     <file name="yaf_config_simple.c" role="src" />
+    <file name="yaf_config_simple.h" role="src" />
    </dir>
    <file name="config.w32" role="src" />
    <file name="LICENSE" role="doc" />
@@ -74,24 +76,37 @@
    <file name="php_yaf.h" role="src" />
    <dir name="requests">
     <file name="yaf_request_http.c" role="src" />
+    <file name="yaf_request_http.h" role="src" />
     <file name="yaf_request_simple.c" role="src" />
+    <file name="yaf_request_simple.h" role="src" />
    </dir>
    <dir name="responses">
     <file name="yaf_response_http.c" role="src" />
+    <file name="yaf_response_http.h" role="src" />
     <file name="yaf_response_cli.c" role="src" />
+    <file name="yaf_response_cli.h" role="src" />
    </dir>
    <dir name="routes">
     <file name="yaf_route_interface.c" role="src" />
+    <file name="yaf_route_interface.h" role="src" />
     <file name="yaf_route_rewrite.c" role="src" />
+    <file name="yaf_route_rewrite.h" role="src" />
     <file name="yaf_route_supervar.c" role="src" />
+    <file name="yaf_route_supervar.h" role="src" />
     <file name="yaf_route_static.c" role="src" />
+    <file name="yaf_route_static.h" role="src" />
     <file name="yaf_route_simple.c" role="src" />
+    <file name="yaf_route_simple.h" role="src" />
     <file name="yaf_route_regex.c" role="src" />
+    <file name="yaf_route_regex.h" role="src" />
     <file name="yaf_route_map.c" role="src" />
+    <file name="yaf_route_map.h" role="src" />
    </dir>
    <dir name="views">
     <file name="yaf_view_interface.c" role="src" />
+    <file name="yaf_view_interface.h" role="src" />
     <file name="yaf_view_simple.c" role="src" />
+    <file name="yaf_view_simple.h" role="src" />
    </dir>
    <dir name="tests">
     <file name="001.phpt" role="test" />
@@ -177,8 +192,10 @@
     <file name="bug63381.phpt" role="test" />
     <file name="bug63438.phpt" role="test" />
     <file name="bug63900.phpt" role="test" />
+    <file name="bug62702.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
+    <file name="multi-section.ini" role="test" />
    </dir>
   </dir> 
  </contents> 

@@ -535,7 +535,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 	} else {
 		int	is_def_module = 0;
 		/* int is_def_ctr = 0; */
-		zval *module, *controller, *dmodule, *dcontroller, *instantly_flush;
+		zval *module, *controller, *dmodule, /* *dcontroller,*/ *instantly_flush;
 		zend_class_entry *ce;
 		yaf_controller_t *executor;
 		zend_function    *fptr;
@@ -544,7 +544,9 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 		controller	= zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
 
 		dmodule		= zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
+		/*
 		dcontroller = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
+		*/
 
 		if (Z_TYPE_P(module) != IS_STRING
 				|| !Z_STRLEN_P(module)) {
