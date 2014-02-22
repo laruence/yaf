@@ -305,12 +305,10 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 	char 	 *directory 	= NULL;
 	int	 directory_len 	= 0;
 
-	if (def_module) {
-		directory_len = spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
-	} else {
-		directory_len = spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+	
+	directory_len = spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
 				YAF_MODULE_DIRECTORY_NAME, DEFAULT_SLASH, module, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
-	}
+	
 
 	if (directory_len) {
 		char *class 		= NULL;
@@ -319,9 +317,9 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 		zend_class_entry **ce 	= NULL;
 
 		if (YAF_G(name_suffix)) {
-			class_len = spprintf(&class, 0, "%s%s%s", controller, YAF_G(name_separator), "Controller");
+			class_len = spprintf(&class, 0, "%s%s%s%s%s",module, YAF_G(name_separator), controller, YAF_G(name_separator), "Controller");
 		} else {
-			class_len = spprintf(&class, 0, "%s%s%s", "Controller", YAF_G(name_separator), controller);
+			class_len = spprintf(&class, 0, "%s%s%s%s%s",module, YAF_G(name_separator), "Controller", YAF_G(name_separator), controller);
 		}
 
 		class_lowercase = zend_str_tolower_dup(class, class_len);
@@ -376,9 +374,9 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 		*(action_upper) = toupper(*action_upper);
 
 		if (YAF_G(name_suffix)) {
-			class_len = spprintf(&class_name, 0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
+			class_len = spprintf(&class_name, 0, "%s%s%s%s%s", module, YAF_G(name_separator),action_upper, YAF_G(name_separator), "Action");
 		} else {
-			class_len = spprintf(&class_name, 0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
+			class_len = spprintf(&class_name, 0, "%s%s%s%s%s", module, YAF_G(name_separator), "Action", YAF_G(name_separator), action_upper);
 		}
 
 		class_lowercase = zend_str_tolower_dup(class_name, class_len);
@@ -460,17 +458,14 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 			p++;
 		}
 
-		if (def_module) {
-			spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "actions");
-		} else {
-			spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+
+		spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
 					"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, "actions");
-		}
 
 		if (YAF_G(name_suffix)) {
-			class_len = spprintf(&class, 0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
+			class_len = spprintf(&class, 0, "%s%s%s%s%s", module, YAF_G(name_separator), action_upper, YAF_G(name_separator), "Action");
 		} else {
-			class_len = spprintf(&class, 0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
+			class_len = spprintf(&class, 0, "%s%s%s%s%s", module, YAF_G(name_separator), "Action", YAF_G(name_separator), action_upper);
 		}
 
 		class_lowercase = zend_str_tolower_dup(class, class_len);
