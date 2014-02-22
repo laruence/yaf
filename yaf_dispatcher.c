@@ -602,11 +602,9 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			}
 		
 			/* view template directory for application, please notice that view engine's directory has high priority */
-			if (is_def_module) {
-				spprintf(&view_dir, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "views");
-			} else {
-				spprintf(&view_dir, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH, "modules", DEFAULT_SLASH, Z_STRVAL_P(module), DEFAULT_SLASH, "views");
-			}
+			
+			spprintf(&view_dir, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH, "modules", DEFAULT_SLASH, Z_STRVAL_P(module), DEFAULT_SLASH, "views");
+			
 
 			if (YAF_G(view_directory)) {
 				efree(YAF_G(view_directory));
