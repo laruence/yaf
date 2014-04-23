@@ -125,11 +125,8 @@ PHP_METHOD(yaf_exception, __construct) {
 		zend_update_property_long(Z_OBJCE_P(object), object, "code", sizeof("code")-1, code TSRMLS_CC);
 	}
 
-	if (previous) {
-		zend_update_property(Z_OBJCE_P(object), object, ZEND_STRL("previous"), previous TSRMLS_CC);
-	}
 	
-	efree(object);
+	zend_update_property(Z_OBJCE_P(object), object, ZEND_STRL("previous"), previous TSRMLS_CC);
 }
 /* }}} */
 
