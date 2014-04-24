@@ -125,8 +125,9 @@ PHP_METHOD(yaf_exception, __construct) {
 		zend_update_property_long(Z_OBJCE_P(object), object, "code", sizeof("code")-1, code TSRMLS_CC);
 	}
 
-	
-	zend_update_property(Z_OBJCE_P(object), object, ZEND_STRL("previous"), previous TSRMLS_CC);
+        #if (PHP_VERSION_ID >= 50300)
+               zend_update_property(Z_OBJCE_P(object), object, ZEND_STRL("previous"), previous TSRMLS_CC); 
+        #endif
 }
 /* }}} */
 
