@@ -141,12 +141,20 @@ PHP_METHOD(yaf_config_simple, get) {
 	} else {
 		zval *properties;
 		HashTable *hash;
+		long lval;
+		double dval;
 
 		properties = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
 		hash  = Z_ARRVAL_P(properties);
 
-		if (zend_hash_find(hash, name, len + 1, (void **) &ppzval) == FAILURE) {
-			RETURN_FALSE;
+		if (is_numeric_string(name, len, &lval, &dval, 0) != IS_LONG) {
+			if (zend_hash_find(hash, name, len + 1, (void **) &ppzval) == FAILURE) {
+				RETURN_FALSE;
+			} 
+		} else {
+			if (zend_hash_index_find(hash, lval, (void **) &ppzval) == FAILURE) {
+				RETURN_FALSE;
+			} 
 		}
 
 		if (Z_TYPE_PP(ppzval) == IS_ARRAY) {

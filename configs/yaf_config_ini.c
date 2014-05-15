@@ -699,6 +699,9 @@ PHP_METHOD(yaf_config_ini, get) {
 	} else {
 		zval *properties;
 		char *entry, *seg, *pptr;
+		int seg_len;
+	   	long lval;
+		double dval;
 
 		properties = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
 
@@ -709,16 +712,29 @@ PHP_METHOD(yaf_config_ini, get) {
 		entry = estrndup(name, len);
 		if ((seg = php_strtok_r(entry, ".", &pptr))) {
 			while (seg) {
-				if (zend_hash_find(Z_ARRVAL_P(properties), seg, strlen(seg) + 1, (void **) &ppzval) == FAILURE) {
-					efree(entry);
-					RETURN_NULL();
+				seg_len = strlen(seg);
+				if (is_numeric_string(seg, seg_len, &lval, &dval, 0) != IS_LONG) {
+					if (zend_hash_find(Z_ARRVAL_P(properties), seg, seg_len + 1, (void **) &ppzval) == FAILURE) {
+						efree(entry);
+						RETURN_NULL();
+					}
+				} else {
+					if (zend_hash_index_find(Z_ARRVAL_P(properties), lval, (void **) &ppzval) == FAILURE) {
+						efree(entry);
+						RETURN_NULL();
+					}
 				}
 
 				properties = *ppzval;
 				seg = php_strtok_r(NULL, ".", &pptr);
 			}
-		} else {
+		} else if (is_numeric_string(name, len, &lval, &dval, 0) != IS_LONG) {
 			if (zend_hash_find(Z_ARRVAL_P(properties), name, len + 1, (void **)&ppzval) == FAILURE) {
+				efree(entry);
+				RETURN_NULL();
+			}
+		} else {
+			if (zend_hash_index_find(Z_ARRVAL_P(properties), lval, (void **) &ppzval) == FAILURE) {
 				efree(entry);
 				RETURN_NULL();
 			}
