@@ -786,6 +786,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response TSRMLS_DC) {
 	zval *module, *controller, *action, *exception;
 	yaf_view_t  *view;
+	zend_op *opline;
 
 	if (YAF_G(in_exception) || !EG(exception)) {
 		return;
@@ -808,6 +809,10 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 
 	exception = EG(exception);
 	EG(exception) = NULL;
+	opline = EG(opline_before_exception);
+#if ZEND_DEBUG 
+	EG(opline_before_exception) = NULL;
+#endif
 
 	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
 	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
@@ -846,6 +851,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 
 	(void)yaf_response_send(response TSRMLS_CC);
 
+	EG(opline_before_exception) = opline;
 	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
