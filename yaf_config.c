@@ -77,8 +77,10 @@ static void yaf_config_zval_dtor(zval **value) {
 				pefree((*value)->value.str.val, 1);
 				pefree(*value, 1);
 				break;
-			case IS_ARRAY:
-			case IS_CONSTANT_ARRAY: {
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 6))
+			case IS_CONSTANT_ARRAY:
+#endif
+			case IS_ARRAY: {
 				zend_hash_destroy((*value)->value.ht);
 				pefree((*value)->value.ht, 1);
 				pefree(*value, 1);
@@ -179,8 +181,10 @@ static zval * yaf_config_ini_zval_persistent(zval *zvalue TSRMLS_DC) {
 				ret->value.str.val = pestrndup(zvalue->value.str.val, zvalue->value.str.len, 1);
 				ret->value.str.len = zvalue->value.str.len;
 			break;
-		case IS_ARRAY:
-		case IS_CONSTANT_ARRAY: {
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 6))
+		case IS_CONSTANT_ARRAY:
+#endif
+		case IS_ARRAY: {
 				HashTable *tmp_ht, *original_ht = zvalue->value.ht;
 
 				tmp_ht = (HashTable *)pemalloc(sizeof(HashTable), 1);
@@ -218,8 +222,10 @@ static zval * yaf_config_ini_zval_losable(zval *zvalue TSRMLS_DC) {
 			CHECK_ZVAL_STRING(zvalue);
 			ZVAL_STRINGL(ret, zvalue->value.str.val, zvalue->value.str.len, 1);
 			break;
-		case IS_ARRAY:
-		case IS_CONSTANT_ARRAY: {
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 6))
+		case IS_CONSTANT_ARRAY:
+#endif
+		case IS_ARRAY: {
 			HashTable *original_ht = zvalue->value.ht;
 			array_init(ret);
 			yaf_config_copy_losable(Z_ARRVAL_P(ret), original_ht TSRMLS_CC);
