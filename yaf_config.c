@@ -77,7 +77,7 @@ static void yaf_config_zval_dtor(zval **value) {
 				pefree((*value)->value.str.val, 1);
 				pefree(*value, 1);
 				break;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 6))
+#ifdef IS_CONSTANT_ARRAY
 			case IS_CONSTANT_ARRAY:
 #endif
 			case IS_ARRAY: {
@@ -181,7 +181,7 @@ static zval * yaf_config_ini_zval_persistent(zval *zvalue TSRMLS_DC) {
 				ret->value.str.val = pestrndup(zvalue->value.str.val, zvalue->value.str.len, 1);
 				ret->value.str.len = zvalue->value.str.len;
 			break;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 6))
+#ifdef IS_CONSTANT_ARRAY
 		case IS_CONSTANT_ARRAY:
 #endif
 		case IS_ARRAY: {
@@ -222,7 +222,7 @@ static zval * yaf_config_ini_zval_losable(zval *zvalue TSRMLS_DC) {
 			CHECK_ZVAL_STRING(zvalue);
 			ZVAL_STRINGL(ret, zvalue->value.str.val, zvalue->value.str.len, 1);
 			break;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 6))
+#ifdef IS_CONSTANT_ARRAY
 		case IS_CONSTANT_ARRAY:
 #endif
 		case IS_ARRAY: {
