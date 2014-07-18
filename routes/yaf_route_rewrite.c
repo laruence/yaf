@@ -456,7 +456,6 @@ YAF_STARTUP_FUNCTION(route_rewrite) {
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_REVERSE), ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	return SUCCESS;
 }
