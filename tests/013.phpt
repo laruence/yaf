@@ -130,7 +130,6 @@ Array
                     [action] => action
                 )
 
-            [_reverse:protected] => 
         )
 
 )
