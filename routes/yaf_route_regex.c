@@ -153,9 +153,9 @@ static zval * yaf_route_regex_match(yaf_route_t *route, char *uri, int len TSRML
 }
 /* }}} */
 
-/** {{{ zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC)
+/** {{{ zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC)
  */
-zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC) {
 	zval *reverse, *uri;
 	zval **tmp;
 	char *tstr, *inter;
@@ -174,19 +174,19 @@ zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TS
 	tstr = estrndup(Z_STRVAL_P(reverse), Z_STRLEN_P(reverse));
 	tlen = Z_STRLEN_P(reverse);
 
-	if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
+	if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
 		inter = php_str_to_str(tstr, tlen, ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
 		efree(tstr);
 		tstr = inter;
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == SUCCESS) {
+	if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == SUCCESS) {
 		inter = php_str_to_str(tstr, tlen, ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
 		efree(tstr);
 		tstr = inter;
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == SUCCESS) {
+	if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == SUCCESS) {
 		inter = php_str_to_str(tstr, tlen, ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
 		efree(tstr);
 		tstr = inter;
@@ -356,15 +356,15 @@ PHP_METHOD(yaf_route_regex, __construct) {
 }
 /** }}} */
 
-/** {{{ proto public Yaf_Route_regex::assemble(array $mvc[, array $query = NULL])
+/** {{{ proto public Yaf_Route_regex::assemble(array $info[, array $query = NULL])
  */
 PHP_METHOD(yaf_route_regex, assemble) {
-	zval *mvc, *query, *return_uri = NULL;
+	zval *info, *query, *return_uri = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
 		return;
 	} else {
-		if ((return_uri = yaf_route_regex_assemble(getThis(), mvc, query TSRMLS_CC))) {
+		if ((return_uri = yaf_route_regex_assemble(getThis(), info, query TSRMLS_CC))) {
 			RETURN_ZVAL(return_uri, 0, 1);
 		}
 	}
