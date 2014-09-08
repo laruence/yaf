@@ -10,19 +10,23 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2013-01-04</date>
- <time>18:27:23</time>
+ <date>2014-01-09</date>
+ <time>11:07:00</time>
  <version>
-  <release>2.2.10</release>
-  <api>2.2.10</api>
+  <release>2.3.2</release>
+  <api>2.3.2</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Added Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
+  - Fixed windows build
+  - Changelog 2.3.0:
+    - Added Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
+    - Added Yaf_Route::assemble. (Now you can assemble url via routes)
+    - Fixed Segfault if a empty application.directory is set
  </notes>
  <contents> 
   <dir name="/"> 
@@ -64,7 +68,9 @@
    <file name="yaf_view.h" role="src" />
    <dir name="configs">
     <file name="yaf_config_ini.c" role="src" />
+    <file name="yaf_config_ini.h" role="src" />
     <file name="yaf_config_simple.c" role="src" />
+    <file name="yaf_config_simple.h" role="src" />
    </dir>
    <file name="config.w32" role="src" />
    <file name="LICENSE" role="doc" />
@@ -72,24 +78,37 @@
    <file name="php_yaf.h" role="src" />
    <dir name="requests">
     <file name="yaf_request_http.c" role="src" />
+    <file name="yaf_request_http.h" role="src" />
     <file name="yaf_request_simple.c" role="src" />
+    <file name="yaf_request_simple.h" role="src" />
    </dir>
    <dir name="responses">
     <file name="yaf_response_http.c" role="src" />
+    <file name="yaf_response_http.h" role="src" />
     <file name="yaf_response_cli.c" role="src" />
+    <file name="yaf_response_cli.h" role="src" />
    </dir>
    <dir name="routes">
     <file name="yaf_route_interface.c" role="src" />
+    <file name="yaf_route_interface.h" role="src" />
     <file name="yaf_route_rewrite.c" role="src" />
+    <file name="yaf_route_rewrite.h" role="src" />
     <file name="yaf_route_supervar.c" role="src" />
+    <file name="yaf_route_supervar.h" role="src" />
     <file name="yaf_route_static.c" role="src" />
+    <file name="yaf_route_static.h" role="src" />
     <file name="yaf_route_simple.c" role="src" />
+    <file name="yaf_route_simple.h" role="src" />
     <file name="yaf_route_regex.c" role="src" />
+    <file name="yaf_route_regex.h" role="src" />
     <file name="yaf_route_map.c" role="src" />
+    <file name="yaf_route_map.h" role="src" />
    </dir>
    <dir name="views">
     <file name="yaf_view_interface.c" role="src" />
+    <file name="yaf_view_interface.h" role="src" />
     <file name="yaf_view_simple.c" role="src" />
+    <file name="yaf_view_simple.h" role="src" />
    </dir>
    <dir name="tests">
     <file name="001.phpt" role="test" />
@@ -175,8 +194,10 @@
     <file name="bug63381.phpt" role="test" />
     <file name="bug63438.phpt" role="test" />
     <file name="bug63900.phpt" role="test" />
+    <file name="bug62702.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
+    <file name="multi-section.ini" role="test" />
    </dir>
   </dir> 
  </contents> 
@@ -194,6 +215,54 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2014-01-09</date> 
+   <version> 
+    <release>2.3.2</release> 
+    <api>2.3.2</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed windows build
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2014-01-08</date> 
+   <version> 
+    <release>2.3.1</release> 
+    <api>2.3.1</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fix package
+   </notes> 
+  </release> 
+  <release> 
+   <date>2014-01-08</date> 
+   <version> 
+    <release>2.3.0</release> 
+    <api>2.3.0</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Added Yaf_Response::setHeader, getHeahder, setAllHeader, clearHeaders Methods
+    - Added Yaf_Route::assemble 
+    - Fixed Segfault if a empty application.directory is set
+   </notes> 
+  </release> 
+  <release> 
    <date>2013-01-04</date> 
    <version> 
     <release>2.2.9</release> 
@@ -209,7 +278,6 @@
     - Fixed some compiler warnings (Remi)
    </notes> 
   </release> 
-
   <release> 
    <date>2012-12-18</date> 
    <version> 

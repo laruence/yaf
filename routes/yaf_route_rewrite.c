@@ -270,7 +270,7 @@ PHP_METHOD(yaf_route_rewrite, route) {
 /** {{{ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *query TSRMLS_DC)
  */
 zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *query TSRMLS_DC) {
-	zval *reverse, *uri, *match, *pidents;
+	zval *uri, *match, *pidents;
 	zval **tmp;
 	char *tstr, *inter, *seg, *pmatch, *ptrptr, *key;
 	int tlen;
@@ -331,7 +331,6 @@ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *que
 	zval_ptr_dtor(&pidents);
 
 	if (IS_ARRAY == Z_TYPE_P(query)) {
-		uint key_type;
 		HashTable *ht = Z_ARRVAL_P(query);
 
 		smart_str_appendc(&squery, '?');
@@ -457,7 +456,6 @@ YAF_STARTUP_FUNCTION(route_rewrite) {
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE),  ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_route_rewrite_ce, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_REVERSE), ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	return SUCCESS;
 }

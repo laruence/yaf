@@ -746,7 +746,9 @@ PHP_METHOD(yaf_view_simple, assign) {
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &value) == FAILURE) {
 			return;
 		}
-		RETURN_BOOL(yaf_view_simple_assign_multi(getThis(), value TSRMLS_CC));
+		if (yaf_view_simple_assign_multi(getThis(), value TSRMLS_CC)) {
+			RETURN_ZVAL(getThis(), 1, 0);
+		}
 	} else if (argc == 2) {
 		zval *value;
 		char *name;
@@ -754,7 +756,9 @@ PHP_METHOD(yaf_view_simple, assign) {
 		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &len, &value) == FAILURE) {
 			return;
 		}
-		RETURN_BOOL(yaf_view_simple_assign_single(getThis(), name, len, value TSRMLS_CC));
+	    if (yaf_view_simple_assign_single(getThis(), name, len, value TSRMLS_CC)){
+			RETURN_ZVAL(getThis(), 1, 0);
+		}
 	} else {
 		WRONG_PARAM_COUNT;
 	}
@@ -776,7 +780,7 @@ PHP_METHOD(yaf_view_simple, assignRef) {
 
 	Z_ADDREF_P(value);
 	if (zend_hash_update(Z_ARRVAL_P(tpl_vars), name, len + 1, &value, sizeof(zval *), NULL) == SUCCESS) {
-		RETURN_TRUE;
+		RETURN_ZVAL(getThis(), 1, 0);
 	}
 	RETURN_FALSE;
 }

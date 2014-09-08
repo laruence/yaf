@@ -165,7 +165,7 @@ int yaf_response_http_send(yaf_response_t *response TSRMLS_DC) {
 		if (zend_hash_get_current_key_ex(Z_ARRVAL_P(zheader), &header_name, &header_name_len, &num_key, 0, &pos) == HASH_KEY_IS_STRING) {
 			ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", header_name, Z_STRVAL_PP(entry));
 		} else {
-			ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", num_key, Z_STRVAL_PP(entry));
+			ctr.line_len = spprintf(&(ctr.line), 0, "%lu: %s", num_key, Z_STRVAL_PP(entry));
 		}
 
 		ctr.response_code = 0;
@@ -262,18 +262,14 @@ PHP_METHOD(yaf_response_http, setAllHeaders) {
 */
 PHP_METHOD(yaf_response_http, getHeader) {
   zval *header = NULL;
-  char *name;
-  uint name_len;
+  char *name = NULL;
+  uint name_len = 0;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) == FAILURE) {
     return;
   }
   
-  if (!name_len) {
-    header = yaf_response_get_header(getThis(), NULL, 0 TSRMLS_CC);
-  } else {
-    header = yaf_response_get_header(getThis(), name, name_len TSRMLS_CC);
-  }
+  header = yaf_response_get_header(getThis(), name, name_len TSRMLS_CC);
 
   if (header) {
     RETURN_ZVAL(header, 1, 0);

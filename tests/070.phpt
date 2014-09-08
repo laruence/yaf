@@ -3,6 +3,7 @@ Fixed misleading error message when providing a string in Yaf_Application constr
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
+yaf.use_namespace=0
 --FILE--
 <?php
 
