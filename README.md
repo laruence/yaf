@@ -111,7 +111,7 @@ application.ini is the application config file
 ```ini
 [product]
 ;CONSTANTS is supported
-application.directory = APP_PATH "/application/" 
+application.directory = APPLICATION_PATH "/application/" 
 ```
 alternatively, you can use a PHP array instead: 
 ```php
