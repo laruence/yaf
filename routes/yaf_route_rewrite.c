@@ -267,9 +267,9 @@ PHP_METHOD(yaf_route_rewrite, route) {
 }
 /** }}} */
 
-/** {{{ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *query TSRMLS_DC)
+/** {{{ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC)
  */
-zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *query TSRMLS_DC) {
+zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC) {
 	zval *uri, *match, *pidents;
 	zval **tmp;
 	char *tstr, *inter, *seg, *pmatch, *ptrptr, *key;
@@ -287,7 +287,7 @@ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *que
 	pmatch = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
 	tstr = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
 	tlen = Z_STRLEN_P(match);
-	zend_hash_copy(Z_ARRVAL_P(pidents), Z_ARRVAL_P(idents), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
+	zend_hash_copy(Z_ARRVAL_P(pidents), Z_ARRVAL_P(info), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
 
 	seg = php_strtok_r(pmatch, YAF_ROUTER_URL_DELIMIETER, &ptrptr);	
 	while (seg) {
@@ -315,7 +315,7 @@ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *idents, zval *que
 			}
 
 			if(*(seg) == ':') {
-				if (zend_hash_find(Z_ARRVAL_P(idents), seg, seg_len + 1, (void **)&tmp) == SUCCESS) {
+				if (zend_hash_find(Z_ARRVAL_P(info), seg, seg_len + 1, (void **)&tmp) == SUCCESS) {
 					inter = php_str_to_str(tstr, tlen, seg, seg_len, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp), &tlen);
 					efree(tstr);
 					tstr = inter;
@@ -418,15 +418,15 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 }
 /** }}} */
 
-/** {{{ proto public Yaf_Route_rewrite::assemble(array $idents[, array $query = NULL])
+/** {{{ proto public Yaf_Route_rewrite::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_rewrite, assemble) {
-	zval *idents, *query, *return_uri = NULL;
+	zval *info, *query, *return_uri = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &idents, &query) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
 		return;
 	} else {
-		if ((return_uri = yaf_route_rewrite_assemble(getThis(), idents, query TSRMLS_CC))) {
+		if ((return_uri = yaf_route_rewrite_assemble(getThis(), info, query TSRMLS_CC))) {
 			RETURN_ZVAL(return_uri, 0, 1); 
 		}
 	}

@@ -179,9 +179,9 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
 }
 /* }}} */
 
-/** {{{ zval * yaf_route_static_assemble(zval *mvc, zval *query TSRMLS_DC)
+/** {{{ zval * yaf_route_static_assemble(zval *info, zval *query TSRMLS_DC)
  */
-zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC) {
 	smart_str tvalue = {0};
 	zval *uri;
 
@@ -190,12 +190,12 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 	do {
 		zval **tmp;
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
+		if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
 			smart_str_appendc(&tvalue, '/');
 			smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 		}
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
+		if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
@@ -203,7 +203,7 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query T
 		smart_str_appendc(&tvalue, '/');
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
-		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
+		if(zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
 			break;
 		}
@@ -272,16 +272,16 @@ PHP_METHOD(yaf_route_static, match) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Route_Static::assemble(array $mvc[, array $query = NULL])
+/** {{{ proto public Yaf_Route_Static::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_static, assemble) {
-	zval *mvc, *query;
+	zval *info, *query;
 	zval *return_uri;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
         return;
     } else {
-        if ((return_uri = yaf_route_static_assemble(getThis(), mvc, query TSRMLS_CC))) {
+        if ((return_uri = yaf_route_static_assemble(getThis(), info, query TSRMLS_CC))) {
             RETURN_ZVAL(return_uri, 0, 1);
         }
     }
