@@ -34,7 +34,7 @@ extern zend_class_entry *yaf_response_http_ce;
 extern zend_class_entry *yaf_response_cli_ce;
 
 yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC);
-int yaf_response_alter_body(yaf_response_t *response, char *name, int name_len, char *body, long body_len, int flag TSRMLS_DC);
+int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *body, long body_len, int flag TSRMLS_DC);
 int yaf_response_send(yaf_response_t *response TSRMLS_DC);
 int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC);
 int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC);

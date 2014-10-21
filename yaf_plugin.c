@@ -124,7 +124,7 @@ zend_function_entry yaf_plugin_methods_ns[] = {
 YAF_STARTUP_FUNCTION(plugin) {
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Plugin_Abstract", "Yaf\\Plugin_Abstract", namespace_switch(yaf_plugin_methods));
-	yaf_plugin_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	yaf_plugin_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
 	yaf_plugin_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
 	return SUCCESS;
