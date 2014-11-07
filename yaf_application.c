@@ -82,7 +82,7 @@ ZEND_END_ARG_INFO()
 /** {{{ int yaf_application_is_module_name(char *name, int len TSRMLS_DC)
 */
 int yaf_application_is_module_name(char *name, int len TSRMLS_DC) {
-	zval 			*modules, **ppzval;
+	zval 			*modules, *pzval;
 	HashTable 		*ht;
 	yaf_application_t 	*app;
 
@@ -98,8 +98,8 @@ int yaf_application_is_module_name(char *name, int len TSRMLS_DC) {
 
 	ht = Z_ARRVAL_P(modules);
 	zend_hash_internal_pointer_reset(ht);
-	while (zend_hash_get_current_data(ht, (void **)&ppzval) == SUCCESS) {
-		if (Z_STRLEN_PP(ppzval) == len && strncasecmp(Z_STRVAL_PP(ppzval), name, len) == 0) {
+	while ((pzval = zend_hash_get_current_data(ht)) != NULL) {
+		if (Z_STRLEN_P(pzval) == len && strncasecmp(Z_STRVAL_P(pzval), name, len) == 0) {
 			return 1;
 		}
 		zend_hash_move_forward(ht);
@@ -112,63 +112,63 @@ int yaf_application_is_module_name(char *name, int len TSRMLS_DC) {
 */
 static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 	HashTable 	*conf;
-	zval  		**ppzval, **ppsval, *app;
+	zval  		*pzval, *psval, *app;
 
 	conf = HASH_OF(options);
-	if (zend_hash_find(conf, ZEND_STRS("application"), (void **)&ppzval) == FAILURE) {
+	if ((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) {
 		/* For back compatibilty */
-		if (zend_hash_find(conf, ZEND_STRS("yaf"), (void **)&ppzval) == FAILURE) {
+		if ((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Expected an array of application configure");
 			return FAILURE;
 		}
 	}
 
-	app = *ppzval;
+	app = pzval;
 	if (Z_TYPE_P(app) != IS_ARRAY) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Expected an array of application configure");
 		return FAILURE;
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("directory"), (void **)&ppzval) == FAILURE
-			|| Z_TYPE_PP(ppzval) != IS_STRING || Z_STRLEN_PP(ppzval) == 0) {
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("directory"))) == NULL
+			|| Z_TYPE_P(pzval) != IS_STRING || Z_STRLEN_P(pzval) == 0) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "%s", "Expected a directory entry in application configures");
 		return FAILURE;
 	}
 
-	if (*(Z_STRVAL_PP(ppzval) + Z_STRLEN_PP(ppzval) - 1) == DEFAULT_SLASH) {
-		YAF_G(directory) = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval) - 1);
+	if (*(Z_STRVAL_P(pzval) + Z_STRLEN_P(pzval) - 1) == DEFAULT_SLASH) {
+		YAF_G(directory) = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval) - 1);
 	} else {
-		YAF_G(directory) = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
+		YAF_G(directory) = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("ext"), (void **)&ppzval) == SUCCESS
-			&& Z_TYPE_PP(ppzval) == IS_STRING) {
-		YAF_G(ext) = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("ext"))) != NULL
+			&& Z_TYPE_P(pzval) == IS_STRING) {
+		YAF_G(ext) = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 	} else {
 		YAF_G(ext) = YAF_DEFAULT_EXT;
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("bootstrap"), (void **)&ppzval) == SUCCESS
-			&& Z_TYPE_PP(ppzval) == IS_STRING) {
-		YAF_G(bootstrap) = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("bootstrap"))) != NULL
+			&& Z_TYPE_P(pzval) == IS_STRING) {
+		YAF_G(bootstrap) = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("library"), (void **)&ppzval) == SUCCESS) {
-		if (IS_STRING == Z_TYPE_PP(ppzval)) {
-			YAF_G(local_library) = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
-		} else if (IS_ARRAY == Z_TYPE_PP(ppzval)) {
-			if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("directory"), (void **)&ppsval) == SUCCESS
-					&& Z_TYPE_PP(ppsval) == IS_STRING) {
-				YAF_G(local_library) = estrndup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("library"))) != NULL) {
+		if (IS_STRING == Z_TYPE_P(pzval)) {
+			YAF_G(local_library) = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
+		} else if (IS_ARRAY == Z_TYPE_P(pzval)) {
+			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("directory"))) != NULL
+					&& Z_TYPE_P(psval) == IS_STRING) {
+				YAF_G(local_library) = estrndup(Z_STRVAL_P(psval), Z_STRLEN_P(psval));
 			}
-			if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("namespace"), (void **)&ppsval) == SUCCESS
-					&& Z_TYPE_PP(ppsval) == IS_STRING) {
+			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("namespace"))) != NULL
+					&& Z_TYPE_P(psval) == IS_STRING) {
 				uint i, len;
-				char *src = Z_STRVAL_PP(ppsval);
-				if (Z_STRLEN_PP(ppsval)) {
-				    char *target = emalloc(Z_STRLEN_PP(ppsval) + 1);
+				char *src = Z_STRVAL_P(psval);
+				if (Z_STRLEN_P(psval)) {
+				    char *target = emalloc(Z_STRLEN_P(psval) + 1);
 					len = 0;
-					for(i=0; i<Z_STRLEN_PP(ppsval); i++) {
+					for(i=0; i<Z_STRLEN_P(psval); i++) {
 						if (src[i] == ',') {
 							target[len++] = DEFAULT_DIR_SEPARATOR;
 						} else if (src[i] != ' ') {
@@ -183,127 +183,124 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 		}
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("view"), (void **)&ppzval) == FAILURE 
-			|| Z_TYPE_PP(ppzval) != IS_ARRAY) {
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("view"))) == NULL 
+			|| Z_TYPE_P(pzval) != IS_ARRAY) {
 		YAF_G(view_ext) = YAF_DEFAULT_VIEW_EXT;
 	} else {
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("ext"), (void **)&ppsval) == FAILURE
-				|| Z_TYPE_PP(ppsval) != IS_STRING) {
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("ext"))) == NULL
+				|| Z_TYPE_P(psval) != IS_STRING) {
 			YAF_G(view_ext) = YAF_DEFAULT_VIEW_EXT;
 		} else {
-			YAF_G(view_ext) = estrndup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+			YAF_G(view_ext) = estrndup(Z_STRVAL_P(psval), Z_STRLEN_P(psval));
 		}
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("baseUri"), (void **)&ppzval) == SUCCESS
-			&& Z_TYPE_PP(ppzval) == IS_STRING) {
-		YAF_G(base_uri) = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("baseUri"))) != NULL
+			&& Z_TYPE_P(pzval) == IS_STRING) {
+		YAF_G(base_uri) = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 	}
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("dispatcher"), (void **)&ppzval) == FAILURE
-			|| Z_TYPE_PP(ppzval) != IS_ARRAY) {
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("dispatcher"))) == NULL
+			|| Z_TYPE_P(pzval) != IS_ARRAY) {
 		YAF_G(default_module) = YAF_ROUTER_DEFAULT_MODULE;
 		YAF_G(default_controller) = YAF_ROUTER_DEFAULT_CONTROLLER;
 		YAF_G(default_action)  = YAF_ROUTER_DEFAULT_ACTION;
 	} else {
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("defaultModule"), (void **)&ppsval) == FAILURE
-				|| Z_TYPE_PP(ppsval) != IS_STRING) {
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultModule"))) == NULL
+				|| Z_TYPE_P(psval) != IS_STRING) {
 			YAF_G(default_module) = YAF_ROUTER_DEFAULT_MODULE;
 		} else {
-			YAF_G(default_module) = zend_str_tolower_dup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+			YAF_G(default_module) = zend_str_tolower_dup(Z_STRVAL_P(psval), Z_STRLEN_P(psval));
 			*(YAF_G(default_module)) = toupper(*YAF_G(default_module));
 		}
 
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("defaultController"), (void **)&ppsval) == FAILURE
-				|| Z_TYPE_PP(ppsval) != IS_STRING) {
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultController"))) == NULL
+				|| Z_TYPE_P(psval) != IS_STRING) {
 			YAF_G(default_controller) = YAF_ROUTER_DEFAULT_CONTROLLER;
 		} else {
-			YAF_G(default_controller) = zend_str_tolower_dup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+			YAF_G(default_controller) = zend_str_tolower_dup(Z_STRVAL_P(psval), Z_STRLEN_P(psval));
 			*(YAF_G(default_controller)) = toupper(*YAF_G(default_controller));
 		}
 
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("defaultAction"), (void **)&ppsval) == FAILURE
-				|| Z_TYPE_PP(ppsval) != IS_STRING) {
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultAction"))) == NULL
+				|| Z_TYPE_P(psval) != IS_STRING) {
 			YAF_G(default_action)	  = YAF_ROUTER_DEFAULT_ACTION;
 		} else {
-			YAF_G(default_action) = zend_str_tolower_dup(Z_STRVAL_PP(ppsval), Z_STRLEN_PP(ppsval));
+			YAF_G(default_action) = zend_str_tolower_dup(Z_STRVAL_P(psval), Z_STRLEN_P(psval));
 		}
 
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("throwException"), (void **)&ppsval) == SUCCESS) {
-			zval *tmp = *ppsval;
-			Z_ADDREF_P(tmp);
-			convert_to_boolean_ex(&tmp);
-			YAF_G(throw_exception) = Z_BVAL_P(tmp);
-			zval_ptr_dtor(&tmp);
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("throwException"))) != NULL) {
+			zval *tmp = psval;
+			Z_TRY_ADDREF_P(tmp);
+			convert_to_boolean_ex(tmp);
+			YAF_G(throw_exception) = Z_TYPE_P(tmp) == IS_TRUE ? 1 : 0;
+			zval_ptr_dtor(tmp);
 		}
 
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("catchException"), (void **)&ppsval) == SUCCESS) {
-			zval *tmp = *ppsval;
-			Z_ADDREF_P(tmp);
-			convert_to_boolean_ex(&tmp);
-			YAF_G(catch_exception) = Z_BVAL_P(tmp);
-			zval_ptr_dtor(&tmp);
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("catchException"))) != NULL) {
+			zval *tmp = psval;
+			Z_TRY_ADDREF_P(tmp);
+			convert_to_boolean_ex(tmp);
+			YAF_G(catch_exception) = Z_TYPE_P(tmp) == IS_TRUE ? 1 : 0;
+			zval_ptr_dtor(tmp);
 		}
 
-		if (zend_hash_find(Z_ARRVAL_PP(ppzval), ZEND_STRS("defaultRoute"), (void **)&ppsval) == SUCCESS
-				&& Z_TYPE_PP(ppsval) == IS_ARRAY) {
-			YAF_G(default_route) = *ppsval;
+		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultRoute"))) != NULL
+				&& Z_TYPE_P(psval) == IS_ARRAY) {
+			YAF_G(default_route) = psval;
 		}
 	}
 
 	do {
 		char *ptrptr;
-		zval *module, *zmodules;
+		zval module, *zmodules;
 
-		MAKE_STD_ZVAL(zmodules);
+		zmodules = (zval *)emalloc(sizeof(zval));
 		array_init(zmodules);
-		if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("modules"), (void **)&ppzval) == SUCCESS
-				&& Z_TYPE_PP(ppzval) == IS_STRING && Z_STRLEN_PP(ppzval)) {
+		if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("modules"))) != NULL
+				&& Z_TYPE_P(pzval) == IS_STRING && Z_STRLEN_P(pzval)) {
 			char *seg, *modules;
-			modules = estrndup(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval));
+			modules = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 			seg = php_strtok_r(modules, ",", &ptrptr);
 			while (seg) {
 				if (seg && strlen(seg)) {
-					MAKE_STD_ZVAL(module);
-					ZVAL_STRINGL(module, seg, strlen(seg), 1);
-					zend_hash_next_index_insert(Z_ARRVAL_P(zmodules),
-							(void **)&module, sizeof(zval *), NULL);
+					ZVAL_STRINGL(&module, seg, strlen(seg));
+					zend_hash_next_index_insert(Z_ARRVAL_P(zmodules), &module);
 				}
 				seg = php_strtok_r(NULL, ",", &ptrptr);
 			}
 			efree(modules);
 		} else {
-			MAKE_STD_ZVAL(module);
-			ZVAL_STRING(module, YAF_G(default_module), 1);
-			zend_hash_next_index_insert(Z_ARRVAL_P(zmodules), (void **)&module, sizeof(zval *), NULL);
+			ZVAL_STRING(&module, YAF_G(default_module));
+			zend_hash_next_index_insert(Z_ARRVAL_P(zmodules), &module);
 		}
 		YAF_G(modules) = zmodules;
 	} while (0);
 
-	if (zend_hash_find(Z_ARRVAL_P(app), ZEND_STRS("system"), (void **)&ppzval) == SUCCESS && Z_TYPE_PP(ppzval) == IS_ARRAY) {
-		zval **value;
-		char *key, name[128];
-		HashTable *ht = Z_ARRVAL_PP(ppzval);
+	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("system"))) != NULL 
+	        && Z_TYPE_P(pzval) == IS_ARRAY) {
+		zval *value;
+		char name[128];
+		zend_string *key;
+		ulong idx;
+		uint len;
 
-		for(zend_hash_internal_pointer_reset(ht);
-				zend_hash_has_more_elements(ht) == SUCCESS;
-				zend_hash_move_forward(ht)) {
-			uint len;
-			ulong idx;
-			if (zend_hash_get_current_key_ex(ht, &key, &len, &idx, 0, NULL) != HASH_KEY_IS_STRING) {
-				continue;
-			}
+		HashTable *ht = Z_ARRVAL_P(pzval);
 
-			if (zend_hash_get_current_data(ht, (void **)&value) == FAILURE) {
-				continue;
+		ZEND_HASH_FOREACH_KEY_VAL(ht, idx, key, value) {
+			if (key) {
+				zend_string *tmp_name;
+
+				len = snprintf(name, sizeof(name), "%s.%s", "yaf", key->val);
+				if (len > sizeof(name) -1) {
+					len = sizeof(name) - 1;
+				}
+				convert_to_string(value);
+				tmp_name = zend_string_init(name, len, 0); 
+				zend_alter_ini_entry(tmp_name, Z_STR_P(value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
+				zend_string_release(tmp_name);
 			}
-			len = snprintf(name, sizeof(name), "%s.%s", "yaf", key);
-			if (len > sizeof(name) -1) {
-				len = sizeof(name) - 1;
-			}
-			convert_to_string(*value);
-			zend_alter_ini_entry(name, len + 1, Z_STRVAL_PP(value), Z_STRLEN_PP(value), PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
-		}
+		} ZEND_HASH_FOREACH_END();
 	}
 
 	return SUCCESS;
@@ -313,13 +310,13 @@ static int yaf_application_parse_option(zval *options TSRMLS_DC) {
 /** {{{ proto Yaf_Application::__construct(mixed $config, string $environ = YAF_G(environ))
 */
 PHP_METHOD(yaf_application, __construct) {
-	yaf_config_t 	 	*zconfig;
-	yaf_request_t 	 	*request;
-	yaf_dispatcher_t	*zdispatcher;
+	yaf_config_t 	 	*zconfig, rconfig;
+	yaf_request_t 	 	*request, rrequest;
+	yaf_dispatcher_t	*zdispatcher, rdispather;
 	yaf_application_t	*app, *self;
-	yaf_loader_t		*loader;
+	yaf_loader_t		*loader, rloader;
 	zval 			*config;
-	zval 			*section = NULL;
+	zval 			*section = NULL, rsection;
 
 	app	 = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1 TSRMLS_CC);
 
@@ -339,17 +336,16 @@ PHP_METHOD(yaf_application, __construct) {
 		return;
 	}
 
+	ZVAL_NULL(&rconfig);
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
-		MAKE_STD_ZVAL(section);
-		ZVAL_STRING(section, YAF_G(environ), 0);
-		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
-		efree(section);
+		ZVAL_STRING(&rsection, YAF_G(environ));
+		zconfig = yaf_config_instance(&rconfig, config, &rsection TSRMLS_CC);
+		zval_ptr_dtor(&rsection);
 	} else {
-		zconfig = yaf_config_instance(NULL, config, section TSRMLS_CC);
+		zconfig = yaf_config_instance(&rconfig, config, section TSRMLS_CC);
 	}
 
-	if  (zconfig == NULL
-			|| Z_TYPE_P(zconfig) != IS_OBJECT
+	if  (!zconfig || Z_TYPE_P(zconfig) != IS_OBJECT
 			|| !instanceof_function(Z_OBJCE_P(zconfig), yaf_config_ce TSRMLS_CC)
 			|| yaf_application_parse_option(zend_read_property(yaf_config_ce,
 				   	zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC) TSRMLS_CC) == FAILURE) {
@@ -358,7 +354,8 @@ PHP_METHOD(yaf_application, __construct) {
 		RETURN_FALSE;
 	}
 
-	request = yaf_request_instance(NULL, YAF_G(base_uri) TSRMLS_CC);
+	ZVAL_NULL(&rrequest);
+	request = yaf_request_instance(&rrequest, YAF_G(base_uri) TSRMLS_CC);
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));
 		YAF_G(base_uri) = NULL;
@@ -370,9 +367,9 @@ PHP_METHOD(yaf_application, __construct) {
 		RETURN_FALSE;
 	}
 
-	zdispatcher = yaf_dispatcher_instance(NULL TSRMLS_CC);
-	if (NULL == zdispatcher
-			|| Z_TYPE_P(zdispatcher) != IS_OBJECT
+	ZVAL_NULL(&rdispather);
+	zdispatcher = yaf_dispatcher_instance(&rdispather TSRMLS_CC);
+	if (Z_TYPE_P(zdispatcher) != IS_OBJECT
 			|| !instanceof_function(Z_OBJCE_P(zdispatcher), yaf_dispatcher_ce TSRMLS_CC)) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "Instantiation of application dispatcher failed");
@@ -383,19 +380,20 @@ PHP_METHOD(yaf_application, __construct) {
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), zconfig TSRMLS_CC);
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), zdispatcher TSRMLS_CC);
 
-	zval_ptr_dtor(&request);
-	zval_ptr_dtor(&zdispatcher);
-	zval_ptr_dtor(&zconfig);
+	zval_ptr_dtor(request);
+	zval_ptr_dtor(zdispatcher);
+	zval_ptr_dtor(zconfig);
 
+	ZVAL_NULL(&rloader);
 	if (YAF_G(local_library)) {
-		loader = yaf_loader_instance(NULL, YAF_G(local_library),
+		loader = yaf_loader_instance(&rloader, YAF_G(local_library),
 				strlen(YAF_G(global_library))? YAF_G(global_library) : NULL TSRMLS_CC);
 		efree(YAF_G(local_library));
 		YAF_G(local_library) = NULL;
 	} else {
 		char *local_library;
 		spprintf(&local_library, 0, "%s%c%s", YAF_G(directory), DEFAULT_SLASH, YAF_LIBRARY_DIRECTORY_NAME);
-		loader = yaf_loader_instance(NULL, local_library,
+		loader = yaf_loader_instance(&rloader, local_library,
 				strlen(YAF_G(global_library))? YAF_G(global_library) : NULL TSRMLS_CC);
 		efree(local_library);
 	}
@@ -412,6 +410,7 @@ PHP_METHOD(yaf_application, __construct) {
 	if (YAF_G(modules)) {
 		zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), YAF_G(modules) TSRMLS_CC);
 		Z_DELREF_P(YAF_G(modules));
+		efree(YAF_G(modules));
 		YAF_G(modules) = NULL;
 	} else {
 		zend_update_property_null(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES) TSRMLS_CC);
@@ -424,7 +423,7 @@ PHP_METHOD(yaf_application, __construct) {
 /** {{{ proto public Yaf_Application::__desctruct(void)
 */
 PHP_METHOD(yaf_application, __destruct) {
-   zend_update_static_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP) TSRMLS_CC);
+	zend_update_static_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP) TSRMLS_CC);
 }
 /* }}} */
 
@@ -451,12 +450,11 @@ PHP_METHOD(yaf_application, __clone) {
 PHP_METHOD(yaf_application, run) {
 	zval *running;
 	yaf_dispatcher_t  *dispatcher;
-	yaf_response_t	  *response;
+	yaf_response_t	  *response, rresponse;
 	yaf_application_t *self = getThis();
 
 	running = zend_read_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 1 TSRMLS_CC);
-	if (IS_BOOL == Z_TYPE_P(running)
-			&& Z_BVAL_P(running)) {
+	if (IS_TRUE == Z_TYPE_P(running)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "An application instance already run");
 		RETURN_TRUE;
 	}
@@ -465,7 +463,8 @@ PHP_METHOD(yaf_application, run) {
 	zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), running TSRMLS_CC);
 
 	dispatcher = zend_read_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1 TSRMLS_CC);
-	if ((response = yaf_dispatcher_dispatch(dispatcher TSRMLS_CC))) {
+	ZVAL_NULL(&rresponse);
+	if ((response = yaf_dispatcher_dispatch(dispatcher, &rresponse TSRMLS_CC))) {
 		RETURN_ZVAL(response, 1, 1);
 	}
 
@@ -475,10 +474,9 @@ PHP_METHOD(yaf_application, run) {
 
 /** {{{ proto public Yaf_Application::execute(callback $func)
  * We can not call to zif_call_user_func on windows, since it was not declared with dllexport
-*/
+ */
 PHP_METHOD(yaf_application, execute) {
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-	zval *retval_ptr;
+	zval retval;
 	zend_fcall_info fci;
 	zend_fcall_info_cache fci_cache;
 
@@ -486,71 +484,11 @@ PHP_METHOD(yaf_application, execute) {
 		return;
 	}
 
-	fci.retval_ptr_ptr = &retval_ptr;
+	fci.retval = &retval;
 
-	if (zend_call_function(&fci, &fci_cache TSRMLS_CC) == SUCCESS && fci.retval_ptr_ptr && *fci.retval_ptr_ptr) {
-		COPY_PZVAL_TO_ZVAL(*return_value, *fci.retval_ptr_ptr);
+	if (zend_call_function(&fci, &fci_cache TSRMLS_CC) == SUCCESS && Z_TYPE(retval) != IS_UNDEF) {
+		ZVAL_COPY_VALUE(return_value, &retval);
 	}
-
-	if (fci.params) {
-		efree(fci.params);
-	}
-#else
-	zval ***params;
-	zval *retval_ptr;
-	char *name;
-	int argc = ZEND_NUM_ARGS();
-
-	if (argc < 1) {
-		return;
-	}
-
-	params = safe_emalloc(sizeof(zval **), argc, 0);
-	if (zend_get_parameters_array_ex(1, params) == FAILURE) {
-		efree(params);
-		RETURN_FALSE;
-	}
-
-	if (Z_TYPE_PP(params[0]) != IS_STRING && Z_TYPE_PP(params[0]) != IS_ARRAY) {
-		SEPARATE_ZVAL(params[0]);
-		convert_to_string_ex(params[0]);
-	}
-
-	if (!zend_is_callable(*params[0], 0, &name)) {
-		php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "First argument is expected to be a valid callback");
-		efree(name);
-		efree(params);
-		RETURN_NULL();
-	}
-
-	if (zend_get_parameters_array_ex(argc, params) == FAILURE) {
-		efree(params);
-		RETURN_FALSE;
-	}
-
-	if (call_user_function_ex(EG(function_table), NULL, *params[0], &retval_ptr, argc - 1, params + 1, 0, NULL TSRMLS_CC) == SUCCESS) {
-		if (retval_ptr) {
-			COPY_PZVAL_TO_ZVAL(*return_value, retval_ptr);
-		}
-	} else {
-		if (argc > 1) {
-			SEPARATE_ZVAL(params[1]);
-			convert_to_string_ex(params[1]);
-			if (argc > 2) {
-				SEPARATE_ZVAL(params[2]);
-				convert_to_string_ex(params[2]);
-				php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "Unable to call %s(%s,%s)", name, Z_STRVAL_PP(params[1]), Z_STRVAL_PP(params[2]));
-			} else {
-				php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "Unable to call %s(%s)", name, Z_STRVAL_PP(params[1]));
-			}
-		} else {
-			php_error_docref1(NULL TSRMLS_CC, name, E_WARNING, "Unable to call %s()", name);
-		}
-	}
-
-	efree(name);
-	efree(params);
-#endif
 }
 /* }}} */
 
@@ -590,7 +528,7 @@ PHP_METHOD(yaf_application, getModules) {
 */
 PHP_METHOD(yaf_application, environ) {
 	zval *env = zend_read_property(yaf_application_ce, getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), 1 TSRMLS_CC);
-	RETURN_STRINGL(Z_STRVAL_P(env), Z_STRLEN_P(env), 1);
+	RETURN_STRINGL(Z_STRVAL_P(env), Z_STRLEN_P(env));
 }
 /* }}} */
 
@@ -598,11 +536,12 @@ PHP_METHOD(yaf_application, environ) {
 */
 PHP_METHOD(yaf_application, bootstrap) {
 	char			*bootstrap_path;
-	uint 			len, retval = 1;
-	zend_class_entry	**ce;
+	size_t 			len;
+	uint			retval = 1;
+	zend_class_entry	*ce;
 	yaf_application_t	*self = getThis();
 
-	if (zend_hash_find(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, YAF_DEFAULT_BOOTSTRAP_LEN, (void **) &ce) != SUCCESS) {
+	if ((ce = zend_hash_str_find_ptr(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, YAF_DEFAULT_BOOTSTRAP_LEN)) == NULL) {
 		if (YAF_G(bootstrap)) {
 			bootstrap_path  = estrdup(YAF_G(bootstrap));
 			len = strlen(YAF_G(bootstrap));
@@ -613,11 +552,11 @@ PHP_METHOD(yaf_application, bootstrap) {
 		if (!yaf_loader_import(bootstrap_path, len + 1, 0 TSRMLS_CC)) {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path);
 			retval = 0;
-		} else if (zend_hash_find(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, YAF_DEFAULT_BOOTSTRAP_LEN, (void **) &ce) != SUCCESS)  {
+		} else if ((ce = zend_hash_str_find_ptr(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, YAF_DEFAULT_BOOTSTRAP_LEN)) == NULL)  {
 			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
 			retval = 0;
-		} else if (!instanceof_function(*ce, yaf_bootstrap_ce TSRMLS_CC)) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a %s instance, %s give", yaf_bootstrap_ce->name, (*ce)->name);
+		} else if (!instanceof_function(ce, yaf_bootstrap_ce TSRMLS_CC)) {
+			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a %s instance, %s give", yaf_bootstrap_ce->name->val, ce->name->val);
 			retval = 0;
 		}
 
@@ -627,29 +566,27 @@ PHP_METHOD(yaf_application, bootstrap) {
 	if (!retval) {
 		RETURN_FALSE;
 	} else {
-		zval 			*bootstrap;
+		zval 			bootstrap;
 		HashTable 		*methods;
 		yaf_dispatcher_t 	*dispatcher;
 
-		MAKE_STD_ZVAL(bootstrap);
-		object_init_ex(bootstrap, *ce);
+		object_init_ex(&bootstrap, ce);
 		dispatcher = zend_read_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1 TSRMLS_CC);
 
-		methods	= &((*ce)->function_table);
+		methods	= &(ce->function_table);
 		for(zend_hash_internal_pointer_reset(methods);
 				zend_hash_has_more_elements(methods) == SUCCESS;
 				zend_hash_move_forward(methods)) {
-			char *func;
-			uint len;
+			zend_string *func;
 			ulong idx;
 
-			zend_hash_get_current_key_ex(methods, &func, &len, &idx, 0, NULL);
+			zend_hash_get_current_key_ex(methods, &func, &idx, 0, NULL);
 			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
-			if (strncasecmp(func, YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
+			if (strncasecmp(func->val, YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
 				continue;
 			}
 
-			zend_call_method(&bootstrap, *ce, NULL, func, len - 1, NULL, 1, dispatcher, NULL TSRMLS_CC);
+			zend_call_method(&bootstrap, ce, NULL, func->val, func->len, NULL, 1, dispatcher, NULL TSRMLS_CC);
 			/** an uncaught exception threw in function call */
 			if (EG(exception)) {
 				zval_ptr_dtor(&bootstrap);
@@ -676,7 +613,7 @@ PHP_METHOD(yaf_application, getLastErrorNo) {
 */
 PHP_METHOD(yaf_application, getLastErrorMsg) {
 	zval *errmsg = zend_read_property(yaf_application_ce, getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRMSG), 1 TSRMLS_CC);
-	RETURN_STRINGL(Z_STRVAL_P(errmsg), Z_STRLEN_P(errmsg), 1);
+	RETURN_STRINGL(Z_STRVAL_P(errmsg), Z_STRLEN_P(errmsg));
 }
 /* }}} */
 
@@ -693,7 +630,7 @@ PHP_METHOD(yaf_application, clearLastError) {
 /** {{{ proto public Yaf_Application::setAppDirectory(string $directory)
 */
 PHP_METHOD(yaf_application, setAppDirectory) {
-	int			len;
+	size_t			len;
 	char	 		*directory;
 	yaf_dispatcher_t 	*self = getThis();
 
@@ -716,7 +653,7 @@ PHP_METHOD(yaf_application, setAppDirectory) {
 /** {{{ proto public Yaf_Application::getAppDirectory(void)
 */
 PHP_METHOD(yaf_application, getAppDirectory) {
-	RETURN_STRING(YAF_G(directory), 1);
+	RETURN_STRING(YAF_G(directory));
 }
 /* }}} */
 
@@ -724,24 +661,24 @@ PHP_METHOD(yaf_application, getAppDirectory) {
 */
 zend_function_entry yaf_application_methods[] = {
 	PHP_ME(yaf_application, __construct, 		yaf_application_construct_arginfo, 	ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-	PHP_ME(yaf_application, run, 	 	 	yaf_application_run_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, execute,	  	yaf_application_execute_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, app, 	 	 	yaf_application_app_arginfo, 		ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	YAF_ME(yaf_application_environ, "environ", 	yaf_application_environ_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, bootstrap,   		yaf_application_bootstrap_arginfo,  	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getConfig,   		yaf_application_getconfig_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getModules,   		yaf_application_getmodule_arginfo,  	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getDispatcher, 		yaf_application_getdispatch_arginfo,	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, setAppDirectory,	yaf_application_setappdir_arginfo,  	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getAppDirectory,	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getLastErrorNo, 	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getLastErrorMsg,	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, clearLastError, 	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, __destruct,		NULL, 					ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
-	PHP_ME(yaf_application, __clone,		NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CLONE)
-	PHP_ME(yaf_application, __sleep,		NULL, 					ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_application, __wakeup,		NULL, 					ZEND_ACC_PRIVATE)
-	{NULL, NULL, NULL}
+		PHP_ME(yaf_application, run, 	 	 	yaf_application_run_arginfo, 		ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, execute,	  	yaf_application_execute_arginfo, 	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, app, 	 	 	yaf_application_app_arginfo, 		ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+		YAF_ME(yaf_application_environ, "environ", 	yaf_application_environ_arginfo, 	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, bootstrap,   		yaf_application_bootstrap_arginfo,  	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, getConfig,   		yaf_application_getconfig_arginfo, 	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, getModules,   		yaf_application_getmodule_arginfo,  	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, getDispatcher, 		yaf_application_getdispatch_arginfo,	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, setAppDirectory,	yaf_application_setappdir_arginfo,  	ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, getAppDirectory,	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, getLastErrorNo, 	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, getLastErrorMsg,	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, clearLastError, 	yaf_application_void_arginfo, 		ZEND_ACC_PUBLIC)
+		PHP_ME(yaf_application, __destruct,		NULL, 					ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
+		PHP_ME(yaf_application, __clone,		NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CLONE)
+		PHP_ME(yaf_application, __sleep,		NULL, 					ZEND_ACC_PRIVATE)
+		PHP_ME(yaf_application, __wakeup,		NULL, 					ZEND_ACC_PRIVATE)
+		{NULL, NULL, NULL}
 };
 /* }}} */
 
@@ -751,7 +688,7 @@ YAF_STARTUP_FUNCTION(application) {
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Application", "Yaf\\Application", yaf_application_methods);
 
-	yaf_application_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	yaf_application_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
 	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 
 	zend_declare_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), 	ZEND_ACC_PROTECTED TSRMLS_CC);

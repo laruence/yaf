@@ -30,7 +30,7 @@
 extern zend_class_entry * yaf_router_ce;
 
 yaf_router_t * yaf_router_instance(yaf_router_t *this_ptr TSRMLS_DC);
-zval * yaf_router_parse_parameters(char *uri TSRMLS_DC);
+void yaf_router_parse_parameters(char *uri, zval *params TSRMLS_DC);
 int yaf_router_route(yaf_router_t *router, yaf_request_t *request TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(router);

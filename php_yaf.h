@@ -75,7 +75,7 @@ extern zend_module_entry yaf_module_entry;
 #define yaf_session_t		zval
 #define yaf_exception_t		zval
 
-#define YAF_ME(c, m, a, f) {m, PHP_MN(c), a, (zend_uint) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
+#define YAF_ME(c, m, a, f) {m, PHP_MN(c), a, (uint) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 
 extern PHPAPI void php_var_dump(zval **struc, int level TSRMLS_DC);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level TSRMLS_DC);
@@ -119,7 +119,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	void		*buffer;
 	void 		*owrite_handler;
 #endif
-	zval        *active_ini_file_section;
+	zval        active_ini_file_section;
 	zval        *ini_wanted_section;
 	uint        parsing_flag;
 #ifdef YAF_HAVE_NAMESPACE

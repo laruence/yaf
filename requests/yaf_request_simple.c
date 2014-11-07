@@ -36,30 +36,28 @@ static zend_class_entry *yaf_request_simple_ce;
 yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params TSRMLS_DC) {
 	yaf_request_t *instance;
 
-	if (this_ptr) {
-		instance = this_ptr;
-	} else {
-		MAKE_STD_ZVAL(instance);
-		object_init_ex(instance, yaf_request_simple_ce);
-	}
+    instance = this_ptr;
+    if (ZVAL_IS_NULL(this_ptr)) {
+       object_init_ex(instance, yaf_request_simple_ce); 
+    }
 
-	if (!method || IS_STRING != Z_TYPE_P(method)) {
-		MAKE_STD_ZVAL(method);
+	if (ZVAL_IS_NULL(method)) {
+	    convert_to_string(method);
 		if (!SG(request_info).request_method) {
 			if (!strncasecmp(sapi_module.name, "cli", 3)) {
-				ZVAL_STRING(method, "CLI", 1);
+				ZVAL_STRING(method, "CLI");
 			} else {
-				ZVAL_STRING(method, "Unknow", 1);
+				ZVAL_STRING(method, "Unknow");
 			}
 		} else {
-			ZVAL_STRING(method, (char *)SG(request_info).request_method, 1);
+			ZVAL_STRING(method, (char *)SG(request_info).request_method);
 		}
 	} else {
-		Z_ADDREF_P(method);
+		Z_TRY_ADDREF_P(method);
 	}
 
 	zend_update_property(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), method TSRMLS_CC);
-	zval_ptr_dtor(&method);
+	zval_ptr_dtor(method);
 
 	if (module || controller || action) {
 		if (!module || Z_TYPE_P(module) != IS_STRING) {
@@ -87,27 +85,22 @@ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *modul
 
 		zend_update_property_bool(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ROUTED), 1 TSRMLS_CC);
 	} else {
-		zval *argv, **ppzval;
+		zval *argv, *pzval;
 		char *query = NULL;
 
 		argv = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("argv") TSRMLS_CC);
-		if (IS_ARRAY == Z_TYPE_P(argv)) {
-			for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(argv));
-					zend_hash_has_more_elements(Z_ARRVAL_P(argv)) == SUCCESS;
-					zend_hash_move_forward(Z_ARRVAL_P(argv))) {
-				if (zend_hash_get_current_data(Z_ARRVAL_P(argv), (void**)&ppzval) == FAILURE) {
-					continue;
-				} else {
-					if (Z_TYPE_PP(ppzval) == IS_STRING) {
-						if (strncasecmp(Z_STRVAL_PP(ppzval), YAF_REQUEST_SERVER_URI, sizeof(YAF_REQUEST_SERVER_URI) - 1)) {
-							continue;
-						}
+		if (argv && IS_ARRAY == Z_TYPE_P(argv)) {
+		    ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(argv), pzval) {
+                if (Z_TYPE_P(pzval) == IS_STRING) {
+                    if (strncasecmp(Z_STRVAL_P(pzval), YAF_REQUEST_SERVER_URI, sizeof(YAF_REQUEST_SERVER_URI) - 1)) {
+                        continue;
+                    }
 
-						query = estrdup(Z_STRVAL_PP(ppzval) + sizeof(YAF_REQUEST_SERVER_URI));
-						break;
-					}
-				}
-			}
+                    query = estrdup(Z_STRVAL_P(pzval) + sizeof(YAF_REQUEST_SERVER_URI));
+                    break;
+                }
+			} ZEND_HASH_FOREACH_END();
+            zval_ptr_dtor(argv);
 		}
 
 		if (query) {
@@ -115,14 +108,12 @@ yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *modul
 		} else {
 			zend_update_property_string(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), "" TSRMLS_CC);
 		}
-		zval_ptr_dtor(&argv);
 	}
 
-	if (!params || IS_ARRAY != Z_TYPE_P(params)) {
-		MAKE_STD_ZVAL(params);
+	if (ZVAL_IS_NULL(params)) {
 		array_init(params);
 		zend_update_property(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), params TSRMLS_CC);
-		zval_ptr_dtor(&params);
+		zval_ptr_dtor(params);
 	} else {
 		zend_update_property(yaf_request_simple_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), params TSRMLS_CC);
 	}
@@ -137,9 +128,9 @@ PHP_METHOD(yaf_request_simple, __construct) {
 	zval *module 	 = NULL;
 	zval *controller = NULL;
 	zval *action 	 = NULL;
-	zval *params	 = NULL;
-	zval *method	 = NULL;
-	zval *self	 = getThis();
+	zval *params	 = NULL, rparams;
+	zval *method	 = NULL, rmethod;
+	zval rself, *self	 = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zzzzz", &method, &module, &controller, &action, &params) == FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
@@ -151,6 +142,21 @@ PHP_METHOD(yaf_request_simple, __construct) {
 				   	"Expects the params is an array", yaf_request_simple_ce->name);
 			RETURN_FALSE;
 		}
+
+        if (!method) {
+            ZVAL_NULL(&rmethod); 
+            method = &rmethod;
+        }
+
+        if (!params) {
+            ZVAL_NULL(&rparams);
+            params = &rparams;
+        }
+
+        if (!self) {
+            ZVAL_NULL(&rself);
+            self = &rself;
+        }
 
 		(void)yaf_request_simple_instance(self, module, controller, action, method, params TSRMLS_CC);
 	}
@@ -186,12 +192,11 @@ YAF_REQUEST_METHOD(yaf_request_simple, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
 */
 PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 	zval * header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("X-Requested-With") TSRMLS_CC);
-	if (Z_TYPE_P(header) == IS_STRING
+	if (header && Z_TYPE_P(header) == IS_STRING
 			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
-		zval_ptr_dtor(&header);
+		zval_ptr_dtor(header);
 		RETURN_TRUE;
 	}
-	zval_ptr_dtor(&header);
 	RETURN_FALSE;
 }
 /* }}} */
@@ -200,19 +205,18 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
  * params -> post -> get -> cookie -> server
  */
 PHP_METHOD(yaf_request_simple, get) {
-	char	*name 	= NULL;
-	int 	len	 	= 0;
+	zend_string	*name 	= NULL;
 	zval 	*def 	= NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|z", &name, &len, &def) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|z", &name, &def) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	} else {
-		zval *value = yaf_request_get_param(getThis(), name, len TSRMLS_CC);
+		zval *value = yaf_request_get_param(getThis(), name TSRMLS_CC);
 		if (value) {
 			RETURN_ZVAL(value, 1, 0);
 		} else {
 			zval *params	= NULL;
-			zval **ppzval	= NULL;
+			zval *pzval	= NULL;
 
 			YAF_GLOBAL_VARS_TYPE methods[4] = {
 				YAF_GLOBAL_VARS_POST,
@@ -224,10 +228,10 @@ PHP_METHOD(yaf_request_simple, get) {
 			{
 				int i = 0;
 				for (;i<4; i++) {
-					params = PG(http_globals)[methods[i]];
+					params = &PG(http_globals)[methods[i]];
 					if (params && Z_TYPE_P(params) == IS_ARRAY) {
-						if (zend_hash_find(Z_ARRVAL_P(params), name, len + 1, (void **)&ppzval) == SUCCESS ){
-							RETURN_ZVAL(*ppzval, 1, 0);
+						if ((pzval = zend_hash_find(Z_ARRVAL_P(params), name)) != NULL ){
+							RETURN_ZVAL(pzval, 1, 0);
 						}
 					}
 				}
@@ -269,7 +273,7 @@ zend_function_entry yaf_request_simple_methods[] = {
 YAF_STARTUP_FUNCTION(request_simple){
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Simple", "Yaf\\Request\\Simple", yaf_request_simple_methods);
-	yaf_request_simple_ce = zend_register_internal_class_ex(&ce, yaf_request_ce, NULL TSRMLS_CC);
+	yaf_request_simple_ce = zend_register_internal_class_ex(&ce, yaf_request_ce TSRMLS_CC);
 	yaf_request_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 
 	zend_declare_class_constant_string(yaf_request_simple_ce, ZEND_STRL("SCHEME_HTTP"),  "http" TSRMLS_CC);

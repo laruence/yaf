@@ -54,17 +54,16 @@ yaf_registry_t *yaf_registry_instance(yaf_registry_t *this_ptr TSRMLS_DC) {
 	yaf_registry_t *instance = zend_read_static_property(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), 1 TSRMLS_CC);
 
 	if (Z_TYPE_P(instance) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(instance), yaf_registry_ce TSRMLS_CC)) {
-		zval *regs;
+		zval regs;
 
-		MAKE_STD_ZVAL(instance);
+		instance = this_ptr;
 		object_init_ex(instance, yaf_registry_ce);
 
-		MAKE_STD_ZVAL(regs);
-		array_init(regs);
-		zend_update_property(yaf_registry_ce, instance, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), regs TSRMLS_CC);
+		array_init(&regs);
+		zend_update_property(yaf_registry_ce, instance, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), &regs TSRMLS_CC);
 		zend_update_static_property(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), instance TSRMLS_CC);
 		zval_ptr_dtor(&regs);
-		zval_ptr_dtor(&instance);
+		zval_ptr_dtor(instance);
 	}
 
 	return instance;
@@ -74,12 +73,12 @@ yaf_registry_t *yaf_registry_instance(yaf_registry_t *this_ptr TSRMLS_DC) {
 /** {{{ int yaf_registry_is_set(char *name, int len TSRMLS_DC)
  */
 int yaf_registry_is_set(char *name, int len TSRMLS_DC) {
-	yaf_registry_t 	*registry;
+	yaf_registry_t 	*registry, rregistry;
 	zval 			*entrys;
 
-	registry = yaf_registry_instance(NULL TSRMLS_CC);
+	registry = yaf_registry_instance(&rregistry TSRMLS_CC);
 	entrys	 = zend_read_property(yaf_registry_ce, registry, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), 1 TSRMLS_CC);
-	return zend_hash_exists(Z_ARRVAL_P(entrys), name, len + 1);
+	return zend_hash_str_exists(Z_ARRVAL_P(entrys), name, len);
 }
 /* }}} */
 
@@ -98,20 +97,19 @@ PHP_METHOD(yaf_registry, __clone) {
 /** {{{ proto public static Yaf_Registry::get($name)
 */
 PHP_METHOD(yaf_registry, get) {
-	char *name;
-	uint  len;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &len) == FAILURE) {
+	zend_string *name;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &name) == FAILURE) {
 		return;
 	} else {
-		zval **ppzval, *entrys;
-		yaf_registry_t 	*registry;
+		zval *pzval, *entrys;
+		yaf_registry_t 	*registry, rregistry;
 
-		registry = yaf_registry_instance(NULL TSRMLS_CC);
+		registry = yaf_registry_instance(&rregistry TSRMLS_CC);
 		entrys	 = zend_read_property(yaf_registry_ce, registry, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), 1 TSRMLS_CC);
 
 		if (entrys && Z_TYPE_P(entrys) == IS_ARRAY) {
-			if (zend_hash_find(Z_ARRVAL_P(entrys), name, len + 1, (void **) &ppzval) == SUCCESS) {
-				RETURN_ZVAL(*ppzval, 1, 0);
+			if ((pzval = zend_hash_find(Z_ARRVAL_P(entrys), name)) != NULL) {
+				RETURN_ZVAL(pzval, 1, 0);
 			}
 		}
 	}
@@ -124,20 +122,19 @@ PHP_METHOD(yaf_registry, get) {
 */
 PHP_METHOD(yaf_registry, set) {
 	zval *value;
-	char *name;
-	uint len;
+	zend_string *name;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &len, &value) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Sz", &name, &value) == FAILURE) {
 		return;
 	} else {
-		yaf_registry_t	*registry;
+		yaf_registry_t	*registry, rregistry;
 		zval			*entrys;
 
-		registry = yaf_registry_instance(NULL TSRMLS_CC);
+		registry = yaf_registry_instance(&rregistry TSRMLS_CC);
 		entrys 	 = zend_read_property(yaf_registry_ce, registry, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), 1 TSRMLS_CC);
 
-		Z_ADDREF_P(value);
-		if (zend_hash_update(Z_ARRVAL_P(entrys), name, len + 1, &value, sizeof(zval *), NULL) == SUCCESS) {
+		Z_TRY_ADDREF_P(value);
+		if (zend_hash_update(Z_ARRVAL_P(entrys), name, value) != NULL) {
 			RETURN_TRUE;
 		}
 	}
@@ -149,18 +146,17 @@ PHP_METHOD(yaf_registry, set) {
 /** {{{ proto public static Yaf_Registry::del($name)
 */
 PHP_METHOD(yaf_registry, del) {
-	char *name;
-	uint len;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &len) == FAILURE) {
+	zend_string *name;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &name) == FAILURE) {
 		return;
 	} else {
-		yaf_registry_t	*registry;
+		yaf_registry_t	*registry, rregistry;
 		zval *entrys;
 
-		registry = yaf_registry_instance(NULL TSRMLS_CC);
+		registry = yaf_registry_instance(&rregistry TSRMLS_CC);
 		entrys 	 = zend_read_property(yaf_registry_ce, registry, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), 1 TSRMLS_CC);
 
-		zend_hash_del(Z_ARRVAL_P(entrys), name, len + 1);
+		zend_hash_del(Z_ARRVAL_P(entrys), name);
 	}
 
 	RETURN_TRUE;
@@ -170,12 +166,11 @@ PHP_METHOD(yaf_registry, del) {
 /** {{{ proto public Yaf_Registry::has($name)
 */
 PHP_METHOD(yaf_registry, has) {
-	char *name;
-	uint len;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &len) == FAILURE) {
+	zend_string *name;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &name) == FAILURE) {
 		return;
 	} else {
-		RETURN_BOOL(yaf_registry_is_set(name, len TSRMLS_CC));
+		RETURN_BOOL(yaf_registry_is_set(name->val, name->len TSRMLS_CC));
 	}
 }
 /* }}} */
@@ -183,7 +178,8 @@ PHP_METHOD(yaf_registry, has) {
 /** {{{ proto public Yaf_Registry::getInstance(void)
 */
 PHP_METHOD(yaf_registry, getInstance) {
-	yaf_registry_t *registry = yaf_registry_instance(NULL TSRMLS_CC);
+	yaf_registry_t *registry, rregistry;
+	registry = yaf_registry_instance(&rregistry TSRMLS_CC);
 	RETURN_ZVAL(registry, 1, 0);
 }
 /* }}} */
@@ -208,7 +204,7 @@ YAF_STARTUP_FUNCTION(registry) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Registry", "Yaf\\Registry", yaf_registry_methods);
 
-	yaf_registry_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
+	yaf_registry_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
 	yaf_registry_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 
 	zend_declare_property_null(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC TSRMLS_CC);
