@@ -1112,11 +1112,7 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 /** {{{ proto public Yaf_Dispatcher::getInstance(void)
 */
 PHP_METHOD(yaf_dispatcher, getInstance) {
-	zval rself;
-	
-	ZVAL_NULL(&rself);
-	yaf_dispatcher_t *dispatcher = yaf_dispatcher_instance(&rself TSRMLS_CC);
-	RETURN_ZVAL(dispatcher, 1, 0);
+	yaf_dispatcher_t *dispatcher = yaf_dispatcher_instance(return_value TSRMLS_CC);
 }
 /* }}} */
 
