@@ -330,7 +330,7 @@ zval * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval *query
 	efree(pmatch);
 	zval_ptr_dtor(&pidents);
 
-	if (IS_ARRAY == Z_TYPE_P(query)) {
+	if (query && IS_ARRAY == Z_TYPE_P(query)) {
 		HashTable *ht = Z_ARRVAL_P(query);
 
 		smart_str_appendc(&squery, '?');
@@ -421,7 +421,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 /** {{{ proto public Yaf_Route_rewrite::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_rewrite, assemble) {
-	zval *info, *query, *return_uri = NULL;
+	zval *info, *query = NULL, *return_uri = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
 		return;

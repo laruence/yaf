@@ -137,7 +137,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *info, zval *quer
 		smart_str_appendc(&tvalue, '/');
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
-		if (IS_ARRAY == Z_TYPE_P(query)) {
+		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			uint key_len;
 			char *key;
 			ulong key_idx;
@@ -191,7 +191,7 @@ PHP_METHOD(yaf_route_supervar, __construct) {
 /** {{{ proto public Yaf_Route_Supervar::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_supervar, assemble) {
-    zval *info, *query;
+    zval *info, *query = NULL;
     zval *return_uri;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
