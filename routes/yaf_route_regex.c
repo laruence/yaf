@@ -192,7 +192,7 @@ zval * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *info, zval *query T
 		tstr = inter;
 	}
 
-	if (IS_ARRAY == Z_TYPE_P(query)) {
+	if (query && IS_ARRAY == Z_TYPE_P(query)) {
 		uint key_len;
 		char *key;
 		ulong key_idx;
@@ -359,7 +359,7 @@ PHP_METHOD(yaf_route_regex, __construct) {
 /** {{{ proto public Yaf_Route_regex::assemble(array $info[, array $query = NULL])
  */
 PHP_METHOD(yaf_route_regex, assemble) {
-	zval *info, *query, *return_uri = NULL;
+	zval *info, *query = NULL, *return_uri = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
 		return;

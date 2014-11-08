@@ -211,7 +211,7 @@ zval * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query 
 		smart_str_appendc(&tvalue, '/');
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
-		if (IS_ARRAY == Z_TYPE_P(query)) {
+		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			uint key_len;
 			char *key;
 			ulong key_idx;
@@ -275,7 +275,7 @@ PHP_METHOD(yaf_route_static, match) {
 /** {{{ proto public Yaf_Route_Static::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_static, assemble) {
-	zval *info, *query;
+	zval *info, *query = NULL;
 	zval *return_uri;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
