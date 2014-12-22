@@ -252,6 +252,14 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), default_controller TSRMLS_CC);
 	} else {
 		char *q, *p = zend_str_tolower_dup(Z_STRVAL_P(controller), Z_STRLEN_P(controller));
+		// no str_tolower, just duplication, I have tried zend_strndup, but it caused core
+		q = p;
+		char *o = Z_STRVAL_P(controller);
+		while (*q != '\0') {
+			*q = *o;
+			q++;
+			o++;
+		}
 
 		/**
 		 * upper controller name
