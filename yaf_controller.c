@@ -145,10 +145,11 @@ zval * yaf_controller_render(yaf_controller_t *instance, char *action_name, int 
 /** {{{ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC)
  */
 int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array TSRMLS_DC) {
-	char 		*path, *view_ext, *self_name, *tmp;
-	zval 		*name, *param, *ret = NULL;
-	int  		path_len;
-	yaf_view_t	*view;
+	char 	        	*path, *view_ext, *self_name, *tmp;
+	zval 	        	*name, *param, *ret = NULL;
+	int  	        	path_len;
+	yaf_view_t       	*view;
+	zend_class_entry 	*view_ce;
 
 	view   	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
 	name	  = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), 1 TSRMLS_CC);
@@ -182,10 +183,11 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 	MAKE_STD_ZVAL(param);
 	ZVAL_STRINGL(param, path, path_len, 0);
 
+	view_ce = Z_OBJCE_P(view);
 	if (var_array) {
-		zend_call_method_with_2_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param, var_array);
+		zend_call_method_with_2_params(&view, view_ce, NULL, "display", &ret, param, var_array);
 	} else {
-		zend_call_method_with_1_params(&view, Z_OBJCE_P(view), NULL, "display", &ret, param);
+		zend_call_method_with_1_params(&view, view_ce, NULL, "display", &ret, param);
 	}
 	zval_ptr_dtor(&param);
 
@@ -198,7 +200,7 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 		return 0;
 	}
 
-	if ((Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret))) {
+	if (Z_TYPE_P(ret) == IS_BOOL && !Z_BVAL_P(ret)) {
 		zval_ptr_dtor(&ret);
 		return 0;
 	}
