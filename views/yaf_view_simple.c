@@ -132,47 +132,13 @@ static int yaf_view_simple_valid_var_name(char *var_name, int len) /* {{{ */
 	return 1;
 }
 /* }}} */
+static int yaf_view_simple_extract_array(zval *vars, int is_set_ref TSRMLS_DC) {
 
-/** {{{ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC)
-*/
-static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC) {
 	zval **entry;
 	char *var_name;
 	ulong num_key;
 	uint var_name_len;
 	HashPosition pos;
-
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-	if (!EG(active_symbol_table)) {
-		/*zend_rebuild_symbol_table(TSRMLS_C);*/
-		return 1;
-	}
-#endif
-
-	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
-		for(zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(tpl_vars), &pos);
-				zend_hash_get_current_data_ex(Z_ARRVAL_P(tpl_vars), (void **)&entry, &pos) == SUCCESS;
-				zend_hash_move_forward_ex(Z_ARRVAL_P(tpl_vars), &pos)) {
-			if (zend_hash_get_current_key_ex(Z_ARRVAL_P(tpl_vars), &var_name, &var_name_len, &num_key, 0, &pos) != HASH_KEY_IS_STRING) {
-				continue;
-			}
-
-			/* GLOBALS protection */
-			if (var_name_len == sizeof("GLOBALS") && !strcmp(var_name, "GLOBALS")) {
-				continue;
-			}
-
-			if (var_name_len == sizeof("this")  && !strcmp(var_name, "this") && EG(scope) && EG(scope)->name_length != 0) {
-				continue;
-			}
-
-
-			if (yaf_view_simple_valid_var_name(var_name, var_name_len - 1)) {
-				ZEND_SET_SYMBOL_WITH_LENGTH(EG(active_symbol_table), var_name, var_name_len,
-						*entry, Z_REFCOUNT_P(*entry) + 1, PZVAL_IS_REF(*entry));
-			}
-		}
-	}
 
 	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
 		for(zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(vars), &pos);
@@ -192,11 +158,31 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC) {
 			}
 
 			if (yaf_view_simple_valid_var_name(var_name, var_name_len - 1)) {
+				int is_ref = 0;
+				if (is_set_ref) {
+					is_ref = PZVAL_IS_REF(*entry);
+				}
+
 				ZEND_SET_SYMBOL_WITH_LENGTH(EG(active_symbol_table), var_name, var_name_len,
-						*entry, Z_REFCOUNT_P(*entry) + 1, 0 /**PZVAL_IS_REF(*entry)*/);
+						*entry, Z_REFCOUNT_P(*entry) + 1, is_ref);
 			}
 		}
 	}
+}
+
+/** {{{ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC)
+*/
+static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC) {
+
+#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
+	if (!EG(active_symbol_table)) {
+		/*zend_rebuild_symbol_table(TSRMLS_C);*/
+		return 1;
+	}
+#endif
+
+	yaf_view_simple_extract_array(tpl_vars, 1);
+	yaf_view_simple_extract_array(vars, 0);
 
 	return 1;
 }
