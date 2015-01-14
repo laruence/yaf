@@ -168,6 +168,8 @@ static int yaf_view_simple_extract_array(zval *vars, int is_set_ref TSRMLS_DC) {
 			}
 		}
 	}
+
+	return 0;
 }
 
 /** {{{ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC)
