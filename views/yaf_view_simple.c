@@ -183,8 +183,8 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars TSRMLS_DC) {
 	}
 #endif
 
-	yaf_view_simple_extract_array(tpl_vars, 1 TSRMLS_DC);
-	yaf_view_simple_extract_array(vars, 0 TSRMLS_DC);
+	(void)yaf_view_simple_extract_array(tpl_vars, 1 TSRMLS_CC);
+	(void)yaf_view_simple_extract_array(vars, 0 TSRMLS_CC);
 
 	return 1;
 }
