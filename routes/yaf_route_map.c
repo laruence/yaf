@@ -156,9 +156,9 @@ PHP_METHOD(yaf_route_map, route) {
 }
 /* }}} */
 
-/** {{{ zval * yaf_route_map_assemble(zval *mvc, zval *query TSRMLS_DC)
+/** {{{ zval * yaf_route_map_assemble(zval *info, zval *query TSRMLS_DC)
  */
-zval * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+zval * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC) {
 	char *tmp, *ptrptr, *pname;
 	smart_str tvalue = {0};
 	uint tmp_len, has_delim = 0;
@@ -174,14 +174,14 @@ zval * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRM
 
 	do {
 		if (Z_BVAL_P(ctl_prefer)) {
-			if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp_data) == SUCCESS) {
+			if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp_data) == SUCCESS) {
 				pname = estrndup(Z_STRVAL_PP(tmp_data), Z_STRLEN_PP(tmp_data));
 			} else {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Undefined the 'action' parameter for the 1st parameter");
 				break;
 			}
 		} else {
-			if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp_data) == SUCCESS) {
+			if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp_data) == SUCCESS) {
 				pname = estrndup(Z_STRVAL_PP(tmp_data), Z_STRLEN_PP(tmp_data));
 			} else {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "Undefined the 'controller' parameter for the 1st parameter");
@@ -200,7 +200,7 @@ zval * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRM
 		}
 		efree(pname);
 
-		if (IS_ARRAY == Z_TYPE_P(query)) {
+		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			uint key_len, i = 0;
 			char *key;
 			ulong key_idx;
@@ -268,16 +268,16 @@ PHP_METHOD(yaf_route_map, __construct) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Route_Map::assemble(array $mvc[, array $query = NULL])
+/** {{{ proto public Yaf_Route_Map::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_map, assemble) {
-	zval *mvc, *query;
+	zval *info, *query = NULL;
 	zval *return_uri;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
         return;
     } else {
-        if ((return_uri = yaf_route_map_assemble(getThis(), mvc, query TSRMLS_CC))) {
+        if ((return_uri = yaf_route_map_assemble(getThis(), info, query TSRMLS_CC))) {
             RETURN_ZVAL(return_uri, 0, 1);
         }
     }

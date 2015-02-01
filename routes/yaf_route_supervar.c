@@ -98,9 +98,9 @@ PHP_METHOD(yaf_route_supervar, route) {
 }
 /** }}} */
 
-/** {{{ zval * yaf_route_supervar_assemble(zval *mvc, zval *query TSRMLS_DC)
+/** {{{ zval * yaf_route_supervar_assemble(zval *info, zval *query TSRMLS_DC)
  */
-zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query TSRMLS_DC) {
+zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *info, zval *query TSRMLS_DC) {
 	smart_str tvalue = {0};
 	zval *pname;
 	zval *uri;
@@ -116,12 +116,12 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		smart_str_appendl(&tvalue, Z_STRVAL_P(pname), Z_STRLEN_P(pname));
 		smart_str_appendc(&tvalue, '=');
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
+		if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), (void **)&tmp) == SUCCESS) {
 			smart_str_appendc(&tvalue, '/');
 			smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 		}
 
-		if (zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
+		if (zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
@@ -129,7 +129,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		smart_str_appendc(&tvalue, '/');
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
-		if(zend_hash_find(Z_ARRVAL_P(mvc), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
+		if(zend_hash_find(Z_ARRVAL_P(info), ZEND_STRS(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), (void **)&tmp) == FAILURE) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
 			break;
 		}
@@ -137,7 +137,7 @@ zval * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *mvc, zval *query
 		smart_str_appendc(&tvalue, '/');
 		smart_str_appendl(&tvalue, Z_STRVAL_PP(tmp), Z_STRLEN_PP(tmp));
 
-		if (IS_ARRAY == Z_TYPE_P(query)) {
+		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			uint key_len;
 			char *key;
 			ulong key_idx;
@@ -188,16 +188,16 @@ PHP_METHOD(yaf_route_supervar, __construct) {
 }
 /** }}} */
 
-/** {{{ proto public Yaf_Route_Supervar::assemble(array $mvc[, array $query = NULL])
+/** {{{ proto public Yaf_Route_Supervar::assemble(array $info[, array $query = NULL])
 */
 PHP_METHOD(yaf_route_supervar, assemble) {
-    zval *mvc, *query;
+    zval *info, *query = NULL;
     zval *return_uri;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &mvc, &query) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
         return;
     } else {
-        if ((return_uri = yaf_route_supervar_assemble(getThis(), mvc, query TSRMLS_CC))) {
+        if ((return_uri = yaf_route_supervar_assemble(getThis(), info, query TSRMLS_CC))) {
             RETURN_ZVAL(return_uri, 0, 1);
         }
     }

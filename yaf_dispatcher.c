@@ -925,6 +925,7 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC)
 
 	do {
 		YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_PREDISPATCH, request, response);
+		YAF_EXCEPTION_HANDLE(dispatcher, request, response);
 		if (!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC)) {
 			YAF_EXCEPTION_HANDLE(dispatcher, request, response);
 			zval_ptr_dtor(&response);
