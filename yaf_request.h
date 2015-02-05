@@ -54,8 +54,8 @@ PHP_METHOD(yaf_request, is##x) {\
 #define YAF_REQUEST_METHOD(ce, x, type) \
 PHP_METHOD(ce, get##x) { \
 	char *name; \
-	int  len; \
-    zval *ret; \
+	size_t  len; \
+	zval *ret; \
 	zval *def = NULL; \
 	if (ZEND_NUM_ARGS() == 0) { \
 		ret = yaf_request_query(type, NULL, 0 TSRMLS_CC); \
@@ -63,14 +63,19 @@ PHP_METHOD(ce, get##x) { \
 		return; \
 	} else { \
 		ret = yaf_request_query(type, name, len TSRMLS_CC); \
-		if (ZVAL_IS_NULL(ret)) { \
+		if (!ret) { \
 			if (def != NULL) { \
-				zval_ptr_dtor(&ret); \
 				RETURN_ZVAL(def, 1, 0); \
 			} \
 		} \
 	} \
-	RETURN_ZVAL(ret, 1, 1); \
+	if (ret) { \
+	    RETURN_ZVAL(ret, 1, 1); \
+	} else { \
+	    zval ret_null; \
+	    ZVAL_NULL(&ret_null); \
+	    RETURN_ZVAL(&ret_null, 1, 1); \
+	} \
 }
 
 extern zend_class_entry * yaf_request_ce;
@@ -81,14 +86,14 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 PHPAPI void php_session_start(TSRMLS_D);
 
 zval * yaf_request_get_method(yaf_request_t *instance TSRMLS_DC);
-zval * yaf_request_get_param(yaf_request_t *instance, char *key, int len TSRMLS_DC);
-zval * yaf_request_get_language(yaf_request_t *instance TSRMLS_DC);
+zval * yaf_request_get_param(yaf_request_t *instance, zend_string *key TSRMLS_DC);
+zval * yaf_request_get_language(yaf_request_t *instance, zval *accept_language TSRMLS_DC);
 
 int yaf_request_is_routed(yaf_request_t *request TSRMLS_DC);
 int yaf_request_is_dispatched(yaf_request_t *request TSRMLS_DC);
 int yaf_request_set_dispatched(yaf_request_t *request, int flag TSRMLS_DC);
 int yaf_request_set_routed(yaf_request_t *request, int flag TSRMLS_DC);
-int yaf_request_set_params_single(yaf_request_t *instance, char *key, int len, zval *value TSRMLS_DC);
+int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value TSRMLS_DC);
 int yaf_request_set_params_multi(yaf_request_t *instance, zval *values TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(request);

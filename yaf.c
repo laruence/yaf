@@ -57,8 +57,8 @@ zend_function_entry yaf_functions[] = {
 /** {{{ PHP_INI_MH(OnUpdateSeparator)
  */
 PHP_INI_MH(OnUpdateSeparator) {
-	YAF_G(name_separator) = new_value; 
-	YAF_G(name_separator_len) = new_value_length;
+	YAF_G(name_separator) = new_value->val; 
+	YAF_G(name_separator_len) = new_value->len; 
 	return SUCCESS;
 }
 /* }}} */
@@ -228,7 +228,7 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		efree(YAF_G(bootstrap));
 	}
 	if (YAF_G(modules)) {
-		zval_ptr_dtor(&(YAF_G(modules)));
+		efree(YAF_G(modules));
 	}
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));

@@ -45,7 +45,7 @@ YAF_STARTUP_FUNCTION(response_cli) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Cli", "Yaf\\Response\\Cli", yaf_response_cli_methods);
 
-	yaf_response_cli_ce = zend_register_internal_class_ex(&ce, yaf_response_ce, NULL TSRMLS_CC);
+	yaf_response_cli_ce = zend_register_internal_class_ex(&ce, yaf_response_ce TSRMLS_CC);
 
 	return SUCCESS;
 }

@@ -48,23 +48,19 @@
 #define YAF_PLUGIN_HANDLE(p, n, request, response) \
 	do { \
 		if (!ZVAL_IS_NULL(p)) { \
-			zval **_t_plugin;\
-			for(zend_hash_internal_pointer_reset(Z_ARRVAL_P(p));\
-					zend_hash_has_more_elements(Z_ARRVAL_P(p)) == SUCCESS;\
-					zend_hash_move_forward(Z_ARRVAL_P(p))) {\
-				if (zend_hash_get_current_data(Z_ARRVAL_P(p), (void**)&_t_plugin) == SUCCESS) {\
-					if (zend_hash_exists(&(Z_OBJCE_PP(_t_plugin)->function_table), n, sizeof(n))) {\
-						zend_call_method_with_2_params(_t_plugin, Z_OBJCE_PP(_t_plugin), NULL, n, NULL, request, response);\
-					}\
-				}\
-			}\
-		}\
+			zval *_t_plugin;\
+			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(p), _t_plugin) { \
+			    if (zend_hash_str_exists(&(Z_OBJCE_P(_t_plugin)->function_table), n, sizeof(n) - 1)) { \
+			        zend_call_method_with_2_params(_t_plugin, Z_OBJCE_P(_t_plugin), NULL, n, NULL, request, response); \
+				} \
+			} ZEND_HASH_FOREACH_END(); \
+		} \
 	} while(0)
 
 extern zend_class_entry *yaf_dispatcher_ce;
 
 yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC);
-yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC);
+yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr TSRMLS_DC);
 int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC);
 
 PHP_METHOD(yaf_application, app);

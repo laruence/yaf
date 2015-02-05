@@ -79,7 +79,7 @@ yaf_view_t * yaf_view_instance(yaf_view_t * this_ptr, zval *tpl_dir, zval *optio
 int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC);
 int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret TSRMLS_DC);
 int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value TSRMLS_DC);
-void yaf_view_simple_clear_assign(yaf_view_t *view, char *name, uint len TSRMLS_DC);
+void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name TSRMLS_DC);
 
 YAF_STARTUP_FUNCTION(view);
 #endif
