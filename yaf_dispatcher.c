@@ -106,17 +106,17 @@ ZEND_END_ARG_INFO()
 
 /* }}} */
 
-/** {{{ yaf_dispatcher_t * yaf_dispatcher_instance(zval *this_ptr TSRMLS_DC)
+/** {{{ yaf_dispatcher_t * yaf_dispatcher_instance(zval *this_ptr)
 */
-yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC) {
+yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) {
 	zval			plugins;
 	yaf_router_t	 	*router, rroute;
 	yaf_dispatcher_t 	*instance;
 
-	instance = zend_read_static_property(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), 1 TSRMLS_CC);
+	instance = zend_read_static_property(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), 1);
 
 	if (IS_OBJECT == Z_TYPE_P(instance)
-			&& instanceof_function(Z_OBJCE_P(instance), yaf_dispatcher_ce TSRMLS_CC)) {
+			&& instanceof_function(Z_OBJCE_P(instance), yaf_dispatcher_ce)) {
 		return instance;
 	}
 
@@ -134,17 +134,17 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC)
 	*/
 
 	array_init(&plugins);
-	zend_update_property(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), &plugins TSRMLS_CC);
+	zend_update_property(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), &plugins);
 	zval_ptr_dtor(&plugins);
 
 	ZVAL_NULL(&rroute);
-	router = yaf_router_instance(&rroute TSRMLS_CC);
+	router = yaf_router_instance(&rroute);
 
-	zend_update_property(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), router TSRMLS_CC);
-	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 	YAF_G(default_module) TSRMLS_CC);
-	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), YAF_G(default_controller) TSRMLS_CC);
-	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 	YAF_G(default_action) TSRMLS_CC);
-	zend_update_static_property(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), instance TSRMLS_CC);
+	zend_update_property(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), router);
+	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 	YAF_G(default_module));
+	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), YAF_G(default_controller));
+	zend_update_property_string(yaf_dispatcher_ce, instance, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 	YAF_G(default_action));
+	zend_update_static_property(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), instance);
 
 	zval_ptr_dtor(router);
 
@@ -152,40 +152,36 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC)
 }
 /* }}} */
 
-/** {{{ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval **params, uint *count TSRMLS_DC)
+/** {{{ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval **params, uint *count)
  */
-static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval **params, uint *count TSRMLS_DC) {
-	zval 		  	*args, *arg;
-	zend_arg_info 		*arg_info;
-	uint 		 	current;
-	HashTable 		*params_ht;
+static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval **params, uint *count) {
+	zval          *args, *arg, rv;
+	zend_arg_info *arg_info;
+	uint           current;
+	HashTable 	  *params_ht;
 
-	args = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1 TSRMLS_CC);
+	args = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1, &rv);
 
 	params_ht = Z_ARRVAL_P(args);
-
 	arg_info  = fptr->common.arg_info;
-	*params   = safe_emalloc(sizeof(zval **), fptr->common.num_args, 0);
+	*params   = safe_emalloc(sizeof(zval), fptr->common.num_args, 0);
 	for (current = 0; current < fptr->common.num_args; current++, arg_info++) {
-		if ((arg = zend_hash_str_find(params_ht, arg_info->name, arg_info->name_len)) != NULL) {
-			params[current] = arg;
+		if ((arg = zend_hash_find(params_ht, arg_info->name)) != NULL) {
+			ZVAL_COPY_VALUE(&((*params)[current]), arg);
 			(*count)++;
 		} else {
 			zend_string *key;
-			ulong idx, llen;
 
 			arg  = NULL;
-			llen = arg_info->name_len;
 			/* since we need search ignoring case, can't use zend_hash_find */
-			ZEND_HASH_FOREACH_KEY_VAL(params_ht, idx, key, arg) {
-
+			ZEND_HASH_FOREACH_STR_KEY_VAL(params_ht, key, arg) {
                 if (key) {
-					if (key->len == llen && !strncasecmp(key->val, arg_info->name, key->len)) {
+					if (zend_string_equals(key, arg_info->name)) {
 							/* return when we find first match, there is a trap
 							 * when multi different parameters in different case presenting in params_ht
 							 * only the first take affect
 							 */
-							params[current] = arg;
+							ZVAL_COPY_VALUE(&((*params)[current]), arg);
 							(*count)++;
 							break;
 					}
@@ -200,52 +196,60 @@ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf
 }
 /* }}} */
 
-/** {{{ static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options, yaf_view_t *ptr TSRMLS_DC)
+/** {{{ static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options, yaf_view_t *ptr)
 */
-static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options, yaf_view_t *ptr TSRMLS_DC) {
-	yaf_view_t *view = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 1 TSRMLS_CC);
-	if (IS_OBJECT == Z_TYPE_P(view)
-			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce TSRMLS_CC)) {
+static yaf_view_t * yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *tpl_dir, zval *options, yaf_view_t *ptr) {
+	zval rv;
+	yaf_view_t *view = zend_read_property(yaf_dispatcher_ce,
+			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 1, &rv);
+	if (EXPECTED(IS_OBJECT == Z_TYPE_P(view)
+			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce))) {
 		return view;
 	}
 
-	view = yaf_view_instance(ptr, tpl_dir, options TSRMLS_CC);
+	view = yaf_view_instance(ptr, tpl_dir, options);
 	if (!view) {
 		return NULL;
 	}
 
-	zend_update_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), view TSRMLS_CC);
+	zend_update_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), view);
 	zval_ptr_dtor(view);
 
 	return view;
 }
 /* }}} */
 
-/** {{{ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC)
+/** {{{ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request)
 */
-static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC) {
-	zval	*module, *controller, *action;
+static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
+	zval	*module, *controller, *action, rv;
 
-	module 		= zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
-	action	 	= zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
-	controller 	= zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
+	module = zend_read_property(yaf_request_ce,
+			request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1, &rv);
+	action = zend_read_property(yaf_request_ce,
+			request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1, &rv);
+	controller = zend_read_property(yaf_request_ce, request,
+			ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1, &rv);
 
 	if (Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module)) {
-		zval *default_module = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), default_module TSRMLS_CC);
+		zval *default_module = zend_read_property(yaf_dispatcher_ce,
+				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, &rv);
+		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), default_module);
 	} else {
 		char *p = zend_str_tolower_dup(Z_STRVAL_P(module), Z_STRLEN_P(module));
 		*p = toupper(*p);
-		zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), p, Z_STRLEN_P(module) TSRMLS_CC);
+		zend_update_property_stringl(yaf_request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), p, Z_STRLEN_P(module));
 		efree(p);
 	}
 
 	if (Z_TYPE_P(controller) != IS_STRING || !Z_STRLEN_P(controller)) {
-		zval *default_controller = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), default_controller TSRMLS_CC);
+		zval *default_controller = zend_read_property(yaf_dispatcher_ce,
+				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1, &rv);
+		zend_update_property(yaf_request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), default_controller);
 	} else {
 		char *q, *p = zend_str_tolower_dup(Z_STRVAL_P(controller), Z_STRLEN_P(controller));
-
 		/**
 		 * upper controller name
 		 * eg: Index_sub -> Index_Sub
@@ -266,84 +270,86 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 			q++;
 		}
 
-		zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), p, Z_STRLEN_P(controller) TSRMLS_CC);
+		zend_update_property_stringl(yaf_request_ce, request,
+				ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), p, Z_STRLEN_P(controller));
 		efree(p);
 	}
 
 	if (Z_TYPE_P(action) != IS_STRING || !Z_STRLEN_P(action)) {
-		zval *default_action = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), default_action TSRMLS_CC);
+		zval *default_action = zend_read_property(yaf_dispatcher_ce,
+				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 1, &rv);
+		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), default_action);
 	} else {
 		char *p = zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action));
-		zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), p, Z_STRLEN_P(action) TSRMLS_CC);
+		zend_update_property_stringl(yaf_request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), p, Z_STRLEN_P(action));
 		efree(p);
 	}
 }
 /* }}} */
 
-/** {{{int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC)
+/** {{{int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request)
 */
-int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC) {
+int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
 	if (request) {
-		zend_update_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request TSRMLS_CC);
+		zend_update_property(yaf_dispatcher_ce,
+				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request);
 		return 1;
 	}
 	return 0;
 }
 /* }}} */
 
-/** {{{ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, char *controller, int len, int def_module TSRMLS_DC)
+/** {{{ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, zend_string *module, zend_string *controller, int def_module)
  */
-zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, char *controller, int len, int def_module TSRMLS_DC) {
-	char 	 *directory 	= NULL;
-	int	 directory_len 	= 0;
+zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, zend_string *module, zend_string *controller, int def_module) {
+	char *directory;
+	size_t directory_len;
 
 	if (def_module) {
 		directory_len = spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	} else {
 		directory_len = spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
-				YAF_MODULE_DIRECTORY_NAME, DEFAULT_SLASH, module, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
+				YAF_MODULE_DIRECTORY_NAME, DEFAULT_SLASH, module->val, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	}
 
-	if (directory_len) {
-		char *class 		= NULL;
-		char *class_lowercase 	= NULL;
-		int class_len		= 0;
+	if (EXPECTED(directory_len)) {
+		zend_string *class;
+		zend_string *class_lowercase;
 		zend_class_entry *ce 	= NULL;
 
 		if (YAF_G(name_suffix)) {
-			class_len = spprintf(&class, 0, "%s%s%s", controller, YAF_G(name_separator), "Controller");
+			class = strpprintf(0, "%s%s%s", controller->val, YAF_G(name_separator), "Controller");
 		} else {
-			class_len = spprintf(&class, 0, "%s%s%s", "Controller", YAF_G(name_separator), controller);
+			class = strpprintf(0, "%s%s%s", "Controller", YAF_G(name_separator), controller->val);
 		}
 
-		class_lowercase = zend_str_tolower_dup(class, class_len);
+		class_lowercase = zend_string_tolower(class);
 
-		if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) == NULL) {
-
-			if (!yaf_internal_autoload(controller, len, &directory TSRMLS_CC)) {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER TSRMLS_CC, "Failed opening controller script %s: %s", directory, strerror(errno));
-				efree(class);
-				efree(class_lowercase);
+		if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) == NULL) {
+			if (!yaf_internal_autoload(controller->val, controller->len, &directory)) {
+				yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER, "Failed opening controller script %s: %s", directory, strerror(errno));
+				zend_string_release(class);
+				zend_string_release(class_lowercase);
 				efree(directory);
 				return NULL;
-			} else if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) == NULL)  {
-				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED TSRMLS_CC, "Could not find class %s in controller script %s", class, directory);
-				efree(class);
-				efree(class_lowercase);
+			} else if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) == NULL)  {
+				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "Could not find class %s in controller script %s", class->val, directory);
+				zend_string_release(class);
+				zend_string_release(class_lowercase);
 				efree(directory);
 				return 0;
-			} else if (!instanceof_function(ce, yaf_controller_ce TSRMLS_CC)) {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Controller must be an instance of %s", yaf_controller_ce->name);
-				efree(class);
-				efree(class_lowercase);
+			} else if (!instanceof_function(ce, yaf_controller_ce)) {
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Controller must be an instance of %s", yaf_controller_ce->name);
+				zend_string_release(class);
+				zend_string_release(class_lowercase);
 				efree(directory);
 				return 0;
 			}
 		}
 
-		efree(class);
-		efree(class_lowercase);
+		zend_string_release(class);
+		zend_string_release(class_lowercase);
 		efree(directory);
 
 		return ce;
@@ -353,76 +359,80 @@ zend_class_entry * yaf_dispatcher_get_controller(char *app_dir, char *module, ch
 }
 /* }}} */
 
-/** {{{ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *controller, char *module, int def_module, char *action, int len TSRMLS_DC)
+/** {{{ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *controller, char *module, int def_module, zend_string *action)
  */
-zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *controller, char *module, int def_module, char *action, int len TSRMLS_DC) {
+zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *controller, char *module, int def_module, zend_string *action) {
+	zval rv;
 	zval *paction, *actions_map;
+	actions_map = zend_read_property(Z_OBJCE_P(controller),
+			controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, &rv);
 
-	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1 TSRMLS_CC);
-
-	if (IS_ARRAY == Z_TYPE_P(actions_map)) {
+	if (EXPECTED(IS_ARRAY == Z_TYPE_P(actions_map))) {
 		zend_class_entry *ce;
-		uint  class_len;
-		char *class_name, *class_lowercase;
-		char *action_upper = estrndup(action, len);
+		zend_string *class;
+		zend_string *class_lowercase;
+		char *action_upper = estrndup(action->val, action->len);
 
 		*(action_upper) = toupper(*action_upper);
 
 		if (YAF_G(name_suffix)) {
-			class_len = spprintf(&class_name, 0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
+			class = strpprintf(0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
 		} else {
-			class_len = spprintf(&class_name, 0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
+			class = strpprintf(0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
 		}
 
-		class_lowercase = zend_str_tolower_dup(class_name, class_len);
+		class_lowercase = zend_string_tolower(class);
 
-		if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) != NULL) {
+		if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) != NULL) {
 			efree(action_upper);
-			efree(class_lowercase);
-			if (instanceof_function(ce, yaf_action_ce TSRMLS_CC)) {
-				efree(class_name);
+			zend_string_release(class_lowercase);
+			if (instanceof_function(ce, yaf_action_ce)) {
+				zend_string_release(class);
 				return ce;
 			} else {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Action %s must extends from %s", class_name, yaf_action_ce->name);
-				efree(class_name);
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR,
+						"Action %s must extends from %s", class->val, yaf_action_ce->name);
+				zend_string_release(class);
 				return NULL;
 			}
 		}
 
-		if ((paction = zend_hash_str_find(Z_ARRVAL_P(actions_map), action, len)) != NULL) {
+		if ((paction = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
 			char *action_path;
-			uint action_path_len;
+			size_t action_path_len;
 
 			action_path_len = spprintf(&action_path, 0, "%s%c%s", app_dir, DEFAULT_SLASH, Z_STRVAL_P(paction));
-			if (yaf_loader_import(action_path, action_path_len, 0 TSRMLS_CC)) {
-				if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) != NULL) {
+			if (yaf_loader_import(action_path, action_path_len, 0)) {
+				if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) != NULL) {
 					efree(action_path);
 					efree(action_upper);
-					efree(class_lowercase);
+					zend_string_release(class_lowercase);
 
-					if (instanceof_function(ce, yaf_action_ce TSRMLS_CC)) {
-						efree(class_name);
+					if (instanceof_function(ce, yaf_action_ce)) {
+						zend_string_release(class);
 						return ce;
 					} else {
-						yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Action %s must extends from %s", class_name, yaf_action_ce->name);
-						efree(class_name);
+						yaf_trigger_error(YAF_ERR_TYPE_ERROR,
+								"Action %s must extends from %s", class->val, yaf_action_ce->name);
+						zend_string_release(class);
 					}
 
 				} else {
-					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Could not find action %s in %s", class_name, action_path);
+					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
+							"Could not find action %s in %s", class->val, action_path);
 				}
 
 				efree(action_path);
 				efree(action_upper);
-				efree(class_name);
-				efree(class_lowercase);
-
+				zend_string_release(class);
+				zend_string_release(class_lowercase);
 			} else {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Failed opening action script %s: %s", action_path, strerror(errno));
+				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
+						"Failed opening action script %s: %s", action_path, strerror(errno));
 				efree(action_path);
 			}
 		} else {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "There is no method %s%s in %s::$%s",
+			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "There is no method %s%s in %s::$%s",
 					action, "Action", Z_OBJCE_P(controller)->name, YAF_CONTROLLER_PROPERTY_NAME_ACTIONS);
 		}
 	} else
@@ -431,7 +441,7 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 		char *directory, *class, *class_lowercase, *p;
 		uint class_len;
 		zend_class_entry *ce;
-		char *action_upper = estrndup(action, len);
+		char *action_upper = estrndup(action->val, action->len);
 
 		/**
 		 * upper Action Name
@@ -469,8 +479,8 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 		class_lowercase = zend_str_tolower_dup(class, class_len);
 
 		if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) == NULL) {
-			if (!yaf_internal_autoload(action_upper, len, &directory TSRMLS_CC)) {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "Failed opening action script %s: %s", directory, strerror(errno));
+			if (!yaf_internal_autoload(action_upper, action->len, &directory)) {
+				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "Failed opening action script %s: %s", directory, strerror(errno));
 
 				efree(class);
 				efree(action_upper);
@@ -478,15 +488,15 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 				efree(directory);
 				return NULL;
 			} else if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) == NULL)  {
-				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED TSRMLS_CC, "Could find class %s in action script %s", class, directory);
+				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "Could find class %s in action script %s", class, directory);
 
 				efree(class);
 				efree(action_upper);
 				efree(class_lowercase);
 				efree(directory);
 				return NULL;
-			} else if (!instanceof_function(ce, yaf_action_ce TSRMLS_CC)) {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Action must be an instance of %s", yaf_action_ce->name);
+			} else if (!instanceof_function(ce, yaf_action_ce)) {
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Action must be an instance of %s", yaf_action_ce->name);
 
 				efree(class);
 				efree(action_upper);
@@ -505,91 +515,73 @@ zend_class_entry * yaf_dispatcher_get_action(char *app_dir, yaf_controller_t *co
 	} else
 /* }}} */
 	{
-		yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION TSRMLS_CC, "There is no method %s%s in %s", action, "Action", Z_OBJCE_P(controller)->name);
+		yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
+				"There is no method %s%s in %s", action, "Action", Z_OBJCE_P(controller)->name);
 	}
 
 	return NULL;
 }
 /* }}} */
 
-/** {{{ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request,  yaf_response_t *response, yaf_view_t *view TSRMLS_DC)
+/** {{{ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request,  yaf_response_t *response, yaf_view_t *view)
 */
-int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request,  yaf_response_t *response, yaf_view_t *view TSRMLS_DC) {
+int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request,  yaf_response_t *response, yaf_view_t *view) {
 	zend_class_entry *request_ce;
 	char *app_dir = YAF_G(directory);
 
 	request_ce = Z_OBJCE_P(request);
 
-	yaf_request_set_dispatched(request, 1 TSRMLS_CC);
+	yaf_request_set_dispatched(request, 1);
 	if (!app_dir) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED TSRMLS_CC, "%s requires %s(which set the application.directory) to be initialized first",
+		yaf_trigger_error(YAF_ERR_STARTUP_FAILED,
+				"%s requires %s(which set the application.directory) to be initialized first",
 				yaf_dispatcher_ce->name, yaf_application_ce->name);
 		return 0;
 	} else {
 		int	is_def_module = 0;
-		/* int is_def_ctr = 0; */
-		zval *module, *controller, *dmodule, /* *dcontroller,*/ *instantly_flush;
+		zval rv;
+		zval *module, *controller, *dmodule, *instantly_flush;
 		zend_class_entry *ce;
 		yaf_controller_t *executor;
-		zend_function    *fptr;
+		zend_function *fptr;
 
-		module		= zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
-		controller	= zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
+		module = zend_read_property(request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1, &rv);
+		controller = zend_read_property(request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1, &rv);
+		dmodule	= zend_read_property(yaf_dispatcher_ce,
+				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, &rv);
 
-		dmodule		= zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
-		/*
-		dcontroller = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
-		*/
-
-		if (Z_TYPE_P(module) != IS_STRING
-				|| !Z_STRLEN_P(module)) {
-			yaf_trigger_error(YAF_ERR_DISPATCH_FAILED TSRMLS_CC, "Unexcepted a empty module name");
+		if (UNEXPECTED(Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module))) {
+			yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "Unexcepted a empty module name");
 			return 0;
-		} else if (!yaf_application_is_module_name(Z_STRVAL_P(module), Z_STRLEN_P(module) TSRMLS_CC)) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_MODULE TSRMLS_CC, "There is no module %s", Z_STRVAL_P(module));
+		} else if (UNEXPECTED(!yaf_application_is_module_name(Z_STR_P(module)))) {
+			yaf_trigger_error(YAF_ERR_NOTFOUND_MODULE, "There is no module %s", Z_STRVAL_P(module));
 			return 0;
 		}
 
-		if (Z_TYPE_P(controller) != IS_STRING
-				|| !Z_STRLEN_P(controller)) {
-			yaf_trigger_error(YAF_ERR_DISPATCH_FAILED TSRMLS_CC, "Unexcepted a empty controller name");
+		if (UNEXPECTED(Z_TYPE_P(controller) != IS_STRING || !Z_STRLEN_P(controller))) {
+			yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "Unexcepted a empty controller name");
 			return 0;
 		}
 
-		if (strncasecmp(Z_STRVAL_P(dmodule), Z_STRVAL_P(module), Z_STRLEN_P(module)) == 0) {
+		if (zend_string_equals(Z_STR_P(dmodule), Z_STR_P(module))) {
 			is_def_module = 1;
 		}
 
-		/* if (strncasecmp(Z_STRVAL_P(dcontroller), Z_STRVAL_P(controller), Z_STRLEN_P(controller)) == 0) {
-			is_def_ctr = 1;
-		} */
-
-		ce = yaf_dispatcher_get_controller(app_dir, Z_STRVAL_P(module), Z_STRVAL_P(controller), Z_STRLEN_P(controller), is_def_module TSRMLS_CC);
+		ce = yaf_dispatcher_get_controller(app_dir, Z_STR_P(module), Z_STR_P(controller), is_def_module);
 		if (!ce) {
 			return 0;
 		} else {
-			zval  *action, *render, *ret = NULL;
-			char  *action_lower, *func_name, *view_dir;
-			uint  func_name_len;
-
+			zval ret;
+			zval *action, *render;
+			char *view_dir;
+			zend_string *func_name;
 			yaf_controller_t icontroller;
 
 			object_init_ex(&icontroller, ce);
 
-			/* cause controller's constructor is a final method, so it must be a internal function
-			   do {
-			   zend_function *constructor = NULL;
-			   constructor = Z_OBJ_HT_P(exec_ctr)->get_constructor(exec_ctr TSRMLS_CC);
-			   if (constructor != NULL) {
-			   if (zend_call_method_with_2_params(&exec_ctr, *ce
-			   , &constructor, NULL, &ret, request, response) == NULL) {
-			   yaf_trigger_error(YAF_ERR_CALL_FAILED, "function call for %s::__construct failed", (*ce)->name);
-			   return 0;
-			   }
-			   }
-			   } while(0);
-			   */
-			yaf_controller_construct(ce, &icontroller, request, response, view, NULL TSRMLS_CC);
+			yaf_controller_construct(ce, &icontroller, request, response, view, NULL);
 			if (EG(exception)) {
 				zval_ptr_dtor(&icontroller);
 				return 0;
@@ -607,101 +599,95 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			}
 			YAF_G(view_directory) = view_dir;
 
-			zend_update_property(ce, &icontroller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME),	controller TSRMLS_CC);
+			zend_update_property(ce, &icontroller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME),	controller);
 
-			action		 = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
-			action_lower = zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action));
+			action = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1, &rv);
 
 			/* because the action might call the forward to override the old action */
 			Z_ADDREF_P(action);
 
-			func_name_len = spprintf(&func_name,  0, "%s%s", action_lower, "action");
-			efree(action_lower);
+			func_name = strpprintf(0, "%s%s", Z_STRVAL_P(action), "action");
+			zend_str_tolower(func_name->val, func_name->len);
 
-			if ((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_name_len)) != NULL) {
+			/* @TODO: Magic __call supports? */
+			if ((fptr = zend_hash_find_ptr(&((ce)->function_table), func_name)) != NULL) {
 				uint count = 0;
 				zval *call_args = NULL;
-
-				ret = NULL;
-
 				executor = &icontroller;
 				if (fptr->common.num_args) {
 					zval method_name;
 
-					yaf_dispatcher_get_call_parameters(request_ce, request, fptr, &call_args, &count TSRMLS_CC);
-					ZVAL_STRINGL(&method_name, func_name, func_name_len);
-
-					call_user_function_ex(&(ce)->function_table, &icontroller, &method_name, ret, count, call_args, 1, NULL TSRMLS_CC);
-
+					yaf_dispatcher_get_call_parameters(request_ce, request, fptr, &call_args, &count);
+					ZVAL_STR(&method_name, func_name);
+					call_user_function_ex(&(ce)->function_table,
+							&icontroller, &method_name, &ret, count, call_args, 1, NULL);
 					efree(call_args);
 				} else {
-					zend_call_method(&icontroller, ce, NULL, func_name, func_name_len, ret, 0, NULL, NULL TSRMLS_CC);
+					zend_call_method(&icontroller, ce, NULL, func_name->val, func_name->len, &ret, 0, NULL, NULL);
 				}
 
-				efree(func_name);
+				zend_string_release(func_name);
 
-				if (!ret) {
+				if (Z_ISUNDEF(ret)) {
 					zval_ptr_dtor(action);
-					zval_ptr_dtor(&icontroller);
+					zval_ptr_dtor(executor);
 					return 0;
 				}
 
-				if ((Z_TYPE_P(ret) == IS_FALSE)) {
-					/* no auto-render */
-					zval_ptr_dtor(ret);
+				if ((Z_TYPE(ret) == IS_FALSE)) {
+					/* no auto-renderring */
 					zval_ptr_dtor(action);
-					zval_ptr_dtor(&icontroller);
+					zval_ptr_dtor(executor);
 					return 1;
 				}
-				zval_ptr_dtor(ret);
-			} else if ((ce = yaf_dispatcher_get_action(app_dir, &icontroller,
-							Z_STRVAL_P(module), is_def_module, Z_STRVAL_P(action), Z_STRLEN_P(action) TSRMLS_CC))
-					&& ((fptr = zend_hash_str_find_ptr(&(ce)->function_table, YAF_ACTION_EXECUTOR_NAME,
-							sizeof(YAF_ACTION_EXECUTOR_NAME) - 1)) != NULL)) {
+				zval_ptr_dtor(&ret);
+			} else if (ce = yaf_dispatcher_get_action(app_dir,
+						&icontroller, Z_STRVAL_P(module), is_def_module, Z_STR_P(action)) &&
+					((fptr = (zend_function *)zend_hash_str_find_ptr(&(ce)->function_table,
+						 YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1)) != NULL)) {
 				zval *call_args;
 				yaf_action_t iaction;
 				uint count = 0;
 
-				efree(func_name);
+				zend_string_release(func_name);
 
 				object_init_ex(&iaction, ce);
 
-				yaf_controller_construct(ce, &iaction, request, response, view, NULL TSRMLS_CC);
+				yaf_controller_construct(ce, &iaction, request, response, view, NULL);
 				executor = &iaction;
 
-				zend_update_property(ce, &iaction, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), controller TSRMLS_CC);
-				zend_update_property(ce, &iaction, ZEND_STRL(YAF_ACTION_PROPERTY_NAME_CTRL), &icontroller TSRMLS_CC);
+				zend_update_property(ce, &iaction, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), controller);
+				zend_update_property(ce, &iaction, ZEND_STRL(YAF_ACTION_PROPERTY_NAME_CTRL), &icontroller);
 				zval_ptr_dtor(&icontroller);
 
 				if (fptr->common.num_args) {
 					zval method_name;
 
-					yaf_dispatcher_get_call_parameters(request_ce, request, fptr, &call_args, &count TSRMLS_CC);
+					yaf_dispatcher_get_call_parameters(request_ce, request, fptr, &call_args, &count);
 					ZVAL_STRINGL(&method_name, YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1);
-
-					call_user_function_ex(&(ce)->function_table, &iaction, &method_name, ret, count, call_args, 1, NULL TSRMLS_CC);
-
+					call_user_function_ex(&(ce)->function_table,
+							&iaction, &method_name, &ret, count, call_args, 1, NULL);
+					zval_ptr_dtor(&method_name);
 					efree(call_args);
 				} else {
-					zend_call_method_with_0_params(&iaction, ce, NULL, "execute", ret);
+					zend_call_method_with_0_params(&iaction, ce, NULL, "execute", &ret);
 				}
 
-				if (!ret) {
+				if (Z_ISUNDEF(ret)) {
 					zval_ptr_dtor(action);
 					zval_ptr_dtor(&iaction);
 					return 0;
 				}
 
-				if ((Z_TYPE_P(ret) == IS_FALSE)) {
-					/* no auto-render */
-					zval_ptr_dtor(ret);
+				if ((Z_TYPE(ret) == IS_FALSE)) {
+					/* no auto-renderring */
 					zval_ptr_dtor(action);
 					zval_ptr_dtor(&iaction);
 					return 1;
 				}
-				zval_ptr_dtor(ret);
+				zval_ptr_dtor(&ret);
 			} else {
-				efree(func_name);
+				zend_string_release(func_name);
 				zval_ptr_dtor(&icontroller);
 				return 0;
 			}
@@ -709,50 +695,51 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			if (executor) {
 				/* controller's property can override the Dispatcher's */
 				int auto_render = 1;
-				render = zend_read_property(ce, executor, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER), 1 TSRMLS_CC);
-				instantly_flush	= zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1 TSRMLS_CC);
+				render = zend_read_property(ce, executor, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER), 1, &rv);
+				instantly_flush	= zend_read_property(yaf_dispatcher_ce,
+						dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, &rv);
 				if (render == &EG(uninitialized_zval)) {
-					render = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1 TSRMLS_CC);
+					render = zend_read_property(yaf_dispatcher_ce,
+							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, &rv);
 					auto_render = (Z_TYPE_P(render) == IS_TRUE ? 1 : 0);
-				} else if (Z_TYPE_P(render) == IS_NULL || Z_TYPE_P(render) == IS_DOUBLE || Z_TYPE_P(render) == IS_LONG) {
+				} else if (Z_TYPE_P(render) == IS_NULL ||
+						Z_TYPE_P(render) == IS_DOUBLE || Z_TYPE_P(render) == IS_LONG) {
 					auto_render = 0;
 				}
 
 				if (auto_render) {
-					ret = NULL;
 					if (Z_TYPE_P(instantly_flush) == IS_FALSE) {
-						zend_call_method_with_1_params(executor, ce, NULL, "render", ret, action);
+						zend_call_method_with_1_params(executor, ce, NULL, "render", &ret, action);
 						zval_ptr_dtor(executor);
 
-						if (!ret) {
+						if (UNEXPECTED(Z_ISUNDEF(ret))) {
 							zval_ptr_dtor(action);
 							return 0;
-						} else if (IS_FALSE == Z_TYPE_P(ret)) {
-							zval_ptr_dtor(ret);
+						} else if (IS_FALSE == Z_TYPE(ret)) {
 							zval_ptr_dtor(action);
 							return 0;
 						}
 
-						if (Z_TYPE_P(ret) == IS_STRING && Z_STRLEN_P(ret)) {
-							yaf_response_alter_body(response, NULL, Z_STRVAL_P(ret), Z_STRLEN_P(ret), YAF_RESPONSE_APPEND  TSRMLS_CC);
+						if (Z_TYPE(ret) == IS_STRING && Z_STRLEN(ret)) {
+							yaf_response_alter_body(response, NULL,
+									Z_STRVAL(ret), Z_STRLEN(ret), YAF_RESPONSE_APPEND );
 						} 
 
-						zval_ptr_dtor(ret);
+						zval_ptr_dtor(&ret);
 					} else {
-						zend_call_method_with_1_params(executor, ce, NULL, "display", ret, action);
+						zend_call_method_with_1_params(executor, ce, NULL, "display", &ret, action);
 						zval_ptr_dtor(executor);
 
-						if (!ret) {
+						if (UNEXPECTED(Z_ISUNDEF(ret))) {
 							zval_ptr_dtor(action);
 							return 0;
 						}
 
-						if ((Z_TYPE_P(ret) == IS_FALSE)) {
-							zval_ptr_dtor(ret);
+						if ((Z_TYPE(ret) == IS_FALSE)) {
 							zval_ptr_dtor(action);
 							return 0;
 						}
-						zval_ptr_dtor(ret);
+						zval_ptr_dtor(&ret);
 					}
 				} else {
 					zval_ptr_dtor(executor);
@@ -766,11 +753,13 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 }
 /* }}} */
 
-/** {{{ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response TSRMLS_DC)
+/** {{{ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response)
 */
-void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response TSRMLS_DC) {
+void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response) {
+	zval rv;
 	zval *module, controller, action, exception;
 	yaf_view_t  *view, rview;
+	zend_string *exception_str;
 	const zend_op *opline;
 
 	if (YAF_G(in_exception) || !EG(exception)) {
@@ -779,15 +768,16 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 
 	YAF_G(in_exception) = 1;
 
-	module = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
+	module = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1, &rv);
 
 	if (Z_TYPE_P(module) != IS_STRING || !Z_STRLEN_P(module)) {
-		module = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+		module = zend_read_property(yaf_dispatcher_ce,
+				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, &rv);
+		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module);
 	}
 
 	ZVAL_STRING(&controller, YAF_ERROR_CONTROLLER);
-	ZVAL_STRING(&action, 	YAF_ERROR_ACTION);
+	ZVAL_STRING(&action, YAF_ERROR_ACTION);
 
 	ZVAL_OBJ(&exception, EG(exception));
 	EG(exception) = NULL;
@@ -796,16 +786,16 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 	EG(opline_before_exception) = NULL;
 #endif
 
-	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), &controller TSRMLS_CC);
-	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), &action TSRMLS_CC);
-	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_EXCEPTION), &exception TSRMLS_CC);
+	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), &controller);
+	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), &action);
+	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_EXCEPTION), &exception);
 
-	Z_DELREF(controller);
+	zval_ptr_dtor(&controller);
 	zval_ptr_dtor(&action);
 
 	/** use $request->getException() instand of */
-	zend_string *exception_str = zend_string_init(ZEND_STRL("exception"), 0);
-	if (yaf_request_set_params_single(request, exception_str, &exception TSRMLS_CC)) {
+	exception_str = zend_string_init(ZEND_STRL("exception"), 0);
+	if (yaf_request_set_params_single(request, exception_str, &exception)) {
 		zend_string_release(exception_str);
 		zval_ptr_dtor(&exception);
 	} else {
@@ -814,47 +804,50 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 		EG(exception) = Z_OBJ(exception);
 		return;
 	}
-	yaf_request_set_dispatched(request, 0 TSRMLS_CC);
+	yaf_request_set_dispatched(request, 0);
 
 	ZVAL_NULL(&rview);
-	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL, &rview TSRMLS_CC);
-	if (!view) {
+	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL, &rview);
+	if (UNEXPECTED(!view)) {
 		return;
 	}
 
-	if (!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC)) {
-		if (EG(exception) 
-				&& instanceof_function(EG(exception->ce), 
-					yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)] TSRMLS_CC)) {
-			zval *m = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
+	if (!yaf_dispatcher_handle(dispatcher, request, response, view)) {
+		if (EG(exception) &&
+			instanceof_function(EG(exception->ce),
+				yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)])) {
+			zval *m = zend_read_property(yaf_dispatcher_ce,
+					dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, &rv);
 			/* failover to default module error catcher */
-			zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), m TSRMLS_CC);
+			zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), m);
 			EG(exception) = NULL;
-			(void)yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC);
+			(void)yaf_dispatcher_handle(dispatcher, request, response, view);
 		}
 	}
 
-	(void)yaf_response_send(response TSRMLS_CC);
+	(void)yaf_response_send(response);
 
 	EG(opline_before_exception) = opline;
 	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
 
-/** {{{ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC)
+/** {{{ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request)
  */
-int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC) {
+int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
+	zval ret, rv;
 	zend_class_entry *router_ce;
-	yaf_router_t *router = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 1 TSRMLS_CC);
-	if (IS_OBJECT == Z_TYPE_P(router)) {
-		if ((router_ce = Z_OBJCE_P(router)) == yaf_router_ce) {
+	yaf_router_t *router = zend_read_property(yaf_dispatcher_ce,
+			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 1, &rv);
+	if (EXPECTED(IS_OBJECT == Z_TYPE_P(router))) {
+		if (EXPECTED((router_ce = Z_OBJCE_P(router)) == yaf_router_ce)) {
 			/* use built-in router */
-			yaf_router_route(router, request TSRMLS_CC);
+			yaf_router_route(router, request);
 		} else {
 			/* user custom router */
-			zval *ret = zend_call_method_with_1_params(router, router_ce, NULL, "route", ret, request);
-			if (Z_TYPE_P(ret) == IS_FALSE) {
-				yaf_trigger_error(YAF_ERR_ROUTE_FAILED TSRMLS_CC, "Routing request faild");
+			zend_call_method_with_1_params(router, router_ce, NULL, "route", &ret, request);
+			if (Z_TYPE(ret) != IS_TRUE) {
+				yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request faild");
 				return 0;
 			}
 		}
@@ -864,47 +857,50 @@ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request TS
 }
 /* }}} */
 
-/** {{{ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC)
+/** {{{ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher)
 */
-yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr TSRMLS_DC) {
+yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr) {
+	zval rv;
 	zval *return_response, *plugins, *view, rview;
 	yaf_response_t *response;
 	yaf_request_t *request;
 	uint nesting = YAF_G(forward_limit);
 
-	response = yaf_response_instance(response_ptr, sapi_module.name TSRMLS_CC);
-	request	 = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 1 TSRMLS_CC);
-	plugins	 = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 1 TSRMLS_CC);
+	response = yaf_response_instance(response_ptr, sapi_module.name);
+	request	= zend_read_property(yaf_dispatcher_ce,
+			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 1, &rv);
+	plugins	= zend_read_property(yaf_dispatcher_ce,
+			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 1, &rv);
 
-	if (IS_OBJECT != Z_TYPE_P(request)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expect a %s instance", yaf_request_ce->name);
+	if (UNEXPECTED(IS_OBJECT != Z_TYPE_P(request))) {
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance", yaf_request_ce->name);
 		zval_ptr_dtor(response);
 		return NULL;
 	}
 
 	/* route request */
-	if (!yaf_request_is_routed(request TSRMLS_CC)) {
+	if (!yaf_request_is_routed(request)) {
 		YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_ROUTESTARTUP, request, response);
 		YAF_EXCEPTION_HANDLE(dispatcher, request, response);
-		if (!yaf_dispatcher_route(dispatcher, request TSRMLS_CC)) {
-			yaf_trigger_error(YAF_ERR_ROUTE_FAILED TSRMLS_CC, "Routing request failed");
+		if (!yaf_dispatcher_route(dispatcher, request)) {
+			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher, request, response);
 			zval_ptr_dtor(response);
 			return NULL;
 		}
-		yaf_dispatcher_fix_default(dispatcher, request TSRMLS_CC);
+		yaf_dispatcher_fix_default(dispatcher, request);
 		YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_ROUTESHUTDOWN, request, response);
 		YAF_EXCEPTION_HANDLE(dispatcher, request, response);
-		(void)yaf_request_set_routed(request, 1 TSRMLS_CC);
+		(void)yaf_request_set_routed(request, 1);
 	} else {
-		yaf_dispatcher_fix_default(dispatcher, request TSRMLS_CC);
+		yaf_dispatcher_fix_default(dispatcher, request);
 	}
 
 	YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_LOOPSTARTUP, request, response);
 	YAF_EXCEPTION_HANDLE(dispatcher, request, response);
 
 	ZVAL_NULL(&rview);
-	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL, &rview TSRMLS_CC);
+	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL, &rview);
 	if (!view) {
 		return NULL;
 	}
@@ -912,31 +908,32 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *res
 	do {
 		YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_PREDISPATCH, request, response);
 		YAF_EXCEPTION_HANDLE(dispatcher, request, response);
-		if (!yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC)) {
+		if (!yaf_dispatcher_handle(dispatcher, request, response, view)) {
 			YAF_EXCEPTION_HANDLE(dispatcher, request, response);
 			zval_ptr_dtor(response);
 			return NULL;
 		}
-		yaf_dispatcher_fix_default(dispatcher, request TSRMLS_CC);
+		yaf_dispatcher_fix_default(dispatcher, request);
 		YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_POSTDISPATCH, request, response);
 		YAF_EXCEPTION_HANDLE(dispatcher, request, response);
-	} while (--nesting > 0 && !yaf_request_is_dispatched(request TSRMLS_CC));
+	} while (--nesting > 0 && !yaf_request_is_dispatched(request));
 
 	YAF_PLUGIN_HANDLE(plugins, YAF_PLUGIN_HOOK_LOOPSHUTDOWN, request, response);
 	YAF_EXCEPTION_HANDLE(dispatcher, request, response);
 
-	if (0 == nesting && !yaf_request_is_dispatched(request TSRMLS_CC)) {
-		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED TSRMLS_CC, "The max dispatch nesting %ld was reached", YAF_G(forward_limit));
+	if (0 == nesting && !yaf_request_is_dispatched(request)) {
+		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The max dispatch nesting %ld was reached", YAF_G(forward_limit));
 		YAF_EXCEPTION_HANDLE_NORET(dispatcher, request, response);
 		zval_ptr_dtor(response);
 		return NULL;
 	}
 
-	return_response = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1 TSRMLS_CC);
+	return_response = zend_read_property(yaf_dispatcher_ce,
+			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1, &rv);
 
 	if (Z_TYPE_P(return_response) == IS_FALSE) {
-		(void)yaf_response_send(response TSRMLS_CC);
-		yaf_response_clear_body(response, NULL, 0 TSRMLS_CC);
+		(void)yaf_response_send(response);
+		yaf_response_clear_body(response, NULL, 0);
 	}
 
 	return response;
@@ -968,7 +965,7 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 	zval params[2];
 	zval function	 = {{0}, 0};
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &callback, &error_type) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &callback, &error_type) == FAILURE) {
 		return;
 	}
 
@@ -978,7 +975,7 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 	}
 
 	ZVAL_STRING(&function, "set_error_handler");
-	if (call_user_function(EG(function_table), NULL, &function, return_value, ZEND_NUM_ARGS(), params TSRMLS_CC) == FAILURE) {
+	if (call_user_function(EG(function_table), NULL, &function, return_value, ZEND_NUM_ARGS(), params) == FAILURE) {
 		if (return_value) {
 			zval_dtor(return_value);
 		}
@@ -987,7 +984,7 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 			zval_ptr_dtor(&params[1]);
 		}
 		zval_ptr_dtor(&function);
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Call to set_error_handler failed");
+		php_error_docref(NULL, E_WARNING, "Call to set_error_handler failed");
 		RETURN_FALSE;
 	}
 
@@ -1009,7 +1006,7 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 */
 PHP_METHOD(yaf_dispatcher, disableView) {
 	yaf_dispatcher_t *self = getThis();
-	zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 0 TSRMLS_CC);
+	zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 0);
 	RETURN_ZVAL(self, 1, 0);
 }
 /* }}} */
@@ -1018,7 +1015,7 @@ PHP_METHOD(yaf_dispatcher, disableView) {
 */
 PHP_METHOD(yaf_dispatcher, enableView) {
 	yaf_dispatcher_t *self = getThis();
-	zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1 TSRMLS_CC);
+	zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1);
 	RETURN_ZVAL(self, 1, 0);
 }
 /* }}} */
@@ -1026,18 +1023,21 @@ PHP_METHOD(yaf_dispatcher, enableView) {
 /** {{{ proto public Yaf_Dispatcher::returnResponse()
 */
 PHP_METHOD(yaf_dispatcher, returnResponse) {
+	zval rv;
 	zend_bool auto_response;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &auto_response) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &auto_response) == FAILURE) {
 		return;
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), (auto_response)? 1:0 TSRMLS_CC);
+		zend_update_property_bool(yaf_dispatcher_ce,
+				self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), (auto_response)? 1:0);
 		RETURN_ZVAL(self, 1, 0);
 	} else {
-		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1 TSRMLS_CC)) == IS_TRUE ? 1 : 0);
+		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
+						self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1, &rv)) == IS_TRUE ? 1 : 0);
 	}
 }
 /* }}} */
@@ -1045,18 +1045,21 @@ PHP_METHOD(yaf_dispatcher, returnResponse) {
 /** {{{ proto public Yaf_Dispatcher::flushInstantly(bool $flag)
 */
 PHP_METHOD(yaf_dispatcher, flushInstantly) {
+	zval rv;
 	zend_bool instantly_flush;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &instantly_flush) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &instantly_flush) == FAILURE) {
 		return;
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), (instantly_flush)? 1:0 TSRMLS_CC);
+		zend_update_property_bool(yaf_dispatcher_ce,
+				self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), (instantly_flush)? 1:0);
 		RETURN_ZVAL(self, 1, 0);
 	} else {
-		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1 TSRMLS_CC)) == IS_TRUE ? 1 : 0);		
+		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
+						self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, &rv)) == IS_TRUE ? 1 : 0);		
 	}
 }
 /* }}} */
@@ -1064,24 +1067,24 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 /** {{{ proto public Yaf_Dispatcher::registerPlugin(Yaf_Plugin_Abstract $plugin)
 */
 PHP_METHOD(yaf_dispatcher, registerPlugin) {
-	zval *plugin, *plugins;
+	zval *plugin, *plugins, rv;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &plugin) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &plugin) == FAILURE) {
 		return;
 	}
 
-	if (Z_TYPE_P(plugin) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(plugin), yaf_plugin_ce TSRMLS_CC)) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expect a %s instance", yaf_plugin_ce->name->val);
+	if (EXPECTED(Z_TYPE_P(plugin) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(plugin), yaf_plugin_ce))) {
+		php_error_docref(NULL, E_WARNING, "Expect a %s instance", yaf_plugin_ce->name->val);
 		RETURN_FALSE;
 	}
 
-	plugins = zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 1 TSRMLS_CC);
+	plugins = zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 1, &rv);
 
 	Z_ADDREF_P(plugin);
 	add_next_index_zval(plugins, plugin);
 
-	RETVAL_ZVAL(self, 1, 0);
+	RETURN_ZVAL(self, 1, 0);
 }
 /* }}} */
 
@@ -1091,18 +1094,18 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 	yaf_request_t	 *request;
 	yaf_dispatcher_t *self;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &request) == FAILURE) {
 		return;
 	}
 
 	if (IS_OBJECT != Z_TYPE_P(request)
-		   || !instanceof_function(Z_OBJCE_P(request), yaf_request_ce TSRMLS_CC))	{
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Expects a %s instance", yaf_request_ce->name->val);
+		   || !instanceof_function(Z_OBJCE_P(request), yaf_request_ce))	{
+		php_error_docref(NULL, E_WARNING, "Expects a %s instance", yaf_request_ce->name->val);
 		RETURN_FALSE;
 	}
 
 	self = getThis();
-	if (yaf_dispatcher_set_request(self, request TSRMLS_CC)) {
+	if (yaf_dispatcher_set_request(self, request)) {
 		RETURN_ZVAL(self, 1, 0);
 	}
 
@@ -1113,14 +1116,16 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 /** {{{ proto public Yaf_Dispatcher::getInstance(void)
 */
 PHP_METHOD(yaf_dispatcher, getInstance) {
-	yaf_dispatcher_t *dispatcher = yaf_dispatcher_instance(return_value TSRMLS_CC);
+	yaf_dispatcher_t *dispatcher = yaf_dispatcher_instance(return_value);
 }
 /* }}} */
 
 /** {{{ proto public Yaf_Dispatcher::getRouter(void)
 */
 PHP_METHOD(yaf_dispatcher, getRouter) {
-	yaf_router_t *router = zend_read_property(yaf_dispatcher_ce, getThis(), ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 1 TSRMLS_CC);
+	zval rv;
+	yaf_router_t *router = zend_read_property(yaf_dispatcher_ce,
+			getThis(), ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 1, &rv);
 	RETURN_ZVAL(router, 1, 0);
 }
 /* }}} */
@@ -1128,7 +1133,9 @@ PHP_METHOD(yaf_dispatcher, getRouter) {
 /** {{{ proto public Yaf_Dispatcher::getRequest(void)
 */
 PHP_METHOD(yaf_dispatcher, getRequest) {
-	yaf_request_t *request = zend_read_property(yaf_dispatcher_ce, getThis(), ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 1 TSRMLS_CC);
+	zval rv;
+	yaf_request_t *request = zend_read_property(yaf_dispatcher_ce,
+			getThis(), ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 1, &rv);
 	RETURN_ZVAL(request, 1, 0);
 }
 /* }}} */
@@ -1147,13 +1154,13 @@ PHP_METHOD(yaf_dispatcher, dispatch) {
 	yaf_response_t 	*response, rresponse;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &request) == FAILURE) {
 		return;
 	}
 
-	zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request TSRMLS_CC);
+	zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request);
 	ZVAL_NULL(&rresponse);
-	if ((response = yaf_dispatcher_dispatch(self, &rresponse TSRMLS_CC))) {
+	if ((response = yaf_dispatcher_dispatch(self, &rresponse))) {
 		RETURN_ZVAL(response, 1, 1);
 	}
 
@@ -1165,7 +1172,7 @@ PHP_METHOD(yaf_dispatcher, dispatch) {
 */
 PHP_METHOD(yaf_dispatcher, throwException) {
 	zend_bool flag;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &flag) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &flag) == FAILURE) {
 		return;
 	}
 
@@ -1182,7 +1189,7 @@ PHP_METHOD(yaf_dispatcher, throwException) {
 */
 PHP_METHOD(yaf_dispatcher, catchException) {
 	zend_bool flag;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &flag) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &flag) == FAILURE) {
 		return;
 	}
 
@@ -1198,18 +1205,20 @@ PHP_METHOD(yaf_dispatcher, catchException) {
 /** {{{ proto public Yaf_Dispatcher::autoRender(int $flag)
  */
 PHP_METHOD(yaf_dispatcher, autoRender) {
+	zval rv;
 	zend_bool flag;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &flag) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &flag) == FAILURE) {
 		return;
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), flag? 1 : 0 TSRMLS_CC);
+		zend_update_property_bool(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), flag? 1 : 0);
 		RETURN_ZVAL(self, 1, 0);
 	} else {
-		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1 TSRMLS_CC)) == IS_TRUE ? 1 : 0);
+		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
+						self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, &rv)) == IS_TRUE ? 1 : 0);
 	} 
 }
 /* }}} */
@@ -1221,11 +1230,11 @@ PHP_METHOD(yaf_dispatcher, initView) {
 	zval 		*tpl_dir = NULL;
 	zval 		*options = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &tpl_dir, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &tpl_dir, &options) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	}
 
-	view = yaf_dispatcher_init_view(getThis(), tpl_dir, options, &rview TSRMLS_CC);
+	view = yaf_dispatcher_init_view(getThis(), tpl_dir, options, &rview);
 
 	RETURN_ZVAL(view, 1, 0);
 }
@@ -1237,13 +1246,13 @@ PHP_METHOD(yaf_dispatcher, setView) {
 	yaf_view_t		*view;
 	yaf_dispatcher_t 	*self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &view) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &view) == FAILURE) {
 		return;
 	}
 
 	if (IS_OBJECT == Z_TYPE_P(view)
-			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce TSRMLS_CC)) {
-		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), view TSRMLS_CC);
+			&& instanceof_function(Z_OBJCE_P(view), yaf_view_interface_ce)) {
+		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), view);
 		RETURN_ZVAL(self, 1, 0);
 	}
 
@@ -1257,16 +1266,16 @@ PHP_METHOD(yaf_dispatcher, setDefaultModule) {
 	zval *module;
 	zval *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &module) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &module) == FAILURE) {
 		return;
 	}
 
 	if (IS_STRING == Z_TYPE_P(module) && Z_STRLEN_P(module)
-			&& yaf_application_is_module_name(Z_STRVAL_P(module), Z_STRLEN_P(module) TSRMLS_CC)) {
+			&& yaf_application_is_module_name(Z_STR_P(module))) {
 		zval module_std;
 		ZVAL_STRING(&module_std, zend_str_tolower_dup(Z_STRVAL_P(module), Z_STRLEN_P(module)));
 		*Z_STRVAL(module_std) = toupper(*Z_STRVAL(module_std));
-		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), &module_std TSRMLS_CC);
+		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), &module_std);
 		zval_ptr_dtor(&module_std);
 
 		RETURN_ZVAL(self, 1, 0);
@@ -1282,7 +1291,7 @@ PHP_METHOD(yaf_dispatcher, setDefaultController) {
 	zval *controller;
 	zval *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &controller) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &controller) == FAILURE) {
 		return;
 	}
 
@@ -1290,7 +1299,7 @@ PHP_METHOD(yaf_dispatcher, setDefaultController) {
 		zval controller_std;
 		ZVAL_STRING(&controller_std, zend_str_tolower_dup(Z_STRVAL_P(controller), Z_STRLEN_P(controller)));
 		*Z_STRVAL_P(&controller_std) = toupper(*Z_STRVAL(controller_std));
-		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), &controller_std TSRMLS_CC);
+		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), &controller_std);
 
 		RETURN_ZVAL(self, 1, 0);
 	}
@@ -1305,14 +1314,14 @@ PHP_METHOD(yaf_dispatcher, setDefaultAction) {
 	zval *action;
 	zval *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &action) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &action) == FAILURE) {
 		return;
 	}
 
 	if (IS_STRING == Z_TYPE_P(action) && Z_STRLEN_P(action)) {
 		zval action_lower;
 		ZVAL_STRING(&action_lower, zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action)));
-		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), &action_lower TSRMLS_CC);
+		zend_update_property(yaf_dispatcher_ce, self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), &action_lower);
 		zval_ptr_dtor(&action_lower);
 
 		RETURN_ZVAL(self, 1, 0);
@@ -1372,25 +1381,25 @@ YAF_STARTUP_FUNCTION(dispatcher) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Dispatcher", "Yaf\\Dispatcher", yaf_dispatcher_methods);
 
-	yaf_dispatcher_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
-	yaf_dispatcher_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+	yaf_dispatcher_ce = zend_register_internal_class_ex(&ce, NULL);
+	yaf_dispatcher_ce->ce_flags |= ZEND_ACC_FINAL;
 
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 	ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 	ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 	ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 	ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 	ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_VIEW), 	ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 	ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 	ZEND_ACC_PROTECTED);
 
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC TSRMLS_CC);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC);
 
-	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER),	1,  ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN),   0, ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 	0, ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER),	1,  ZEND_ACC_PROTECTED);
+	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN),   0, ZEND_ACC_PROTECTED);
+	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 	0, ZEND_ACC_PROTECTED);
 
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 		ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 	ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 	 	ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 		ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 	ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 	 	ZEND_ACC_PROTECTED);
 
-	/*zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ARGS), 	 	ZEND_ACC_PROTECTED TSRMLS_CC);*/
+	/*zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ARGS), 	 	ZEND_ACC_PROTECTED);*/
 
 	return SUCCESS;
 }

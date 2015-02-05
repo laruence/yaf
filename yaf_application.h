@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_application.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef PHP_YAF_APPLICATION_H
 #define PHP_YAF_APPLICATION_H
 
@@ -30,7 +28,16 @@
 
 extern zend_class_entry *yaf_application_ce;
 
-int yaf_application_is_module_name(char *name, int len TSRMLS_DC);
+int yaf_application_is_module_name(zend_string *name);
 
 YAF_STARTUP_FUNCTION(application);
 #endif
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

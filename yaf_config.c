@@ -237,10 +237,10 @@ static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *f
 /** {{{ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC)
  */
 static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC) {
-	char *key;
-	uint len;
+	zval rv;
 	long ctime;
 	zval *configs;
+	zend_string *key;
 	HashTable *persistent;
 	yaf_config_cache *cache;
 
@@ -263,7 +263,7 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 		return;
 	}
 
-	configs = zend_read_property(yaf_config_ini_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC);
+	configs = zend_read_property(yaf_config_ini_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC, &rv);
 
 	zend_hash_init(persistent, zend_hash_num_elements(Z_ARRVAL_P(configs)), NULL, (dtor_func_t) yaf_config_zval_dtor, 1);
 
@@ -272,11 +272,11 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 	ctime = yaf_config_ini_modified(filename, 0 TSRMLS_CC);
 	cache->ctime = ctime;
 	cache->data  = persistent;
-	len = spprintf(&key, 0, "%s#%s", Z_STRVAL_P(filename), Z_STRVAL_P(section));
+	key = strpprintf(0, "%s#%s", Z_STRVAL_P(filename), Z_STRVAL_P(section));
 
-	zend_hash_str_update_ptr(YAF_G(configs), key, len, cache);
+	zend_hash_update_ptr(YAF_G(configs), key, cache);
 
-	efree(key);
+	zend_string_release(key);
 }
 /* }}} */
 
