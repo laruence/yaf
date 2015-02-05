@@ -63,8 +63,6 @@
 
 #define YAF_UNINITIALIZED_OBJECT(obj) \
 	do { \
-		zval_dtor(obj); \
-		ZVAL_FALSE(obj); \
 	} while(0)
 
 extern zend_class_entry *yaf_ce_RuntimeException;
