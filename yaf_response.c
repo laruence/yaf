@@ -52,9 +52,9 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_body_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC)
+/** {{{ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name)
  */
-yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name TSRMLS_DC) {
+yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name) {
 	zval 			header, body;
 	zend_class_entry 	*ce;
 	yaf_response_t 		*instance;
@@ -71,21 +71,21 @@ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name
     }
 
 	array_init(&header);
-	zend_update_property(ce, instance, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), &header TSRMLS_CC);
+	zend_update_property(ce, instance, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), &header);
 	zval_ptr_dtor(&header);
 
 	array_init(&body);
-	zend_update_property(ce, instance, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), &body TSRMLS_CC);
+	zend_update_property(ce, instance, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), &body);
 	zval_ptr_dtor(&body);
 
 	return instance;
 }
 /* }}} */
 
-/** {{{ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_len, char *body, long body_len TSRMLS_DC)
+/** {{{ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_len, char *body, long body_len)
  */
 #if 0
-static int yaf_response_set_body(yaf_response_t *response, char *name, int name_len, char *body, long body_len TSRMLS_DC) {
+static int yaf_response_set_body(yaf_response_t *response, char *name, int name_len, char *body, long body_len) {
 	zval *zbody;
 	zend_class_entry *response_ce;
 
@@ -95,33 +95,33 @@ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_
 
 	response_ce = Z_OBJCE_P(response);
 
-	zbody = zend_read_property(response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+	zbody = zend_read_property(response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1);
 
 	zval_ptr_dtor(&zbody);
 
 	MAKE_STD_ZVAL(zbody);
 	ZVAL_STRINGL(zbody, body, body_len, 1);
 
-	zend_update_property(response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), zbody TSRMLS_CC);
+	zend_update_property(response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), zbody);
 
 	return 1;
 }
 #endif
 /* }}} */
 
-/** {{{ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *body, long body_len, int flag TSRMLS_DC)
+/** {{{ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *body, long body_len, int flag)
  */
-int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *body, long body_len, int flag TSRMLS_DC) {
+int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *body, long body_len, int flag) {
+	zval  rv;
 	zval *zbody, *pzval;
-	uint free_name = 0;
-	char *obody;
-	long obody_len;
+	uint  free_name = 0;
+	zend_string *obody;
 
 	if (!body_len) {
 		return 1;
 	}
 
-	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, &rv);
 
 	if (!name) {
 		name = zend_string_init(ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY), 0);
@@ -133,10 +133,8 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *b
 		obody = NULL;
 		ZVAL_NULL(&body);
 		pzval = zend_hash_update(Z_ARRVAL_P(zbody), name, &body);
-		zval_ptr_dtor(&body);
 	} else {
-		obody = Z_STRVAL_P(pzval);
-		obody_len = Z_STRLEN_P(pzval);
+		obody = Z_STR_P(pzval);
 	}
 
 	if (obody) {
@@ -145,20 +143,20 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *b
 
 		switch (flag) {
 			case YAF_RESPONSE_PREPEND:
-				result_len = body_len + obody_len;
+				result_len = body_len + obody->len;
 				result = emalloc(result_len + 1);
 				memcpy(result, body, body_len);
-				memcpy(result + body_len, obody, obody_len);
+				memcpy(result + body_len, obody->val, obody->len);
 				result[result_len] = '\0';
 				zend_string_release(Z_STR_P(pzval));
 				ZVAL_STRINGL(pzval, result, result_len);
 				efree(result);
 				break;
 			case YAF_RESPONSE_APPEND:
-				result_len = body_len + obody_len;
+				result_len = body_len + obody->len;
 				result = emalloc(result_len + 1);
-				memcpy(result, obody, obody_len);
-				memcpy(result + obody_len, body, body_len);
+				memcpy(result, obody->val, obody->len);
+				memcpy(result + obody->len, body, body_len);
 				result[result_len] = '\0';
 				zend_string_release(Z_STR_P(pzval));
 				ZVAL_STRINGL(pzval, result, result_len);
@@ -180,14 +178,14 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *b
 }
 /* }}} */
 
-/** {{{ int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC)
+/** {{{ int yaf_response_clear_body(yaf_response_t *response, zend_string *name)
  */
-int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC) {
-	zval *zbody;
-	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+int yaf_response_clear_body(yaf_response_t *response, zend_string *name) {
+	zval *zbody, rv;
+	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, &rv);
 
 	if (name) {
-		zend_hash_str_del(Z_ARRVAL_P(zbody), name, name_len);
+		zend_hash_del(Z_ARRVAL_P(zbody), name);
 	} else {
 		zend_hash_clean(Z_ARRVAL_P(zbody));
 	}
@@ -195,39 +193,47 @@ int yaf_response_clear_body(yaf_response_t *response, char *name, uint name_len 
 }
 /* }}} */
 
-/** {{{ zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC)
+/** {{{ zval * yaf_response_get_body(yaf_response_t *response, zend_string *name)
  */
-zval * yaf_response_get_body(yaf_response_t *response, char *name, uint name_len TSRMLS_DC) {
-	zval *pzval;
-	zval *zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+zval * yaf_response_get_body(yaf_response_t *response, zend_string *name) {
+	zval *pzval, rv;
+	zval *zbody = zend_read_property(yaf_response_ce,
+			response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, &rv);
 
 	if (!name) {
 		return zbody;
 	}
 
-	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(zbody), name, name_len)) == NULL) {
-		return NULL;
-	}
-
-	return pzval;
+	return zend_hash_find(Z_ARRVAL_P(zbody), name);
 }
 /* }}} */
 
-/** {{{ int yaf_response_send(yaf_response_t *response TSRMLS_DC)
+/** {{{ zval * yaf_response_get_body_str(yaf_response_t *response, char *name, size_t len)
  */
-int yaf_response_send(yaf_response_t *response TSRMLS_DC) {
-	zval 			*zbody;
-	zval 			*val;
+zval * yaf_response_get_body_str(yaf_response_t *response, char *name, size_t len) {
+	zval *ret;
+	zend_string *n = zend_string_init(name, len, 0);
+	ret = yaf_response_get_body(response, n);
+	zend_string_release(n);
+	return ret;
+}
+/* }}} */
 
-	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+/** {{{ int yaf_response_send(yaf_response_t *response)
+ */
+int yaf_response_send(yaf_response_t *response) {
+	zval *zbody;
+	zval *val, rv;
 
-	zend_hash_internal_pointer_reset(Z_ARRVAL_P(zbody));
-	while ((val = zend_hash_get_current_data(Z_ARRVAL_P(zbody))) != NULL) {
-		convert_to_string_ex(val);
-		php_write(Z_STRVAL_P(val), Z_STRLEN_P(val) TSRMLS_CC);
-		zend_hash_move_forward(Z_ARRVAL_P(zbody));
-	}
+	zbody = zend_read_property(yaf_response_ce,
+			response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, &rv);
 
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(zbody), val) {
+		if (UNEXPECTED(Z_TYPE_P(val) != IS_STRING)) {
+			continue;
+		}
+		php_write(Z_STRVAL_P(val), Z_STRLEN_P(val));
+	} ZEND_HASH_FOREACH_END();
 	return 1;
 }
 /* }}} */
@@ -242,7 +248,7 @@ PHP_METHOD(yaf_response, __construct) {
         self = &rself;
     }
     
-	(void)yaf_response_instance(self, sapi_module.name TSRMLS_CC);
+	(void)yaf_response_instance(self, sapi_module.name);
 }
 /* }}} */
 
@@ -260,13 +266,13 @@ PHP_METHOD(yaf_response, appendBody) {
 	size_t		body_len;
 	yaf_response_t 	*self;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|S", &body, &body_len, &name) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s|S", &body, &body_len, &name) == FAILURE) {
 		return;
 	}
 
 	self = getThis();
 
-	if (yaf_response_alter_body(self, name, body, body_len, YAF_RESPONSE_APPEND TSRMLS_CC)) {
+	if (yaf_response_alter_body(self, name, body, body_len, YAF_RESPONSE_APPEND)) {
 		RETURN_ZVAL(self, 1, 0);
 	}
 
@@ -282,13 +288,13 @@ PHP_METHOD(yaf_response, prependBody) {
 	size_t		body_len;
 	yaf_response_t 	*self;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|S", &body, &body_len, &name) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s|S", &body, &body_len, &name) == FAILURE) {
 		return;
 	}
 
 	self = getThis();
 
-	if (yaf_response_alter_body(self, name, body, body_len, YAF_RESPONSE_PREPEND TSRMLS_CC)) {
+	if (yaf_response_alter_body(self, name, body, body_len, YAF_RESPONSE_PREPEND)) {
 		RETURN_ZVAL(self, 1, 0);
 	}
 
@@ -330,7 +336,7 @@ PHP_METHOD(yaf_response, setRedirect) {
 	char 	*url;
 	size_t 	url_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &url, &url_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &url, &url_len) == FAILURE) {
 		return;
 	}
 
@@ -338,7 +344,7 @@ PHP_METHOD(yaf_response, setRedirect) {
 		RETURN_FALSE;
 	}
 
-	RETURN_BOOL(yaf_response_set_redirect(getThis(), url, url_len TSRMLS_CC));
+	RETURN_BOOL(yaf_response_set_redirect(getThis(), url, url_len));
 }
 /* }}} */
 
@@ -350,13 +356,13 @@ PHP_METHOD(yaf_response, setBody) {
 	size_t		body_len;
 	yaf_response_t 	*self;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|S", &body, &body_len, &name) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s|S", &body, &body_len, &name) == FAILURE) {
 		return;
 	}
 
 	self = getThis();
 
-	if (yaf_response_alter_body(self, name, body, body_len, YAF_RESPONSE_REPLACE TSRMLS_CC)) {
+	if (yaf_response_alter_body(self, name, body, body_len, YAF_RESPONSE_REPLACE)) {
 		RETURN_ZVAL(self, 1, 0);
 	}
 
@@ -367,13 +373,12 @@ PHP_METHOD(yaf_response, setBody) {
 /** {{{ proto public Yaf_Response_Abstract::clearBody(string $name = NULL)
 */
 PHP_METHOD(yaf_response, clearBody) {
-	char *name = NULL;
-	size_t name_len = 0;
+	zend_string *name;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S", &name) == FAILURE) {
 		return;
 	}
-	if (yaf_response_clear_body(getThis(), name, name_len TSRMLS_CC)) {
+	if (yaf_response_clear_body(getThis(), name)) {
 		RETURN_ZVAL(getThis(), 1, 0);
 	}
 
@@ -384,21 +389,22 @@ PHP_METHOD(yaf_response, clearBody) {
 /** {{{ proto public Yaf_Response_Abstract::getBody(string $name = NULL)
  */
 PHP_METHOD(yaf_response, getBody) {
-	zval *body = NULL;
+	zval *body;
 	zval *name = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &name) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|z", &name) == FAILURE) {
 		return;
 	}
 
 	if (!name) {
-		body = yaf_response_get_body(getThis(), YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1 TSRMLS_CC);
+		body = yaf_response_get_body_str(getThis(),
+				YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1);
 	} else {
 		if (ZVAL_IS_NULL(name)) {
-			body = yaf_response_get_body(getThis(), NULL, 0 TSRMLS_CC);
+			body = yaf_response_get_body(getThis(), NULL);
 		} else {
 			convert_to_string_ex(name);
-			body = yaf_response_get_body(getThis(), Z_STRVAL_P(name), Z_STRLEN_P(name) TSRMLS_CC);
+			body = yaf_response_get_body(getThis(), Z_STR_P(name));
 		}
 	}
 
@@ -413,7 +419,7 @@ PHP_METHOD(yaf_response, getBody) {
 /** {{{ proto public Yaf_Response_Abstract::response(void)
  */
 PHP_METHOD(yaf_response, response) {
-	RETURN_BOOL(yaf_response_send(getThis() TSRMLS_CC));
+	RETURN_BOOL(yaf_response_send(getThis()));
 }
 /* }}} */
 
@@ -421,10 +427,12 @@ PHP_METHOD(yaf_response, response) {
  */
 PHP_METHOD(yaf_response, __toString) {
 	zend_string *delim;
-	zval *zbody = zend_read_property(yaf_response_ce, getThis(), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1 TSRMLS_CC);
+	zval rv;
+	zval *zbody = zend_read_property(yaf_response_ce,
+			getThis(), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, &rv);
 
 	delim = STR_EMPTY_ALLOC();
-	php_implode(delim, zbody, return_value TSRMLS_CC);
+	php_implode(delim, zbody, return_value);
 	zend_string_release(delim);
 }
 /* }}} */
@@ -459,13 +467,13 @@ YAF_STARTUP_FUNCTION(response) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Abstract", "Yaf\\Response_Abstract", yaf_response_methods);
 
-	yaf_response_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
+	yaf_response_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_response_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
-	zend_declare_property_null(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_bool(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION), 0, ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_class_constant_stringl(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) TSRMLS_CC);
+	zend_declare_property_null(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), ZEND_ACC_PROTECTED);
+	zend_declare_property_bool(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION), 0, ZEND_ACC_PROTECTED);
+	zend_declare_class_constant_stringl(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
 
 	YAF_STARTUP(response_http);
 	YAF_STARTUP(response_cli);
