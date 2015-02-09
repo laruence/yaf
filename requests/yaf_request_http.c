@@ -258,9 +258,9 @@ PHP_METHOD(yaf_request_http, get) {
 */
 PHP_METHOD(yaf_request_http, __construct) {
 	char *request_uri = NULL;
-	char *base_uri	  = NULL;
-	size_t  rlen		  = 0;
-	size_t  blen 		  = 0;
+	char *base_uri = NULL;
+	size_t rlen = 0;
+	size_t blen = 0;
 	yaf_request_t rself, *self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|ss", &request_uri, &rlen, &base_uri, &blen) == FAILURE) {

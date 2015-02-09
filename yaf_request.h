@@ -44,9 +44,9 @@
 
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\
-	zval rv, *method  = zend_read_property(Z_OBJCE_P(getThis()), \
-			getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 0, &rv); \
-	if (zend_string_equals_literal_ci(Z_STR_P(method), #x) == 0) { \
+	zval *method = zend_read_property(Z_OBJCE_P(getThis()), \
+			getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 0, NULL); \
+	if (zend_string_equals_literal_ci(Z_STR_P(method), #x)) { \
 		RETURN_TRUE; \
 	} \
 	RETURN_FALSE; \

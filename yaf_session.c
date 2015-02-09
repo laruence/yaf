@@ -76,38 +76,34 @@ inline int yaf_session_start(yaf_session_t *session) {
 /** {{{ static yaf_session_t * yaf_session_instance(yaf_session_t *this_ptr)
 */
 static yaf_session_t * yaf_session_instance(yaf_session_t *this_ptr) {
-	yaf_session_t *instance;
 	zval *sess, member;
 	zend_object *obj;
 	zend_property_info *property_info;
 
-	instance = this_ptr;
-	object_init_ex(instance, yaf_session_ce);
+	object_init_ex(this_ptr, yaf_session_ce);
 
-	yaf_session_start(instance);
+	yaf_session_start(this_ptr);
 
-	if ((sess = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_SESSION"))) == NULL || Z_TYPE_P(Z_REFVAL_P(sess)) != IS_ARRAY) {
+	if ((sess = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_SESSION"))) == NULL
+			|| Z_TYPE_P(sess) != IS_REFERENCE
+			|| Z_TYPE_P(Z_REFVAL_P(sess)) != IS_ARRAY) {
 		php_error_docref(NULL, E_WARNING, "Attempt to start session failed");
-		zval_ptr_dtor(instance);
+		zval_ptr_dtor(this_ptr);
 		return NULL;
 	}
 
 	ZVAL_STRING(&member, YAF_SESSION_PROPERTY_NAME_SESSION);
 
-	obj = Z_OBJ_P(instance);
+	obj = Z_OBJ_P(this_ptr);
 
 	property_info = zend_get_property_info(obj->ce, Z_STR(member), 1);
 
-	Z_ADDREF_P(sess);
-	if (!obj->properties) {
-		rebuild_object_properties(obj);
+	if (property_info->offset != ZEND_WRONG_PROPERTY_OFFSET) {
+		zval *prop = OBJ_PROP(obj, property_info->offset);
+		ZVAL_COPY(prop, sess);
 	}
-	/** This is ugly , because we can't set a ref property through the stadard APIs */
-	zend_hash_update(obj->properties, property_info->name, sess);
 
-	zend_update_static_property(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), instance);
-
-	return instance;
+	return this_ptr;
 }
 /* }}} */
 
@@ -298,7 +294,7 @@ PHP_METHOD(yaf_session, key) {
 	if (zend_hash_get_current_key(Z_ARRVAL_P(sess), &key, &index) == HASH_KEY_IS_LONG) {
 		RETURN_LONG(index);
 	} else {
-		RETURN_STR(zend_strinig_copy(key));
+		RETURN_STR(zend_string_copy(key));
 	}
 }
 /* }}} */

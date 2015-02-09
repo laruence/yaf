@@ -154,7 +154,9 @@ PHP_METHOD(yaf_request_simple, __construct) {
         if (!params) {
             ZVAL_NULL(&rparams);
             params = &rparams;
-        }
+        } else {
+			SEPARATE_ZVAL(params);
+		}
 
         if (!self) {
             ZVAL_NULL(&rself);
