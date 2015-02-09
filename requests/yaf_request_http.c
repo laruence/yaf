@@ -33,9 +33,9 @@
 
 static zend_class_entry * yaf_request_http_ce;
 
-/** {{{ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request_uri, char *base_uri TSRMLS_DC)
+/** {{{ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request_uri, char *base_uri)
 */
-yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request_uri, char *base_uri TSRMLS_DC) {
+yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request_uri, char *base_uri) {
 	yaf_request_t *instance;
 	zval method, params, *settled_uri = NULL, rsettled_uri;
 
@@ -52,18 +52,21 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 		ZVAL_STRING(&method, "Cli");
 	}
 
-	zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), &method TSRMLS_CC);
+	zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), &method);
 	zval_ptr_dtor(&method);
 
 	if (request_uri) {
 		ZVAL_STRING(&rsettled_uri, request_uri);
 		settled_uri = &rsettled_uri;
 	} else {
-		zval *uri;
+		zval *uri, *rewrited;
+		zend_string *name;
 		do {
 #ifdef PHP_WIN32
 			/* check this first so IIS will catch */
-			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("HTTP_X_REWRITE_URL") TSRMLS_CC);
+			name = zend_string_init("HTTP_X_REWRITE_URL", sizeof("HTTP_X_REWRITE_URL") - 1, 0);
+			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+			zend_string_release(name);
 			if (uri && Z_TYPE_P(uri) != IS_NULL) {
 				settled_uri = uri;
 				zval_ptr_dtor(uri);
@@ -71,12 +74,15 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 			}
 
 			/* IIS7 with URL Rewrite: make sure we get the unencoded url (double slash problem) */
-			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("IIS_WasUrlRewritten") TSRMLS_CC);
-			if (uri && Z_TYPE_P(uri) != IS_NULL) {
-				zval *rewrited = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("IIS_WasUrlRewritten") TSRMLS_CC);
-				zval *unencode = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("UNENCODED_URL") TSRMLS_CC);
-				if (rewrited && unencode && Z_TYPE_P(rewrited) == IS_LONG
-						&& Z_LVAL_P(rewrited) == 1
+			name = zend_string_init("IIS_WasUrlRewritten", sizeof("IIS_WasUrlRewritten") - 1, 0);
+			rewrited = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+			zend_string_release(name);
+			if (rewrited) {
+				zval *unencode;
+				name = zend_string_init("UNENCODED_URL", sizeof("UNENCODED_URL") - 1, 0);
+				uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+				zend_string_release(name);
+				if (unencode && zval_get_long(rewrited) 
 						&& Z_TYPE_P(unencode) == IS_STRING
 						&& Z_STRLEN_P(unencode) > 0) {
 					settled_uri = uri;
@@ -85,14 +91,18 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 				break;
 			}
 #endif
-			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PATH_INFO") TSRMLS_CC);
+			name = zend_string_init("PATH_INFO", sizeof("PATH_INFO") - 1, 0);
+			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+			zend_string_release(name);
 			if (uri && Z_TYPE_P(uri) != IS_NULL) {
 				settled_uri = uri;
 				zval_ptr_dtor(uri);
 				break;
 			}
 
-			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("REQUEST_URI") TSRMLS_CC);
+			name = zend_string_init("REQUEST_URI", sizeof("REQUEST_URI") - 1, 0);
+			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+			zend_string_release(name);
 			if (uri && Z_TYPE_P(uri) != IS_NULL) {
 				/* Http proxy reqs setup request uri with scheme and host [and port] + the url path, only use url path */
 				if (strstr(Z_STRVAL_P(uri), "http") == Z_STRVAL_P(uri)) {
@@ -119,7 +129,9 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 				break;
 			}
 
-			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("ORIG_PATH_INFO") TSRMLS_CC);
+			name = zend_string_init("ORIG_PATH_INFO", sizeof("ORIG_PATH_INFO") - 1, 0);
+			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+			zend_string_release(name);
 			if (uri && Z_TYPE_P(uri) != IS_NULL) {
 				settled_uri = uri;
 				zval_ptr_dtor(uri);
@@ -142,13 +154,13 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 			zend_string_release(garbage);
 		}
 
-		zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), settled_uri TSRMLS_CC);
-		yaf_request_set_base_uri(instance, base_uri, Z_STRVAL_P(settled_uri) TSRMLS_CC);
+		zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), settled_uri);
+		yaf_request_set_base_uri(instance, base_uri, Z_STRVAL_P(settled_uri));
 		zval_ptr_dtor(settled_uri);
 	}
 
 	array_init(&params);
-	zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), &params TSRMLS_CC);
+	zend_update_property(yaf_request_http_ce, instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), &params);
 	zval_ptr_dtor(&params);
 
 	return instance;
@@ -183,7 +195,11 @@ YAF_REQUEST_METHOD(yaf_request_http, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
 /** {{{ proto public Yaf_Request_Http::isXmlHttpRequest()
 */
 PHP_METHOD(yaf_request_http, isXmlHttpRequest) {
-	zval * header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("HTTP_X_REQUESTED_WITH") TSRMLS_CC);
+	zend_string *name;
+	zval * header;
+	name = zend_string_init("HTTP_X_REQUESTED_WITH", sizeof("HTTP_X_REQUESTED_WITH") - 1, 0);
+	header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+	zend_string_release(name);
 	if (header && Z_TYPE_P(header) == IS_STRING
 			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
 		zval_ptr_dtor(header);
@@ -200,10 +216,10 @@ PHP_METHOD(yaf_request_http, get) {
 	zend_string	*name 	= NULL;
 	zval 	*def 	= NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|z", &name, &def) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|z", &name, &def) == FAILURE) {
 		WRONG_PARAM_COUNT;
 	} else {
-		zval *value = yaf_request_get_param(getThis(), name TSRMLS_CC);
+		zval *value = yaf_request_get_param(getThis(), name);
 		if (value) {
 			RETURN_ZVAL(value, 1, 0);
 		} else {
@@ -247,7 +263,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 	size_t  blen 		  = 0;
 	yaf_request_t rself, *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ss", &request_uri, &rlen, &base_uri, &blen) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|ss", &request_uri, &rlen, &base_uri, &blen) == FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
@@ -256,7 +272,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 		ZVAL_NULL(&rself);
 		self = &rself;
 	}
-	(void)yaf_request_http_instance(self, request_uri, base_uri TSRMLS_CC);
+	(void)yaf_request_http_instance(self, request_uri, base_uri);
 }
 /* }}} */
 
@@ -287,10 +303,10 @@ zend_function_entry yaf_request_http_methods[] = {
 YAF_STARTUP_FUNCTION(request_http){
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Http", "Yaf\\Request\\Http", yaf_request_http_methods);
-	yaf_request_http_ce = zend_register_internal_class_ex(&ce, yaf_request_ce TSRMLS_CC);
+	yaf_request_http_ce = zend_register_internal_class_ex(&ce, yaf_request_ce);
 
-	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTP"), "http" TSRMLS_CC);
-	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTPS"), "https" TSRMLS_CC);
+	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTP"), "http");
+	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTPS"), "https");
 
 	return SUCCESS;
 }

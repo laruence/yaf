@@ -56,9 +56,9 @@ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request) {
 			route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1, NULL);
 
 	/* if there is no expect parameter in supervars, then null will be return */
-	module 	= yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(nmodule), Z_STRLEN_P(nmodule));
-	controller = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(ncontroller), Z_STRLEN_P(ncontroller));
-	action = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(naction), Z_STRLEN_P(naction));
+	module 	= yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STR_P(nmodule));
+	controller = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STR_P(ncontroller));
+	action = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STR_P(naction));
 
 	if (!module && !controller && !action) {
 		return 0;
@@ -106,17 +106,20 @@ PHP_METHOD(yaf_route_simple, route) {
 }
 /* }}} */
 
-/** {{{ void yaf_route_simple_assemble(zval *info, zval *query, zval *uri)
+/** {{{ zend_string * yaf_route_simple_assemble(zval *info, zval *query)
  */
-void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, zval *uri) {
+zend_string * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query) {
 	smart_str tvalue = {0};
 	zval *nmodule, *ncontroller, *naction;
 
 	smart_str_appendc(&tvalue, '?');
 
-	nmodule = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1);
-	ncontroller = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1);
-	naction = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1);
+	nmodule = zend_read_property(yaf_route_simple_ce,
+			this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1, NULL);
+	ncontroller = zend_read_property(yaf_route_simple_ce,
+			this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1, NULL);
+	naction = zend_read_property(yaf_route_simple_ce,
+			this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1, NULL);
 
 	do {
 		zval *tmp;
@@ -163,13 +166,10 @@ void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 		}
 
 		smart_str_0(&tvalue);
-		ZVAL_STR(uri, tvalue.s);
-		smart_str_free(&tvalue);
-		return;
+		return tvalue.s;
 	} while (0);
 
-	smart_str_free(&tvalue);
-	ZVAL_NULL(uri);
+	return NULL;
 }
 /* }}} */
 
@@ -205,13 +205,15 @@ PHP_METHOD(yaf_route_simple, __construct) {
  */
 PHP_METHOD(yaf_route_simple, assemble) {
     zval *info, *query = NULL;
-    zval *return_uri;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|a", &info, &query) == FAILURE) {
         return;
     } else {
-        yaf_route_simple_assemble(getThis(), info, query, &return_uri);
-        RETURN_ZVAL(&return_uri, 0, 1);
+		zend_string *str;
+        if ((str = yaf_route_simple_assemble(getThis(), info, query)) != NULL) {
+			RETURN_STR(str);
+		}
+		RETURN_NULL();
     }
 }
 /* }}} */
@@ -235,7 +237,7 @@ YAF_STARTUP_FUNCTION(route_simple) {
 	yaf_route_simple_ce = zend_register_internal_class_ex(&ce, NULL);
 	zend_class_implements(yaf_route_simple_ce, 1, yaf_route_ce);
 
-	yaf_route_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+	yaf_route_simple_ce->ce_flags |= ZEND_ACC_FINAL;
 
 	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), ZEND_ACC_PROTECTED);
 	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), ZEND_ACC_PROTECTED);
