@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: simple.c 329200 2013-01-18 06:26:40Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -44,39 +42,42 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_simple_construct_arginfo, 0, 0, 3)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
+/** {{{ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request)
  */
-int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC) {
+int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request) {
 	zval *module, *controller, *action;
 	zval *nmodule, *ncontroller, *naction;
 
-	nmodule 	= zend_read_property(yaf_route_simple_ce, route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1 TSRMLS_CC);
-	ncontroller = zend_read_property(yaf_route_simple_ce, route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1 TSRMLS_CC);
-	naction 	= zend_read_property(yaf_route_simple_ce, route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1 TSRMLS_CC);
+	nmodule	= zend_read_property(yaf_route_simple_ce,
+			route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1, NULL);
+	ncontroller = zend_read_property(yaf_route_simple_ce,
+			route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1, NULL);
+	naction = zend_read_property(yaf_route_simple_ce,
+			route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1, NULL);
 
 	/* if there is no expect parameter in supervars, then null will be return */
-	module 		= yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(nmodule), Z_STRLEN_P(nmodule) TSRMLS_CC);
-	controller 	= yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(ncontroller), Z_STRLEN_P(ncontroller) TSRMLS_CC);
-	action 		= yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(naction), Z_STRLEN_P(naction) TSRMLS_CC);
+	module 	= yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(nmodule), Z_STRLEN_P(nmodule));
+	controller = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(ncontroller), Z_STRLEN_P(ncontroller));
+	action = yaf_request_query(YAF_GLOBAL_VARS_GET, Z_STRVAL_P(naction), Z_STRLEN_P(naction));
 
 	if (!module && !controller && !action) {
 		return 0;
 	}
 
-	if (module && Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STRVAL_P(module), Z_STRLEN_P(module) TSRMLS_CC)) {
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+	if (module && Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STR_P(module))) {
+		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module);
 	}
 
-	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
-	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
+	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller);
+	zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action);
 
 	return 1;
 }
 /* }}} */
 
-/** {{{ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action TSRMLS_DC)
+/** {{{ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action)
  */
-yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action TSRMLS_DC) {
+yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action) {
 	yaf_route_t *instance;
 
     instance  = this_ptr;
@@ -84,9 +85,9 @@ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zva
 		object_init_ex(instance, yaf_route_simple_ce);
 	}
 
-	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), module TSRMLS_CC);
-	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), controller TSRMLS_CC);
-	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), action TSRMLS_CC);
+	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), module);
+	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), controller);
+	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), action);
 
 	return instance;
 }
@@ -97,25 +98,25 @@ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zva
 PHP_METHOD(yaf_route_simple, route) {
 	yaf_request_t *request;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	} else {
-		RETURN_BOOL(yaf_route_simple_route(getThis(), request TSRMLS_CC));
+		RETURN_BOOL(yaf_route_simple_route(getThis(), request));
 	}
 }
 /* }}} */
 
-/** {{{ void yaf_route_simple_assemble(zval *info, zval *query, zval *uri TSRMLS_DC)
+/** {{{ void yaf_route_simple_assemble(zval *info, zval *query, zval *uri)
  */
-void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, zval *uri TSRMLS_DC) {
+void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, zval *uri) {
 	smart_str tvalue = {0};
 	zval *nmodule, *ncontroller, *naction;
 
 	smart_str_appendc(&tvalue, '?');
 
-	nmodule = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1 TSRMLS_CC);
-	ncontroller = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1 TSRMLS_CC);
-	naction = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1 TSRMLS_CC);
+	nmodule = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1);
+	ncontroller = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), 1);
+	naction = zend_read_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), 1);
 
 	do {
 		zval *tmp;
@@ -128,7 +129,7 @@ void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 		} 
 
 		if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) == NULL) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
 
@@ -138,7 +139,7 @@ void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 		smart_str_appendc(&tvalue, '&');
 
 		if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) == NULL) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "You need to specify the action by ':a'");
 			break;
 		}
 
@@ -177,7 +178,7 @@ void yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 PHP_METHOD(yaf_route_simple, __construct) {
 	zval *module, *controller, *action;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zzz", &module, &controller, &action) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "zzz", &module, &controller, &action) == FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
@@ -186,7 +187,7 @@ PHP_METHOD(yaf_route_simple, __construct) {
 			|| IS_STRING != Z_TYPE_P(controller)
 			|| IS_STRING != Z_TYPE_P(action)) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expect 3 string parameters", yaf_route_simple_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect 3 string parameters", yaf_route_simple_ce->name);
 		RETURN_FALSE;
 	} else {
 	    zval rself, *self = getThis();
@@ -195,7 +196,7 @@ PHP_METHOD(yaf_route_simple, __construct) {
 	        ZVAL_NULL(&rself);
 	        self = &rself;
         }
-		(void)yaf_route_simple_instance(self, module, controller, action TSRMLS_CC);
+		(void)yaf_route_simple_instance(self, module, controller, action);
 	}
 }
 /* }}} */
@@ -206,7 +207,7 @@ PHP_METHOD(yaf_route_simple, assemble) {
     zval *info, *query = NULL;
     zval *return_uri;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|a", &info, &query) == FAILURE) {
         return;
     } else {
         yaf_route_simple_assemble(getThis(), info, query, &return_uri);
@@ -231,14 +232,14 @@ YAF_STARTUP_FUNCTION(route_simple) {
 	zend_class_entry ce;
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Simple", "Yaf\\Route\\Simple", yaf_route_simple_methods);
-	yaf_route_simple_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
-	zend_class_implements(yaf_route_simple_ce TSRMLS_CC, 1, yaf_route_ce);
+	yaf_route_simple_ce = zend_register_internal_class_ex(&ce, NULL);
+	zend_class_implements(yaf_route_simple_ce, 1, yaf_route_ce);
 
 	yaf_route_simple_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
 
-	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), ZEND_ACC_PROTECTED);
+	zend_declare_property_null(yaf_route_simple_ce, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), ZEND_ACC_PROTECTED);
 
 	return SUCCESS;
 }

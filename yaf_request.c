@@ -98,20 +98,25 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 	zval *container = NULL;
 
 	if (!base_uri) {
-		zval 	*script_filename;
-		char 	*ext = YAF_G(ext);
+		zval *script_filename;
+		char *ext = YAF_G(ext);
 		zend_string *file_name;
-		uint  	ext_len;
+		uint ext_len;
+		zend_string *name;
 
 		ext_len	= strlen(ext);
 
-		script_filename = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("SCRIPT_FILENAME"));
+		name = zend_string_init("SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1, 0);
+		script_filename = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+		zend_string_release(name);
 
 		do {
 			if (script_filename && IS_STRING == Z_TYPE_P(script_filename)) {
 				zval *script_name, *phpself_name, *orig_name;
 
-				script_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("SCRIPT_NAME"));
+				name = zend_string_init("SCRIPT_NAME", sizeof("SCRIPT_NAME") - 1, 0);
+				script_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+				zend_string_release(name);
 				file_name = php_basename(Z_STRVAL_P(script_filename), Z_STRLEN_P(script_filename), ext, ext_len);
 				if (script_name && IS_STRING == Z_TYPE_P(script_name)) {
 					zend_string 	*script;
@@ -131,7 +136,9 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 				}
 				zval_ptr_dtor(script_name);
 
-				phpself_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PHP_SELF"));
+				name = zend_string_init("PHP_SELF", sizeof("PHP_SELF") - 1, 0);
+				phpself_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+				zend_string_release(name);
 				if (phpself_name && IS_STRING == Z_TYPE_P(phpself_name)) {
 					zend_string 	*phpself;
 
@@ -148,9 +155,11 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 				}
 				zval_ptr_dtor(phpself_name);
 
-				orig_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("ORIG_SCRIPT_NAME"));
+				name = zend_string_init("ORIG_SCRIPT_NAME", sizeof("ORIG_SCRIPT_NAME") - 1, 0);
+				orig_name = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+				zend_string_release(name);
 				if (orig_name && IS_STRING == Z_TYPE_P(orig_name)) {
-					zend_string 	*orig;
+					zend_string *orig;
 					php_basename(Z_STRVAL_P(orig_name), Z_STRLEN_P(orig_name), NULL, 0);
 					if (strncmp(file_name->val, orig->val, file_name->len) == 0) {
 						basename 	 = Z_STRVAL_P(orig_name);
@@ -214,10 +223,10 @@ int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *reque
 }
 /* }}} */
 
-/** {{{ zval * yaf_request_query(uint type, char * name, uint len)
+/** {{{ zval * yaf_request_query(uint type, zend_string *name)
 */
-zval * yaf_request_query(uint type, char * name, uint len) {
-	zval 		*carrier = NULL, *ret;
+zval * yaf_request_query(uint type, zend_string *name) {
+	zval *carrier = NULL, *ret;
 
 	zend_bool 	jit_initialization = PG(auto_globals_jit);
 
@@ -304,16 +313,16 @@ zval * yaf_request_query(uint type, char * name, uint len) {
 		return NULL;
 	}
 
-	if (!len) {
+	if (!name) {
 		Z_ADDREF_P(carrier);
 		return carrier;
 	}
 
-	if ((ret = zend_hash_str_find(Z_ARRVAL_P(carrier), name, len)) == NULL) {
+	if ((ret = zend_hash_find(Z_ARRVAL_P(carrier), name)) == NULL) {
 		return NULL;
 	}
 
-	Z_ADDREF_P(ret);
+	Z_TRY_ADDREF_P(ret);
 	return ret;
 }
 /* }}} */
@@ -336,7 +345,9 @@ zval * yaf_request_get_language(yaf_request_t *instance, zval *accept_language) 
 			instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_LANG), 1, &rv);
 
 	if (IS_STRING != Z_TYPE_P(lang)) {
-		zval *accept_langs = yaf_request_query(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("HTTP_ACCEPT_LANGUAGE"));
+		zend_string *name = zend_string_init("HTTP_ACCEPT_LANGUAGE", sizeof("HTTP_ACCEPT_LANGUAGE") - 1, 0);
+		zval *accept_langs = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+		zend_string_release(name);
 
 		if (!accept_langs || IS_STRING != Z_TYPE_P(accept_langs) || !Z_STRLEN_P(accept_langs)) {
 			return accept_langs;

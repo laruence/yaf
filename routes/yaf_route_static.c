@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: static.c 329200 2013-01-18 06:26:40Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -42,7 +40,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_static_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_len TSRMLS_DC) /* {{{ */ {
+int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{{ */ {
 	zval params;
 	char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
 
@@ -51,17 +49,17 @@ int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_
 		char *s, *p;
 		char *uri;
 
-		if (req_uri_len == 0
-				|| (req_uri_len == 1 && *req_uri == '/')) {
+		if (req_uri->len == 0
+				|| (req_uri->len == 1 && *req_uri->val == '/')) {
 			break;
 		}
 
-		uri = req_uri;
+		uri = req_uri->val;
 		s = p = uri;
 
-		if (req_uri_len) {
-			char *q = req_uri + req_uri_len - 1;
-			while (q > req_uri && (*q == ' ' || *q == '/')) {
+		if (req_uri->len) {
+			char *q = req_uri->val + req_uri->len - 1;
+			while (q > (char *)req_uri->val && (*q == ' ' || *q == '/')) {
 				*q-- = '\0';
 			}
 		}
@@ -69,7 +67,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_
 		strip_slashs(p);
 
 		if ((s = strstr(p, "/")) != NULL) {
-			if (yaf_application_is_module_name(p, s-p TSRMLS_CC)) {
+			if (yaf_application_is_module_name_str(p, s-p)) {
 				module = estrndup(p, s - p);
 				p  = s + 1;
 		        strip_slashs(p);
@@ -93,7 +91,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_
 		if (*p != '\0') {
 			do {
 				if (!module && !controller && !action) {
-					if (yaf_application_is_module_name(p, strlen(p) TSRMLS_CC)) {
+					if (yaf_application_is_module_name_str(p, strlen(p))) {
 						module = estrdup(p);
 						break;
 					}
@@ -130,22 +128,22 @@ int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_
 	} while (0);
 
 	if (module != NULL) {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module);
 		efree(module);
 	}
 	if (controller != NULL) {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
+		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller);
 		efree(controller);
 	}
 
 	if (action != NULL) {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action TSRMLS_CC);
+		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action);
 		efree(action);
 	}
 
 	if (rest) {
-		(void)yaf_router_parse_parameters(rest, &params TSRMLS_CC);
-		(void)yaf_request_set_params_multi(request, &params TSRMLS_CC);
+		(void)yaf_router_parse_parameters(rest, &params);
+		(void)yaf_request_set_params_multi(request, &params);
 		zval_ptr_dtor(&params);
 		efree(rest);
 	}
@@ -154,34 +152,30 @@ int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_
 }
 /* }}} */
 
-/** {{{ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC)
+/** {{{ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request)
  */
-int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC) {
+int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) {
 	zval *zuri, *base_uri;
-	char *req_uri;
-	int  req_uri_len;
+	zend_string *req_uri;
 
-	zuri 	 = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1 TSRMLS_CC);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1 TSRMLS_CC);
+	zuri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1, NULL);
+	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
 
 	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
-			&& !strncasecmp(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri), Z_STRLEN_P(base_uri))) {
-		req_uri  = estrdup(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri));
-		req_uri_len = Z_STRLEN_P(zuri) - Z_STRLEN_P(base_uri);
+			&& zend_string_equals(Z_STR_P(zuri), Z_STR_P(base_uri))) {
+		req_uri = zend_string_init(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri), Z_STRLEN_P(zuri) - Z_STRLEN_P(base_uri), 0);
 	} else {
-		req_uri  = estrdup(Z_STRVAL_P(zuri));
-		req_uri_len = Z_STRLEN_P(zuri);
+		req_uri = zend_string_copy(Z_STR_P(zuri));
 	}
 
-	yaf_route_pathinfo_route(request, req_uri, req_uri_len TSRMLS_CC);
-	efree(req_uri);
+	yaf_route_pathinfo_route(request, req_uri);
 	return 1;
 }
 /* }}} */
 
-/** {{{ void yaf_route_static_assemble(zval *info, zval *query, zval *uri TSRMLS_DC)
+/** {{{ zend_string * yaf_route_static_assemble(zval *info, zval *query)
  */
-void yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query, zval *uri TSRMLS_DC) {
+zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query) {
 	smart_str tvalue = {0};
 
 	do {
@@ -193,7 +187,7 @@ void yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 		}
 
 		if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) == NULL) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the controller by ':c'");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
 
@@ -201,7 +195,7 @@ void yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 		smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 
 		if((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) == NULL) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "%s", "You need to specify the action by ':a'");
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "You need to specify the action by ':a'");
 			break;
 		}
 
@@ -214,7 +208,6 @@ void yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 			int start = 0, end = 0;
 
 			ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(query), key_idx, key, tmp) {
-
 				if (IS_STRING == Z_TYPE_P(tmp) && key) {
 					if (!start) {
 						smart_str_appendc(&tvalue, '?');
@@ -233,13 +226,11 @@ void yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 		}
 
 		smart_str_0(&tvalue);
-		ZVAL_STR(uri, tvalue.s);
-		smart_str_free(&tvalue);
-		return;
+		return tvalue.s;
 	} while (0);
 		
 	smart_str_free(&tvalue);
-	ZVAL_NULL(uri);
+	return NULL;
 }
 /* }}} */
 
@@ -248,10 +239,10 @@ void yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query, z
 PHP_METHOD(yaf_route_static, route) {
 	yaf_request_t *request;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	} else {
-		RETURN_BOOL(yaf_route_static_route(getThis(), request TSRMLS_CC));
+		RETURN_BOOL(yaf_route_static_route(getThis(), request));
 	}
 }
 /* }}} */
@@ -267,15 +258,16 @@ PHP_METHOD(yaf_route_static, match) {
 */
 PHP_METHOD(yaf_route_static, assemble) {
 	zval *info, *query = NULL;
-	zval *return_uri;
+	zend_string *str;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|a", &info, &query) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|a", &info, &query) == FAILURE) {
         return;
     } else {
-        (void)yaf_route_static_assemble(getThis(), info, query, &return_uri TSRMLS_CC);
-        if (Z_TYPE(return_uri) == IS_STRING && Z_STRLEN(return_uri)) {
-            RETURN_ZVAL(&return_uri, 0, 1);
-        }
+        if ((str = yaf_route_static_assemble(getThis(), info, query))) {
+			RETURN_STR(str);
+		} else {
+			RETURN_FALSE;
+		}
     }
 }
 /* }}} */
@@ -296,8 +288,8 @@ YAF_STARTUP_FUNCTION(route_static) {
 	zend_class_entry ce;
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Static", "Yaf\\Route_Static", yaf_route_static_methods);
-	yaf_route_static_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
-	zend_class_implements(yaf_route_static_ce TSRMLS_CC, 1, yaf_route_ce);
+	yaf_route_static_ce = zend_register_internal_class_ex(&ce, NULL);
+	zend_class_implements(yaf_route_static_ce, 1, yaf_route_ce);
 
 	return SUCCESS;
 }

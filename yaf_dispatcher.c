@@ -643,8 +643,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				zval_ptr_dtor(&ret);
 			} else if (ce = yaf_dispatcher_get_action(app_dir,
 						&icontroller, Z_STRVAL_P(module), is_def_module, Z_STR_P(action)) &&
-					((fptr = (zend_function *)zend_hash_str_find_ptr(&(ce)->function_table,
-						 YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1)) != NULL)) {
+					(fptr = (zend_function *)zend_hash_str_find_ptr(&(ce->function_table),
+								YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1))) {
 				zval *call_args;
 				yaf_action_t iaction;
 				uint count = 0;
@@ -933,7 +933,7 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *res
 
 	if (Z_TYPE_P(return_response) == IS_FALSE) {
 		(void)yaf_response_send(response);
-		yaf_response_clear_body(response, NULL, 0);
+		yaf_response_clear_body(response, NULL);
 	}
 
 	return response;

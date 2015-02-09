@@ -14,13 +14,11 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_action.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_ACTION_H
 #define YAF_ACTION_H
 
 #define YAF_ACTION_EXECUTOR_NAME		"execute"
-#define YAF_ACTION_PROPERTY_NAME_CTRL "_controller"
+#define YAF_ACTION_PROPERTY_NAME_CTRL 	"_controller"
 
 extern zend_class_entry * yaf_action_ce;
 

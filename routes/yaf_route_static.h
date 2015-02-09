@@ -14,14 +14,12 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_ROUTER_STATIC_H
 #define YAF_ROUTER_STATIC_H
 
 extern zend_class_entry *yaf_route_static_ce;
 
-int yaf_route_pathinfo_route(yaf_request_t *request, char *req_uri, int req_uri_len TSRMLS_DC);
+int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri);
 
 YAF_STARTUP_FUNCTION(route_static);
 
