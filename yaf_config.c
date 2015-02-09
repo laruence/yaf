@@ -34,8 +34,8 @@
 
 zend_class_entry *yaf_config_ce;
 
-static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret TSRMLS_DC);
-static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret TSRMLS_DC);
+static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret);
+static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret);
 
 /* {{{ ARG_INFO
  */
@@ -45,9 +45,9 @@ ZEND_END_ARG_INFO()
 
 /** {{{ yaf_config_ini_modified
 */
-static int yaf_config_ini_modified(zval * file, long ctime TSRMLS_DC) {
+static int yaf_config_ini_modified(zval * file, long ctime) {
 	zval  n_ctime;
-	php_stat(Z_STRVAL_P(file), Z_STRLEN_P(file), 7 /* FS_CTIME */ , &n_ctime TSRMLS_CC);
+	php_stat(Z_STRVAL_P(file), Z_STRLEN_P(file), 7 /* FS_CTIME */ , &n_ctime);
 	if ((Z_TYPE(n_ctime) != IS_TRUE || Z_TYPE(n_ctime) != IS_FALSE) && ctime != Z_LVAL(n_ctime)) {
 		return Z_LVAL(n_ctime);
 	}
@@ -91,9 +91,9 @@ static void yaf_config_zval_dtor(zval *value) {
 }
 /* }}} */
 
-/** {{{ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC)
+/** {{{ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src)
  */
-static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC) {
+static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src) {
 	zval *pzval;
 	zend_string *key;
 	ulong idx;
@@ -102,12 +102,12 @@ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC
     ZEND_HASH_FOREACH_KEY_VAL(src, idx, key, pzval) {
 
         if (key) {
-			yaf_config_ini_zval_persistent(pzval, &tmp TSRMLS_CC);
+			yaf_config_ini_zval_persistent(pzval, &tmp);
 			if (&tmp) {
 				zend_hash_update(pdst, key, &tmp);
 			}
         } else {
-			yaf_config_ini_zval_persistent(pzval, &tmp TSRMLS_CC);
+			yaf_config_ini_zval_persistent(pzval, &tmp);
 			if (&tmp) {
 				zend_hash_index_update(pdst, idx, &tmp);
 			}
@@ -116,9 +116,9 @@ static void yaf_config_copy_persistent(HashTable *pdst, HashTable *src TSRMLS_DC
 }
 /* }}} */
 
-/** {{{ static void yaf_config_copy_losable(HashTable *ldst, HashTable *src TSRMLS_DC)
+/** {{{ static void yaf_config_copy_losable(HashTable *ldst, HashTable *src)
  */
-static void yaf_config_copy_losable(HashTable *ldst, HashTable *src TSRMLS_DC) {
+static void yaf_config_copy_losable(HashTable *ldst, HashTable *src) {
 	zval *pzval, tmp;
 	zend_string *key;
 	ulong idx;
@@ -126,19 +126,19 @@ static void yaf_config_copy_losable(HashTable *ldst, HashTable *src TSRMLS_DC) {
     ZEND_HASH_FOREACH_KEY_VAL(src, idx, key, pzval) {
 
         if (key) {
-			yaf_config_ini_zval_losable(pzval, &tmp TSRMLS_CC);
+			yaf_config_ini_zval_losable(pzval, &tmp);
             zend_hash_update(ldst, key, &tmp);
         } else {
-			yaf_config_ini_zval_losable(pzval, &tmp TSRMLS_CC);
+			yaf_config_ini_zval_losable(pzval, &tmp);
             zend_hash_index_update(ldst, idx, &tmp);
         }
 	} ZEND_HASH_FOREACH_END();
 }
 /* }}} */
 
-/** {{{ static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret TSRMLS_DC)
+/** {{{ static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret)
  */
-static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret TSRMLS_DC) {
+static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret) {
 	switch (Z_TYPE_P(zvalue)) {
 		case IS_RESOURCE:
 		case IS_OBJECT:
@@ -163,16 +163,16 @@ static void yaf_config_ini_zval_persistent(zval *zvalue, zval *ret TSRMLS_DC) {
                 ZVAL_NEW_PERSISTENT_ARR(ret);
 
 				zend_hash_init(Z_ARRVAL_P(ret), zend_hash_num_elements(original_ht), NULL, (dtor_func_t)yaf_config_zval_dtor, 1);
-				yaf_config_copy_persistent(Z_ARRVAL_P(ret), original_ht TSRMLS_CC);
+				yaf_config_copy_persistent(Z_ARRVAL_P(ret), original_ht);
 			}
 			break;
 	}
 }
 /* }}} */
 
-/** {{{ static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret TSRMLS_DC)
+/** {{{ static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret)
  */
-static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret TSRMLS_DC) {
+static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret) {
 	switch (Z_TYPE_P(zvalue)) {
 		case IS_RESOURCE:
 		case IS_OBJECT:
@@ -193,16 +193,16 @@ static void yaf_config_ini_zval_losable(zval *zvalue, zval *ret TSRMLS_DC) {
 		case IS_ARRAY: {
 			HashTable *original_ht = Z_ARRVAL_P(zvalue);
 			array_init(ret);
-			yaf_config_copy_losable(Z_ARRVAL_P(ret), original_ht TSRMLS_CC);
+			yaf_config_copy_losable(Z_ARRVAL_P(ret), original_ht);
 		}
 			break;
 	}
 }
 /* }}} */
 
-/** {{{ static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC)
+/** {{{ static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *filename, zval *section)
  */
-static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC) {
+static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *filename, zval *section) {
 	char *key;
 	uint len;
 	yaf_config_cache *pval;
@@ -214,18 +214,18 @@ static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *f
 	len = spprintf(&key, 0, "%s#%s", Z_STRVAL_P(filename), Z_STRVAL_P(section));
 
 	if ((pval = zend_hash_str_find_ptr(YAF_G(configs), key, len)) != NULL) {
-		if (yaf_config_ini_modified(filename, pval->ctime TSRMLS_CC)) {
+		if (yaf_config_ini_modified(filename, pval->ctime)) {
 			efree(key);
 			return NULL;
 		} else {
 			zval props;
 
 			array_init(&props);
-			yaf_config_copy_losable(Z_ARRVAL(props), pval->data TSRMLS_CC);
+			yaf_config_copy_losable(Z_ARRVAL(props), pval->data);
 			efree(key);
 			/* tricky way */
 			Z_SET_REFCOUNT(props, 0);
-			return yaf_config_ini_instance(this_ptr, &props, section TSRMLS_CC);
+			return yaf_config_ini_instance(this_ptr, &props, section);
 		}
 		efree(key);
 	}
@@ -234,10 +234,9 @@ static yaf_config_t * yaf_config_ini_unserialize(yaf_config_t *this_ptr, zval *f
 }
 /* }}} */
 
-/** {{{ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC)
+/** {{{ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zval *section)
  */
-static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC) {
-	zval rv;
+static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zval *section) {
 	long ctime;
 	zval *configs;
 	zend_string *key;
@@ -263,13 +262,13 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 		return;
 	}
 
-	configs = zend_read_property(yaf_config_ini_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1 TSRMLS_CC, &rv);
+	configs = zend_read_property(yaf_config_ini_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 
 	zend_hash_init(persistent, zend_hash_num_elements(Z_ARRVAL_P(configs)), NULL, (dtor_func_t) yaf_config_zval_dtor, 1);
 
-	yaf_config_copy_persistent(persistent, Z_ARRVAL_P(configs) TSRMLS_CC);
+	yaf_config_copy_persistent(persistent, Z_ARRVAL_P(configs));
 
-	ctime = yaf_config_ini_modified(filename, 0 TSRMLS_CC);
+	ctime = yaf_config_ini_modified(filename, 0);
 	cache->ctime = ctime;
 	cache->data  = persistent;
 	key = strpprintf(0, "%s#%s", Z_STRVAL_P(filename), Z_STRVAL_P(section));
@@ -280,9 +279,9 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 }
 /* }}} */
 
-/** {{{ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2 TSRMLS_DC)
+/** {{{ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2)
  */
-yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2 TSRMLS_DC) {
+yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2) {
 	yaf_config_t *instance;
 
 	if (!arg1) {
@@ -292,24 +291,24 @@ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg
 	if (Z_TYPE_P(arg1) == IS_STRING) {
 		if (strncasecmp(Z_STRVAL_P(arg1) + Z_STRLEN_P(arg1) - 3, "ini", 3) == 0) {
 			if (YAF_G(cache_config)) {
-				if ((instance = yaf_config_ini_unserialize(this_ptr, arg1, arg2 TSRMLS_CC))) {
+				if ((instance = yaf_config_ini_unserialize(this_ptr, arg1, arg2))) {
 					return instance;
 				}
 			}
 
-			instance = yaf_config_ini_instance(this_ptr, arg1, arg2 TSRMLS_CC);
+			instance = yaf_config_ini_instance(this_ptr, arg1, arg2);
 
 			if (!instance) {
 				return NULL;
 			}
 
 			if (YAF_G(cache_config)) {
-				yaf_config_ini_serialize(instance, arg1, arg2 TSRMLS_CC);
+				yaf_config_ini_serialize(instance, arg1, arg2);
 			}
 
 			return instance;
 		}
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a path to *.ini configuration file as parameter");
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a path to *.ini configuration file as parameter");
 		return NULL;
 	}
 
@@ -317,11 +316,11 @@ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg
 		zval readonly;
 
 		ZVAL_BOOL(&readonly, 1);
-		instance = yaf_config_simple_instance(this_ptr, arg1, &readonly TSRMLS_CC);
+		instance = yaf_config_simple_instance(this_ptr, arg1, &readonly);
 		return instance;
 	}
 
-	yaf_trigger_error(YAF_ERR_TYPE_ERROR TSRMLS_CC, "Expects a string or an array as parameter");
+	yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a string or an array as parameter");
 	return NULL;
 }
 /* }}} */
@@ -343,11 +342,11 @@ YAF_STARTUP_FUNCTION(config) {
 	zend_class_entry ce;
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Config_Abstract", "Yaf\\Config_Abstract", yaf_config_methods);
-	yaf_config_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
+	yaf_config_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_config_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
-	zend_declare_property_null(yaf_config_ce, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_bool(yaf_config_ce, ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY), 1, ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_null(yaf_config_ce, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), ZEND_ACC_PROTECTED);
+	zend_declare_property_bool(yaf_config_ce, ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY), 1, ZEND_ACC_PROTECTED);
 
 	YAF_STARTUP(config_ini);
 	YAF_STARTUP(config_simple);

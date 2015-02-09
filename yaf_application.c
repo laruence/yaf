@@ -90,7 +90,7 @@ int yaf_application_is_module_name(zend_string *name) {
 	}
 
 	modules = zend_read_property(yaf_application_ce, app,
-			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 1, &rv);
+			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 1, NULL);
 	if (UNEXPECTED(Z_TYPE_P(modules) != IS_ARRAY)) {
 		return 0;
 	}
@@ -356,7 +356,7 @@ PHP_METHOD(yaf_application, __construct) {
 	if  (!zconfig || Z_TYPE_P(zconfig) != IS_OBJECT
 			|| !instanceof_function(Z_OBJCE_P(zconfig), yaf_config_ce)
 			|| yaf_application_parse_option(zend_read_property(yaf_config_ce,
-				   	zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv)) == FAILURE) {
+				   	zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL)) == FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
 		RETURN_FALSE;
@@ -462,7 +462,7 @@ PHP_METHOD(yaf_application, run) {
 	yaf_application_t *self = getThis();
 
 	running = zend_read_property(yaf_application_ce, self,
-			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 1, &rv);
+			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 1, NULL);
 	if (UNEXPECTED(IS_TRUE == Z_TYPE_P(running))) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "An application instance already run");
 		RETURN_TRUE;
@@ -472,7 +472,7 @@ PHP_METHOD(yaf_application, run) {
 	/* zend_update_property(yaf_application_ce, self,
 	 * ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), running); */
 	dispatcher = zend_read_property(yaf_application_ce, self,
-			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1, &rv);
+			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1, NULL);
 	ZVAL_NULL(&rresponse);
 	if ((response = yaf_dispatcher_dispatch(dispatcher, &rresponse))) {
 		RETURN_ZVAL(response, 1, 1);
@@ -516,9 +516,8 @@ PHP_METHOD(yaf_application, app) {
 /** {{{ proto public Yaf_Application::getConfig(void)
 */
 PHP_METHOD(yaf_application, getConfig) {
-	zval rv;
 	yaf_config_t *config = zend_read_property(yaf_application_ce,
-			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), 1, &rv);
+			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), 1, NULL);
 	RETURN_ZVAL(config, 1, 0);
 }
 /* }}} */
@@ -526,9 +525,8 @@ PHP_METHOD(yaf_application, getConfig) {
 /** {{{ proto public Yaf_Application::getDispatcher(void)
 */
 PHP_METHOD(yaf_application, getDispatcher) {
-	zval rv;
 	yaf_dispatcher_t *dispatcher = zend_read_property(yaf_application_ce,
-			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1, &rv);
+			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1, NULL);
 	RETURN_ZVAL(dispatcher, 1, 0);
 }
 /* }}} */
@@ -536,9 +534,8 @@ PHP_METHOD(yaf_application, getDispatcher) {
 /** {{{ proto public Yaf_Application::getModules(void)
 */
 PHP_METHOD(yaf_application, getModules) {
-	zval rv;
 	zval *modules = zend_read_property(yaf_application_ce,
-			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 1, &rv);
+			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), 1, NULL);
 	RETURN_ZVAL(modules, 1, 0);
 }
 /* }}} */
@@ -546,9 +543,8 @@ PHP_METHOD(yaf_application, getModules) {
 /** {{{ proto public Yaf_Application::environ(void)
 */
 PHP_METHOD(yaf_application, environ) {
-	zval rv;
 	zval *env = zend_read_property(yaf_application_ce,
-			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), 1, &rv);
+			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), 1, NULL);
 	ZEND_ASSERT(Z_TYPE_P(env) == IS_STRING);
 	RETURN_STR(zend_string_copy(Z_STR_P(env)));
 }
@@ -593,7 +589,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 
 		object_init_ex(&bootstrap, ce);
 		dispatcher = zend_read_property(yaf_application_ce,
-				self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1, &rv);
+				self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 1, NULL);
 
 		methods	= &(ce->function_table);
 		ZEND_HASH_FOREACH_STR_KEY(&(ce->function_table), func) {
@@ -618,9 +614,8 @@ PHP_METHOD(yaf_application, bootstrap) {
 /** {{{ proto public Yaf_Application::getLastErrorNo(void)
 */
 PHP_METHOD(yaf_application, getLastErrorNo) {
-	zval rv;
 	zval *errcode = zend_read_property(yaf_application_ce,
-			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), 1, &rv);
+			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), 1, NULL);
 	ZEND_ASSERT(Z_TYPE_P(errcode) == IS_LONG);
 	RETURN_LONG(Z_LVAL_P(errcode));
 }
@@ -629,9 +624,8 @@ PHP_METHOD(yaf_application, getLastErrorNo) {
 /** {{{ proto public Yaf_Application::getLastErrorMsg(void)
 */
 PHP_METHOD(yaf_application, getLastErrorMsg) {
-	zval rv;
 	zval *errmsg = zend_read_property(yaf_application_ce,
-			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRMSG), 1, &rv);
+			getThis(), ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRMSG), 1, NULL);
 	ZEND_ASSERT(Z_TYPE_P(errmsg) == IS_STRING);
 	RETURN_STR(zend_string_copy(Z_STR_P(errmsg)));
 }
