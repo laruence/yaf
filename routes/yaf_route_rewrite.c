@@ -328,7 +328,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 		} ZEND_HASH_FOREACH_END();
 	}
 
-	if (squery.s->len) {
+	if (squery.s) {
 		uint tmp_len = tstr->len;
 		squery.s->len--; /* get rid of the tail & */
 		smart_str_0(&squery);

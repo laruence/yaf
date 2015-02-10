@@ -350,7 +350,6 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 */
 int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 	zval *tpl_vars;
-	zend_array *calling_symbol_table;
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;

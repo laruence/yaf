@@ -44,7 +44,6 @@ ZEND_END_ARG_INFO()
  */
 int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request) {
 	zval *varname, *zuri;
-	char *req_uri;
 
 	varname = zend_read_property(yaf_route_supervar_ce,
 			route, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), 1, NULL);

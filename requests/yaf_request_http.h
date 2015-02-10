@@ -14,12 +14,10 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_REQUEST_HTTP_H
 #define YAF_REQUEST_HTTP_H
 
-yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request_uri, char *base_uri TSRMLS_DC);
+yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *request_uri, zend_string *base_uri);
 YAF_STARTUP_FUNCTION(request_http);
 
 #endif

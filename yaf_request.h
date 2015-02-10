@@ -14,33 +14,53 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_REQUEST_H
 #define YAF_REQUEST_H
 
-#define YAF_REQUEST_PROPERTY_NAME_MODULE		"module"
-#define YAF_REQUEST_PROPERTY_NAME_CONTROLLER	"controller"
-#define YAF_REQUEST_PROPERTY_NAME_ACTION		"action"
-#define YAF_REQUEST_PROPERTY_NAME_METHOD		"method"
-#define YAF_REQUEST_PROPERTY_NAME_PARAMS		"params"
-#define YAF_REQUEST_PROPERTY_NAME_URI		"uri"
-#define YAF_REQUEST_PROPERTY_NAME_STATE		"dispatched"
-#define YAF_REQUEST_PROPERTY_NAME_LANG		"language"
-#define YAF_REQUEST_PROPERTY_NAME_ROUTED		"routed"
-#define YAF_REQUEST_PROPERTY_NAME_BASE		"_base_uri"
+#define YAF_REQUEST_PROPERTY_NAME_MODULE     "module"
+#define YAF_REQUEST_PROPERTY_NAME_CONTROLLER "controller"
+#define YAF_REQUEST_PROPERTY_NAME_ACTION     "action"
+#define YAF_REQUEST_PROPERTY_NAME_METHOD     "method"
+#define YAF_REQUEST_PROPERTY_NAME_PARAMS     "params"
+#define YAF_REQUEST_PROPERTY_NAME_URI        "uri"
+#define YAF_REQUEST_PROPERTY_NAME_STATE      "dispatched"
+#define YAF_REQUEST_PROPERTY_NAME_LANG       "language"
+#define YAF_REQUEST_PROPERTY_NAME_ROUTED     "routed"
+#define YAF_REQUEST_PROPERTY_NAME_BASE       "_base_uri"
 #define YAF_REQUEST_PROPERTY_NAME_EXCEPTION  "_exception"
 
-#define YAF_REQUEST_SERVER_URI				"request_uri="
+#define YAF_REQUEST_SERVER_URI               "request_uri="
 
-#define YAF_GLOBAL_VARS_TYPE					unsigned int
-#define YAF_GLOBAL_VARS_POST 				TRACK_VARS_POST
-#define YAF_GLOBAL_VARS_GET     				TRACK_VARS_GET
-#define YAF_GLOBAL_VARS_ENV     				TRACK_VARS_ENV
-#define YAF_GLOBAL_VARS_FILES   				TRACK_VARS_FILES
-#define YAF_GLOBAL_VARS_SERVER  				TRACK_VARS_SERVER
-#define YAF_GLOBAL_VARS_REQUEST 				TRACK_VARS_REQUEST
-#define YAF_GLOBAL_VARS_COOKIE  				TRACK_VARS_COOKIE
+#define YAF_GLOBAL_VARS_TYPE                 unsigned int
+#define YAF_GLOBAL_VARS_POST                 TRACK_VARS_POST
+#define YAF_GLOBAL_VARS_GET                  TRACK_VARS_GET
+#define YAF_GLOBAL_VARS_ENV                  TRACK_VARS_ENV
+#define YAF_GLOBAL_VARS_FILES                TRACK_VARS_FILES
+#define YAF_GLOBAL_VARS_SERVER               TRACK_VARS_SERVER
+#define YAF_GLOBAL_VARS_REQUEST              TRACK_VARS_REQUEST
+#define YAF_GLOBAL_VARS_COOKIE               TRACK_VARS_COOKIE
+
+extern zend_class_entry *yaf_request_ce;
+
+extern PHPAPI void php_session_start();
+
+yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
+int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri);
+zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t len);
+
+zval *yaf_request_get_method(yaf_request_t *instance);
+zval *yaf_request_get_param(yaf_request_t *instance, zend_string *key);
+zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language);
+
+int yaf_request_is_routed(yaf_request_t *request);
+int yaf_request_is_dispatched(yaf_request_t *request);
+void yaf_request_set_dispatched(yaf_request_t *request, int flag);
+void yaf_request_set_routed(yaf_request_t *request, int flag);
+int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value);
+int yaf_request_set_params_multi(yaf_request_t *instance, zval *values);
+
+#define yaf_request_query(type, name)  yaf_request_query_ex((type), 1, (name), 0)
+#define yaf_request_query_str(type, name, len)  yaf_request_query_ex((type), 0, (name), (len))
 
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\
@@ -76,23 +96,6 @@ PHP_METHOD(ce, get##x) { \
 	} \
 }
 
-extern zend_class_entry * yaf_request_ce;
-
-zval * yaf_request_query(uint type, zend_string *name);
-yaf_request_t * yaf_request_instance(yaf_request_t *this_ptr, char *info);
-int yaf_request_set_base_uri(yaf_request_t *request, char *base_uri, char *request_uri);
-PHPAPI void php_session_start(TSRMLS_D);
-
-zval * yaf_request_get_method(yaf_request_t *instance);
-zval * yaf_request_get_param(yaf_request_t *instance, zend_string *key);
-zval * yaf_request_get_language(yaf_request_t *instance, zval *accept_language);
-
-int yaf_request_is_routed(yaf_request_t *request);
-int yaf_request_is_dispatched(yaf_request_t *request);
-int yaf_request_set_dispatched(yaf_request_t *request, int flag);
-int yaf_request_set_routed(yaf_request_t *request, int flag);
-int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value);
-int yaf_request_set_params_multi(yaf_request_t *instance, zval *values);
 
 YAF_STARTUP_FUNCTION(request);
 

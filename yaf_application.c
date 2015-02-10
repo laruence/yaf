@@ -80,7 +80,7 @@ ZEND_END_ARG_INFO()
 /** {{{ int yaf_application_is_module_name(zend_string *name)
 */
 int yaf_application_is_module_name(zend_string *name) {
-	zval 			  *modules, *pzval, rv;
+	zval *modules, *pzval;
 	yaf_application_t *app;
 
 	app = zend_read_static_property(yaf_application_ce,
@@ -324,7 +324,7 @@ PHP_METHOD(yaf_application, __construct) {
 	yaf_dispatcher_t  *zdispatcher, rdispather;
 	yaf_application_t *app, *self;
 	yaf_loader_t	  *loader, rloader;
-	zval 			  *config, rv;
+	zval 			  *config;
 	zval 			  *section = NULL, rsection;
 
 	app	= zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1);
@@ -363,6 +363,7 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	ZVAL_NULL(&rrequest);
+	/*TODO: */
 	request = yaf_request_instance(&rrequest, YAF_G(base_uri));
 	if (YAF_G(base_uri)) {
 		efree(YAF_G(base_uri));
@@ -456,7 +457,7 @@ PHP_METHOD(yaf_application, __clone) {
 /** {{{ proto public Yaf_Application::run(void)
 */
 PHP_METHOD(yaf_application, run) {
-	zval              *running, rv;
+	zval              *running;
 	yaf_dispatcher_t  *dispatcher;
 	yaf_response_t	  *response, rresponse;
 	yaf_application_t *self = getThis();
@@ -583,7 +584,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 		RETURN_FALSE;
 	} else {
 		zend_string      *func;
-		zval 			  bootstrap, rv;
+		zval 			  bootstrap;
 		HashTable 		 *methods;
 		yaf_dispatcher_t *dispatcher;
 
