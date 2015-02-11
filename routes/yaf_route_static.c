@@ -148,6 +148,8 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 		efree(rest);
 	}
 
+	zend_string_release(req_uri);
+
 	return 1;
 }
 /* }}} */

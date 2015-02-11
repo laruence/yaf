@@ -91,11 +91,9 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 	if (UNEXPECTED(base_uri == NULL && request_uri == NULL)) {
 		zend_string *basename;
 		zval *script_filename;
-		char *ext = YAF_G(ext);
-		size_t ext_len;
+		char *ext = YAF_G(ext)->val;
+		size_t ext_len = YAF_G(ext)->len;
 		zend_string *file_name;
-
-		ext_len	= strlen(ext);
 
 		script_filename = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER,
 				"SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
@@ -153,7 +151,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 			if (*(basename->val + basename->len - 1) == '/') {
 				zend_string *garbage = basename;
 				basename = zend_string_init(basename->val, basename->len - 1, 0);
-				zend_string_release(basename);
+				zend_string_release(garbage);
 			}
 			zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), basename);
 			zend_string_release(basename);
@@ -327,7 +325,7 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 				}
 				/* Accept-Language: da, en-gb;q=0.8, en;q=0.7 */
 				if ((qvalue = strstr(seg, "q="))) {
-					float qval = (float)zend_string_to_double(qvalue + 2, seg - qvalue + 2);
+					float qval = strtod(qvalue + 2, NULL);
 					if (qval > max_qvlaue) {
 						max_qvlaue = qval;
 						if (prefer) {

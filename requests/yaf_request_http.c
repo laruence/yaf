@@ -35,12 +35,10 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 	zval method, params;
 	zend_string *settled_uri = NULL;
 
-	this_ptr = this_ptr;
-	if (this_ptr == NULL) {
-		return NULL;
+	if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_request_http_ce);
 	}
 
-	object_init_ex(this_ptr, yaf_request_http_ce);
 	if (SG(request_info).request_method) {
 		ZVAL_STRING(&method, (char *)SG(request_info).request_method);
 	} else if (strncasecmp(sapi_module.name, "cli", 3)) {

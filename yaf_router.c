@@ -44,35 +44,31 @@ zend_class_entry *yaf_router_ce;
 /** {{{ yaf_router_t * yaf_router_instance(yaf_router_t *this_ptr)
  */
 yaf_router_t * yaf_router_instance(yaf_router_t *this_ptr) {
-	zval 			routes;
-	yaf_router_t 		*instance;
-	yaf_route_t		*route, rroute;
+	zval routes;
+	yaf_route_t	route = {{0}};
 
-    instance = this_ptr;
-    if (ZVAL_IS_NULL(this_ptr)) {
-		object_init_ex(instance, yaf_router_ce);
+    if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_router_ce);
 	}
 
 	array_init(&routes);
-	ZVAL_NULL(&rroute);
-	route = &rroute;
-
 	if (!YAF_G(default_route)) {
 static_route:
-		object_init_ex(&rroute, yaf_route_static_ce);
+		object_init_ex(&route, yaf_route_static_ce);
 	} else {
-		route = yaf_route_instance(&rroute, YAF_G(default_route));
-		if (!route) {
-			php_error_docref(NULL, E_WARNING, "Unable to initialize default route, use %s instead", yaf_route_static_ce->name->val);
+		(void)yaf_route_instance(&route, YAF_G(default_route));
+		if (Z_TYPE(route) != IS_OBJECT) {
+			php_error_docref(NULL, E_WARNING,
+					"Unable to initialize default route, use %s instead", yaf_route_static_ce->name->val);
 			goto static_route;
 		}
 	}
 
-	zend_hash_str_update(Z_ARRVAL(routes), "_default", sizeof("_default") - 1, route);
-	zend_update_property(yaf_router_ce, instance, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_ROUTES), &routes);
+	zend_hash_str_update(Z_ARRVAL(routes), "_default", sizeof("_default") - 1, &route);
+	zend_update_property(yaf_router_ce, this_ptr, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_ROUTES), &routes);
 	zval_ptr_dtor(&routes);
 
-	return instance;
+	return this_ptr;
 }
 /** }}} */
 

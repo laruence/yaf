@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf.c 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -88,19 +86,7 @@ PHP_INI_END();
 */
 PHP_GINIT_FUNCTION(yaf)
 {
-	yaf_globals->autoload_started   = 0;
-	yaf_globals->configs			= NULL;
-	yaf_globals->directory			= NULL;
-	yaf_globals->local_library		= NULL;
-	yaf_globals->ext				= YAF_DEFAULT_EXT;
-	yaf_globals->view_ext			= YAF_DEFAULT_VIEW_EXT;
-	yaf_globals->default_module		= YAF_ROUTER_DEFAULT_MODULE;
-	yaf_globals->default_controller = YAF_ROUTER_DEFAULT_CONTROLLER;
-	yaf_globals->default_action		= YAF_ROUTER_DEFAULT_ACTION;
-	yaf_globals->bootstrap			= YAF_DEFAULT_BOOTSTRAP;
-	yaf_globals->modules			= NULL;
-	yaf_globals->default_route      = NULL;
-	yaf_globals->suppressing_warning = 0;
+	memset(yaf_globals, 0, sizeof(*yaf_globals));
 }
 /* }}} */
 
@@ -115,10 +101,10 @@ PHP_MINIT_FUNCTION(yaf)
 #endif
 
 #ifdef YAF_HAVE_NAMESPACE
-	if(YAF_G(use_namespace)) {
+	if (YAF_G(use_namespace)) {
 
-		REGISTER_STRINGL_CONSTANT("YAF\\VERSION", PHP_YAF_VERSION, 	sizeof(PHP_YAF_VERSION) - 1, 	CONST_PERSISTENT | CONST_CS);
-		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(environ), strlen(YAF_G(environ)), 	CONST_PERSISTENT | CONST_CS);
+		REGISTER_STRINGL_CONSTANT("YAF\\VERSION", PHP_YAF_VERSION, 	sizeof(PHP_YAF_VERSION) - 1, CONST_PERSISTENT | CONST_CS);
+		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(environ), strlen(YAF_G(environ)), CONST_PERSISTENT | CONST_CS);
 
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\STARTUP_FAILED", 		YAF_ERR_STARTUP_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\ROUTE_FAILED", 		YAF_ERR_ROUTE_FAILED, CONST_PERSISTENT | CONST_CS);
@@ -190,23 +176,15 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 */
 PHP_RINIT_FUNCTION(yaf)
 {
-	YAF_G(running)			= 0;
-	YAF_G(in_exception)		= 0;
-	YAF_G(throw_exception)	= 1;
-	YAF_G(catch_exception)	= 0;
-	YAF_G(directory)		= NULL;
-	YAF_G(bootstrap)		= NULL;
-	YAF_G(local_library)	= NULL;
-	YAF_G(local_namespaces)	= NULL;
-	YAF_G(modules)			= NULL;
-	YAF_G(base_uri)			= NULL;
-	YAF_G(view_directory)	= NULL;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-	YAF_G(buffer)			= NULL;
-	YAF_G(owrite_handler)	= NULL;
-	YAF_G(buf_nesting)		= 0;
-#endif
-
+	YAF_G(throw_exception) = 1;
+	YAF_G(ext) = zend_string_init(YAF_DEFAULT_EXT, sizeof(YAF_DEFAULT_EXT) - 1, 0);
+	YAF_G(view_ext) = zend_string_init(YAF_DEFAULT_VIEW_EXT, sizeof(YAF_DEFAULT_VIEW_EXT) - 1, 0);
+	YAF_G(default_module) = zend_string_init(
+			YAF_ROUTER_DEFAULT_MODULE, sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1, 0);
+	YAF_G(default_controller) = zend_string_init(
+			YAF_ROUTER_DEFAULT_CONTROLLER, sizeof(YAF_ROUTER_DEFAULT_CONTROLLER) - 1, 0);
+	YAF_G(default_action) = zend_string_init(
+			YAF_ROUTER_DEFAULT_ACTION, sizeof(YAF_ROUTER_DEFAULT_ACTION) - 1, 0);
 	return SUCCESS;
 }
 /* }}} */
@@ -215,26 +193,52 @@ PHP_RINIT_FUNCTION(yaf)
 */
 PHP_RSHUTDOWN_FUNCTION(yaf)
 {
+	YAF_G(running) = 0;
+	YAF_G(in_exception)	= 0;
+	YAF_G(catch_exception) = 0;
+
 	if (YAF_G(directory)) {
-		efree(YAF_G(directory));
+		zend_string_release(YAF_G(directory));
+		YAF_G(directory) = NULL;
 	}
 	if (YAF_G(local_library)) {
-		efree(YAF_G(local_library));
+		zend_string_release(YAF_G(local_library));
+		YAF_G(local_library) = NULL;
 	}
 	if (YAF_G(local_namespaces)) {
-		efree(YAF_G(local_namespaces));
+		zend_string_release(YAF_G(local_namespaces));
+		YAF_G(local_namespaces) = NULL;
 	}
 	if (YAF_G(bootstrap)) {
-		efree(YAF_G(bootstrap));
+		zend_string_release(YAF_G(bootstrap));
+		YAF_G(bootstrap) = NULL;
 	}
-	if (YAF_G(modules)) {
-		efree(YAF_G(modules));
+	if (Z_TYPE(YAF_G(modules)) == IS_ARRAY) {
+		zval_ptr_dtor(&YAF_G(modules));
+		ZVAL_UNDEF(&YAF_G(modules));
 	}
 	if (YAF_G(base_uri)) {
-		efree(YAF_G(base_uri));
+		zend_string_release(YAF_G(base_uri));
+		YAF_G(base_uri) = NULL;
 	}
 	if (YAF_G(view_directory)) {
-		efree(YAF_G(view_directory));
+		zend_string_release(YAF_G(view_directory));
+		YAF_G(view_directory) = NULL;
+	}
+	if (YAF_G(view_ext)) {
+		zend_string_release(YAF_G(view_ext));
+	}
+	if (YAF_G(default_module)) {
+		zend_string_release(YAF_G(default_module));
+	}
+	if (YAF_G(default_controller)) {
+		zend_string_release(YAF_G(default_controller));
+	}
+	if (YAF_G(default_action)) {
+		zend_string_release(YAF_G(default_action));
+	}
+	if (YAF_G(ext)) {
+		zend_string_release(YAF_G(ext));
 	}
 	YAF_G(default_route) = NULL;
 
@@ -252,7 +256,6 @@ PHP_MINFO_FUNCTION(yaf)
 	} else {
 		php_info_print_table_header(2, "yaf support", "enabled");
 	}
-
 
 	php_info_print_table_row(2, "Version", PHP_YAF_VERSION);
 	php_info_print_table_row(2, "Supports", YAF_SUPPORT_URL);

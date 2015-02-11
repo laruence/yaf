@@ -107,12 +107,8 @@ static inline void yaf_deep_copy_section(zval *dst, zval *src) {
 }
 /* }}} */
 
-/** {{{ zval * yaf_config_ini_format(yaf_config_t *instance, zval *pzval, zval *rret)
-*/
-zval * yaf_config_ini_format(yaf_config_t *instance, zval *pzval, zval *rret) {
-	zval *ret;
-	ret = yaf_config_ini_instance(rret, pzval, NULL);
-	return ret;
+zval *yaf_config_ini_format(yaf_config_t *instance, zval *pzval, zval *rv) /* {{{ */ {
+	return yaf_config_ini_instance(rv, pzval, NULL);
 }
 /* }}} */
 
@@ -319,29 +315,19 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 }
 /* }}} */
 
-/** {{{ yaf_config_t * yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zval *section_name)
-*/
-yaf_config_t * yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zval *section_name) {
-	yaf_config_t *instance;
-	zval configs;
-
+yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zval *section_name) /* {{{ */ {
 	if (filename && Z_TYPE_P(filename) == IS_ARRAY) {
-
-		instance = this_ptr;
-		if (ZVAL_IS_NULL(this_ptr)) {
-			object_init_ex(instance, yaf_config_ini_ce);
+		if (Z_ISUNDEF_P(this_ptr)) {
+			object_init_ex(this_ptr, yaf_config_ini_ce);
 		} 
-
-		zend_update_property(yaf_config_ini_ce, instance, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), filename);
-
-		return instance;
+		zend_update_property(yaf_config_ini_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), filename);
+		return this_ptr;
 	} else if (filename && Z_TYPE_P(filename) == IS_STRING) {
+		zval configs;
 		struct stat sb;
 		zend_file_handle fh = {{0}};
 		char *ini_file = Z_STRVAL_P(filename);
 		
-		ZVAL_NULL(&configs);
-
 		if (VCWD_STAT(ini_file, &sb) == 0) {
 			if (S_ISREG(sb.st_mode)) {
 				if ((fh.handle.fp = VCWD_FOPEN(ini_file, "r"))) {
@@ -366,40 +352,34 @@ yaf_config_t * yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, z
 					}
 				}
 			} else {
-				zval_ptr_dtor(&configs);
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
 				return NULL;
 			}
 		} else {
-			zval_ptr_dtor(&configs);
 			yaf_trigger_error(E_ERROR, "Unable to find config file '%s'", ini_file);
 			return NULL;
 		}
 
 		if (section_name && Z_STRLEN_P(section_name)) {
-			zval *section, tmp;
-			if ((section = zend_symtable_find(Z_ARRVAL(configs),
-						Z_STR_P(section_name))) == NULL) {
+			zval *section, zv;
+			if ((section = zend_symtable_find(Z_ARRVAL(configs), Z_STR_P(section_name))) == NULL) {
 				zval_ptr_dtor(&configs);
 				yaf_trigger_error(E_ERROR, "There is no section '%s' in '%s'", Z_STRVAL_P(section_name), ini_file);
 				return NULL;
 			}
-			array_init(&tmp);
-			zend_hash_copy(Z_ARRVAL(tmp), Z_ARRVAL_P(section), (copy_ctor_func_t) zval_add_ref);
-			zval_dtor(&configs);
-			ZVAL_DUP(&configs, &tmp);
-			zval_dtor(&tmp);
+			array_init(&zv);
+			zend_hash_copy(Z_ARRVAL(zv), Z_ARRVAL_P(section), (copy_ctor_func_t) zval_add_ref);
+			ZVAL_COPY_VALUE(&configs, &zv);
 		} 
 
-		instance = this_ptr;
-		if (ZVAL_IS_NULL(this_ptr)) {
-			object_init_ex(instance, yaf_config_ini_ce);
+		if (Z_ISUNDEF_P(this_ptr)) {
+			object_init_ex(this_ptr, yaf_config_ini_ce);
 		}   
 
-		zend_update_property(yaf_config_ini_ce, instance, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), &configs);
+		zend_update_property(yaf_config_ini_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), &configs);
 		zval_ptr_dtor(&configs);
 
-		return instance;
+		return this_ptr;
 	} else {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Invalid parameters provided, must be path of ini file");
 		return NULL;
@@ -450,7 +430,7 @@ PHP_METHOD(yaf_config_ini, get) {
 	   	long lval;
 		double dval;
 
-		properties = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+		properties = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 
 		if (Z_TYPE_P(properties) != IS_ARRAY) {
 			RETURN_NULL();
@@ -488,8 +468,8 @@ PHP_METHOD(yaf_config_ini, get) {
 		}
 
 		if (Z_TYPE_P(pzval) == IS_ARRAY) {
-		    ZVAL_NULL(&rret);
-			if ((ret = yaf_config_ini_format(getThis(), pzval, &rret))) {
+			zval rv = {{0}};
+			if ((ret = yaf_config_ini_format(getThis(), pzval, &rv))) {
 				RETURN_ZVAL(ret, 1, 1);
 			} else {
 				RETURN_NULL();
@@ -507,7 +487,7 @@ PHP_METHOD(yaf_config_ini, get) {
 */
 PHP_METHOD(yaf_config_ini, toArray) {
 	zval rv;
-	zval *properties = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+	zval *properties = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	RETURN_ZVAL(properties, 1, 0);
 }
 /* }}} */
@@ -528,7 +508,7 @@ PHP_METHOD(yaf_config_ini, __isset) {
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
 		return;
 	} else {
-		zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+		zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 		RETURN_BOOL(zend_hash_exists(Z_ARRVAL_P(prop), name));
 	}
 }
@@ -538,7 +518,7 @@ PHP_METHOD(yaf_config_ini, __isset) {
 */
 PHP_METHOD(yaf_config_ini, count) {
 	zval rv;
-	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	RETURN_LONG(zend_hash_num_elements(Z_ARRVAL_P(prop)));
 }
 /* }}} */
@@ -555,7 +535,7 @@ PHP_METHOD(yaf_config_ini, offsetUnset) {
 */
 PHP_METHOD(yaf_config_ini, rewind) {
 	zval rv;
-	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	zend_hash_internal_pointer_reset(Z_ARRVAL_P(prop));
 }
 /* }}} */
@@ -563,16 +543,16 @@ PHP_METHOD(yaf_config_ini, rewind) {
 /** {{{ proto public Yaf_Config_Ini::current(void)
 */
 PHP_METHOD(yaf_config_ini, current) {
-	zval *prop, *pzval, *ret, rret, rv;
+	zval *prop, *pzval, *ret;
 
-	prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+	prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	if ((pzval = zend_hash_get_current_data(Z_ARRVAL_P(prop))) == NULL) {
 		RETURN_FALSE;
 	}
 
 	if (Z_TYPE_P(pzval) == IS_ARRAY) {
-	    ZVAL_NULL(&rret);
-		if ((ret = yaf_config_ini_format(getThis(), pzval, &rret))) {
+		zval rv = {{0}};
+		if ((ret = yaf_config_ini_format(getThis(), pzval, &rv))) {
 			RETURN_ZVAL(ret, 1, 1);
 		} else {
 			RETURN_NULL();
@@ -590,7 +570,7 @@ PHP_METHOD(yaf_config_ini, key) {
 	zend_string *string;
 	ulong index;
 
-	prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 0, &rv);
+	prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 0, NULL);
 	switch (zend_hash_get_current_key(Z_ARRVAL_P(prop), &string, &index)) {
 		case HASH_KEY_IS_LONG:
 			RETURN_LONG(index);
@@ -608,7 +588,7 @@ PHP_METHOD(yaf_config_ini, key) {
 */
 PHP_METHOD(yaf_config_ini, next) {
 	zval rv;
-	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	zend_hash_move_forward(Z_ARRVAL_P(prop));
 }
 /* }}} */
@@ -617,7 +597,7 @@ PHP_METHOD(yaf_config_ini, next) {
 */
 PHP_METHOD(yaf_config_ini, valid) {
 	zval rv;
-	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, &rv);
+	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	RETURN_LONG(zend_hash_has_more_elements(Z_ARRVAL_P(prop)) == SUCCESS);
 }
 /* }}} */

@@ -500,7 +500,7 @@ PHP_METHOD(yaf_view_simple, getScriptPath) {
 	zval *tpl_dir = zend_read_property(yaf_view_simple_ce,
 			getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, NULL);
 	if (IS_STRING != Z_TYPE_P(tpl_dir) && YAF_G(view_directory)) {
-		RETURN_STRING(YAF_G(view_directory));
+		RETURN_STR(zend_string_copy(YAF_G(view_directory)));
 	} 
 	RETURN_ZVAL(tpl_dir, 1, 0);
 }

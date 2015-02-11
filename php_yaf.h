@@ -81,21 +81,21 @@ extern PHPAPI void php_var_dump(zval **struc, int level TSRMLS_DC);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level TSRMLS_DC);
 
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
-	char 		*ext;
-	char		*base_uri;
-	char 		*environ;
-	char 		*directory;
-	char 		*local_library;
-	char        *local_namespaces;
-	char 		*global_library;
-	char        *view_directory;
-	char 		*view_ext;
-	char 		*default_module;
-	char 		*default_controller;
-	char 		*default_action;
-	char 		*bootstrap;
-	char 		*name_separator;
-	long 		name_separator_len;
+	zend_string	*ext;
+	zend_string *base_uri;
+	zend_string *directory;
+	zend_string *local_library;
+	zend_string *local_namespaces;
+	zend_string *view_directory;
+	zend_string *view_ext;
+	zend_string *default_module;
+	zend_string *default_controller;
+	zend_string *default_action;
+	zend_string *bootstrap;
+	char         *global_library;
+    char         *environ;
+    char         *name_separator;
+    size_t        name_separator_len;
 	zend_bool 	lowcase_path;
 	zend_bool 	use_spl_autoload;
 	zend_bool 	throw_exception;
@@ -112,7 +112,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 /* }}} */
 	long		forward_limit;
 	HashTable	*configs;
-	zval 		*modules;
+	zval 		 modules;
 	zval        *default_route;
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
 	uint 		buf_nesting;

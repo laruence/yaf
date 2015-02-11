@@ -77,11 +77,11 @@ ZEND_END_ARG_INFO()
 /** {{{ zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array)
  */
 zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array) {
-	char *view_ext, *self_name, *tmp;
+	char *self_name, *tmp;
 	zval *name, param, ret;
 	yaf_view_t *view;
 	zend_class_entry *view_ce;
-	zend_string *path;
+	zend_string *path, *view_ext;
 
 	view = zend_read_property(yaf_controller_ce,
 			instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1, NULL);
@@ -109,7 +109,7 @@ zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 		tmp++;
 	}
 
-	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, view_ext);
+	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, view_ext->val);
 
 	efree(self_name);
 	efree(action_name);
@@ -145,10 +145,10 @@ zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 /** {{{ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array)
  */
 int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array) {
-	char *view_ext, *self_name, *tmp;
+	char *self_name, *tmp;
 	zval *name, param, ret;
 	yaf_view_t	*view;
-	zend_string *path;
+	zend_string *path, *view_ext;
 
 	view = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1, NULL);
 	name = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), 1, NULL);
@@ -174,7 +174,7 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 		tmp++;
 	}
 
-	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, view_ext);
+	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, view_ext->val);
 
 	efree(self_name);
 	efree(action_name);
@@ -371,7 +371,7 @@ PHP_METHOD(yaf_controller, getViewpath) {
 	if (EXPECTED((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce)) {
 		zval *tpl_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, NULL);
 		if (IS_STRING != Z_TYPE_P(tpl_dir) && YAF_G(view_directory)) {
-			RETURN_STRING(YAF_G(view_directory));
+			RETURN_STR(zend_string_copy(YAF_G(view_directory)));
 		}
 		RETURN_ZVAL(tpl_dir, 1, 0);
 	} else {

@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_loader.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_LOADER_H
 #define YAF_LOADER_H
 
@@ -86,13 +84,13 @@
 
 extern zend_class_entry *yaf_loader_ce;
 
-int yaf_internal_autoload(char *file_name, uint name_len, char **directory TSRMLS_DC);
-int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC);
-int yaf_register_autoloader(yaf_loader_t *loader TSRMLS_DC);
-int yaf_loader_register_namespace_single(char *prefix, uint len TSRMLS_DC);
-yaf_loader_t * yaf_loader_instance(yaf_loader_t *this_ptr, char *library_path, char *global_path TSRMLS_DC);
+int yaf_internal_autoload(char *file_name, uint name_len, char **directory);
+int yaf_loader_import(char *path, int len, int use_path);
+int yaf_register_autoloader(yaf_loader_t *loader);
+int yaf_loader_register_namespace_single(char *prefix, uint len);
+yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_path, zend_string *global_path);
 
-extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode TSRMLS_DC);
+extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);
 
 YAF_STARTUP_FUNCTION(loader);
 
