@@ -77,9 +77,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_application_setappdir_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ int yaf_application_is_module_name(zend_string *name)
-*/
-int yaf_application_is_module_name(zend_string *name) {
+int yaf_application_is_module_name(zend_string *name) /* {{{ */ {
 	zval *modules, *pzval;
 	yaf_application_t *app;
 
@@ -105,9 +103,7 @@ int yaf_application_is_module_name(zend_string *name) {
 }
 /* }}} */
 
-/** {{{ int yaf_application_is_module_name_str(char *name, size_t len)
-*/
-int yaf_application_is_module_name_str(char *name, size_t len) {
+int yaf_application_is_module_name_str(char *name, size_t len) /* {{{ */ {
 	zend_string *str = zend_string_init(name, len, 0);
 	int ret = yaf_application_is_module_name(str);
 	zend_string_release(str);
@@ -115,9 +111,7 @@ int yaf_application_is_module_name_str(char *name, size_t len) {
 }
 /* }}} */
 
-/** {{{ static int yaf_application_parse_option(zval *options)
-*/
-static int yaf_application_parse_option(zval *options) {
+static int yaf_application_parse_option(zval *options) /* {{{ */ {
 	HashTable *conf;
 	zval *pzval, *psval, *app;
 

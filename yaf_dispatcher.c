@@ -37,7 +37,7 @@
 #include "yaf_plugin.h"
 #include "yaf_exception.h"
 
-zend_class_entry * yaf_dispatcher_ce;
+zend_class_entry *yaf_dispatcher_ce;
 
 /** {{{ ARG_INFO
  */
@@ -205,9 +205,7 @@ static yaf_view_t *yaf_dispatcher_init_view(yaf_dispatcher_t *dispatcher, zval *
 }
 /* }}} */
 
-/** {{{ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request)
-*/
-static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
+static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_request_t *request) /* {{{ */ {
 	zval *module, *controller, *action;
 
 	module = zend_read_property(yaf_request_ce,
@@ -274,9 +272,7 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 }
 /* }}} */
 
-/** {{{int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request)
-*/
-int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
+int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request) /* {{{ */ {
 	if (request) {
 		zend_update_property(yaf_dispatcher_ce,
 				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), request);
@@ -286,7 +282,7 @@ int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *requ
 }
 /* }}} */
 
-zend_class_entry * yaf_dispatcher_get_controller(zend_string *app_dir, zend_string *module, zend_string *controller, int def_module) /* {{{ */ {
+zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, zend_string *module, zend_string *controller, int def_module) /* {{{ */ {
 	char *directory;
 	size_t directory_len;
 
@@ -730,9 +726,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 }
 /* }}} */
 
-/** {{{ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response)
-*/
-void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response) {
+void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_t *request, yaf_response_t *response) /* {{{ */ {
 	zval *module, controller, action, exception;
 	yaf_view_t *view, rv = {{0}};
 	zend_string *exception_str;
@@ -807,9 +801,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 }
 /* }}} */
 
-/** {{{ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request)
- */
-int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
+int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request) /* {{{ */ {
 	zval ret;
 	zend_class_entry *router_ce;
 	yaf_router_t *router = zend_read_property(yaf_dispatcher_ce,
@@ -832,9 +824,7 @@ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request) {
 }
 /* }}} */
 
-/** {{{ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher)
-*/
-yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr) {
+yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr) /* {{{ */ {
 	zval *return_response, *plugins, *view, rv = {{0}};
 	yaf_response_t *response;
 	yaf_request_t *request;
