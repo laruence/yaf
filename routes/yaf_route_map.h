@@ -14,17 +14,15 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_ROUTER_MAP_H
 #define YAF_ROUTER_MAP_H
 
-#define YAF_ROUTE_MAP_VAR_NAME_DELIMETER	"_delimiter"
-#define YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER	"_ctl_router"
+#define YAF_ROUTE_MAP_VAR_NAME_DELIMETER    "_delimiter"
+#define YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER   "_ctl_router"
 
 extern zend_class_entry *yaf_route_map_ce;
 
-yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len TSRMLS_DC);
+yaf_route_t *yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len);
 
 YAF_STARTUP_FUNCTION(route_map);
 

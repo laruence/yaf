@@ -14,15 +14,14 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_plugin.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_PLUGIN_H
 #define YAF_PLUGIN_H
 
-extern  zend_class_entry *yaf_plugin_ce;
+extern zend_class_entry *yaf_plugin_ce;
 
 YAF_STARTUP_FUNCTION(plugin);
 #endif
+
 /*
  * Local variables:
  * tab-width: 4

@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: cli.c 329197 2013-01-18 05:55:37Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -45,7 +43,7 @@ YAF_STARTUP_FUNCTION(response_cli) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Cli", "Yaf\\Response\\Cli", yaf_response_cli_methods);
 
-	yaf_response_cli_ce = zend_register_internal_class_ex(&ce, yaf_response_ce TSRMLS_CC);
+	yaf_response_cli_ce = zend_register_internal_class_ex(&ce, yaf_response_ce);
 
 	return SUCCESS;
 }

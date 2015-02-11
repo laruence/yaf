@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_ROUTER_SUPERVAR_H
 #define YAF_ROUTER_SUPERVAR_H
 
@@ -23,7 +21,7 @@
 
 extern zend_class_entry *yaf_route_supervar_ce;
 
-yaf_route_t * yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name TSRMLS_DC);
+yaf_route_t *yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name);
 
 YAF_STARTUP_FUNCTION(route_supervar);
 

@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_registry.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_REGISTRY_H
 #define YAF_REGISTRY_H
 
@@ -26,6 +24,7 @@ extern zend_class_entry *yaf_registry_ce;
 
 YAF_STARTUP_FUNCTION(registry);
 #endif
+
 /*
  * Local variables:
  * tab-width: 4

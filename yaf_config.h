@@ -14,13 +14,11 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_config.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_CONFIG_H
 #define YAF_CONFIG_H
 
-#define YAF_EXTRACT_FUNC_NAME			"extract"
-#define	YAF_CONFIG_PROPERT_NAME			"_config"
+#define YAF_EXTRACT_FUNC_NAME            "extract"
+#define YAF_CONFIG_PROPERT_NAME          "_config"
 #define YAF_CONFIG_PROPERT_NAME_READONLY "_readonly"
 
 struct _yaf_config_cache {
@@ -32,16 +30,12 @@ typedef struct _yaf_config_cache yaf_config_cache;
 
 extern zend_class_entry *yaf_config_ce;
 
-yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2 TSRMLS_DC);
+yaf_config_t *yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2 TSRMLS_DC);
 void yaf_config_unserialize(yaf_config_t *self, HashTable *data TSRMLS_DC);
-
-#ifndef pestrndup
-/* before php-5.2.4, pestrndup is not defined */
-#define pestrndup(s, length, persistent) ((persistent)?zend_strndup((s),(length)):estrndup((s),(length)))
-#endif
 
 YAF_STARTUP_FUNCTION(config);
 #endif
+
 /*
  * Local variables:
  * tab-width: 4

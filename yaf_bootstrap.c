@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_bootstrap.c 329197 2013-01-18 05:55:37Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -41,7 +39,7 @@ YAF_STARTUP_FUNCTION(bootstrap) {
 	zend_class_entry ce;
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Bootstrap_Abstract",  "Yaf\\Bootstrap_Abstract", yaf_bootstrap_methods);
-	yaf_bootstrap_ce = zend_register_internal_class_ex(&ce, NULL TSRMLS_CC);
+	yaf_bootstrap_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_bootstrap_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
 	return SUCCESS;

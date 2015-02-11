@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_exception.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_EXCEPTION_H
 #define YAF_EXCEPTION_H
 
@@ -43,7 +41,7 @@
 #define YAF_EXCEPTION_HANDLE(dispatcher, request, response) \
 	if (EG(exception)) { \
 		if (YAF_G(catch_exception)) { \
-			yaf_dispatcher_exception_handler(dispatcher, request, response TSRMLS_CC); \
+			yaf_dispatcher_exception_handler(dispatcher, request, response); \
 		} \
 		zval_ptr_dtor(response); \
 		return NULL; \
@@ -52,7 +50,7 @@
 #define YAF_EXCEPTION_HANDLE_NORET(dispatcher, request, response) \
 	if (EG(exception)) { \
 		if (YAF_G(catch_exception)) { \
-			yaf_dispatcher_exception_handler(dispatcher, request, response TSRMLS_CC); \
+			yaf_dispatcher_exception_handler(dispatcher, request, response); \
 		} \
 	}
 
@@ -69,12 +67,13 @@
 extern zend_class_entry *yaf_ce_RuntimeException;
 extern zend_class_entry *yaf_exception_ce;
 extern zend_class_entry *yaf_buildin_exceptions[YAF_MAX_BUILDIN_EXCEPTION];
-void yaf_trigger_error(int type TSRMLS_DC, char *format, ...);
-void yaf_throw_exception(long code, char *message TSRMLS_DC);
+void yaf_trigger_error(int type, char *format, ...);
+void yaf_throw_exception(long code, char *message);
 
 YAF_STARTUP_FUNCTION(exception);
 
 #endif
+
 /*
  * Local variables:
  * tab-width: 4

@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_config.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_CONFIG_INI_H
 #define YAF_CONFIG_INI_H
 
@@ -25,7 +23,7 @@
 
 extern zend_class_entry *yaf_config_ini_ce;
 
-yaf_config_t * yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zval *section TSRMLS_DC);
+yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zval *section);
 
 YAF_STARTUP_FUNCTION(config_ini);
 

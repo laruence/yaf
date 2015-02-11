@@ -96,10 +96,6 @@ PHP_MINIT_FUNCTION(yaf)
 {
 	REGISTER_INI_ENTRIES();
 
-#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 5 
-	php_register_info_logo(YAF_LOGO_GUID, YAF_LOGO_MIME_TYPE, yaf_logo, sizeof(yaf_logo));
-#endif
-
 #ifdef YAF_HAVE_NAMESPACE
 	if (YAF_G(use_namespace)) {
 

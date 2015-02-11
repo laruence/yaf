@@ -609,13 +609,7 @@ PHP_METHOD(yaf_request, getException) {
 	zval *exception = zend_read_property(yaf_request_ce,
 			getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_EXCEPTION), 1, NULL);
 	if (IS_OBJECT == Z_TYPE_P(exception)
-			&& instanceof_function(Z_OBJCE_P(exception),
-#if (PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 2)
-				zend_exception_get_default()
-#else
-				zend_exception_get_default(TSRMLS_C)
-#endif
-				TSRMLS_CC)) {
+			&& instanceof_function(Z_OBJCE_P(exception), zend_exception_get_default())) {
 		RETURN_ZVAL(exception, 1, 0);
 	}
 
@@ -780,7 +774,7 @@ YAF_STARTUP_FUNCTION(request){
 	yaf_request_ce 			= zend_register_internal_class_ex(&ce, NULL);
 	yaf_request_ce->ce_flags = ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
-	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE),     ZEND_ACC_PUBLIC	TSRMLS_CC);
+	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION),     ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD),     ZEND_ACC_PUBLIC);

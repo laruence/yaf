@@ -14,14 +14,12 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_ROUTER_REGEX_H
 #define YAF_ROUTER_REGEX_H
 
 extern zend_class_entry *yaf_route_regex_ce;
 
-yaf_route_t * yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval *def, zval *map, zval *verify, zval *reverse TSRMLS_DC);
+yaf_route_t *yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval *def, zval *map, zval *verify, zval *reverse);
 
 YAF_STARTUP_FUNCTION(route_regex);
 

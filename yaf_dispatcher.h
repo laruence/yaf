@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
  */
 
-/* $Id: yaf_dispatcher.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef PHP_YAF_DISPATCHER_H
 #define PHP_YAF_DISPATCHER_H
 
@@ -59,11 +57,21 @@
 
 extern zend_class_entry *yaf_dispatcher_ce;
 
-yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr TSRMLS_DC);
-yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr TSRMLS_DC);
-int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request TSRMLS_DC);
+yaf_dispatcher_t *yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr);
+yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr);
+int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request);
 
 PHP_METHOD(yaf_application, app);
 PHP_FUNCTION(set_error_handler);
 YAF_STARTUP_FUNCTION(dispatcher);
+
 #endif
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */

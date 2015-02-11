@@ -14,15 +14,14 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_REQUEST_SIMPLE_H
 #define YAF_REQUEST_SIMPLE_H
 
-yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params TSRMLS_DC);
+yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params);
 YAF_STARTUP_FUNCTION(request_simple);
 
 #endif
+
 /*
  * Local variables:
  * tab-width: 4

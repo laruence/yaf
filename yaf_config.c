@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_config.c 329200 2013-01-18 06:26:40Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -279,8 +277,6 @@ static void yaf_config_ini_serialize(yaf_config_t *this_ptr, zval *filename, zva
 }
 /* }}} */
 
-/** {{{ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2)
- */
 yaf_config_t *yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2) /* {{{ */ {
 	yaf_config_t *instance;
 

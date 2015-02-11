@@ -14,12 +14,9 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_namespace.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_NAMESPACE_H
 #define YAF_NAMESPACE_H
 
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
 #define YAF_BEGIN_ARG_INFO		ZEND_BEGIN_ARG_INFO
 #define YAF_BEGIN_ARG_INFO_EX	ZEND_BEGIN_ARG_INFO_EX
 
@@ -32,18 +29,6 @@
 	} else { \
 		INIT_CLASS_ENTRY(ce, name, methods); \
 	}
-#else
-
-#ifdef YAF_HAVE_NAMESPACE
-#undef YAF_HAVE_NAMESPACE
-#endif
-
-#define namespace_switch(n)	(n)
-#define YAF_INIT_CLASS_ENTRY(ce, name, name_ns, methods)  INIT_CLASS_ENTRY(ce, name, methods)
-#define YAF_BEGIN_ARG_INFO		static ZEND_BEGIN_ARG_INFO
-#define YAF_BEGIN_ARG_INFO_EX	static ZEND_BEGIN_ARG_INFO_EX
-
-#endif
 
 #define YAF_END_ARG_INFO		ZEND_END_ARG_INFO
 #define YAF_ARG_INFO			ZEND_ARG_INFO

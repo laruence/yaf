@@ -51,7 +51,6 @@
 #define	YAF_LOADER_PROPERTY_NAME_LIBRARY	"_library"
 #define YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB "_global_library"
 
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
 #define YAF_STORE_EG_ENVIRON() \
 	{ \
 		zval ** __old_return_value_pp   = EG(return_value_ptr_ptr); \
@@ -63,24 +62,6 @@
 		EG(opline_ptr)			 = __old_opline_ptr; \
 		EG(active_op_array)		 = __old_op_array; \
 	}
-
-#else
-
-#define YAF_STORE_EG_ENVIRON() \
-	{ \
-		zval ** __old_return_value_pp  		   = EG(return_value_ptr_ptr); \
-		zend_op ** __old_opline_ptr 		   = EG(opline_ptr); \
-		zend_op_array * __old_op_array 		   = EG(active_op_array); \
-		zend_function_state * __old_func_state = EG(function_state_ptr);
-
-#define YAF_RESTORE_EG_ENVIRON() \
-		EG(return_value_ptr_ptr) = __old_return_value_pp;\
-		EG(opline_ptr)			 = __old_opline_ptr; \
-		EG(active_op_array)		 = __old_op_array; \
-		EG(function_state_ptr)	 = __old_func_state; \
-	}
-
-#endif
 
 extern zend_class_entry *yaf_loader_ce;
 

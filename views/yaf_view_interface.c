@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: interface.c 329197 2013-01-18 05:55:37Z laruence $ */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -49,7 +47,7 @@ zend_function_entry yaf_view_interface_methods[] = {
 YAF_STARTUP_FUNCTION(view_interface) {
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_View_Interface", "Yaf\\View_Interface", yaf_view_interface_methods);
-	yaf_view_interface_ce = zend_register_internal_interface(&ce TSRMLS_CC);
+	yaf_view_interface_ce = zend_register_internal_interface(&ce);
 
 	return SUCCESS;
 }

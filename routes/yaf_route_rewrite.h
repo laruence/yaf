@@ -14,14 +14,12 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_ROUTER_REWRITE_H
 #define YAF_ROUTER_REWRITE_H
 
 extern zend_class_entry *yaf_route_rewrite_ce;
 
-yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *router, zval *verify TSRMLS_DC);
+yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *router, zval *verify);
 
 YAF_STARTUP_FUNCTION(route_rewrite);
 
