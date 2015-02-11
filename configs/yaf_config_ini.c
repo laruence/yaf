@@ -206,7 +206,7 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 				}
 
 				if (Z_TYPE_P(find_hash) != IS_ARRAY) {
-					zval_dtor(find_hash);
+					zval_ptr_dtor(find_hash);
 					array_init(find_hash);
 				}
 

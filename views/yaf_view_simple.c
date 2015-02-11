@@ -61,41 +61,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO();
 /* }}} */
 
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-/** {{{ static int yaf_view_simple_render_write(const char *str, uint str_length)
-*/
-static int yaf_view_simple_render_write(const char *str, uint str_length) {
-	char *target;
-	yaf_view_simple_buffer *buffer = YAF_G(buffer);
-
-	if (!buffer->size) {
-		buffer->size   = (str_length | VIEW_BUFFER_SIZE_MASK) + 1;
-		buffer->len	   = str_length;
-		buffer->buffer = emalloc(buffer->size);
-		target = buffer->buffer;
-	} else {
-		size_t len = buffer->len + str_length;
-
-		if (buffer->size < len + 1) {
-			buffer->size   = (len | VIEW_BUFFER_SIZE_MASK) + 1;
-			buffer->buffer = erealloc(buffer->buffer, buffer->size);
-			if (!buffer->buffer) {
-				php_error_docref(NULL, E_ERROR, "Yaf output buffer collapsed");
-			}
-		}
-
-		target = buffer->buffer + buffer->len;
-		buffer->len = len;
-	}
-
-	memcpy(target, str, str_length);
-	target[str_length] = '\0';
-
-	return str_length;
-}
-/* }}} */
-#endif
-
 static int yaf_view_simple_valid_var_name(char *var_name, int len) /* {{{ */
 {
 	int i, ch;
@@ -131,49 +96,48 @@ static int yaf_view_simple_valid_var_name(char *var_name, int len) /* {{{ */
 }
 /* }}} */
 
-/** {{{ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars)
-*/
-static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) {
+static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 	zval *entry;
 	zend_string *var_name;
-	ulong num_key;
 
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
-	    ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(tpl_vars), num_key, var_name, entry) {
-            if (var_name) {
-                /* GLOBALS protection */
-                if (var_name->len == sizeof("GLOBALS") && !strcmp(var_name->val, "GLOBALS")) {
-                    continue;
-                }
+	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
+			/* GLOBALS protection */
+			if (var_name->len == sizeof("GLOBALS") && !strcmp(var_name->val, "GLOBALS")) {
+				continue;
+			}
 
-                if (var_name->len == sizeof("this")  && !strcmp(var_name->val, "this") && EG(scope) && EG(scope)->name->len != 0) {
-                    continue;
-                }
+			if (var_name->len == sizeof("this")  && 
+					!strcmp(var_name->val, "this") && EG(scope) && EG(scope)->name->len != 0) {
+				continue;
+			}
 
 
-                if (yaf_view_simple_valid_var_name(var_name->val, var_name->len)) {
-                    zend_set_local_var(var_name, entry, 1);
-                }
-            }
+			if (yaf_view_simple_valid_var_name(var_name->val, var_name->len)) {
+				if (EXPECTED(zend_set_local_var(var_name, entry, 1) == SUCCESS)) {
+					Z_TRY_ADDREF_P(entry);
+				}
+			}
 		} ZEND_HASH_FOREACH_END();
 	}
 
 	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
-	    ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(vars), num_key, var_name, entry) {
-	        if (var_name) {
-                /* GLOBALS protection */
-                if (var_name->len == sizeof("GLOBALS") && !strcmp(var_name->val, "GLOBALS")) {
-                    continue;
-                }
+	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(vars), var_name, entry) {
+			/* GLOBALS protection */
+			if (var_name->len == sizeof("GLOBALS") && !strcmp(var_name->val, "GLOBALS")) {
+				continue;
+			}
 
-                if (var_name->len == sizeof("this")  && !strcmp(var_name->val, "this") && EG(scope) && EG(scope)->name->len != 0) {
-                    continue;
-                }
+			if (var_name->len == sizeof("this")  &&
+					!strcmp(var_name->val, "this") && EG(scope) && EG(scope)->name->len != 0) {
+				continue;
+			}
 
-                if (yaf_view_simple_valid_var_name(var_name->val, var_name->len)) {
-                    zend_set_local_var(var_name, entry, 1);
-                }
-            }
+			if (yaf_view_simple_valid_var_name(var_name->val, var_name->len)) {
+				if (EXPECTED(zend_set_local_var(var_name, entry, 1) == SUCCESS)) {
+					Z_TRY_ADDREF_P(entry);
+				}
+			}
 		} ZEND_HASH_FOREACH_END();
 	}
 
@@ -181,7 +145,7 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) {
 }
 /* }}} */
 
-yaf_view_t * yaf_view_simple_instance(yaf_view_t *this_ptr, zval *tpl_dir, zval *options) /* {{{ */ {
+yaf_view_t *yaf_view_simple_instance(yaf_view_t *this_ptr, zval *tpl_dir, zval *options) /* {{{ */ {
 	zval tpl_vars;
 
 	if (Z_ISUNDEF_P(this_ptr)) {
@@ -348,8 +312,6 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 		return 0;
 	}
 
-	ZVAL_NULL(ret);
-
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 
 	(void)yaf_view_simple_extract(tpl_vars, vars);
@@ -363,21 +325,21 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 		zval phtml;
 		zend_op_array *new_op_array;
 		char *eval_desc = zend_make_compiled_string_description("template code");
-		char *tmp;
+		zend_string *str;
 		
 		/* eval require code mustn't be wrapped in opening and closing PHP tags */
-		spprintf(&tmp, 0, "?>%s", Z_STRVAL_P(tpl));
-		ZVAL_STRING(&phtml, tmp);
-		efree(tmp);
+		str = strpprintf(0, "?>%s", Z_STRVAL_P(tpl));
+		ZVAL_STR(&phtml, str);
 
 		new_op_array = zend_compile_string(&phtml, eval_desc);
 
-		zval_dtor(&phtml);
+		zval_ptr_dtor(&phtml);
 		efree(eval_desc);
 
 		if (new_op_array) {
 			zval result;
 
+			ZVAL_NULL(&result);
 			zend_execute(new_op_array, &result);
 			destroy_op_array(new_op_array);
 			efree(new_op_array);
@@ -398,9 +360,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 }
 /* }}} */
 
-/** {{{ int yaf_view_simple_assign_single(yaf_view_t *view, zend_string *name, zval *value)
- */
-int yaf_view_simple_assign_single(yaf_view_t *view, zend_string *name, zval *value) {
+int yaf_view_simple_assign_single(yaf_view_t *view, zend_string *name, zval *value) /* {{{ */ {
 	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 	if (zend_hash_update(Z_ARRVAL_P(tpl_vars), name, value) != NULL) {
 		Z_TRY_ADDREF_P(value);
@@ -410,9 +370,7 @@ int yaf_view_simple_assign_single(yaf_view_t *view, zend_string *name, zval *val
 }
 /* }}} */
 
-/** {{{ int yaf_view_simple_assign_multi(yaf_view_t *view, zval *name, zval *value)
- */
-int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value) {
+int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value) /* {{{ */ {
 	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 	if (Z_TYPE_P(value) == IS_ARRAY) {
 		zend_hash_copy(Z_ARRVAL_P(tpl_vars), Z_ARRVAL_P(value), (copy_ctor_func_t) zval_add_ref);
@@ -632,7 +590,6 @@ PHP_METHOD(yaf_view_simple, display) {
 		return;
 	}
 
-	/*tpl_vars = zend_read_property(yaf_view_simple_ce, getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 0);*/
 	if (!yaf_view_simple_display(getThis(), tpl, vars, return_value)) {
 		RETURN_FALSE;
 	}

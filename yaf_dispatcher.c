@@ -949,9 +949,7 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 
 	ZVAL_STRING(&function, "set_error_handler");
 	if (call_user_function(EG(function_table), NULL, &function, return_value, ZEND_NUM_ARGS(), params) == FAILURE) {
-		if (return_value) {
-			zval_dtor(return_value);
-		}
+		zval_ptr_dtor(return_value);
 		zval_ptr_dtor(&params[0]);
 		if (error_type) {
 			zval_ptr_dtor(&params[1]);
@@ -961,10 +959,7 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 		RETURN_FALSE;
 	}
 
-	if (return_value) {
-		zval_dtor(return_value);
-	}
-
+	zval_ptr_dtor(return_value);
 	zval_ptr_dtor(&function);
 	zval_ptr_dtor(&params[0]);
 	if (error_type) {
