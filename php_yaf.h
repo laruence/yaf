@@ -39,23 +39,13 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define PHP_YAF_VERSION 					"2.3.4-dev"
+#define PHP_YAF_VERSION 					"3.0.0-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_SHUTDOWN_FUNCTION(module)  	ZEND_MSHUTDOWN_FUNCTION(yaf_##module)
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
-
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
-#define YAF_HAVE_NAMESPACE
-#else
-#define Z_SET_REFCOUNT_P(pz, rc)      (pz)->refcount = rc
-#define Z_SET_REFCOUNT_PP(ppz, rc)    Z_SET_REFCOUNT_P(*(ppz), rc)
-#define Z_ADDREF_P 	 ZVAL_ADDREF
-#define Z_REFCOUNT_P ZVAL_REFCOUNT
-#define Z_DELREF_P 	 ZVAL_DELREF
-#endif
 
 #define yaf_application_t	zval
 #define yaf_view_t 			zval
@@ -112,17 +102,10 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	HashTable	*configs;
 	zval 		 modules;
 	zval        *default_route;
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
-	uint 		buf_nesting;
-	void		*buffer;
-	void 		*owrite_handler;
-#endif
 	zval        active_ini_file_section;
 	zval        *ini_wanted_section;
 	uint        parsing_flag;
-#ifdef YAF_HAVE_NAMESPACE
 	zend_bool	use_namespace;
-#endif
 ZEND_END_MODULE_GLOBALS(yaf)
 
 PHP_MINIT_FUNCTION(yaf);

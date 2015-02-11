@@ -157,17 +157,13 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 		backup = class_name + prefix_len;
 		orig_char = '_';
 		*backup = '\0';
-	}
-#ifdef YAF_HAVE_NAMESPACE
-	else if ((pos = strstr(class_name, "\\"))) {
+	} else if ((pos = strstr(class_name, "\\"))) {
 		prefix_len 	= pos - class_name;
 		prefix 	= estrndup(class_name, prefix_len);
 		orig_char = '\\';
 		backup = class_name + prefix_len;
 		*backup = '\0';
-	}
-#endif
-	else {
+	} else {
 		prefix = class_name;
 		prefix_len = len;
 	}
@@ -177,22 +173,18 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 			if (backup) {
 				*backup = orig_char;
 			}
-#ifdef YAF_HAVE_NAMESPACE
 			if (prefix != class_name) {
 				efree(prefix);
 			}
-#endif
 			return 1;
 		} else if (*(pos - 1) == DEFAULT_DIR_SEPARATOR 
 				&& (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
 			if (backup) {
 				*backup = orig_char;
 			}
-#ifdef YAF_HAVE_NAMESPACE
 			if (prefix != class_name) {
 				efree(prefix);
 			}
-#endif
 			return 1;
 		}
 		ns = pos + prefix_len;
@@ -201,11 +193,10 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 	if (backup) {
 		*backup = orig_char;
 	}
-#ifdef YAF_HAVE_NAMESPACE
+
 	if (prefix != class_name) {
 		efree(prefix);
 	}
-#endif
 
 	return 0;
 }
@@ -606,9 +597,7 @@ PHP_METHOD(yaf_loader, import) {
 */
 PHP_METHOD(yaf_loader, autoload) {
 	char *class_name, *origin_classname, *app_directory, *directory = NULL, *file_name = NULL;
-#ifdef YAF_HAVE_NAMESPACE
 	char *origin_lcname = NULL;
-#endif
 	uint separator_len, file_name_len = 0;
 	size_t class_name_len;
 
@@ -624,7 +613,6 @@ PHP_METHOD(yaf_loader, autoload) {
 		if (!class_name_len) {
 			break;
 		}
-#ifdef YAF_HAVE_NAMESPACE
 		{
 			int pos = 0;
 			origin_lcname = estrndup(class_name, class_name_len);
@@ -636,7 +624,6 @@ PHP_METHOD(yaf_loader, autoload) {
 				pos += 1;
 			}
 		}
-#endif
 
 		if (strncmp(class_name, YAF_LOADER_RESERVERD, YAF_LOADER_LEN_RESERVERD) == 0) {
 			php_error_docref(NULL, E_WARNING, "You should not use '%s' as class name prefix", YAF_LOADER_RESERVERD);
@@ -700,11 +687,9 @@ PHP_METHOD(yaf_loader, autoload) {
 
 	if (!app_directory && directory) {
 		efree(directory);
-#ifdef YAF_HAVE_NAMESPACE
 		if (origin_lcname) {
 			efree(origin_lcname);
 		}
-#endif
 		if (file_name != class_name) {
 			efree(file_name);
 		}
@@ -719,11 +704,9 @@ PHP_METHOD(yaf_loader, autoload) {
 		if (yaf_internal_autoload(file_name, file_name_len, &directory)) {
 			char *lc_classname = zend_str_tolower_dup(origin_classname, class_name_len);
 			if (zend_hash_str_exists(EG(class_table), lc_classname, class_name_len)) {
-#ifdef YAF_HAVE_NAMESPACE
 				if (origin_lcname) {
 					efree(origin_lcname);
 				}
-#endif
 				if (directory) {
 					efree(directory);
 				}
@@ -742,11 +725,9 @@ PHP_METHOD(yaf_loader, autoload) {
 			php_error_docref(NULL, E_WARNING, "Failed opening script %s: %s", directory, strerror(errno));
 		}
 
-#ifdef YAF_HAVE_NAMESPACE
 		if (origin_lcname) {
 			efree(origin_lcname);
 		}
-#endif
 		if (directory) {
 			efree(directory);
 		}
@@ -758,11 +739,9 @@ PHP_METHOD(yaf_loader, autoload) {
 		char *lower_case_name = zend_str_tolower_dup(origin_classname, class_name_len);
 		if (yaf_internal_autoload(file_name, file_name_len, &directory) &&
 				zend_hash_str_exists(EG(class_table), lower_case_name, class_name_len)) {
-#ifdef YAF_HAVE_NAMESPACE
 			if (origin_lcname) {
 				efree(origin_lcname);
 			}
-#endif
 			if (directory) {
 				efree(directory);
 			}
@@ -773,11 +752,9 @@ PHP_METHOD(yaf_loader, autoload) {
 			efree(lower_case_name);
 			RETURN_TRUE;
 		}
-#ifdef YAF_HAVE_NAMESPACE
 		if (origin_lcname) {
 			efree(origin_lcname);
 		}
-#endif
 		if (directory) {
 			efree(directory);
 		}

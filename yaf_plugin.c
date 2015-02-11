@@ -33,12 +33,10 @@ ZEND_BEGIN_ARG_INFO_EX(plugin_arg, 0, 0, 2)
 	ZEND_ARG_OBJ_INFO(0, response, Yaf_Response_Abstract, 0)
 ZEND_END_ARG_INFO()
 
-#ifdef YAF_HAVE_NAMESPACE
 ZEND_BEGIN_ARG_INFO_EX(plugin_arg_ns, 0, 0, 2)
 	ZEND_ARG_OBJ_INFO(0, request, Yaf\\Request_Abstract, 0)
 	ZEND_ARG_OBJ_INFO(0, response, Yaf\\Response_Abstract, 0)
 ZEND_END_ARG_INFO()
-#endif
 /* }}} */
 
 /** {{{ proto public Yaf_Plugin::routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
@@ -103,7 +101,6 @@ zend_function_entry yaf_plugin_methods[] = {
 	{NULL, NULL, NULL}
 };
 
-#ifdef YAF_HAVE_NAMESPACE
 zend_function_entry yaf_plugin_methods_ns[] = {
 	PHP_ME(yaf_plugin, routerStartup,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_plugin, routerShutdown,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
@@ -114,7 +111,6 @@ zend_function_entry yaf_plugin_methods_ns[] = {
 	PHP_ME(yaf_plugin, preResponse, 			 plugin_arg_ns, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
-#endif
 /* }}} */
 
 /** {{{ YAF_STARTUP_FUNCTION

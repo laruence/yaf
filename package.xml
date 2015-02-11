@@ -13,8 +13,8 @@
  <date>2014-10-22</date>
  <time>21:53:00</time>
  <version>
-  <release>2.3.3</release>
-  <api>2.3.3</api>
+  <release>3.0.0</release>
+  <api>3.0.0</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,7 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed build with PHP-5.6
+  - Fixed build with PHP7
  </notes>
  <contents> 
   <dir name="/"> 
@@ -200,7 +200,7 @@
  <dependencies> 
   <required> 
    <php> 
-    <min>5.2.0</min> 
+    <min>7.0.0</min> 
    </php> 
    <pearinstaller> 
     <min>1.4.0</min> 
@@ -210,6 +210,22 @@
  <providesextension>yaf</providesextension>
  <extsrcrelease />
  <changelog> 
+  <release> 
+   <date>2014-10-22</date> 
+   <version> 
+    <release>3.0.0</release> 
+    <api>3.0.0</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed build with PHP7
+   </notes> 
+  </release> 
+
   <release> 
    <date>2014-10-22</date> 
    <version> 
@@ -224,7 +240,6 @@
    <notes>
     - Fixed build with PHP-5.6
    </notes> 
-
   </release> 
   <release> 
    <date>2014-01-09</date> 

@@ -241,12 +241,8 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 		q = p;
 		*q = toupper(*q);
 		while (*q != '\0') {
-			if (*q == '_'
-#ifdef YAF_HAVE_NAMESPACE
-					|| *q == '\\'
-#endif
-			   ) {
-				if (*(q+1) != '\0') {
+			if (*q == '_' || *q == '\\') {
+			   	if (*(q+1) != '\0') {
 					*(q+1) = toupper(*(q+1));
 					q++;
 				}
@@ -427,11 +423,7 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		p = action_upper;
 		*(p) = toupper(*p);
 		while (*p != '\0') {
-			if (*p == '_'
-#ifdef YAF_HAVE_NAMESPACE
-					|| *p == '\\'
-#endif
-			   ) {
+			if (*p == '_' || *p == '\\') {
 				if (*(p+1) != '\0') {
 					*(p+1) = toupper(*(p+1));
 					p++;
