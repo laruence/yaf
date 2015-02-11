@@ -14,13 +14,11 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_view.h 329002 2013-01-07 12:55:53Z laruence $ */
-
 #ifndef YAF_VIEW_H
 #define YAF_VIEW_H
 
 #define yaf_view_instance yaf_view_simple_instance
-#define yaf_view_ce		 yaf_view_simple_ce
+#define yaf_view_ce		  yaf_view_simple_ce
 
 #define YAF_VIEW_PROPERTY_NAME_TPLVARS 	"_tpl_vars"
 #define YAF_VIEW_PROPERTY_NAME_TPLDIR	"_tpl_dir"

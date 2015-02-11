@@ -34,7 +34,7 @@ var_dump($request->isPost());
 ?>
 --EXPECTF--
 Warning: Yaf_Request_Http::__construct() expects at most 2 parameters, 3 given in %s052.php on line %d
-bool(false)
+NULL
 NULL
 NULL
 NULL

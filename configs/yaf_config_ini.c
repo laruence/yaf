@@ -416,8 +416,7 @@ PHP_METHOD(yaf_config_ini, __construct) {
 /** {{{ proto public Yaf_Config_Ini::get(string $name = NULL)
 */
 PHP_METHOD(yaf_config_ini, get) {
-	zval rv;
-	zval *ret, rret, *pzval;
+	zval *ret, *pzval;
 	zend_string *name = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S", &name) == FAILURE) {
@@ -489,7 +488,6 @@ PHP_METHOD(yaf_config_ini, get) {
 /** {{{ proto public Yaf_Config_Ini::toArray(void)
 */
 PHP_METHOD(yaf_config_ini, toArray) {
-	zval rv;
 	zval *properties = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	RETURN_ZVAL(properties, 1, 0);
 }
@@ -506,7 +504,6 @@ PHP_METHOD(yaf_config_ini, set) {
 /** {{{ proto public Yaf_Config_Ini::__isset($name)
 */
 PHP_METHOD(yaf_config_ini, __isset) {
-	zval rv;
 	zend_string* name;
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
 		return;
@@ -520,7 +517,6 @@ PHP_METHOD(yaf_config_ini, __isset) {
 /** {{{ proto public Yaf_Config_Ini::count($name)
 */
 PHP_METHOD(yaf_config_ini, count) {
-	zval rv;
 	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	RETURN_LONG(zend_hash_num_elements(Z_ARRVAL_P(prop)));
 }
@@ -537,7 +533,6 @@ PHP_METHOD(yaf_config_ini, offsetUnset) {
 /** {{{ proto public Yaf_Config_Ini::rewind(void)
 */
 PHP_METHOD(yaf_config_ini, rewind) {
-	zval rv;
 	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	zend_hash_internal_pointer_reset(Z_ARRVAL_P(prop));
 }
@@ -569,7 +564,7 @@ PHP_METHOD(yaf_config_ini, current) {
 /** {{{ proto public Yaf_Config_Ini::key(void)
 */
 PHP_METHOD(yaf_config_ini, key) {
-	zval *prop, rv;
+	zval *prop;
 	zend_string *string;
 	ulong index;
 
@@ -590,7 +585,6 @@ PHP_METHOD(yaf_config_ini, key) {
 /** {{{ proto public Yaf_Config_Ini::next(void)
 */
 PHP_METHOD(yaf_config_ini, next) {
-	zval rv;
 	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	zend_hash_move_forward(Z_ARRVAL_P(prop));
 }
@@ -599,7 +593,6 @@ PHP_METHOD(yaf_config_ini, next) {
 /** {{{ proto public Yaf_Config_Ini::valid(void)
 */
 PHP_METHOD(yaf_config_ini, valid) {
-	zval rv;
 	zval *prop = zend_read_property(yaf_config_ini_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	RETURN_LONG(zend_hash_has_more_elements(Z_ARRVAL_P(prop)) == SUCCESS);
 }

@@ -181,43 +181,36 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) {
 }
 /* }}} */
 
-/** {{{ yaf_view_t * yaf_view_simple_instance(yaf_view_t *view, zval *tpl_dir, zval *options)
-*/
-yaf_view_t * yaf_view_simple_instance(yaf_view_t *view, zval *tpl_dir, zval *options) {
-	zval *instance, tpl_vars;
+yaf_view_t * yaf_view_simple_instance(yaf_view_t *this_ptr, zval *tpl_dir, zval *options) /* {{{ */ {
+	zval tpl_vars;
 
-	instance = view;
-	if (ZVAL_IS_NULL(instance)) {
-		object_init_ex(instance, yaf_view_simple_ce);
+	if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_view_simple_ce);
 	}
 
 	array_init(&tpl_vars);
-	zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), &tpl_vars);
+	zend_update_property(yaf_view_simple_ce, this_ptr, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), &tpl_vars);
 	zval_ptr_dtor(&tpl_vars);
 
 	if (tpl_dir && Z_TYPE_P(tpl_dir) == IS_STRING) {
 		if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl_dir), Z_STRLEN_P(tpl_dir))) {
-			zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), tpl_dir);
+			zend_update_property(yaf_view_simple_ce, this_ptr, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), tpl_dir);
 		} else {
-			if (!view) {
-				zval_ptr_dtor(instance);
-			}
+			/* redo the object_init_ex? zval_ptr_dtor(this_ptr); */
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an absolute path for templates directory");
 			return NULL;
 		}
 	} 
 
 	if (options && IS_ARRAY == Z_TYPE_P(options)) {
-		zend_update_property(yaf_view_simple_ce, instance, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), options);
+		zend_update_property(yaf_view_simple_ce, this_ptr, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), options);
 	}
 
-	return instance;
+	return this_ptr;
 }
 /* }}} */
 
-/** {{{ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret)
-*/
-int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
+int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) /* {{{ */ {
 	zval *tpl_vars;
 	char *script;
 	uint len;
@@ -225,8 +218,6 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;
 	}
-
-	ZVAL_NULL(ret);
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 
@@ -252,7 +243,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) 
 
 		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
 			if (YAF_G(view_directory)) {
-				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory)->val, DEFAULT_SLASH, Z_STRVAL_P(tpl));
 			} else {
 				php_output_end(TSRMLS_C);
 
@@ -301,6 +292,8 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 		return 0;
 	}
 
+	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
+
 	(void)yaf_view_simple_extract(tpl_vars, vars);
 
 	old_scope = EG(scope);
@@ -319,7 +312,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 
 		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
 			if (YAF_G(view_directory)) {
-				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory)->val, DEFAULT_SLASH, Z_STRVAL_P(tpl));
 			} else {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 						"Could not determine the view script path, you should call %s::setScriptPath to specific it",

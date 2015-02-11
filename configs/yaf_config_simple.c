@@ -274,7 +274,7 @@ PHP_METHOD(yaf_config_simple, current) {
 /** {{{ proto public Yaf_Config_Simple::key(void)
 */
 PHP_METHOD(yaf_config_simple, key) {
-	zval *prop, rv;
+	zval *prop;
 	zend_string *string;
 	ulong index;
 

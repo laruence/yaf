@@ -74,9 +74,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_controller_display_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array)
- */
-zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array) {
+zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_name, int len, zval *var_array) /* {{{ */ {
 	char *self_name, *tmp;
 	zval *name, param, ret;
 	yaf_view_t *view;
@@ -134,11 +132,12 @@ zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 		return NULL;
 	}
 
-	if (Z_TYPE(ret) == IS_FALSE) {
+	if (Z_TYPE(ret) != IS_STRING) {
+		zval_ptr_dtor(&ret);
 		return NULL;
 	}
 
-	return zval_get_string(&ret);
+	return Z_STR(ret);
 }
 /* }}} */
 
