@@ -78,18 +78,15 @@ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request) {
 /** {{{ yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action)
  */
 yaf_route_t * yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action) {
-	yaf_route_t *instance;
-
-    instance  = this_ptr;
-	if (ZVAL_IS_NULL(this_ptr)) {
-		object_init_ex(instance, yaf_route_simple_ce);
+	if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_route_simple_ce);
 	}
 
-	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), module);
-	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), controller);
-	zend_update_property(yaf_route_simple_ce, instance, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), action);
+	zend_update_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), module);
+	zend_update_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER), controller);
+	zend_update_property(yaf_route_simple_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_ACTION), action);
 
-	return instance;
+	return this_ptr;
 }
 /* }}} */
 

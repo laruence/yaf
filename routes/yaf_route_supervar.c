@@ -60,23 +60,18 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request) {
 }
 /* }}} */
 
-/** {{{ yaf_route_t * yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name)
- */
-yaf_route_t * yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name) {
-	yaf_route_t *instance;
-
+yaf_route_t * yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name) /* {{{ */ {
 	if (!name || IS_STRING != Z_TYPE_P(name) || !Z_STRLEN_P(name)) {
 		return NULL;
 	}
 
-    instance  = this_ptr;
-    if (ZVAL_IS_NULL(this_ptr)) {
-		object_init_ex(instance, yaf_route_supervar_ce);
+    if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_route_supervar_ce);
 	} 
 
-	zend_update_property(yaf_route_supervar_ce, instance, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), name);
+	zend_update_property(yaf_route_supervar_ce, this_ptr, ZEND_STRL(YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR), name);
 
-	return instance;
+	return this_ptr;
 }
 /* }}} */
 

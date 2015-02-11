@@ -44,26 +44,21 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_construct_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *router, zval *verify)
- */
-yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *route, zval *verify) {
-	yaf_route_t	*instance;
-
-    instance = this_ptr;
-	if (ZVAL_IS_NULL(this_ptr)) {
-		object_init_ex(instance, yaf_route_rewrite_ce);
+yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *route, zval *verify) /* {{{ */{
+	if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_route_rewrite_ce);
 	}
 
-	zend_update_property(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), match);
-	zend_update_property(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE), route);
+	zend_update_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), match);
+	zend_update_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE), route);
 
 	if (!verify) {
-		zend_update_property_null(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY));
+		zend_update_property_null(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY));
 	} else {
-		zend_update_property(yaf_route_rewrite_ce, instance, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), verify);
+		zend_update_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), verify);
 	}
 
-	return instance;
+	return this_ptr;
 }
 /* }}} */
 
@@ -335,6 +330,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 		tstr = zend_string_realloc(tstr, tstr->len + squery.s->len, 0); 
 		memcpy(tstr->val + tmp_len, squery.s->val, squery.s->len);
 		tstr->val[tstr->len] = '\0';
+		smart_str_free(&squery);
 	}   
 
 	return tstr;

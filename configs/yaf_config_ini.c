@@ -333,10 +333,10 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 				if ((fh.handle.fp = VCWD_FOPEN(ini_file, "r"))) {
 					fh.filename = ini_file;
 					fh.type = ZEND_HANDLE_FP;
-					ZVAL_NULL(&YAF_G(active_ini_file_section));
+					ZVAL_UNDEF(&YAF_G(active_ini_file_section));
 
 					YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_START;
-					if (section_name && Z_STRLEN_P(section_name)) {
+					if (section_name && EXPECTED(Z_TYPE_P(section_name) == IS_STRING && Z_STRLEN_P(section_name))) {
 						YAF_G(ini_wanted_section) = section_name;
 					} else {
 						YAF_G(ini_wanted_section) = NULL;
@@ -360,8 +360,8 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 			return NULL;
 		}
 
-		if (section_name && Z_STRLEN_P(section_name)) {
-			zval *section, zv;
+		if (section_name && EXPECTED(Z_TYPE_P(section_name) == IS_STRING && Z_STRLEN_P(section_name))) {
+			zval *section, zv, garbage;
 			if ((section = zend_symtable_find(Z_ARRVAL(configs), Z_STR_P(section_name))) == NULL) {
 				zval_ptr_dtor(&configs);
 				yaf_trigger_error(E_ERROR, "There is no section '%s' in '%s'", Z_STRVAL_P(section_name), ini_file);
@@ -369,7 +369,9 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 			}
 			array_init(&zv);
 			zend_hash_copy(Z_ARRVAL(zv), Z_ARRVAL_P(section), (copy_ctor_func_t) zval_add_ref);
+			ZVAL_COPY_VALUE(&garbage, &configs);
 			ZVAL_COPY_VALUE(&configs, &zv);
+			zval_ptr_dtor(&garbage);
 		} 
 
 		if (Z_ISUNDEF_P(this_ptr)) {
@@ -391,19 +393,20 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 */
 PHP_METHOD(yaf_config_ini, __construct) {
 	zval *filename, *section = NULL;
-	zval *self = getThis(), rself;
+	zval *self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &filename, &section) == FAILURE) {
-		zval prop;
-		array_init(&prop);
-		zend_update_property(yaf_config_ini_ce, self, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), &prop);
-		zval_ptr_dtor(&prop);
+		if (self) {
+			zval prop;
+			array_init(&prop);
+			zend_update_property(yaf_config_ini_ce, self, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), &prop);
+			zval_ptr_dtor(&prop);
+		}
 		return;
 	}
 
 	if (!self) {
-		ZVAL_NULL(&rself);
-		self = &rself;
+		RETURN_FALSE;
 	}
 
 	yaf_config_ini_instance(self, filename, section);

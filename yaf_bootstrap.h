@@ -21,7 +21,6 @@
 
 #define YAF_DEFAULT_BOOTSTRAP		  	"Bootstrap"
 #define YAF_DEFAULT_BOOTSTRAP_LOWER	  	"bootstrap"
-#define YAF_DEFAULT_BOOTSTRAP_LEN		10
 #define YAF_BOOTSTRAP_INITFUNC_PREFIX  	"_init"
 
 extern zend_class_entry *yaf_bootstrap_ce;

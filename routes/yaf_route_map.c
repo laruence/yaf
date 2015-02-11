@@ -14,8 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: map.c 329197 2013-01-18 05:55:37Z laruence $*/
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -42,27 +40,22 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_map_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/* {{{ yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len)
- */
-yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len) {
-	yaf_route_t *instance;
-
-	instance  = this_ptr;
-	if (ZVAL_IS_NULL(this_ptr)) {
-		object_init_ex(instance, yaf_route_map_ce);
+yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len) /* {{{ */{
+	if (Z_ISUNDEF_P(this_ptr)) {
+		object_init_ex(this_ptr, yaf_route_map_ce);
 	} 
 
 	if (controller_prefer) {
-		zend_update_property_bool(yaf_route_map_ce, instance,
+		zend_update_property_bool(yaf_route_map_ce, this_ptr,
 				ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER), 1);
 	}
 
 	if (delim && len) {
-		zend_update_property_stringl(yaf_route_map_ce, instance,
+		zend_update_property_stringl(yaf_route_map_ce, this_ptr,
 				ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_DELIMETER), delim, len);
 	}
 
-	return instance;
+	return this_ptr;
 }
 /* }}} */
 

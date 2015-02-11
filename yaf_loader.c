@@ -398,15 +398,13 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {
 }
 /* }}} */
 
-/** {{{ int yaf_loader_register_namespace_single(char *prefix, uint len)
- */
-int yaf_loader_register_namespace_single(char *prefix, uint len) {
+int yaf_loader_register_namespace_single(char *prefix, size_t len) /* {{{ */ {
 
 	if (YAF_G(local_namespaces)) {
 		YAF_G(local_namespaces) = zend_string_realloc(
-				YAF_G(local_namespaces), YAF_G(local_namespaces)->len + 1 + len, 0);
+				YAF_G(local_namespaces), YAF_G(local_namespaces)->len + len + 1, 0);
 		snprintf(YAF_G(local_namespaces)->val +
-				YAF_G(local_namespaces)->len - len + 1, len + 1, "%c%s", DEFAULT_DIR_SEPARATOR, prefix);
+				YAF_G(local_namespaces)->len - (len + 1), len + 1 + 1, "%c%s", DEFAULT_DIR_SEPARATOR, prefix);
 	} else {
 		YAF_G(local_namespaces) = zend_string_init(prefix, len, 0);
 	}
@@ -619,7 +617,7 @@ PHP_METHOD(yaf_loader, autoload) {
 	}
 
 	separator_len = YAF_G(name_separator_len);
-	app_directory = YAF_G(directory)? YAF_G(directory)->val : "";
+	app_directory = YAF_G(directory)? YAF_G(directory)->val : NULL; 
 	origin_classname = class_name;
 
 	do {

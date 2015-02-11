@@ -392,7 +392,11 @@ Yaf_Config_Ini Object
 
     [_readonly:protected] => 1
 )
+
+Warning: Yaf_Config_Ini::__set(): Yaf_Config_Ini is readonly in %s010.php on line %d
 bool(true)
 baseextraproductnocatchenvtestbool(false)
 NULL
+
+Warning: Yaf_Config_Ini::__set(): Yaf_Config_Ini is readonly in %s010.php on line %d
 int(0)

@@ -309,7 +309,7 @@ PHP_METHOD(yaf_application, __construct) {
 	yaf_request_t zrequest = {{0}};
 	yaf_dispatcher_t zdispatcher = {{0}};
 	yaf_application_t *app, *self;
-	yaf_loader_t zloader = {{0}};
+	yaf_loader_t *loader, zloader = {{0}};
 
 	app	= zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1);
 
@@ -371,7 +371,7 @@ PHP_METHOD(yaf_application, __construct) {
 	if (YAF_G(local_library)) {
 		zend_string *global_library = YAF_G(global_library)?
 			zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0) : NULL;
-		(void )yaf_loader_instance(&zloader, YAF_G(local_library), global_library);
+		loader = yaf_loader_instance(&zloader, YAF_G(local_library), global_library);
 		if (global_library) {
 			zend_string_release(global_library);
 		}
@@ -380,14 +380,14 @@ PHP_METHOD(yaf_application, __construct) {
 		local_library = strpprintf(0, "%s%c%s", YAF_G(directory), DEFAULT_SLASH, YAF_LIBRARY_DIRECTORY_NAME);
 		global_library = YAF_G(global_library)?
 			zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0) : NULL;
-		(void)yaf_loader_instance(&zloader, local_library, global_library);
+		loader = yaf_loader_instance(&zloader, local_library, global_library);
 		zend_string_release(local_library);
 		if (global_library) {
 			zend_string_release(global_library);
 		}
 	}
 
-	if (UNEXPECTED(Z_TYPE(zloader) != IS_OBJECT)) {
+	if (UNEXPECTED(Z_TYPE_P(loader) != IS_OBJECT)) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of application auto loader failed");
 		RETURN_FALSE;
@@ -537,7 +537,8 @@ PHP_METHOD(yaf_application, bootstrap) {
 	zend_class_entry  *ce;
 	yaf_application_t *self = getThis();
 
-	if (!(ce = zend_hash_str_find_ptr(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, YAF_DEFAULT_BOOTSTRAP_LEN))) {
+	if (!(ce = zend_hash_str_find_ptr(EG(class_table),
+					YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1))) {
 		if (YAF_G(bootstrap)) {
 			bootstrap_path = zend_string_copy(YAF_G(bootstrap));
 		} else {
@@ -547,8 +548,8 @@ PHP_METHOD(yaf_application, bootstrap) {
 		if (!yaf_loader_import(bootstrap_path->val, bootstrap_path->len + 1, 0)) {
 			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path->val);
 			retval = 0;
-		} else if (UNEXPECTED(!(ce = zend_hash_str_find_ptr(EG(class_table),
-						YAF_DEFAULT_BOOTSTRAP_LOWER, YAF_DEFAULT_BOOTSTRAP_LEN)))) {
+		} else if (UNEXPECTED((ce = zend_hash_str_find_ptr(EG(class_table),
+						YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1)) == NULL)) {
 			php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
 			retval = 0;
 		} else if (UNEXPECTED(!instanceof_function(ce, yaf_bootstrap_ce))) {

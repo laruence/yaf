@@ -106,9 +106,9 @@ ZEND_END_ARG_INFO()
 
 /* }}} */
 
-yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
+yaf_dispatcher_t *yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
 	zval plugins;
-	yaf_router_t router = {{0}};
+	yaf_router_t *router, rv = {{0}};
 	yaf_dispatcher_t *instance;
 
 	instance = zend_read_static_property(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), 1);
@@ -128,9 +128,9 @@ yaf_dispatcher_t * yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */
 	zend_update_property(yaf_dispatcher_ce, this_ptr, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), &plugins);
 	zval_ptr_dtor(&plugins);
 
-	(void)yaf_router_instance(&router);
-	zend_update_property(yaf_dispatcher_ce, this_ptr, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), &router);
-	zval_ptr_dtor(&router);
+	router = yaf_router_instance(&rv);
+	zend_update_property(yaf_dispatcher_ce, this_ptr, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), router);
+	zval_ptr_dtor(router);
 
 	zend_update_property_str(yaf_dispatcher_ce,
 			this_ptr, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), YAF_G(default_module));
@@ -1096,7 +1096,10 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 /** {{{ proto public Yaf_Dispatcher::getInstance(void)
 */
 PHP_METHOD(yaf_dispatcher, getInstance) {
-	yaf_dispatcher_instance(return_value);
+	zval *instance, rv = {{0}};
+	if ((instance = yaf_dispatcher_instance(&rv)) != NULL) {
+		RETURN_ZVAL(instance, 1, 0);
+	}
 }
 /* }}} */
 

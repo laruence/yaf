@@ -154,9 +154,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 }
 /* }}} */
 
-/** {{{ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request)
- */
-int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) {
+int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) /* {{{ */ {
 	zval *zuri, *base_uri;
 	zend_string *req_uri;
 
@@ -164,7 +162,7 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) {
 	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
 
 	if (base_uri && IS_STRING == Z_TYPE_P(base_uri)
-			&& zend_string_equals(Z_STR_P(zuri), Z_STR_P(base_uri))) {
+			&& !strncasecmp(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri), Z_STRLEN_P(base_uri))) {
 		req_uri = zend_string_init(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri), Z_STRLEN_P(zuri) - Z_STRLEN_P(base_uri), 0);
 	} else {
 		req_uri = zend_string_copy(Z_STR_P(zuri));

@@ -110,8 +110,7 @@ int yaf_router_route(yaf_router_t *router, yaf_request_t *request) {
 */
 int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 	zval 		*entry;
-	HashTable 	*ht;
-	yaf_route_t 	*route, rroute;
+	yaf_route_t *route, rv;
 
 	if (!configs || IS_ARRAY != Z_TYPE_P(configs)) {
 		return 0;
@@ -122,14 +121,13 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 
 		routes = zend_read_property(yaf_router_ce, router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_ROUTES), 1, NULL);
 
-		ht = Z_ARRVAL_P(configs);
-		ZEND_HASH_FOREACH_KEY_VAL(ht, idx, key, entry) {
+		ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(configs), idx, key, entry) {
 			if (Z_TYPE_P(entry) != IS_ARRAY) {
 				continue;
 			}
 
-			ZVAL_NULL(&rroute);
-			route = yaf_route_instance(&rroute, entry);
+			ZVAL_UNDEF(&rv);
+			route = yaf_route_instance(&rv, entry);
 			if (key) {
 				if (!route) {
 					php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", key->val);
@@ -182,13 +180,7 @@ void yaf_router_parse_parameters(char *uri, zval *params) {
 /** {{{ proto public Yaf_Router::__construct(void)
  */
 PHP_METHOD(yaf_router, __construct) {
-	zval rself, *self = getThis();
-
-	if (!self) {
-		ZVAL_NULL(&rself);
-		self = &rself;
-	}
-	yaf_router_instance(self);
+	yaf_router_instance(getThis());
 }
 /* }}} */
 
@@ -238,9 +230,9 @@ PHP_METHOD(yaf_router, addRoute) {
 /** {{{  proto public Yaf_Router::addConfig(Yaf_Config_Abstract $config)
  */
 PHP_METHOD(yaf_router, addConfig) {
-	yaf_config_t 	*config;
-	zval		*routes;
-	zval rself, *self = getThis();
+	yaf_config_t *config;
+	zval *routes;
+	zval *self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &config) == FAILURE) {
 		return;
@@ -253,11 +245,6 @@ PHP_METHOD(yaf_router, addConfig) {
 	} else {
 		php_error_docref(NULL, E_WARNING,  "Expect a %s instance or an array, %s given", yaf_config_ce->name->val, zend_zval_type_name(config));
 		RETURN_FALSE;
-	}
-
-	if (!self) {
-		ZVAL_NULL(&rself);
-		self = &rself;
 	}
 
 	if (yaf_router_add_config(self, routes)) {
