@@ -61,7 +61,7 @@
 
 #define YAF_UNINITIALIZED_OBJECT(obj) \
 	do { \
-		ZEND_CTOR_MAKE_NULL(); \
+		/* ZEND_CTOR_MAKE_NULL(); */ \
 	} while(0)
 
 extern zend_class_entry *yaf_ce_RuntimeException;

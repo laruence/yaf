@@ -289,7 +289,7 @@ YAF_STARTUP_FUNCTION(route_map) {
 	zend_class_entry ce;
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Map", "Yaf\\Route\\Map", yaf_route_map_methods);
-	yaf_route_map_ce = zend_register_internal_class_ex(&ce, NULL);
+	yaf_route_map_ce = zend_register_internal_class(&ce);
 	zend_class_implements(yaf_route_map_ce, 1, yaf_route_ce);
 
 	yaf_route_map_ce->ce_flags |= ZEND_ACC_FINAL;

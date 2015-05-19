@@ -32,7 +32,7 @@ static zend_class_entry *yaf_request_simple_ce;
 yaf_request_t *yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params) /* {{{ */ {
 	zval zv;
 
-	if (!method) {
+	if (!method || Z_TYPE_P(method) != IS_STRING) {
 		if (!SG(request_info).request_method) {
 			if (!strncasecmp(sapi_module.name, "cli", 3)) {
 				ZVAL_STRING(&zv, "CLI");

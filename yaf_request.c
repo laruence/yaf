@@ -263,7 +263,7 @@ zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t l
 				zend_is_auto_global(request_str);
 				zend_string_release(request_str);
 			}
-			carrier = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_REQUEST"));
+			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
 			break;
 		default:
 			break;
@@ -777,7 +777,7 @@ YAF_STARTUP_FUNCTION(request){
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION),     ZEND_ACC_PUBLIC);
-	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD),     ZEND_ACC_PUBLIC);
+	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 	ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS),  	ZEND_ACC_PROTECTED);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_LANG), 		ZEND_ACC_PROTECTED);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_EXCEPTION),  ZEND_ACC_PROTECTED);

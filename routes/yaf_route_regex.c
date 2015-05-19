@@ -372,7 +372,7 @@ zend_function_entry yaf_route_regex_methods[] = {
 YAF_STARTUP_FUNCTION(route_regex) {
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Regex", "Yaf\\Route\\Regex", yaf_route_regex_methods);
-	yaf_route_regex_ce = zend_register_internal_class_ex(&ce, yaf_route_ce);
+	yaf_route_regex_ce = zend_register_internal_class(&ce);
 	zend_class_implements(yaf_route_regex_ce, 1, yaf_route_ce);
 	yaf_route_regex_ce->ce_flags |= ZEND_ACC_FINAL;
 

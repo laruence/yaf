@@ -279,10 +279,10 @@ int yaf_loader_import(char *path, int len, int use_path) {
 	    ZVAL_NULL(&dummy);
 
 		if (!file_handle.opened_path) {
-			file_handle.opened_path = path;
+			file_handle.opened_path = zend_string_init(path, len, 0);
 		}
 
-		zend_hash_str_add(&EG(included_files), file_handle.opened_path, strlen(file_handle.opened_path), &dummy);
+		zend_hash_add(&EG(included_files), file_handle.opened_path, &dummy);
 	}
 	zend_destroy_file_handle(&file_handle);
 
