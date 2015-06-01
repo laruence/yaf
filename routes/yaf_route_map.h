@@ -14,7 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_router.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_ROUTER_MAP_H
 #define YAF_ROUTER_MAP_H

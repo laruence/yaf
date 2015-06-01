@@ -14,7 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_request.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_REQUEST_HTTP_H
 #define YAF_REQUEST_HTTP_H

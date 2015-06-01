@@ -14,7 +14,6 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: yaf_session.h 329002 2013-01-07 12:55:53Z laruence $ */
 
 #ifndef YAF_SESSION_H
 #define YAF_SESSION_H
