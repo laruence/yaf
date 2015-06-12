@@ -195,13 +195,13 @@ zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t l
 #if PHP_YAF_DEBUG
 	switch (type) {
 		case YAF_GLOBAL_VARS_POST:
-			carrier = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_POST"));
+			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_POST"));
 			break;
 		case YAF_GLOBAL_VARS_GET:
-			carrier = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_GET"));
+			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_GET"));
 			break;
 		case YAF_GLOBAL_VARS_COOKIE:
-			carrier = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_COOKIE"));
+			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_COOKIE"));
 			break;
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
@@ -209,7 +209,7 @@ zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t l
 				zend_is_auto_global(server_str);
 				zend_string_release(server_str);
 			}
-			carrier = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_SERVER"));
+			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
 			break;
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
@@ -228,7 +228,7 @@ zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t l
 				zend_is_auto_global(request_str);
 				zend_string_release(request_str);
 			}
-			carrier = zend_hash_str_find(&EG(symbol_table).ht, ZEND_STRL("_REQUEST"));
+			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
 			break;
 		default:
 			break;
