@@ -364,19 +364,16 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 	zval 		*match, *route, *verify = NULL;
 	yaf_route_t	rself, *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "za|a", &match, &route, &verify) ==  FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "za|a", &match, &route, &verify) ==  FAILURE) {
 		return;
 	}
 
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string match as the first parameter");
 		RETURN_FALSE;
 	}
 
 	if (verify && IS_ARRAY != Z_TYPE_P(verify)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an array as third parameter",  yaf_route_rewrite_ce->name);
 		RETURN_FALSE;
 	}

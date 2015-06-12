@@ -123,8 +123,7 @@ PHP_METHOD(yaf_request_simple, __construct) {
 	zval *method = NULL;
 	zval *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|zzzza", &method, &module, &controller, &action, &params) == FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|zzzza", &method, &module, &controller, &action, &params) == FAILURE) {
 		return;
 	} else {
         if (params) {

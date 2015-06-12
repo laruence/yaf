@@ -302,25 +302,21 @@ PHP_METHOD(yaf_route_regex, __construct) {
 	zval 		*match, *route, *map = NULL, *verify = NULL, *reverse = NULL;
 	yaf_route_t	rself, *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "za|aaz", &match, &route, &map, &verify, &reverse) ==  FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "za|aaz", &match, &route, &map, &verify, &reverse) ==  FAILURE) {
 		return;
 	}
 
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string as the first parameter", yaf_route_regex_ce->name);
 		RETURN_FALSE;
 	}
 
 	if (verify && IS_ARRAY != Z_TYPE_P(verify)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an array as third parameter",  yaf_route_regex_ce->name);
 		RETURN_FALSE;
 	}
 
 	if (reverse && IS_STRING != Z_TYPE_P(reverse)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string reverse as fourth parameter");
 		RETURN_FALSE;
 	}

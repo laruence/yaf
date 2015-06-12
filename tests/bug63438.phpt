@@ -45,6 +45,7 @@ print (view('outer.phtml'));
 1 2 3
 1 2 3
 1 2 3
-1 
-Fatal error: Call to undefined function undefined_function() in %sinner.phtml on line %d
+
+Fatal error: Uncaught EngineException: Call to undefined function undefined_function() in %sinner.phtml:%d
+%a
 done

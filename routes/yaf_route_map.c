@@ -242,9 +242,8 @@ PHP_METHOD(yaf_route_map, __construct) {
 	zend_bool controller_prefer = 0;
 	zval rself, *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|bs",
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|bs",
 			   	&controller_prefer, &delim, &delim_len) == FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
 	}
 

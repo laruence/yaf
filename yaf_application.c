@@ -304,20 +304,19 @@ PHP_METHOD(yaf_application, __construct) {
 	yaf_application_t *app, *self;
 	yaf_loader_t *loader, zloader = {{0}};
 
-	app	= zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1);
-
 #if PHP_YAF_DEBUG
 	php_error_docref(NULL, E_STRICT, "Yaf is running in debug mode");
 #endif
 
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "z|z", &config, &section) == FAILURE) {
+		return;
+	}
+
+	app	= zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1);
+
 	if (!ZVAL_IS_NULL(app)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
 		RETURN_FALSE;
-	}
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &config, &section) == FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
-		return;
 	}
 
 	self = getThis();
@@ -332,7 +331,6 @@ PHP_METHOD(yaf_application, __construct) {
 	if  (UNEXPECTED(Z_TYPE(zconfig) != IS_OBJECT
 			|| yaf_application_parse_option(zend_read_property(yaf_config_ce,
 					&zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL)) == FAILURE)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
 		zval_ptr_dtor(&zconfig);
 		RETURN_FALSE;
@@ -341,14 +339,12 @@ PHP_METHOD(yaf_application, __construct) {
 	(void)yaf_request_instance(&zrequest, YAF_G(base_uri));
 
 	if (UNEXPECTED(Z_TYPE(zrequest) != IS_OBJECT)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of request failed");
 		RETURN_FALSE;
 	}
 
 	(void)yaf_dispatcher_instance(&zdispatcher);
 	if (UNEXPECTED(Z_TYPE(zdispatcher) != IS_OBJECT)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Instantiation of application dispatcher failed");
 		RETURN_FALSE;
 	}
@@ -381,7 +377,6 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	if (UNEXPECTED(Z_TYPE_P(loader) != IS_OBJECT)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of application auto loader failed");
 		RETURN_FALSE;
 	}

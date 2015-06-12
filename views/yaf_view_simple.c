@@ -400,8 +400,7 @@ PHP_METHOD(yaf_view_simple, __construct) {
 	zval *tpl_dir, *options = NULL;
 	zval rt, *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|a", &tpl_dir, &options) == FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "z|a", &tpl_dir, &options) == FAILURE) {
 		return;
 	}
 

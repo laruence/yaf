@@ -7,8 +7,11 @@ yaf.use_spl_autoload=0
 yaf.use_namespace=0
 --FILE--
 <?php
-$request = new Yaf_Request_Http(new stdClass(), "xxxx", false);
-var_dump($request);
+try {
+	$request == new Yaf_Request_Http(new stdClass(), "xxxx", false);
+} catch (TypeException $e) {
+	var_dump($e->getMessage());
+}
 $request = new Yaf_Request_Http("xxxxxxxxxxxxxxxxxxxxxxxxxxx");
 var_dump($request->get("xxx"));
 var_dump($request->getQuery("xxx"));
@@ -33,8 +36,7 @@ var_dump($request->isCli());
 var_dump($request->isPost());
 ?>
 --EXPECTF--
-Warning: Yaf_Request_Http::__construct() expects at most 2 parameters, 3 given in %s052.php on line %d
-NULL
+string(69) "Yaf_Request_Http::__construct() expects at most 2 parameters, 3 given"
 NULL
 NULL
 NULL

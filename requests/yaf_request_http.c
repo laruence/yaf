@@ -237,8 +237,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 	zend_string *base_uri = NULL;
 	yaf_request_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|SS", &request_uri, &base_uri) == FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|SS", &request_uri, &base_uri) == FAILURE) {
 		return;
 	}
 	

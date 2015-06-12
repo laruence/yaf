@@ -175,15 +175,13 @@ zend_string * yaf_route_simple_assemble(yaf_route_t *this_ptr, zval *info, zval 
 PHP_METHOD(yaf_route_simple, __construct) {
 	zval *module, *controller, *action;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "zzz", &module, &controller, &action) == FAILURE) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "zzz", &module, &controller, &action) == FAILURE) {
 		return;
 	}
 
 	if (IS_STRING != Z_TYPE_P(module)
 			|| IS_STRING != Z_TYPE_P(controller)
 			|| IS_STRING != Z_TYPE_P(action)) {
-		YAF_UNINITIALIZED_OBJECT(getThis());
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect 3 string parameters", yaf_route_simple_ce->name);
 		RETURN_FALSE;
 	} else {
