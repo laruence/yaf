@@ -5,7 +5,6 @@ Check for yaf.system settings
 --INI--
 yaf.library="/tmp"
 yaf.use_spl_autoload=1
-yaf.cache_config=0
 yaf.name_suffix=1
 yaf.name_separator=""
 yaf.lowcase_path=1

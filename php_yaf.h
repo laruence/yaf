@@ -87,7 +87,6 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zend_bool 	lowcase_path;
 	zend_bool 	use_spl_autoload;
 	zend_bool 	throw_exception;
-	zend_bool 	cache_config;
 	zend_bool   action_prefer;
 	zend_bool	name_suffix;
 	zend_bool  	autoload_started;
