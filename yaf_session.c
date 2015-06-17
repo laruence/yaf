@@ -55,17 +55,17 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_session_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static inline int yaf_session_start(yaf_session_t *session) /* {{{ */ {
+static inline void yaf_session_start(yaf_session_t *session) /* {{{ */ {
 	zval *status;
 
 	status = zend_read_property(yaf_session_ce, session, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_STATUS), 1, NULL);
 	if (Z_TYPE_P(status) == IS_TRUE) {
-		return 1;
+		return;
 	}
 
 	php_session_start();
 	zend_update_property_bool(yaf_session_ce, session, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_STATUS), 1);
-	return 1;
+	return;
 }
 /* }}} */
 
@@ -145,7 +145,7 @@ PHP_METHOD(yaf_session, getInstance) {
 	if (Z_TYPE_P(instance) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(instance), yaf_session_ce)) {
 		zval rv = {{0}};
 		if ((instance = yaf_session_instance(&rv))) {
-			RETURN_ZVAL(instance, 1, 0);
+			RETURN_ZVAL(instance, 0, 0);
 		} else {
 			RETURN_NULL();
 		}
