@@ -9,7 +9,7 @@ yaf.use_namespace=0
 <?php
 try {
 	$request == new Yaf_Request_Http(new stdClass(), "xxxx", false);
-} catch (TypeException $e) {
+} catch (TypeError $e) {
 	var_dump($e->getMessage());
 }
 $request = new Yaf_Request_Http("xxxxxxxxxxxxxxxxxxxxxxxxxxx");

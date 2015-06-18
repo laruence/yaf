@@ -41,5 +41,5 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-Fatal error: Uncaught ParseException: syntax error, unexpected '}' in %sfoo2.phtml:%d
+Fatal error: Uncaught ParseError: syntax error, unexpected '}' in %sfoo2.phtml:%d
 %a
