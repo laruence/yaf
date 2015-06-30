@@ -367,7 +367,15 @@ int yaf_loader_import(char *path, int len, int use_path TSRMLS_DC) {
 
 #if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION > 2)) || (PHP_MAJOR_VERSION > 5)
 		if (!EG(active_symbol_table)) {
+#if PHP_MINOR_VERSION < 5
+			zval *orig_this = EG(This);
+			EG(This) = NULL;
 			zend_rebuild_symbol_table(TSRMLS_C);
+			EG(This) = orig_this;
+#else
+			zend_rebuild_symbol_table(TSRMLS_C);
+#endif
+
 		}
 #endif
 		zend_execute(op_array TSRMLS_CC);

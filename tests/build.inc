@@ -23,12 +23,14 @@ function shutdown($root = APPLICATION_PATH) {
 function startup($root = APPLICATION_PATH) {
     $dirs = array();
     $dirs[] = 'controllers';
-	$dirs[] = 'actions';
+    $dirs[] = 'actions';
     $dirs[] = 'plugins';
     $dirs[] = 'models';
     $dirs[] = 'views';
     $dirs[] = 'views/index';
     $dirs[] = 'tpls';
+    $dirs[] = 'library';
+    $dirs[] = 'library/Test';
 
     foreach($dirs as $dir){
         $dir = $root . DIRECTORY_SEPARATOR . $dir;
