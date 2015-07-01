@@ -55,8 +55,8 @@ zend_function_entry yaf_functions[] = {
 /** {{{ PHP_INI_MH(OnUpdateSeparator)
  */
 PHP_INI_MH(OnUpdateSeparator) {
-	YAF_G(name_separator) = new_value->val; 
-	YAF_G(name_separator_len) = new_value->len; 
+	YAF_G(name_separator) = ZSTR_VAL(new_value);
+	YAF_G(name_separator_len) = ZSTR_LEN(new_value);
 	return SUCCESS;
 }
 /* }}} */

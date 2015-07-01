@@ -148,7 +148,7 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 		return 0;
 	}
 
-	ns = YAF_G(local_namespaces)->val;
+	ns = ZSTR_VAL(YAF_G(local_namespaces));
 
 	pos = strstr(class_name, "_");
 	if (pos) {
@@ -310,7 +310,7 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {
 	zval *library_dir, *global_dir;
 	char *q, *p;
 	size_t seg_len, directory_len;
-	char *ext = YAF_G(ext)->val;
+	char *ext = ZSTR_VAL(YAF_G(ext));
 	smart_str buf = {0};
 
 	if (NULL == *directory) {
@@ -321,7 +321,7 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {
 
 		if (loader == NULL) {
 			/* since only call from userspace can cause loader is NULL, exception throw will works well */
-			php_error_docref(NULL, E_WARNING, "%s need to be initialize first", yaf_loader_ce->name->val);
+			php_error_docref(NULL, E_WARNING, "%s need to be initialize first", ZSTR_VAL(yaf_loader_ce->name));
 			return 0;
 		} else {
 			library_dir = zend_read_property(yaf_loader_ce,
@@ -337,17 +337,17 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {
 		}
 
 		if (NULL == library_path) {
-			php_error_docref(NULL, E_WARNING, "%s requires %s(which set the library_directory) to be initialized first", yaf_loader_ce->name->val, yaf_application_ce->name->val);
+			php_error_docref(NULL, E_WARNING, "%s requires %s(which set the library_directory) to be initialized first", ZSTR_VAL(yaf_loader_ce->name), ZSTR_VAL(yaf_application_ce->name));
 			return 0;
 		}
 
-		smart_str_appendl(&buf, library_path->val, library_path->len);
+		smart_str_appendl(&buf, ZSTR_VAL(library_path), ZSTR_LEN(library_path));
 	} else {
 		smart_str_appendl(&buf, *directory, strlen(*directory));
 		efree(*directory);
 	}
 
-	directory_len = buf.s->len;
+	directory_len = ZSTR_LEN(buf.s);
 
 	/* aussume all the path is not end in slash */
 	smart_str_appendc(&buf, DEFAULT_SLASH);
@@ -369,7 +369,7 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {
 
 	if (YAF_G(lowcase_path)) {
 		/* all path of library is lowercase */
-		zend_str_tolower(buf.s->val + directory_len, buf.s->len - directory_len);
+		zend_str_tolower(ZSTR_VAL(buf.s) + directory_len, ZSTR_LEN(buf.s) - directory_len);
 	}
 
 	smart_str_appendl(&buf, p, strlen(p));
@@ -379,10 +379,10 @@ int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {
 	smart_str_0(&buf);
 
 	if (directory) {
-		*(directory) = estrndup(buf.s->val, buf.s->len);
+		*(directory) = estrndup(ZSTR_VAL(buf.s), ZSTR_LEN(buf.s));
 	}
 
-	status = yaf_loader_import(buf.s->val, buf.s->len, 0);
+	status = yaf_loader_import(ZSTR_VAL(buf.s), ZSTR_LEN(buf.s), 0);
 	smart_str_free(&buf);
 
 	return status;
@@ -393,9 +393,9 @@ int yaf_loader_register_namespace_single(char *prefix, size_t len) /* {{{ */ {
 
 	if (YAF_G(local_namespaces)) {
 		YAF_G(local_namespaces) = zend_string_realloc(
-				YAF_G(local_namespaces), YAF_G(local_namespaces)->len + len + 1, 0);
-		snprintf(YAF_G(local_namespaces)->val +
-				YAF_G(local_namespaces)->len - (len + 1), len + 1 + 1, "%c%s", DEFAULT_DIR_SEPARATOR, prefix);
+				YAF_G(local_namespaces), ZSTR_LEN(YAF_G(local_namespaces)) + len + 1, 0);
+		snprintf(ZSTR_VAL(YAF_G(local_namespaces)) +
+				ZSTR_LEN(YAF_G(local_namespaces)) - (len + 1), len + 1 + 1, "%c%s", DEFAULT_DIR_SEPARATOR, prefix);
 	} else {
 		YAF_G(local_namespaces) = zend_string_init(prefix, len, 0);
 	}
@@ -556,16 +556,16 @@ PHP_METHOD(yaf_loader, import) {
 		return;
 	}
 
-	if (file->len == 0) {
+	if (ZSTR_LEN(file) == 0) {
 		RETURN_FALSE;
 	} else {
 		int retval;
 		yaf_loader_t *loader, rv = {{0}};
 
-		if (!IS_ABSOLUTE_PATH(file->val, file->len)) {
+		if (!IS_ABSOLUTE_PATH(ZSTR_VAL(file), ZSTR_LEN(file))) {
 			loader = yaf_loader_instance(&rv, NULL, NULL);
 			if (loader == NULL) {
-				php_error_docref(NULL, E_WARNING, "%s need to be initialize first", yaf_loader_ce->name->val);
+				php_error_docref(NULL, E_WARNING, "%s need to be initialize first", ZSTR_VAL(yaf_loader_ce->name));
 				RETURN_FALSE;
 			} else {
 				zval *library = zend_read_property(yaf_loader_ce,
@@ -583,7 +583,7 @@ PHP_METHOD(yaf_loader, import) {
 			RETURN_TRUE;
 		}
 
-		retval = yaf_loader_import(file->val, file->len, 0);
+		retval = yaf_loader_import(ZSTR_VAL(file), ZSTR_LEN(file), 0);
 		if (need_free) {
 			zend_string_release(file);
 		}
@@ -606,7 +606,7 @@ PHP_METHOD(yaf_loader, autoload) {
 	}
 
 	separator_len = YAF_G(name_separator_len);
-	app_directory = YAF_G(directory)? YAF_G(directory)->val : NULL; 
+	app_directory = YAF_G(directory)? ZSTR_VAL(YAF_G(directory)) : NULL; 
 	origin_classname = class_name;
 
 	do {
@@ -695,7 +695,7 @@ PHP_METHOD(yaf_loader, autoload) {
 		}
 
 		php_error_docref(NULL, E_WARNING,
-				"Couldn't load a framework MVC class without an %s initializing", yaf_application_ce->name->val);
+				"Couldn't load a framework MVC class without an %s initializing", ZSTR_VAL(yaf_application_ce->name));
 		RETURN_FALSE;
 	}
 

@@ -438,8 +438,8 @@ PHP_METHOD(yaf_config_ini, get) {
 			RETURN_NULL();
 		}
 
-		if (strchr(name->val, '.')) {
-			entry = estrndup(name->val, name->len);
+		if (strchr(ZSTR_VAL(name), '.')) {
+			entry = estrndup(ZSTR_VAL(name), ZSTR_LEN(name));
 			if ((seg = php_strtok_r(entry, ".", &pptr))) {
 				while (seg) {
 					seg_len = strlen(seg);
@@ -459,7 +459,7 @@ PHP_METHOD(yaf_config_ini, get) {
 					seg = php_strtok_r(NULL, ".", &pptr);
 				}
 			}
-		} else if (is_numeric_string(name->val, name->len, &lval, &dval, 0) != IS_LONG) {
+		} else if (is_numeric_string(ZSTR_VAL(name), ZSTR_LEN(name), &lval, &dval, 0) != IS_LONG) {
 			if ((pzval = zend_hash_find(Z_ARRVAL_P(properties), name)) == NULL) {
 				RETURN_NULL();
 			}

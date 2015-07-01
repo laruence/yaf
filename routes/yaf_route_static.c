@@ -49,17 +49,17 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 		char *s, *p;
 		char *uri;
 
-		if (req_uri->len == 0
-				|| (req_uri->len == 1 && *req_uri->val == '/')) {
+		if (ZSTR_LEN(req_uri) == 0
+				|| (ZSTR_LEN(req_uri) == 1 && *ZSTR_VAL(req_uri) == '/')) {
 			break;
 		}
 
-		uri = req_uri->val;
+		uri = ZSTR_VAL(req_uri);
 		s = p = uri;
 
-		if (req_uri->len) {
-			char *q = req_uri->val + req_uri->len - 1;
-			while (q > (char *)req_uri->val && (*q == ' ' || *q == '/')) {
+		if (ZSTR_LEN(req_uri)) {
+			char *q = ZSTR_VAL(req_uri) + ZSTR_LEN(req_uri) - 1;
+			while (q > (char *)ZSTR_VAL(req_uri) && (*q == ' ' || *q == '/')) {
 				*q-- = '\0';
 			}
 		}
@@ -217,7 +217,7 @@ zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval 
 						smart_str_appendc(&tvalue, '&');
 						end = 0;
 					}
-					smart_str_appendl(&tvalue, key->val, key->len);
+					smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
 					smart_str_appendc(&tvalue, '=');
 					smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 					end = 1;

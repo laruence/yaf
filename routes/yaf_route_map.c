@@ -113,12 +113,16 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
 	}
 
 	if (route_result.s) {
+		ZSTR_LEN(route_result.s)--;
+		ZSTR_VAL(route_result.s)[ZSTR_LEN(route_result.s)] = '\0';
 		if (Z_TYPE_P(ctl_prefer) == IS_TRUE) {
-			zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), route_result.s->val, route_result.s->len - 1);
+			zend_update_property_str(yaf_request_ce,
+					request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), route_result.s);
 		} else {
-			zend_update_property_stringl(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), route_result.s->val, route_result.s->len - 1);
+			zend_update_property_str(yaf_request_ce,
+					request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), route_result.s);
 		}
-		zend_string_release(route_result.s);
+		smart_str_free(&route_result);
 	}
 
 	if (query_str) {
@@ -206,18 +210,18 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 
 					if (has_delim) {
 						smart_str_appendc(&tvalue, '/');
-						smart_str_appendl(&tvalue, key->val, key->len);
+						smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
 						smart_str_appendc(&tvalue, '/');
 						smart_str_appendl(&tvalue, Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
 					} else {
 						if (i == 0) {
 							smart_str_appendc(&tvalue, '?');
-							smart_str_appendl(&tvalue, key->val, key->len);
+							smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
 							smart_str_appendc(&tvalue, '=');
 							smart_str_appendl(&tvalue, Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
 						} else {
 							smart_str_appendc(&tvalue, '&');
-							smart_str_appendl(&tvalue, key->val, key->len);
+							smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
 							smart_str_appendc(&tvalue, '=');
 							smart_str_appendl(&tvalue, Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
 						}
@@ -233,6 +237,7 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 
 	return NULL;
 }
+/* }}} */
 
 /** {{{ proto public Yaf_Route_Simple::__construct(bool $controller_prefer=FALSE, string $delimer = '#!')
 */

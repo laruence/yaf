@@ -57,7 +57,7 @@ static_route:
 		(void)yaf_route_instance(&route, YAF_G(default_route));
 		if (Z_TYPE(route) != IS_OBJECT) {
 			php_error_docref(NULL, E_WARNING,
-					"Unable to initialize default route, use %s instead", yaf_route_static_ce->name->val);
+					"Unable to initialize default route, use %s instead", ZSTR_VAL(yaf_route_static_ce->name));
 			goto static_route;
 		}
 	}
@@ -88,7 +88,7 @@ int yaf_router_route(yaf_router_t *router, yaf_request_t *request) {
 		if (IS_TRUE == Z_TYPE(ret)) {
 			if (key) {
 				zend_update_property_string(yaf_router_ce,
-						router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE), key->val);
+						router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE), ZSTR_VAL(key));
 			} else {
 				zend_update_property_long(yaf_router_ce,
 						router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE), idx);
@@ -128,7 +128,7 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 			route = yaf_route_instance(&rv, entry);
 			if (key) {
 				if (!route) {
-					php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", key->val);
+					php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", ZSTR_VAL(key));
 					continue;
 				}
 				zend_hash_update(Z_ARRVAL_P(routes), key, route);
@@ -212,7 +212,7 @@ PHP_METHOD(yaf_router, addRoute) {
 
 	if (IS_OBJECT != Z_TYPE_P(route)
 			|| !instanceof_function(Z_OBJCE_P(route), yaf_route_ce)) {
-		php_error_docref(NULL, E_WARNING, "Expects a %s instance", yaf_route_ce->name->val);
+		php_error_docref(NULL, E_WARNING, "Expects a %s instance", ZSTR_VAL(yaf_route_ce->name));
 		RETURN_FALSE;
 	}
 
@@ -241,7 +241,9 @@ PHP_METHOD(yaf_router, addConfig) {
 	} else if (IS_ARRAY == Z_TYPE_P(config)) {
 		routes = config;
 	} else {
-		php_error_docref(NULL, E_WARNING,  "Expect a %s instance or an array, %s given", yaf_config_ce->name->val, zend_zval_type_name(config));
+		php_error_docref(NULL, E_WARNING,
+				"Expect a %s instance or an array, %s given",
+				ZSTR_VAL(yaf_config_ce->name), zend_zval_type_name(config));
 		RETURN_FALSE;
 	}
 
@@ -264,7 +266,7 @@ PHP_METHOD(yaf_router, getRoute) {
 		return;
 	}
 
-	if (!name->len) {
+	if (ZSTR_LEN(name) == 0) {
 		RETURN_FALSE;
 	}
 

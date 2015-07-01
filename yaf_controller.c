@@ -105,7 +105,7 @@ zend_string * yaf_controller_render(yaf_controller_t *instance, char *action_nam
 		tmp++;
 	}
 
-	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, view_ext->val);
+	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, ZSTR_VAL(view_ext));
 
 	efree(self_name);
 	efree(action_name);
@@ -171,7 +171,7 @@ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int le
 		tmp++;
 	}
 
-	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, view_ext->val);
+	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, ZSTR_VAL(view_ext));
 
 	efree(self_name);
 	efree(action_name);

@@ -209,16 +209,16 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 						ZEND_STRL("defaultModule"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
 			zend_string_release(YAF_G(default_module));
 			YAF_G(default_module) = zend_string_dup(Z_STR_P(psval), 0);
-			zend_str_tolower(YAF_G(default_module)->val, YAF_G(default_module)->len);
-			*(YAF_G(default_module)->val) = toupper(*YAF_G(default_module)->val);
+			zend_str_tolower(ZSTR_VAL(YAF_G(default_module)), ZSTR_LEN(YAF_G(default_module)));
+			*ZSTR_VAL(YAF_G(default_module)) = toupper(*ZSTR_VAL(YAF_G(default_module)));
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 						ZEND_STRL("defaultController"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
 			zend_string_release(YAF_G(default_controller));
 			YAF_G(default_controller) = zend_string_dup(Z_STR_P(psval), 0);
-			zend_str_tolower(YAF_G(default_controller)->val, YAF_G(default_controller)->len);
-			*(YAF_G(default_controller)->val) = toupper(*YAF_G(default_controller)->val);
+			zend_str_tolower(ZSTR_VAL(YAF_G(default_controller)), ZSTR_LEN(YAF_G(default_controller)));
+			*ZSTR_VAL(YAF_G(default_controller)) = toupper(*ZSTR_VAL(YAF_G(default_controller)));
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
@@ -277,7 +277,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 		ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(pzval), key, value) {
 			zend_string *str, *val;
 
-			len = snprintf(name, sizeof(name), "%s.%s", "yaf", key->val);
+			len = snprintf(name, sizeof(name), "%s.%s", "yaf", ZSTR_VAL(key));
 			if (len > sizeof(name) -1) {
 				len = sizeof(name) - 1;
 			}
@@ -530,11 +530,11 @@ PHP_METHOD(yaf_application, bootstrap) {
 		if (YAF_G(bootstrap)) {
 			bootstrap_path = zend_string_copy(YAF_G(bootstrap));
 		} else {
-			bootstrap_path = strpprintf(0,
-					"%s%c%s.%s", YAF_G(directory)->val, DEFAULT_SLASH, YAF_DEFAULT_BOOTSTRAP, YAF_G(ext)->val);
+			bootstrap_path = strpprintf(0, "%s%c%s.%s",
+					ZSTR_VAL(YAF_G(directory)), DEFAULT_SLASH, YAF_DEFAULT_BOOTSTRAP, ZSTR_VAL(YAF_G(ext)));
 		}
-		if (!yaf_loader_import(bootstrap_path->val, bootstrap_path->len + 1, 0)) {
-			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path->val);
+		if (!yaf_loader_import(ZSTR_VAL(bootstrap_path), ZSTR_LEN(bootstrap_path), 0)) {
+			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", ZSTR_VAL(bootstrap_path));
 			retval = 0;
 		} else if (UNEXPECTED((ce = zend_hash_str_find_ptr(EG(class_table),
 						YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1)) == NULL)) {
@@ -542,7 +542,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 			retval = 0;
 		} else if (UNEXPECTED(!instanceof_function(ce, yaf_bootstrap_ce))) {
 			php_error_docref(NULL, E_WARNING,
-					"Expect a %s instance, %s give", yaf_bootstrap_ce->name->val, ce->name->val);
+					"Expect a %s instance, %s give", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
 			retval = 0;
 		}
 		zend_string_release(bootstrap_path);
@@ -561,10 +561,10 @@ PHP_METHOD(yaf_application, bootstrap) {
 
 		ZEND_HASH_FOREACH_STR_KEY(&(ce->function_table), func) {
 			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
-			if (strncasecmp(func->val, YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
+			if (strncasecmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
 				continue;
 			}
-			zend_call_method(&bootstrap, ce, NULL, func->val, func->len, NULL, 1, dispatcher, NULL);
+			zend_call_method(&bootstrap, ce, NULL, ZSTR_VAL(func), ZSTR_LEN(func), NULL, 1, dispatcher, NULL);
 			/** an uncaught exception threw in function call */
 			if (UNEXPECTED(EG(exception))) {
 				zval_ptr_dtor(&bootstrap);
@@ -619,7 +619,7 @@ PHP_METHOD(yaf_application, setAppDirectory) {
 		return;
 	}
 
-	if (directory->len == 0 || !IS_ABSOLUTE_PATH(directory->val, directory->len)) {
+	if (ZSTR_LEN(directory) == 0 || !IS_ABSOLUTE_PATH(ZSTR_VAL(directory), ZSTR_LEN(directory))) {
 		RETURN_FALSE;
 	}
 

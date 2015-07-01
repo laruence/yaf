@@ -136,7 +136,7 @@ static void yaf_route_rewrite_match(yaf_route_t *router, char *uri, int len, zva
 			ht = Z_ARRVAL(subparts);
 			ZEND_HASH_FOREACH_KEY_VAL(ht, idx, key, pzval) {
                 if (key) {
-                    if (!strncmp(key->val, "__yaf_route_rest", key->len)) {
+                    if (zend_string_equals_literal(key, "__yaf_route_rest")) {
                         zval args;
                         (void)yaf_router_parse_parameters(Z_STRVAL_P(pzval), &args);
                         if (&args) {
@@ -241,7 +241,7 @@ PHP_METHOD(yaf_route_rewrite, route) {
 
 	if (!request || IS_OBJECT != Z_TYPE_P(request)
 			|| !instanceof_function(Z_OBJCE_P(request), yaf_request_ce)) {
-		php_error_docref(NULL, E_WARNING, "Expect a %s instance", yaf_request_ce->name->val);
+		php_error_docref(NULL, E_WARNING, "Expect a %s instance", ZSTR_VAL(yaf_request_ce->name));
 		RETURN_FALSE;
 	}
 
@@ -276,7 +276,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 				ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL(pidents), key_idx, key, tmp) {
 					if (key) {
 						if (IS_STRING == Z_TYPE_P(tmp)) {
-							smart_str_appendl(&wildcard, key->val + 1, key->len - 1);
+							smart_str_appendl(&wildcard, ZSTR_VAL(key) + 1, ZSTR_LEN(key) - 1);
 							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
 							smart_str_appendl(&wildcard, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
@@ -284,7 +284,8 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 					}
 				} ZEND_HASH_FOREACH_END();
 				smart_str_0(&wildcard);
-				inter = php_str_to_str(tstr->val, tstr->len, "*", 1, wildcard.s->val, wildcard.s->len);	
+				inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr),
+						"*", 1, ZSTR_VAL(wildcard.s), ZSTR_LEN(wildcard.s));	
 				zend_string_release(tstr);
 				tstr = inter;
 				break;
@@ -292,7 +293,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 
 			if(*(seg) == ':') {
 				if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), seg, seg_len)) != NULL) {
-					inter = php_str_to_str(tstr->val, tstr->len, seg, seg_len, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+					inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr), seg, seg_len, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 					zend_string_release(tstr);
 					tstr = inter;
 					zend_hash_str_del(Z_ARRVAL(pidents), seg, seg_len);
@@ -314,7 +315,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 
 			if (key) {
 				if (IS_STRING == Z_TYPE_P(tmp)) {
-					smart_str_appendl(&squery, key->val, key->len);
+					smart_str_appendl(&squery, ZSTR_VAL(key), ZSTR_LEN(key));
 					smart_str_appendc(&squery, '=');
 					smart_str_appendl(&squery, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 					smart_str_appendc(&squery, '&');
@@ -324,12 +325,12 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 	}
 
 	if (squery.s) {
-		uint tmp_len = tstr->len;
-		squery.s->len--; /* get rid of the tail & */
+		uint tmp_len = ZSTR_LEN(tstr);
+		ZSTR_LEN(squery.s)--; /* get rid of the tail & */
 		smart_str_0(&squery);
-		tstr = zend_string_realloc(tstr, tstr->len + squery.s->len, 0); 
-		memcpy(tstr->val + tmp_len, squery.s->val, squery.s->len);
-		tstr->val[tstr->len] = '\0';
+		tstr = zend_string_realloc(tstr, ZSTR_LEN(tstr) + ZSTR_LEN(squery.s), 0); 
+		memcpy(ZSTR_VAL(tstr) + tmp_len, ZSTR_VAL(squery.s), ZSTR_LEN(squery.s));
+		ZSTR_VAL(tstr)[ZSTR_LEN(tstr)] = '\0';
 		smart_str_free(&squery);
 	}   
 

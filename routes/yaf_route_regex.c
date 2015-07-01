@@ -151,19 +151,19 @@ zend_string * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *info, zval *
 	tstr = zend_string_init(Z_STRVAL_P(reverse), Z_STRLEN_P(reverse), 0);
 
 	if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT))) != NULL) {
-		inter = php_str_to_str(tstr->val, tstr->len, ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+		inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr), ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT), Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 		zend_string_release(tstr);
 		tstr = inter;
 	}
 
 	if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) != NULL) {
-		inter = php_str_to_str(tstr->val, tstr->len, ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+		inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT), Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 		zend_string_release(tstr);
 		tstr = inter;
 	}
 
 	if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) != NULL) {
-		inter = php_str_to_str(tstr->val, tstr->len, ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+		inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT), Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 		zend_string_release(tstr);
 		tstr = inter;
 	}
@@ -178,7 +178,7 @@ zend_string * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *info, zval *
 
 			if (key) {
 				if (IS_STRING == Z_TYPE_P(tmp)) {
-					smart_str_appendl(&squery, key->val, key->len);
+					smart_str_appendl(&squery, ZSTR_VAL(key), ZSTR_LEN(key));
 					smart_str_appendc(&squery, '=');
 					smart_str_appendl(&squery, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 					smart_str_appendc(&squery, '&');
@@ -188,12 +188,12 @@ zend_string * yaf_route_regex_assemble(yaf_route_t *this_ptr, zval *info, zval *
 	}
 
 	if (squery.s) {
-		uint tmp_len = tstr->len;
-		squery.s->len--; /* get rid of the tail & */
+		uint tmp_len = ZSTR_LEN(tstr);
+		ZSTR_LEN(squery.s)--; /* get rid of the tail & */
 		smart_str_0(&squery);
-		tstr = zend_string_realloc(tstr, tstr->len + squery.s->len, 0);
-		memcpy(tstr->val + tmp_len, squery.s->val, squery.s->len);
-		tstr->val[tstr->len] = '\0';
+		tstr = zend_string_realloc(tstr, ZSTR_LEN(tstr) + ZSTR_LEN(squery.s), 0);
+		memcpy(ZSTR_VAL(tstr) + tmp_len, ZSTR_VAL(squery.s), ZSTR_LEN(squery.s));
+		ZSTR_VAL(tstr)[ZSTR_LEN(tstr)] = '\0';
 		smart_str_free(&squery);
 	}
 
@@ -288,7 +288,7 @@ PHP_METHOD(yaf_route_regex, route) {
 
 	if (!request || IS_OBJECT != Z_TYPE_P(request)
 			|| !instanceof_function(Z_OBJCE_P(request), yaf_request_ce)) {
-		php_error_docref(NULL, E_WARNING, "Expects a %s instance",  yaf_request_ce->name->val);
+		php_error_docref(NULL, E_WARNING, "Expects a %s instance", ZSTR_VAL(yaf_request_ce->name));
 		RETURN_FALSE;
 	}
 

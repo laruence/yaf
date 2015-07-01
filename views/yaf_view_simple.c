@@ -103,17 +103,15 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
 			/* GLOBALS protection */
-			if (var_name->len == sizeof("GLOBALS") && !strcmp(var_name->val, "GLOBALS")) {
+			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
 			}
 
-			if (var_name->len == sizeof("this")  && 
-					!strcmp(var_name->val, "this") && EG(scope) && EG(scope)->name->len != 0) {
+			if (zend_string_equals_literal(var_name, "this") && EG(scope) && ZSTR_LEN(EG(scope)->name) != 0) {
 				continue;
 			}
 
-
-			if (yaf_view_simple_valid_var_name(var_name->val, var_name->len)) {
+			if (yaf_view_simple_valid_var_name(ZSTR_VAL(var_name), ZSTR_LEN(var_name))) {
 				if (EXPECTED(zend_set_local_var(var_name, entry, 1) == SUCCESS)) {
 					Z_TRY_ADDREF_P(entry);
 				}
@@ -124,16 +122,15 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(vars), var_name, entry) {
 			/* GLOBALS protection */
-			if (var_name->len == sizeof("GLOBALS") && !strcmp(var_name->val, "GLOBALS")) {
+			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
 			}
 
-			if (var_name->len == sizeof("this")  &&
-					!strcmp(var_name->val, "this") && EG(scope) && EG(scope)->name->len != 0) {
+			if (zend_string_equals_literal(var_name, "this") && EG(scope) && ZSTR_LEN(EG(scope)->name) != 0) {
 				continue;
 			}
 
-			if (yaf_view_simple_valid_var_name(var_name->val, var_name->len)) {
+			if (yaf_view_simple_valid_var_name(ZSTR_VAL(var_name), ZSTR_LEN(var_name))) {
 				if (EXPECTED(zend_set_local_var(var_name, entry, 1) == SUCCESS)) {
 					Z_TRY_ADDREF_P(entry);
 				}
@@ -207,7 +204,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) 
 
 		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
 			if (YAF_G(view_directory)) {
-				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory)->val, DEFAULT_SLASH, Z_STRVAL_P(tpl));
+				len = spprintf(&script, 0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 			} else {
 				php_output_end(TSRMLS_C);
 
@@ -266,7 +263,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
 		script 	= Z_STRVAL_P(tpl);
 		len 	= Z_STRLEN_P(tpl);
-		if (yaf_loader_import(script, len + 1, 0) == 0) {
+		if (yaf_loader_import(script, len, 0) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s" , script, strerror(errno));
 			EG(scope) = old_scope;
 			return 0;
@@ -276,11 +273,11 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 
 		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
 			if (YAF_G(view_directory)) {
-				len = spprintf(&script, 0, "%s%c%s", YAF_G(view_directory)->val, DEFAULT_SLASH, Z_STRVAL_P(tpl));
+				len = spprintf(&script, 0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 			} else {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
-						yaf_view_simple_ce->name);
+						ZSTR_VAL(yaf_view_simple_ce->name));
 				EG(scope) = old_scope;
 				return 0;
 			}
@@ -288,7 +285,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 			len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		}
 
-		if (yaf_loader_import(script, len + 1, 0) == 0) {
+		if (yaf_loader_import(script, len, 0) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", script, strerror(errno));
 			efree(script);
 			EG(scope) = old_scope;

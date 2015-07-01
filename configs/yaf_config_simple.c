@@ -134,7 +134,7 @@ PHP_METHOD(yaf_config_simple, get) {
 		properties = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 		hash  = Z_ARRVAL_P(properties);
 
-		if (is_numeric_string(name->val, name->len, &lval, &dval, 0) != IS_LONG) {
+		if (is_numeric_string(ZSTR_VAL(name), ZSTR_LEN(name), &lval, &dval, 0) != IS_LONG) {
 			if ((pzval = zend_hash_find(hash, name)) == NULL) {
 				RETURN_FALSE;
 			} 

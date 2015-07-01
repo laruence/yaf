@@ -142,20 +142,20 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *b
 
 		switch (flag) {
 			case YAF_RESPONSE_PREPEND:
-				result_len = body_len + obody->len;
+				result_len = body_len + ZSTR_LEN(obody);
 				result = emalloc(result_len + 1);
 				memcpy(result, body, body_len);
-				memcpy(result + body_len, obody->val, obody->len);
+				memcpy(result + body_len, ZSTR_VAL(obody), ZSTR_LEN(obody));
 				result[result_len] = '\0';
 				zend_string_release(Z_STR_P(pzval));
 				ZVAL_STRINGL(pzval, result, result_len);
 				efree(result);
 				break;
 			case YAF_RESPONSE_APPEND:
-				result_len = body_len + obody->len;
+				result_len = body_len + ZSTR_LEN(obody);
 				result = emalloc(result_len + 1);
-				memcpy(result, obody->val, obody->len);
-				memcpy(result + obody->len, body, body_len);
+				memcpy(result, ZSTR_VAL(obody), ZSTR_LEN(obody));
+				memcpy(result + ZSTR_LEN(obody), body, body_len);
 				result[result_len] = '\0';
 				zend_string_release(Z_STR_P(pzval));
 				ZVAL_STRINGL(pzval, result, result_len);
@@ -428,7 +428,7 @@ PHP_METHOD(yaf_response, __toString) {
 	zval *zbody = zend_read_property(yaf_response_ce,
 			getThis(), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, NULL);
 
-	delim = STR_EMPTY_ALLOC();
+	delim = ZSTR_EMPTY_ALLOC();
 	php_implode(delim, zbody, return_value);
 	zend_string_release(delim);
 }

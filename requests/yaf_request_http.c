@@ -118,13 +118,13 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 	}
 
 	if (settled_uri) {
-		char *p = settled_uri->val;
+		char *p = ZSTR_VAL(settled_uri);
 
 		while (*p == '/' && *(p + 1) == '/') {
 			p++;
 		}
 
-		if (p != settled_uri->val) {
+		if (p != ZSTR_VAL(settled_uri)) {
 			zend_string *garbage = settled_uri;
 			settled_uri = zend_string_init(p, strlen(p), 0);
 			zend_string_release(garbage);

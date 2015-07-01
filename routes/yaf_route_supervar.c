@@ -133,7 +133,7 @@ zend_string * yaf_route_supervar_assemble(yaf_route_t *this_ptr, zval *info, zva
 
 				if (IS_STRING == Z_TYPE_P(tmp) && key) {
 					smart_str_appendc(&tvalue, '&');
-					smart_str_appendl(&tvalue, key->val, key->len);
+					smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
 					smart_str_appendc(&tvalue, '=');
 					smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
 				}
