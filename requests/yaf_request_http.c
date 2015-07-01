@@ -51,17 +51,19 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 	zval_ptr_dtor(&method);
 
 	if (request_uri) {
-		settled_uri = request_uri;
+		settled_uri = zend_string_copy(request_uri);
 	} else {
 		zval *uri;
 		do {
 #ifdef PHP_WIN32
 			/* check this first so IIS will catch */
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_X_REWRITE_URL", sizeof("HTTP_X_REWRITE_URL") - 1);
-			if (uri && Z_TYPE_P(uri) != IS_NULL) {
-				settled_uri = Z_STR_P(uri);
+			if (uri) {
+				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING))  {
+					settled_uri = Z_STR_P(uri);
+					break;
+				}
 				zval_ptr_dtor(uri);
-				break;
 			}
 
 			/* IIS7 with URL Rewrite: make sure we get the unencoded url (double slash problem) */
@@ -69,50 +71,58 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 					"IIS_WasUrlRewritten", sizeof("IIS_WasUrlRewritten") - 1);
 			if (rewrited) {
 				uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "UNENCODED_URL", sizeof("UNENCODED_URL") - 1);
-				if (uri && zval_get_long(rewrited) 
-						&& EXPECTED(Z_TYPE_P(uri) == IS_STRING)
-						&& Z_STRLEN_P(uri)) {
-					settled_uri = Z_STR_P(uri);
+				if (uri) {
+					if (zval_get_long(rewrited) 
+							&& EXPECTED(Z_TYPE_P(uri) == IS_STRING)
+							&& Z_STRLEN_P(uri)) {
+						settled_uri = Z_STR_P(uri);
+						break;
+					}
+					zval_ptr_dtor(uri);
 				}
-				zval_ptr_dtor(uri);
 				zval_ptr_dtor(rewrited);
-				break;
 			}
 #endif
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "PATH_INFO", sizeof("PATH_INFO") - 1);
-			if (uri && EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
-				settled_uri = Z_STR_P(uri);
+			if (uri) {
+				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
+					settled_uri = Z_STR_P(uri);
+					break;
+				}
 				zval_ptr_dtor(uri);
-				break;
 			}
 
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "REQUEST_URI", sizeof("REQUEST_URI") - 1);
-			if (uri && EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
-				/* Http proxy reqs setup request uri with scheme and host [and port] + the url path,
-				 * only use url path */
-				if (strncasecmp(Z_STRVAL_P(uri), "http", sizeof("http") - 1) == 0) {
-					php_url *url_info = php_url_parse(Z_STRVAL_P(uri));
-					if (url_info && url_info->path) {
-						settled_uri = zend_string_init(url_info->path, strlen(url_info->path), 0);
-					}
-					php_url_free(url_info);
-				} else {
-					char *pos = NULL;
-					if ((pos = strstr(Z_STRVAL_P(uri), "?"))) {
-						settled_uri = zend_string_init(Z_STRVAL_P(uri), pos - Z_STRVAL_P(uri), 0);
+			if (uri) {
+				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
+					/* Http proxy reqs setup request uri with scheme and host [and port] + the url path,
+					 * only use url path */
+					if (strncasecmp(Z_STRVAL_P(uri), "http", sizeof("http") - 1) == 0) {
+						php_url *url_info = php_url_parse(Z_STRVAL_P(uri));
+						if (url_info && url_info->path) {
+							settled_uri = zend_string_init(url_info->path, strlen(url_info->path), 0);
+						}
+						php_url_free(url_info);
 					} else {
-						settled_uri = Z_STR_P(uri);
+						char *pos = NULL;
+						if ((pos = strstr(Z_STRVAL_P(uri), "?"))) {
+							settled_uri = zend_string_init(Z_STRVAL_P(uri), pos - Z_STRVAL_P(uri), 0);
+						} else {
+							settled_uri = Z_STR_P(uri);
+						}
 					}
+					break;
 				}
 				zval_ptr_dtor(uri);
-				break;
 			}
 
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "ORIG_PATH_INFO", sizeof("ORIG_PATH_INFO") - 1);
-			if (uri && EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
-				settled_uri = Z_STR_P(uri);
+			if (uri) {
+				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
+					settled_uri = Z_STR_P(uri);
+					break;
+				} 
 				zval_ptr_dtor(uri);
-				break;
 			}
 		} while (0);
 	}
