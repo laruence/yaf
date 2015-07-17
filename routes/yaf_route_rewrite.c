@@ -128,21 +128,18 @@ static void yaf_route_rewrite_match(yaf_route_t *router, char *uri, int len, zva
 		} else {
 			zval *pzval;
 			zend_string *key;
-			ulong idx = 0;
 			HashTable *ht;
 
 			array_init(ret);
 
 			ht = Z_ARRVAL(subparts);
-			ZEND_HASH_FOREACH_KEY_VAL(ht, idx, key, pzval) {
+			ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, pzval) {
                 if (key) {
                     if (zend_string_equals_literal(key, "__yaf_route_rest")) {
                         zval args;
                         (void)yaf_router_parse_parameters(Z_STRVAL_P(pzval), &args);
-                        if (&args) {
-                            zend_hash_copy(Z_ARRVAL_P(ret), Z_ARRVAL(args), (copy_ctor_func_t) zval_add_ref);
-                            zval_ptr_dtor(&args);
-                        }
+                         zend_hash_copy(Z_ARRVAL_P(ret), Z_ARRVAL(args), (copy_ctor_func_t) zval_add_ref);
+                         zval_ptr_dtor(&args);
                     } else {
                         Z_ADDREF_P(pzval);
                         zend_hash_update(Z_ARRVAL_P(ret), key, pzval);
@@ -257,7 +254,6 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 	char *seg, *pmatch, *ptrptr;
 	zend_string *key, *inter, *tstr;
 	uint seg_len;
-	ulong key_idx;
 	smart_str squery = {0};
 	smart_str wildcard = {0};
 	
@@ -272,8 +268,8 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 	while (seg) {
 		seg_len = strlen(seg);
 		if (seg_len) {
-			if(*(seg) == '*') {
-				ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL(pidents), key_idx, key, tmp) {
+			if (*(seg) == '*') {
+				ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL(pidents), key, tmp) {
 					if (key) {
 						if (IS_STRING == Z_TYPE_P(tmp)) {
 							smart_str_appendl(&wildcard, ZSTR_VAL(key) + 1, ZSTR_LEN(key) - 1);
@@ -311,8 +307,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 		HashTable *ht = Z_ARRVAL_P(query);
 
 		smart_str_appendc(&squery, '?');
-		ZEND_HASH_FOREACH_KEY_VAL(ht, key_idx, key, tmp) {
-
+		ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, tmp) {
 			if (key) {
 				if (IS_STRING == Z_TYPE_P(tmp)) {
 					smart_str_appendl(&squery, ZSTR_VAL(key), ZSTR_LEN(key));

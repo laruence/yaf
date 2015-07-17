@@ -204,11 +204,10 @@ zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval 
 
 		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			zend_string *key;
-			ulong key_idx;
 			int start = 0, end = 0;
 
-			ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(query), key_idx, key, tmp) {
-				if (IS_STRING == Z_TYPE_P(tmp) && key) {
+			ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(query), key, tmp) {
+				if (key && IS_STRING == Z_TYPE_P(tmp)) {
 					if (!start) {
 						smart_str_appendc(&tvalue, '?');
 						start = 1;

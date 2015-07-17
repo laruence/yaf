@@ -196,7 +196,6 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			uint i = 0;
 			zend_string *key;
-			ulong key_idx;
 			zval *tmp_data;
 
 			if (has_delim) {
@@ -204,10 +203,8 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 				smart_str_appendl(&tvalue, Z_STRVAL_P(delim), Z_STRLEN_P(delim));
 			}
 
-            ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(query), key_idx, key, tmp_data) {
-
-				if (IS_STRING == Z_TYPE_P(tmp_data) && key) {
-
+            ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(query), key, tmp_data) {
+				if (key && IS_STRING == Z_TYPE_P(tmp_data)) {
 					if (has_delim) {
 						smart_str_appendc(&tvalue, '/');
 						smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
