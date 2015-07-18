@@ -107,6 +107,8 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request TSRMLS_DC) {
 			} else {
 				query_str = NULL;
 			}
+		} else {
+			query_str = NULL;
 		}
 	}
 
