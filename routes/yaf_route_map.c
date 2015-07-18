@@ -99,6 +99,8 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
 			} else {
 				query_str = NULL;
 			}
+		} else {
+			query_str = NULL;
 		}
 	}
 
@@ -161,6 +163,7 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 
 	ctl_prefer = zend_read_property(yaf_route_map_ce, this_ptr, ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER), 1, NULL);
 	delim = zend_read_property(yaf_route_map_ce, this_ptr, ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_DELIMETER), 1, NULL);
+
 	if (IS_STRING == Z_TYPE_P(delim) && Z_STRLEN_P(delim)) {
 		has_delim = 1;
 	}
