@@ -277,7 +277,7 @@ PHP_METHOD(yaf_controller, getRequest) {
 /** {{{ proto public Yaf_Controller_Abstract::getResponse(void)
 */
 PHP_METHOD(yaf_controller, getResponse) {
-	yaf_view_t *response = zend_read_property(yaf_controller_ce,
+	yaf_response_t *response = zend_read_property(yaf_controller_ce,
 			getThis(), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RESPONSE), 1, NULL);
 	RETURN_ZVAL(response, 1, 0);
 }
