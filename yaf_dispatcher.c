@@ -782,7 +782,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 
 	if (!yaf_dispatcher_handle(dispatcher, request, response, view)) {
 		if (EG(exception) &&
-			instanceof_function(EG(exception->ce),
+			instanceof_function(EG(exception)->ce,
 				yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)])) {
 			zval *m = zend_read_property(yaf_dispatcher_ce,
 					dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, NULL);
