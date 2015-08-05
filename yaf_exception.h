@@ -40,7 +40,8 @@
 
 #define YAF_EXCEPTION_HANDLE(dispatcher, request, response) \
 	if (EG(exception)) { \
-		if (YAF_G(catch_exception)) { \
+		if (YAF_G(catch_exception) \
+				 && instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
 			yaf_dispatcher_exception_handler(dispatcher, request, response); \
 		} \
 		zval_ptr_dtor(response); \
@@ -49,7 +50,8 @@
 
 #define YAF_EXCEPTION_HANDLE_NORET(dispatcher, request, response) \
 	if (EG(exception)) { \
-		if (YAF_G(catch_exception)) { \
+		if (YAF_G(catch_exception) \
+	   			&& instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
 			yaf_dispatcher_exception_handler(dispatcher, request, response); \
 		} \
 	}
