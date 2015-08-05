@@ -305,12 +305,12 @@ PHP_METHOD(yaf_route_regex, __construct) {
 	}
 
 	if (IS_STRING != Z_TYPE_P(match) || !Z_STRLEN_P(match)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string as the first parameter", yaf_route_regex_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string as the first parameter");
 		RETURN_FALSE;
 	}
 
 	if (verify && IS_ARRAY != Z_TYPE_P(verify)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an array as third parameter",  yaf_route_regex_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an array as third parameter");
 		RETURN_FALSE;
 	}
 

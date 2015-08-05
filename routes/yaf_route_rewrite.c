@@ -370,7 +370,7 @@ PHP_METHOD(yaf_route_rewrite, __construct) {
 	}
 
 	if (verify && IS_ARRAY != Z_TYPE_P(verify)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an array as third parameter",  yaf_route_rewrite_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an array as third parameter");
 		RETURN_FALSE;
 	}
 
