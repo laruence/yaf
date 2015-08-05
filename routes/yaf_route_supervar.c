@@ -157,7 +157,7 @@ PHP_METHOD(yaf_route_supervar, __construct) {
     }
 
     if (Z_TYPE_P(var) != IS_STRING || !Z_STRLEN_P(var)) {
-        yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string super var name", yaf_route_supervar_ce->name);
+        yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a valid string super var name");
         RETURN_FALSE;
     }
 

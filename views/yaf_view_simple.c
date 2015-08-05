@@ -210,7 +210,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) 
 
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
-						yaf_view_simple_ce->name);
+						ZSTR_VAL(yaf_view_simple_ce->name));
 				return 0;
 			}
 		} else {

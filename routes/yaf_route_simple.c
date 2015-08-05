@@ -180,7 +180,7 @@ PHP_METHOD(yaf_route_simple, __construct) {
 	if (IS_STRING != Z_TYPE_P(module)
 			|| IS_STRING != Z_TYPE_P(controller)
 			|| IS_STRING != Z_TYPE_P(action)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect 3 string parameters", yaf_route_simple_ce->name);
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect 3 string parameters");
 		RETURN_FALSE;
 	} else {
 	    zval rself, *self = getThis();
