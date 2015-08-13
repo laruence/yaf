@@ -10,19 +10,22 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2014-10-22</date>
- <time>21:53:00</time>
+ <date>2015-08-13</date>
+ <time>16:42:00</time>
  <version>
-  <release>2.3.3</release>
-  <api>2.3.3</api>
+  <release>2.3.4</release>
+  <api>2.3.4</api>
  </version>
  <stability>
-  <release>beta</release>
-  <api>beta</api>
+  <release>stable</release>
+  <api>stable</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed build with PHP-5.6
+  - Fixed ISSUE #134
+  - Fixed ISSUE #181
+  - Fixed invalid read(segfault) with php-5.4
+  - Fixed bug (Exception in preDispatch is not caught)
  </notes>
  <contents> 
   <dir name="/"> 
