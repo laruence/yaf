@@ -948,7 +948,11 @@ yaf_response_t * yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher TSRMLS_DC)
 	return_response = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1 TSRMLS_CC);
 
 	if (!Z_BVAL_P(return_response)) {
-		(void)yaf_response_send(response TSRMLS_CC);
+		zval *ret = NULL;
+		zend_call_method_with_0_params(&response, Z_OBJCE_P(response), NULL, "response", &ret);
+		if (ret) {
+			zval_ptr_dtor(&ret);
+		}
 		yaf_response_clear_body(response, NULL, 0 TSRMLS_CC);
 	}
 
