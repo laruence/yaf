@@ -895,7 +895,9 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *resp
 			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), 1, NULL);
 
 	if (Z_TYPE_P(return_response) == IS_FALSE) {
-		(void)yaf_response_send(response);
+		zval ret;
+		/* it must return bool */
+		zend_call_method_with_0_params(response, Z_OBJCE_P(response), NULL, "response", &ret);
 		yaf_response_clear_body(response, NULL);
 	}
 
