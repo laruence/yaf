@@ -163,6 +163,7 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *b
 				break;
 			case YAF_RESPONSE_REPLACE:
 			default:
+				zend_string_release(Z_STR_P(pzval));
 				ZVAL_STRINGL(pzval, body, body_len);
 				break;
 		}
