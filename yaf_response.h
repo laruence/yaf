@@ -32,7 +32,7 @@ extern zend_class_entry *yaf_response_http_ce;
 extern zend_class_entry *yaf_response_cli_ce;
 
 yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name);
-int yaf_response_alter_body(yaf_response_t *response, zend_string *name, char *body, long body_len, int flag);
+int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag);
 int yaf_response_send(yaf_response_t *response);
 int yaf_response_set_redirect(yaf_response_t *response, char *url, int len);
 int yaf_response_clear_body(yaf_response_t *response, zend_string *name);

@@ -23,6 +23,9 @@
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
   - Fixed build with PHP7
+  - Fixed issue #184 (add exception filter in EXCEPTION_HANDLER prevent yaf 'eat' Erro). (Jason Young)
+  - Fixed issue #185 (memory leak when alter body more then once)
+  - Fixed issue #181 (autoResponse doesn't send http headers)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -185,6 +188,9 @@
     <file name="076.phpt" role="test" />
     <file name="077.phpt" role="test" />
     <file name="078.phpt" role="test" />
+    <file name="079.phpt" role="test" />
+    <file name="080.phpt" role="test" />
+    <file name="081.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

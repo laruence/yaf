@@ -694,8 +694,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 						}
 
 						if (Z_TYPE(ret) == IS_STRING && Z_STRLEN(ret)) {
-							yaf_response_alter_body(response, NULL,
-									Z_STRVAL(ret), Z_STRLEN(ret), YAF_RESPONSE_APPEND );
+							yaf_response_alter_body(response, NULL, Z_STR(ret), YAF_RESPONSE_APPEND );
 						} 
 
 						zval_ptr_dtor(&ret);
