@@ -21,6 +21,7 @@
 #include "php.h"
 #include "main/SAPI.h" /* for sapi_module */
 #include "Zend/zend_interfaces.h" /* for zend_call_method_with_* */
+#include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
