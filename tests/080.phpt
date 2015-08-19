@@ -3,7 +3,7 @@ PHP7 didn't display Error.
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
-
+yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";
