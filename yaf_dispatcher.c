@@ -440,9 +440,9 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		}
 
 		if (def_module) {
-			spprintf(&directory, 0, "%s%c%s", app_dir, DEFAULT_SLASH, "actions");
+			spprintf(&directory, 0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, "actions");
 		} else {
-			spprintf(&directory, 0, "%s%c%s%c%s%c%s", app_dir, DEFAULT_SLASH,
+			spprintf(&directory, 0, "%s%c%s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH,
 					"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, "actions");
 		}
 
