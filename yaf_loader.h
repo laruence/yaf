@@ -65,8 +65,8 @@
 
 extern zend_class_entry *yaf_loader_ce;
 
-int yaf_internal_autoload(char *file_name, uint name_len, char **directory);
-int yaf_loader_import(char *path, int len, int use_path);
+int yaf_internal_autoload(char *file_name, size_t name_len, char **directory);
+int yaf_loader_import(char *path, size_t len, int use_path);
 int yaf_register_autoloader(yaf_loader_t *loader);
 int yaf_loader_register_namespace_single(char *prefix, size_t len);
 yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_path, zend_string *global_path);

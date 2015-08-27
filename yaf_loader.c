@@ -115,7 +115,7 @@ int yaf_loader_register(yaf_loader_t *loader) /* {{{ */ {
 }
 /* }}} */
 
-static int yaf_loader_is_category(char *class, uint class_len, char *category, uint category_len) /* {{{ */ {
+static int yaf_loader_is_category(char *class, size_t class_len, char *category, size_t category_len) /* {{{ */ {
 	uint separator_len = YAF_G(name_separator_len);
 
 	if (YAF_G(name_suffix)) {
@@ -255,9 +255,9 @@ yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_p
 }
 /* }}} */
 
-/** {{{ int yaf_loader_import(char *path, int len, int use_path)
+/** {{{ int yaf_loader_import(char *path, size_t len, int use_path)
 */
-int yaf_loader_import(char *path, int len, int use_path) {
+int yaf_loader_import(char *path, size_t len, int use_path) {
 	zend_file_handle file_handle;
 	zend_op_array 	*op_array;
 	char realpath[MAXPATHLEN];
@@ -305,7 +305,7 @@ int yaf_loader_import(char *path, int len, int use_path) {
 }
 /* }}} */
 
-int yaf_internal_autoload(char *file_name, uint name_len, char **directory) /* {{{ */ {
+int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /* {{{ */ {
 	uint status;
 	zval *library_dir, *global_dir;
 	char *q, *p;
@@ -598,7 +598,7 @@ PHP_METHOD(yaf_loader, import) {
 PHP_METHOD(yaf_loader, autoload) {
 	char *class_name, *origin_classname, *app_directory, *directory = NULL, *file_name = NULL;
 	char *origin_lcname = NULL;
-	uint separator_len, file_name_len = 0;
+	size_t separator_len, file_name_len = 0;
 	size_t class_name_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &class_name, &class_name_len) == FAILURE) {
