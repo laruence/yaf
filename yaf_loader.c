@@ -550,7 +550,7 @@ PHP_METHOD(yaf_loader, getLibraryPath) {
 */
 PHP_METHOD(yaf_loader, import) {
 	zend_string *file;
-	uint need_free = 0;
+	int need_free = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &file) == FAILURE) {
 		return;
@@ -570,7 +570,7 @@ PHP_METHOD(yaf_loader, import) {
 			} else {
 				zval *library = zend_read_property(yaf_loader_ce,
 						loader, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_LIBRARY), 1, NULL);
-				file = strpprintf(0, "%s%c%s", Z_STRVAL_P(library), DEFAULT_SLASH, file);
+				file = strpprintf(0, "%s%c%s", Z_STRVAL_P(library), DEFAULT_SLASH, ZSTR_VAL(file));
 				need_free = 1;
 			}
 		}
