@@ -149,12 +149,14 @@ int yaf_response_http_send(yaf_response_t *response TSRMLS_DC) {
 	zval      **val, **entry;
 	char      *header_name;
 	uint      header_name_len;
-	ulong       num_key;
+	ulong     num_key;
 	HashPosition  pos;
 	sapi_header_line ctr = {0};
 
 	zresponse_code = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), 1 TSRMLS_CC);  
-	SG(sapi_headers).http_response_code = Z_LVAL_P(zresponse_code);
+	if (Z_LVAL_P(zresponse_code)) {
+		SG(sapi_headers).http_response_code = Z_LVAL_P(zresponse_code);
+	} 
 
 	zheader = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), 1 TSRMLS_CC);
 	for (zend_hash_internal_pointer_reset_ex(Z_ARRVAL_P(zheader), &pos);
@@ -191,20 +193,20 @@ int yaf_response_http_send(yaf_response_t *response TSRMLS_DC) {
 /** {{{ proto public Yaf_Response_Http::setHeader($name, $value, $replace = 0)
 */
 PHP_METHOD(yaf_response_http, setHeader) {
-	zval    *response_code = NULL;
+	long    response_code = 0;
 	char    *name, *value;
 	uint    name_len, value_len;
 	zend_bool   rep = 1;
 	yaf_response_t  *self;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|bz", &name, &name_len, &value, &value_len, &rep, &response_code) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|bl", &name, &name_len, &value, &value_len, &rep, &response_code) == FAILURE) {
 		return;
 	}
 
 	self = getThis();
 
 	if (response_code) {
-		zend_update_property(yaf_response_ce, self, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), response_code TSRMLS_CC);
+		zend_update_property_long(yaf_response_ce, self, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), response_code TSRMLS_CC);
 	}
 
 	if (yaf_response_alter_header(self, name, name_len, value, value_len, rep ? 1 : 0 TSRMLS_CC)) {
@@ -337,7 +339,7 @@ YAF_STARTUP_FUNCTION(response_http) {
 	yaf_response_http_ce = zend_register_internal_class_ex(&ce, yaf_response_ce, NULL TSRMLS_CC);
 
 	zend_declare_property_bool(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION), 1, ZEND_ACC_PROTECTED TSRMLS_CC);
-	zend_declare_property_long(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE),	200, ZEND_ACC_PROTECTED TSRMLS_CC);
+	zend_declare_property_long(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE),	0, ZEND_ACC_PROTECTED TSRMLS_CC);
 
 	return SUCCESS;
 }
