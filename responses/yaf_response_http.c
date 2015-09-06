@@ -131,8 +131,8 @@ int yaf_response_alter_header(yaf_response_t *response, char *name, uint name_le
 int yaf_response_set_redirect(yaf_response_t *response, char *url, int len TSRMLS_DC) {
 	sapi_header_line ctr = {0};
 
-	ctr.line_len    = spprintf(&(ctr.line), 0, "%s %s", "Location:", url);
-	ctr.response_code   = 0;
+	ctr.line_len = spprintf(&(ctr.line), 0, "%s %s", "Location:", url);
+	ctr.response_code = 0;
 	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr TSRMLS_CC) == SUCCESS) {
 		efree(ctr.line);
 		return 1;

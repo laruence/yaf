@@ -13,8 +13,8 @@
  <date>2015-08-13</date>
  <time>16:42:00</time>
  <version>
-  <release>2.3.4</release>
-  <api>2.3.4</api>
+  <release>2.3.5</release>
+  <api>2.3.5</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,10 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed ISSUE #134
-  - Fixed ISSUE #181
-  - Fixed invalid read(segfault) with php-5.4
-  - Fixed bug (Exception in preDispatch is not caught)
+  - Fixed bug (redirect doesn't work)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -214,6 +211,22 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2015-09-06</date> 
+   <version> 
+    <release>2.3.5</release> 
+    <api>2.3.5</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug (redirect doesn't work)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2015-08-13</date> 
    <version> 
     <release>2.3.4</release> 
@@ -231,7 +244,6 @@
     - Fixed bug (Exception in preDispatch is not caught)
    </notes> 
   </release> 
-
   <release> 
    <date>2014-10-22</date> 
    <version> 
