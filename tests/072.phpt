@@ -52,7 +52,7 @@ Yaf_Response_Http Object
         )
 
     [_sendheader:protected] => 1
-    [_response_code:protected] => 200
+    [_response_code:protected] => 0
 )
 bool(true)
 bool(true)

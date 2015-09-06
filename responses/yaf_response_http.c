@@ -158,7 +158,10 @@ int yaf_response_http_send(yaf_response_t *response) {
 
 	zresponse_code = zend_read_property(yaf_response_ce,
 			response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), 1, NULL);  
-	SG(sapi_headers).http_response_code = Z_LVAL_P(zresponse_code);
+
+	if (Z_LVAL_P(zresponse_code)) {
+		SG(sapi_headers).http_response_code = Z_LVAL_P(zresponse_code);
+	}
 
 	zheader = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADER), 1, NULL);
 
@@ -192,20 +195,20 @@ int yaf_response_http_send(yaf_response_t *response) {
 /** {{{ proto public Yaf_Response_Http::setHeader($name, $value, $replace = 0)
 */
 PHP_METHOD(yaf_response_http, setHeader) {
-	zval *response_code = NULL;
+	zend_long response_code = 0;
 	zend_bool rep = 1;
 	yaf_response_t  *self;
 	zend_string *name;
 	zend_string *value;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SS|bz", &name, &value, &rep, &response_code) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SS|bl", &name, &value, &rep, &response_code) == FAILURE) {
 		return;
 	}
 
 	self = getThis();
 
 	if (response_code) {
-		zend_update_property(yaf_response_ce, self, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), response_code);
+		zend_update_property_long(yaf_response_ce, self, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), response_code);
 	}
 
 	if (yaf_response_alter_header(self, name, ZSTR_VAL(value), ZSTR_LEN(value), rep ? 1 : 0)) {
@@ -323,7 +326,7 @@ YAF_STARTUP_FUNCTION(response_http) {
 	yaf_response_http_ce = zend_register_internal_class_ex(&ce, yaf_response_ce);
 
 	zend_declare_property_bool(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION), 1, ZEND_ACC_PROTECTED);
-	zend_declare_property_long(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE),	200, ZEND_ACC_PROTECTED);
+	zend_declare_property_long(yaf_response_http_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE),	0, ZEND_ACC_PROTECTED);
 
 	return SUCCESS;
 }
