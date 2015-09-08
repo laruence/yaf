@@ -74,4 +74,9 @@ if test "$PHP_YAF" != "no"; then
     yaf_plugin.c                    \
     yaf_session.c,
   $ext_shared)
+  PHP_ADD_BUILD_DIR([$ext_builddir/configs])
+  PHP_ADD_BUILD_DIR([$ext_builddir/requests])
+  PHP_ADD_BUILD_DIR([$ext_builddir/responses])
+  PHP_ADD_BUILD_DIR([$ext_builddir/views])
+  PHP_ADD_BUILD_DIR([$ext_builddir/routes])
 fi
