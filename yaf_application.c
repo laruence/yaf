@@ -293,7 +293,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 }
 /* }}} */
 
-/** {{{ proto Yaf_Application::__construct(mixed $config, string $environ = YAF_G(environ))
+/** {{{ proto Yaf_Application::__construct(mixed $config, string $environ = YAF_G(environ_name))
 */
 PHP_METHOD(yaf_application, __construct) {
 	zval *config;
@@ -321,7 +321,7 @@ PHP_METHOD(yaf_application, __construct) {
 
 	self = getThis();
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
-		ZVAL_STRING(&zsection, YAF_G(environ));
+		ZVAL_STRING(&zsection, YAF_G(environ_name));
 		(void)yaf_config_instance(&zconfig, config, &zsection);
 		zval_ptr_dtor(&zsection);
 	} else {
@@ -382,7 +382,7 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0);
-	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ));
+	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name));
 
 	if (Z_TYPE(YAF_G(modules)) == IS_ARRAY) {
 		zend_update_property(yaf_application_ce,
@@ -683,7 +683,7 @@ YAF_STARTUP_FUNCTION(application) {
 	zend_declare_property_bool(yaf_application_ce,
 			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0, ZEND_ACC_PROTECTED);
 	zend_declare_property_string(yaf_application_ce,
-			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ), ZEND_ACC_PROTECTED);
+			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name), ZEND_ACC_PROTECTED);
 
 	zend_declare_property_long(yaf_application_ce,
 			ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), 0, ZEND_ACC_PROTECTED);

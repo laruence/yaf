@@ -81,7 +81,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zend_string *default_action;
 	zend_string *bootstrap;
 	char         *global_library;
-    char         *environ;
+    char         *environ_name;
     char         *name_separator;
     size_t        name_separator_len;
 	zend_bool 	lowcase_path;
