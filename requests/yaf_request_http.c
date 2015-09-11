@@ -56,6 +56,7 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 		zval *uri;
 		do {
 #ifdef PHP_WIN32
+			zval *rewrited;
 			/* check this first so IIS will catch */
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_X_REWRITE_URL", sizeof("HTTP_X_REWRITE_URL") - 1);
 			if (uri) {
@@ -68,17 +69,18 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 
 			/* IIS7 with URL Rewrite: make sure we get the unencoded url (double slash problem) */
 			rewrited = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER,
-					"IIS_WasUrlRewritten", sizeof("IIS_WasUrlRewritten") - 1);
+				   	"IIS_WasUrlRewritten", sizeof("IIS_WasUrlRewritten") - 1);
 			if (rewrited) {
-				uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "UNENCODED_URL", sizeof("UNENCODED_URL") - 1);
-				if (uri) {
-					if (zval_get_long(rewrited) 
-							&& EXPECTED(Z_TYPE_P(uri) == IS_STRING)
-							&& Z_STRLEN_P(uri)) {
-						settled_uri = Z_STR_P(uri);
-						break;
+				if (zend_is_true(rewrited)) {
+					zval_ptr_dtor(rewrited);
+					uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "UNENCODED_URL", sizeof("UNENCODED_URL") - 1);
+					if (uri) {
+						if (EXPECTED(Z_TYPE_P(uri) == IS_STRING && Z_STRLEN_P(uri))) {
+							settled_uri = Z_STR_P(uri);
+							break;
+						}
+						zval_ptr_dtor(uri);
 					}
-					zval_ptr_dtor(uri);
 				}
 				zval_ptr_dtor(rewrited);
 			}
