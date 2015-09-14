@@ -613,7 +613,7 @@ PHP_METHOD(yaf_application, clearLastError) {
 */
 PHP_METHOD(yaf_application, setAppDirectory) {
 	zend_string      *directory;
-	yaf_dispatcher_t *self = getThis();
+	yaf_application_t *self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &directory) == FAILURE) {
 		return;
