@@ -205,9 +205,9 @@ PHP_METHOD(yaf_session, set) {
 	} else {
 		zval *sess = zend_read_property(yaf_session_ce, self, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
 		if (zend_hash_update(Z_ARRVAL_P(Z_REFVAL_P(sess)), name, value) == NULL) {
-			Z_TRY_DELREF_P(value);
 			RETURN_FALSE;
 		}
+		Z_TRY_ADDREF_P(value);
 	}
 
 	RETURN_ZVAL(self, 1, 0);
