@@ -48,4 +48,9 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-Fatal error: Call to private Yaf_Controller_Abstract::__construct() from context 'IndexController' in %sIndex.php on line %d
+Fatal error: Uncaught Error: Call to private Yaf_Controller_Abstract::__construct() from context 'IndexController' in %sIndex.php:%d
+Stack trace:
+#0 [internal function]: IndexController->indexAction()
+#1 %sbug70913.php(%d): Yaf_Application->run()
+#2 {main}
+  thrown in %sIndex.php on line %d
