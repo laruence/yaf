@@ -40,17 +40,11 @@ file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "Okey");
 
 $app = new Yaf_Application($config);
 $response = $app->run();
-echo "Okey";
 ?>
 --CLEAN--
 <?php
 require "build.inc"; 
 shutdown();
 ?>
---EXPECTF--
-Fatal error: Uncaught Error: Call to private Yaf_Controller_Abstract::__construct() from context 'IndexController' in %sIndex.php:%d
-Stack trace:
-#0 [internal function]: IndexController->indexAction()
-#1 %sbug70913.php(%d): Yaf_Application->run()
-#2 {main}
-  thrown in %sIndex.php on line %d
+--EXPECT--
+Okey
