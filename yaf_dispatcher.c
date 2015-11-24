@@ -541,7 +541,6 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 		module		= zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
 		controller	= zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
-
 		dmodule		= zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
 		/*
 		dcontroller = zend_read_property(yaf_dispatcher_ce, dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_CONTROLLER), 1 TSRMLS_CC);
@@ -585,21 +584,28 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 			/* cause controller's constructor is a final method, so it must be a internal function
 			   do {
-			   zend_function *constructor = NULL;
-			   constructor = Z_OBJ_HT_P(exec_ctr)->get_constructor(exec_ctr TSRMLS_CC);
-			   if (constructor != NULL) {
-			   if (zend_call_method_with_2_params(&exec_ctr, *ce
-			   , &constructor, NULL, &ret, request, response) == NULL) {
-			   yaf_trigger_error(YAF_ERR_CALL_FAILED, "function call for %s::__construct failed", (*ce)->name);
-			   return 0;
-			   }
-			   }
+				   zend_function *constructor = NULL;
+				   constructor = Z_OBJ_HT_P(exec_ctr)->get_constructor(exec_ctr TSRMLS_CC);
+				   if (constructor != NULL) {
+					   if (zend_call_method_with_2_params(&exec_ctr, *ce
+								   , &constructor, NULL, &ret, request, response) == NULL) {
+						   yaf_trigger_error(YAF_ERR_CALL_FAILED, "function call for %s::__construct failed", (*ce)->name);
+						   return 0;
+					   }
+				   }
 			   } while(0);
-			   */
+		   */
 			yaf_controller_construct(ce, icontroller, request, response, view, NULL TSRMLS_CC);
+
 			if (EG(exception)) {
 				zval_ptr_dtor(&icontroller);
 				return 0;
+			}
+
+			if (!yaf_request_is_dispatched(request TSRMLS_CC)) {
+				/* forward is called in init method */
+				zval_ptr_dtor(&icontroller);
+				return yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC);
 			}
 		
 			/* view template directory for application, please notice that view engine's directory has high priority */
@@ -616,7 +622,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 			zend_update_property(ce, icontroller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME),	controller TSRMLS_CC);
 
-			action		 = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
+			action = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), 1 TSRMLS_CC);
 			action_lower = zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action));
 
 			/* because the action might call the forward to override the old action */
