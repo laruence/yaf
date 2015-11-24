@@ -23,7 +23,7 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
 		public function init() {
-			\$this->forward("index", "Second", "okey");
+			\$this->forward("Index", "Second", "okey");
 		}
 		public function indexAction() {
 			echo "bad";
