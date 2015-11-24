@@ -1,5 +1,5 @@
 --TEST--
-Bug #70913 (Segfault while new Yaf_Controller)
+Issue #163 (forward from init controller)
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
