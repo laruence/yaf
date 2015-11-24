@@ -196,6 +196,7 @@
     <file name="bug62702.phpt" role="test" />
     <file name="bug70913.phpt" role="test" />
     <file name="issue134.phpt" role="test" />
+    <file name="issue163.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
     <file name="multi-section.ini" role="test" />

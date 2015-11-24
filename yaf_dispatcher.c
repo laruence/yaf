@@ -555,9 +555,16 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			object_init_ex(&icontroller, ce);
 
 			yaf_controller_construct(ce, &icontroller, request, response, view, NULL);
+
 			if (EG(exception)) {
 				zval_ptr_dtor(&icontroller);
 				return 0;
+			}
+
+			if (!yaf_request_is_dispatched(request)) {
+				/* forward is called in init method */
+				zval_ptr_dtor(&icontroller);
+				return yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC);
 			}
 		
 			/* view template directory for application, please notice that view engine's directory has high priority */
