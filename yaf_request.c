@@ -88,7 +88,7 @@ yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *reques
 /* }}} */
 
 int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri) /* {{{ */ {
-	if (UNEXPECTED(base_uri == NULL)) {
+	if (base_uri == NULL) {
 		zend_string *basename;
 		zval *script_filename;
 		char *ext = ZSTR_VAL(YAF_G(ext));
