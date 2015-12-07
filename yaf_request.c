@@ -88,7 +88,7 @@ yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *reques
 /* }}} */
 
 int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri) /* {{{ */ {
-	if (UNEXPECTED(base_uri == NULL && request_uri == NULL)) {
+	if (UNEXPECTED(base_uri == NULL)) {
 		zend_string *basename;
 		zval *script_filename;
 		char *ext = ZSTR_VAL(YAF_G(ext));
@@ -177,10 +177,8 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 		}
 
 		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), "");
-	} else if (base_uri) {
-		zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), base_uri);
 	} else {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), "");
+		zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), base_uri);
 	}
 	return 1;
 }
