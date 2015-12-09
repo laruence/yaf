@@ -679,7 +679,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				render = zend_read_property(ce, executor, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER), 1, &rv);
 				if (render == &EG(uninitialized_zval)) {
 					render = zend_read_property(yaf_dispatcher_ce,
-							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, &rv);
+							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, NULL);
 					auto_render = (Z_TYPE_P(render) == IS_TRUE ? 1 : 0);
 				} else if (Z_TYPE_P(render) == IS_NULL ||
 						Z_TYPE_P(render) == IS_DOUBLE || Z_TYPE_P(render) == IS_LONG) {
