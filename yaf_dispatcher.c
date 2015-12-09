@@ -674,17 +674,14 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 			if (executor) {
 				/* controller's property can override the Dispatcher's */
-				int auto_render = 1;
 				zval rv;
+				int auto_render;
 				render = zend_read_property(ce, executor, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER), 1, &rv);
 				if (render == &EG(uninitialized_zval)) {
 					render = zend_read_property(yaf_dispatcher_ce,
 							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, NULL);
-					auto_render = (Z_TYPE_P(render) == IS_TRUE ? 1 : 0);
-				} else if (Z_TYPE_P(render) == IS_NULL ||
-						Z_TYPE_P(render) == IS_DOUBLE || Z_TYPE_P(render) == IS_LONG) {
-					auto_render = 0;
-				}
+				} 
+				auto_render = (Z_TYPE_P(render) == IS_TRUE || (Z_TYPE_P(render) == IS_LONG && Z_LVAL_P(render)));
 
 				instantly_flush	= zend_read_property(yaf_dispatcher_ce,
 						dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, NULL);
