@@ -675,18 +675,19 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			if (executor) {
 				/* controller's property can override the Dispatcher's */
 				int auto_render = 1;
-				render = zend_read_property(ce, executor, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER), 1, NULL);
-				instantly_flush	= zend_read_property(yaf_dispatcher_ce,
-						dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, NULL);
+				zval rv;
+				render = zend_read_property(ce, executor, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER), 1, &rv);
 				if (render == &EG(uninitialized_zval)) {
 					render = zend_read_property(yaf_dispatcher_ce,
-							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, NULL);
+							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, &rv);
 					auto_render = (Z_TYPE_P(render) == IS_TRUE ? 1 : 0);
 				} else if (Z_TYPE_P(render) == IS_NULL ||
 						Z_TYPE_P(render) == IS_DOUBLE || Z_TYPE_P(render) == IS_LONG) {
 					auto_render = 0;
 				}
 
+				instantly_flush	= zend_read_property(yaf_dispatcher_ce,
+						dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, NULL);
 				if (auto_render) {
 					if (Z_TYPE_P(instantly_flush) == IS_FALSE) {
 						zend_call_method_with_1_params(executor, ce, NULL, "render", &ret, &action);
