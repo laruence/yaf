@@ -57,13 +57,6 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 		uri = ZSTR_VAL(req_uri);
 		s = p = uri;
 
-		if (ZSTR_LEN(req_uri)) {
-			char *q = ZSTR_VAL(req_uri) + ZSTR_LEN(req_uri) - 1;
-			while (q > (char *)ZSTR_VAL(req_uri) && (*q == ' ' || *q == '/')) {
-				*q-- = '\0';
-			}
-		}
-
 		strip_slashs(p);
 
 		if ((s = strstr(p, "/")) != NULL) {
