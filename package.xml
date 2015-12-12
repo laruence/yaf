@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-10-27</date>
- <time>21:53:00</time>
+ <date>2015-12-12</date>
+ <time>21:46:00</time>
  <version>
-  <release>3.0.0</release>
-  <api>3.0.0</api>
+  <release>3.0.1</release>
+  <api>3.0.1</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,7 +22,11 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-   - Release Yaf for PHP7
+   - Fixed auto_render bug
+   - Fixed issue #220 (segfault on read_property)
+   - Fixed bug of baseuri setting
+   - Fixed issue #163 (forward from init controller)
+   - Fixed Bug #70913 (Segfault while new Yaf_Controller)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -217,6 +221,26 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2015-12-12</date> 
+   <version> 
+    <release>3.0.1</release> 
+    <api>3.0.1</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed auto_render bug
+    - Fixed issue #220 (segfault on read_property)
+    - Fixed bug of baseuri setting
+    - Fixed issue #163 (forward from init controller)
+    - Fixed Bug #70913 (Segfault while new Yaf_Controller)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2015-10-27</date> 
    <version> 
     <release>3.0.0</release> 
@@ -231,7 +255,6 @@
     - Release Yaf for PHP7
    </notes> 
   </release> 
-
   <release> 
    <date>2014-10-22</date> 
    <version> 
