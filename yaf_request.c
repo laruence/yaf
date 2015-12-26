@@ -141,7 +141,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 					}
 					zend_string_release(orig);
 				}
-				zval_ptr_dtor(orig_name);
+				if(NULL != orig_name) zval_ptr_dtor(orig_name);
 				zend_string_release(file_name);
 			}
 		} while (0);
