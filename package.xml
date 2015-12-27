@@ -13,8 +13,8 @@
  <date>2015-12-12</date>
  <time>21:46:00</time>
  <version>
-  <release>3.0.1</release>
-  <api>3.0.1</api>
+  <release>3.0.2</release>
+  <api>3.0.2</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,11 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-   - Fixed auto_render bug
-   - Fixed issue #220 (segfault on read_property)
-   - Fixed bug of baseuri setting
-   - Fixed issue #163 (forward from init controller)
-   - Fixed Bug #70913 (Segfault while new Yaf_Controller)
+   - Fixed issue #231 (php-fpm worker core dump BUG)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -201,6 +197,7 @@
     <file name="bug70913.phpt" role="test" />
     <file name="issue134.phpt" role="test" />
     <file name="issue163.phpt" role="test" />
+    <file name="issue231.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
     <file name="multi-section.ini" role="test" />
@@ -223,6 +220,22 @@
   <release> 
    <date>2015-12-12</date> 
    <version> 
+    <release>3.0.2</release> 
+    <api>3.0.2</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed issue #231 (php-fpm worker core dump BUG)
+   </notes> 
+  </release> 
+
+  <release> 
+   <date>2015-12-12</date> 
+   <version> 
     <release>3.0.1</release> 
     <api>3.0.1</api> 
    </version> 
@@ -239,7 +252,6 @@
     - Fixed Bug #70913 (Segfault while new Yaf_Controller)
    </notes> 
   </release> 
-
   <release> 
    <date>2015-10-27</date> 
    <version> 
