@@ -89,16 +89,13 @@ yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *reques
 
 int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri) /* {{{ */ {
 	if (base_uri == NULL) {
-		zend_string *basename;
-		zval *script_filename;
-		char *ext = ZSTR_VAL(YAF_G(ext));
-		size_t ext_len = ZSTR_LEN(YAF_G(ext));
-		zend_string *file_name;
-
-		script_filename = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER,
-				"SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
+		zend_string *basename = NULL;
+		zval *script_filename = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "SCRIPT_FILENAME", sizeof("SCRIPT_FILENAME") - 1);
 		do {
 			if (script_filename && IS_STRING == Z_TYPE_P(script_filename)) {
+				zend_string *file_name;
+				char *ext = ZSTR_VAL(YAF_G(ext));
+				size_t ext_len = ZSTR_LEN(YAF_G(ext));
 				zval *script_name, *phpself_name, *orig_name;
 
 				script_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "SCRIPT_NAME", sizeof("SCRIPT_NAME") - 1);
