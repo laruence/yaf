@@ -90,7 +90,7 @@ PHP_METHOD(ce, get##x) { \
 		} \
 	} \
 	if (ret) { \
-	    RETURN_ZVAL(ret, 1, 1); \
+	    RETURN_ZVAL(ret, 1, 0); \
 	} else { \
 		RETURN_NULL(); \
 	} \

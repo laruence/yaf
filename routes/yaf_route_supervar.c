@@ -55,7 +55,7 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request) {
 	}
 
 	/* req_uri = estrndup(Z_STRVAL_P(zuri), Z_STRLEN_P(zuri)); */
-	yaf_route_pathinfo_route(request, Z_STR_P(zuri));
+	yaf_route_pathinfo_route(request, zend_string_init(Z_STRVAL_P(zuri), Z_STRLEN_P(zuri), 0));
 	return 1;
 }
 /* }}} */

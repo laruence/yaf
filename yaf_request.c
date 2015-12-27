@@ -107,45 +107,40 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 					zend_string	*script = php_basename(Z_STRVAL_P(script_name), Z_STRLEN_P(script_name), NULL, 0);
 
 					if (strncmp(ZSTR_VAL(file_name), ZSTR_VAL(script), ZSTR_LEN(file_name)) == 0) {
-						basename = Z_STR_P(script_name);
+						basename = zend_string_copy(Z_STR_P(script_name));
 						zend_string_release(file_name);
 						zend_string_release(script);
 						break;
 					}
 					zend_string_release(script);
 				}
-				zval_ptr_dtor(script_name);
 
 				phpself_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "PHP_SELF", sizeof("PHP_SELF") - 1);
 				if (phpself_name && EXPECTED(IS_STRING == Z_TYPE_P(phpself_name))) {
 					zend_string *phpself = php_basename(Z_STRVAL_P(phpself_name), Z_STRLEN_P(phpself_name), NULL, 0);
 					if (strncmp(ZSTR_VAL(file_name), ZSTR_VAL(phpself), ZSTR_LEN(file_name)) == 0) {
-						basename = Z_STR_P(phpself_name);
+						basename = zend_string_copy(Z_STR_P(phpself_name));
 						zend_string_release(file_name);
 						zend_string_release(phpself);
 						break;
 					}
 					zend_string_release(phpself);
 				}
-				zval_ptr_dtor(phpself_name);
 
-				orig_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER,
-					   	"ORIG_SCRIPT_NAME", sizeof("ORIG_SCRIPT_NAME") - 1);
+				orig_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "ORIG_SCRIPT_NAME", sizeof("ORIG_SCRIPT_NAME") - 1);
 				if (orig_name && IS_STRING == Z_TYPE_P(orig_name)) {
 					zend_string *orig = php_basename(Z_STRVAL_P(orig_name), Z_STRLEN_P(orig_name), NULL, 0);
 					if (strncmp(ZSTR_VAL(file_name), ZSTR_VAL(orig), ZSTR_LEN(file_name)) == 0) {
-						basename = Z_STR_P(orig_name);
+						basename = zend_string_copy(Z_STR_P(orig_name));
 						zend_string_release(file_name);
 						zend_string_release(orig);
 						break;
 					}
 					zend_string_release(orig);
 				}
-				zval_ptr_dtor(orig_name);
 				zend_string_release(file_name);
 			}
 		} while (0);
-		zval_ptr_dtor(script_filename);
 
 		if (basename && strncmp(ZSTR_VAL(request_uri), ZSTR_VAL(basename), ZSTR_LEN(basename)) == 0) {
 			if (*(ZSTR_VAL(basename) + ZSTR_LEN(basename) - 1) == '/') {
@@ -157,7 +152,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 			zend_string_release(basename);
 			return 1;
 		} else if (basename) {
-			zend_string *dir = zend_string_dup(basename, 0); /* php_dirname might alter the string */
+			zend_string *dir = zend_string_init(ZSTR_VAL(basename), ZSTR_LEN(basename), 0); /* php_dirname might alter the string */
 
 			ZSTR_LEN(dir) = php_dirname(ZSTR_VAL(dir), ZSTR_LEN(dir));
 			if (*(ZSTR_VAL(dir) + ZSTR_LEN(dir) - 1) == '/') {
@@ -273,7 +268,6 @@ zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t l
 	}
 
 	if (!name) {
-		Z_ADDREF_P(carrier);
 		return carrier;
 	}
 
@@ -286,7 +280,6 @@ zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t l
 			return NULL;
 		}
 	}
-	Z_TRY_ADDREF_P(ret);
 	return ret;
 }
 /* }}} */
@@ -306,7 +299,6 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 		if (!accept_langs) {
 			return NULL;
 		} else if (UNEXPECTED(IS_STRING != Z_TYPE_P(accept_langs) || !Z_STRLEN_P(accept_langs))) {
-			zval_ptr_dtor(accept_langs);
 			return NULL;
 		} else {
 			char  	*ptrptr, *seg;

@@ -61,37 +61,31 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_X_REWRITE_URL", sizeof("HTTP_X_REWRITE_URL") - 1);
 			if (uri) {
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING))  {
-					settled_uri = Z_STR_P(uri);
+					settled_uri = zend_string_copy(Z_STR_P(uri));
 					break;
 				}
-				zval_ptr_dtor(uri);
 			}
 
 			/* IIS7 with URL Rewrite: make sure we get the unencoded url (double slash problem) */
-			rewrited = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER,
-				   	"IIS_WasUrlRewritten", sizeof("IIS_WasUrlRewritten") - 1);
+			rewrited = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "IIS_WasUrlRewritten", sizeof("IIS_WasUrlRewritten") - 1);
 			if (rewrited) {
 				if (zend_is_true(rewrited)) {
-					zval_ptr_dtor(rewrited);
 					uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "UNENCODED_URL", sizeof("UNENCODED_URL") - 1);
 					if (uri) {
 						if (EXPECTED(Z_TYPE_P(uri) == IS_STRING && Z_STRLEN_P(uri))) {
-							settled_uri = Z_STR_P(uri);
+							settled_uri = zend_string_copy(Z_STR_P(uri));
 							break;
 						}
-						zval_ptr_dtor(uri);
 					}
 				}
-				zval_ptr_dtor(rewrited);
 			}
 #endif
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "PATH_INFO", sizeof("PATH_INFO") - 1);
 			if (uri) {
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
-					settled_uri = Z_STR_P(uri);
+					settled_uri = zend_string_copy(Z_STR_P(uri));
 					break;
 				}
-				zval_ptr_dtor(uri);
 			}
 
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "REQUEST_URI", sizeof("REQUEST_URI") - 1);
@@ -110,21 +104,19 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 						if ((pos = strstr(Z_STRVAL_P(uri), "?"))) {
 							settled_uri = zend_string_init(Z_STRVAL_P(uri), pos - Z_STRVAL_P(uri), 0);
 						} else {
-							settled_uri = Z_STR_P(uri);
+							settled_uri = zend_string_copy(Z_STR_P(uri));
 						}
 					}
 					break;
 				}
-				zval_ptr_dtor(uri);
 			}
 
 			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "ORIG_PATH_INFO", sizeof("ORIG_PATH_INFO") - 1);
 			if (uri) {
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
-					settled_uri = Z_STR_P(uri);
+					settled_uri = zend_string_copy(Z_STR_P(uri));
 					break;
 				} 
-				zval_ptr_dtor(uri);
 			}
 		} while (0);
 	}
@@ -138,7 +130,7 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 
 		if (p != ZSTR_VAL(settled_uri)) {
 			zend_string *garbage = settled_uri;
-			settled_uri = zend_string_init(p, strlen(p), 0);
+			settled_uri = zend_string_init(p, ZSTR_LEN(settled_uri) - (p - ZSTR_VAL(settled_uri)), 0);
 			zend_string_release(garbage);
 		}
 
@@ -190,7 +182,6 @@ PHP_METHOD(yaf_request_http, isXmlHttpRequest) {
 	zend_string_release(name);
 	if (header && Z_TYPE_P(header) == IS_STRING
 			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
-		zval_ptr_dtor(header);
 		RETURN_TRUE;
 	}
 	RETURN_FALSE;

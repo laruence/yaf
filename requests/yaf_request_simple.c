@@ -91,7 +91,6 @@ yaf_request_t *yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module
                     break;
                 }
 			} ZEND_HASH_FOREACH_END();
-            zval_ptr_dtor(argv);
 		}
 
 		if (query) {
@@ -174,7 +173,6 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 	zend_string_release(name);
 	if (header && Z_TYPE_P(header) == IS_STRING
 			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
-		zval_ptr_dtor(header);
 		RETURN_TRUE;
 	}
 	RETURN_FALSE;
