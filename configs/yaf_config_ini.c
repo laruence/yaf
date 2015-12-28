@@ -324,7 +324,7 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 		return this_ptr;
 	} else if (filename && Z_TYPE_P(filename) == IS_STRING) {
 		zval configs;
-		struct stat sb;
+		zend_stat_t sb;
 		zend_file_handle fh;
 		char *ini_file = Z_STRVAL_P(filename);
 		
