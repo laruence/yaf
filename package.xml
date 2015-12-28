@@ -23,6 +23,8 @@
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
    - Fixed issue #231 (php-fpm worker core dump BUG)
+   - Attempt to fix issue #226 (Segfault on windows7 64bits)
+   - Fixed issue #232 (segfault with Yaf_Route_Simple)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -198,6 +200,7 @@
     <file name="issue134.phpt" role="test" />
     <file name="issue163.phpt" role="test" />
     <file name="issue231.phpt" role="test" />
+    <file name="issue232.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
     <file name="multi-section.ini" role="test" />
@@ -230,6 +233,8 @@
    <license uri="http://www.php.net/license">PHP License</license> 
    <notes>
     - Fixed issue #231 (php-fpm worker core dump BUG)
+    - Attempt to fix issue #226 (Segfault on windows7 64bits)
+    - Fixed issue #232 (segfault with Yaf_Route_Simple)
    </notes> 
   </release> 
 
