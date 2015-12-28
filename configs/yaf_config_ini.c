@@ -325,7 +325,7 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 	} else if (filename && Z_TYPE_P(filename) == IS_STRING) {
 		zval configs;
 		struct stat sb;
-		zend_file_handle fh = {{0}};
+		zend_file_handle fh;
 		char *ini_file = Z_STRVAL_P(filename);
 		
 		if (VCWD_STAT(ini_file, &sb) == 0) {
@@ -333,6 +333,8 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 				if ((fh.handle.fp = VCWD_FOPEN(ini_file, "r"))) {
 					fh.filename = ini_file;
 					fh.type = ZEND_HANDLE_FP;
+					fh.free_filename = 0;
+					fh.opened_path = NULL;
 					ZVAL_UNDEF(&YAF_G(active_ini_file_section));
 
 					YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_START;
