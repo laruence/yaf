@@ -10,8 +10,8 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2015-12-12</date>
- <time>21:46:00</time>
+ <date>2015-12-28</date>
+ <time>19:51:00</time>
  <version>
   <release>3.0.2</release>
   <api>3.0.2</api>
@@ -221,7 +221,7 @@
  <extsrcrelease />
  <changelog> 
   <release> 
-   <date>2015-12-12</date> 
+   <date>2015-12-28</date> 
    <version> 
     <release>3.0.2</release> 
     <api>3.0.2</api> 
