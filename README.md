@@ -4,7 +4,7 @@
 PHP framework written in c and built as a PHP extension.
 
 ## Requirement
-- PHP 5.2 +
+- PHP 7.0 +
 
 ## Install
 ### Install Yaf 
