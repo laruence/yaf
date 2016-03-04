@@ -596,11 +596,11 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			   }
 			   } while(0);
 			   */
-			yaf_controller_construct(ce, icontroller, request, response, view, NULL TSRMLS_CC);
 			if (EG(exception)) {
 				zval_ptr_dtor(&icontroller);
 				return 0;
 			}
+			yaf_controller_construct(ce, icontroller, request, response, view, NULL TSRMLS_CC);
 		
 			/* view template directory for application, please notice that view engine's directory has high priority */
 			if (is_def_module) {
