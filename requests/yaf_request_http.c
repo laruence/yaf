@@ -134,6 +134,9 @@ yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, char *request
 			zval_ptr_dtor(&uri);
 
 		} while (0);
+		if(Z_TYPE_P(uri)!=IS_NULL){
+			zval_ptr_dtor(&uri);
+		}
 	}
 
 	if (settled_uri) {
