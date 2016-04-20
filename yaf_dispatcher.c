@@ -1160,7 +1160,7 @@ PHP_METHOD(yaf_dispatcher, dispatch) {
 	yaf_response_t 	*response;
 	yaf_dispatcher_t *self;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	}
 
