@@ -1117,7 +1117,7 @@ PHP_METHOD(yaf_dispatcher, dispatch) {
 	yaf_response_t 	*response, rresponse;
 	yaf_dispatcher_t *self = getThis();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &request) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
 		return;
 	}
 
