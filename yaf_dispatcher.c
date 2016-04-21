@@ -1130,6 +1130,14 @@ PHP_METHOD(yaf_dispatcher, getInstance) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Dispatcher::destoryInstance(void)
+*/
+PHP_METHOD(yaf_dispatcher, destoryInstance) {
+	zend_update_static_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE) TSRMLS_CC);
+	RETURN_TRUE;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Dispatcher::getRouter(void)
 */
 PHP_METHOD(yaf_dispatcher, getRouter) {
@@ -1377,6 +1385,7 @@ zend_function_entry yaf_dispatcher_methods[] = {
 	PHP_ME(yaf_dispatcher, throwException,			yaf_dispatcher_throwex_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, catchException,			yaf_dispatcher_catchex_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, registerPlugin,			yaf_dispatcher_regplugin_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, destoryInstance,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
