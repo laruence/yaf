@@ -249,19 +249,18 @@ PHP_METHOD(yaf_route_rewrite, route) {
 /** {{{ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval *query)
  */
 zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval *query) {
-	zval *match, pidents;
-	zval *tmp;
+	zval *match, pidents, *zv;
 	char *seg, *pmatch, *ptrptr;
-	zend_string *key, *inter, *tstr;
-	uint seg_len;
-	smart_str squery = {0};
+	zend_string *key, *inter, *uri, *val;
+	size_t seg_len;
+	smart_str query_str = {0};
 	smart_str wildcard = {0};
 	
 	array_init(&pidents);
 
 	match  = zend_read_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 0, NULL);
+	uri = zend_string_copy(Z_STR_P(match));
 	pmatch = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
-	tstr = zend_string_init(Z_STRVAL_P(match), Z_STRLEN_P(match), 0);
 	zend_hash_copy(Z_ARRVAL(pidents), Z_ARRVAL_P(info), (copy_ctor_func_t) zval_add_ref);
 
 	seg = php_strtok_r(pmatch, YAF_ROUTER_URL_DELIMIETER, &ptrptr);	
@@ -269,30 +268,33 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 		seg_len = strlen(seg);
 		if (seg_len) {
 			if (*(seg) == '*') {
-				ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL(pidents), key, tmp) {
+				ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL(pidents), key, zv) {
 					if (key) {
-						if (IS_STRING == Z_TYPE_P(tmp)) {
+						if (IS_STRING == Z_TYPE_P(zv)) {
 							smart_str_appendl(&wildcard, ZSTR_VAL(key) + 1, ZSTR_LEN(key) - 1);
 							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
-							smart_str_appendl(&wildcard, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+							smart_str_appendl(&wildcard, Z_STRVAL_P(zv), Z_STRLEN_P(zv));
 							smart_str_appendl(&wildcard, YAF_ROUTER_URL_DELIMIETER, 1);
 						}
 					}
 				} ZEND_HASH_FOREACH_END();
 				smart_str_0(&wildcard);
-				inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr),
+				inter = php_str_to_str(ZSTR_VAL(uri), ZSTR_LEN(uri),
 						"*", 1, ZSTR_VAL(wildcard.s), ZSTR_LEN(wildcard.s));	
-				zend_string_release(tstr);
-				tstr = inter;
+				zend_string_release(uri);
+				uri = inter;
 				break;
 			}
 
-			if(*(seg) == ':') {
-				if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), seg, seg_len)) != NULL) {
-					inter = php_str_to_str(ZSTR_VAL(tstr), ZSTR_LEN(tstr), seg, seg_len, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
-					zend_string_release(tstr);
-					tstr = inter;
+			if (*(seg) == ':') {
+				if ((zv = zend_hash_str_find(Z_ARRVAL_P(info), seg, seg_len)) != NULL) {
+					val = zval_get_string(zv);
+					inter = php_str_to_str(ZSTR_VAL(uri),
+							ZSTR_LEN(uri), seg, seg_len, ZSTR_VAL(val), ZSTR_LEN(val));
+					zend_string_release(val);
+					zend_string_release(uri);
 					zend_hash_str_del(Z_ARRVAL(pidents), seg, seg_len);
+					uri = inter;
 				} 
 			} 
 		}
@@ -306,30 +308,30 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 	if (query && IS_ARRAY == Z_TYPE_P(query)) {
 		HashTable *ht = Z_ARRVAL_P(query);
 
-		smart_str_appendc(&squery, '?');
-		ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, tmp) {
+		smart_str_appendc(&query_str, '?');
+		ZEND_HASH_FOREACH_STR_KEY_VAL(ht, key, zv) {
 			if (key) {
-				if (IS_STRING == Z_TYPE_P(tmp)) {
-					smart_str_appendl(&squery, ZSTR_VAL(key), ZSTR_LEN(key));
-					smart_str_appendc(&squery, '=');
-					smart_str_appendl(&squery, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
-					smart_str_appendc(&squery, '&');
-				}
+				val = zval_get_string(zv);
+				smart_str_appendl(&query_str, ZSTR_VAL(key), ZSTR_LEN(key));
+				smart_str_appendc(&query_str, '=');
+				smart_str_appendl(&query_str, ZSTR_VAL(val), ZSTR_LEN(val));
+				smart_str_appendc(&query_str, '&');
+				zend_string_release(val);
 			}
 		} ZEND_HASH_FOREACH_END();
 	}
 
-	if (squery.s) {
-		uint tmp_len = ZSTR_LEN(tstr);
-		ZSTR_LEN(squery.s)--; /* get rid of the tail & */
-		smart_str_0(&squery);
-		tstr = zend_string_realloc(tstr, ZSTR_LEN(tstr) + ZSTR_LEN(squery.s), 0); 
-		memcpy(ZSTR_VAL(tstr) + tmp_len, ZSTR_VAL(squery.s), ZSTR_LEN(squery.s));
-		ZSTR_VAL(tstr)[ZSTR_LEN(tstr)] = '\0';
-		smart_str_free(&squery);
+	if (query_str.s) {
+		size_t orig_len = ZSTR_LEN(uri);
+		ZSTR_LEN(query_str.s)--; /* get rid of the tail & */
+		smart_str_0(&query_str);
+		uri = zend_string_realloc(uri, ZSTR_LEN(uri) + ZSTR_LEN(query_str.s), 0); 
+		memcpy(ZSTR_VAL(uri) + orig_len, ZSTR_VAL(query_str.s), ZSTR_LEN(query_str.s));
+		ZSTR_VAL(uri)[ZSTR_LEN(uri)] = '\0';
+		smart_str_free(&query_str);
 	}   
 
-	return tstr;
+	return uri;
 }
 /* }}} */
 

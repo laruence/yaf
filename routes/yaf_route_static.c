@@ -176,59 +176,68 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) /* {{{ */
 /** {{{ zend_string * yaf_route_static_assemble(zval *info, zval *query)
  */
 zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval *query) {
-	smart_str tvalue = {0};
+	zval *zv;
+	zend_string *val;
+	smart_str str = {0};
 
 	do {
-		zval *tmp;
 
-		if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT))) != NULL) {
-			smart_str_appendc(&tvalue, '/');
-			smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+		if ((zv = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_MOUDLE_FORMAT))) != NULL) {
+			val = zval_get_string(zv);
+			smart_str_appendc(&str, '/');
+			smart_str_appendl(&str, ZSTR_VAL(val), ZSTR_LEN(val));
+			zend_string_release(val);
 		}
 
-		if ((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) == NULL) {
+		if ((zv = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) == NULL) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "You need to specify the controller by ':c'");
 			break;
 		}
 
-		smart_str_appendc(&tvalue, '/');
-		smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+		val = zval_get_string(zv);
+		smart_str_appendc(&str, '/');
+		smart_str_appendl(&str, ZSTR_VAL(val), ZSTR_LEN(val));
+		zend_string_release(val);
 
-		if((tmp = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) == NULL) {
+		if((zv = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) == NULL) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "You need to specify the action by ':a'");
 			break;
 		}
 
-		smart_str_appendc(&tvalue, '/');
-		smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+		val = zval_get_string(zv);
+		smart_str_appendc(&str, '/');
+		smart_str_appendl(&str, ZSTR_VAL(val), ZSTR_LEN(val));
+		zend_string_release(val);
 
 		if (query && IS_ARRAY == Z_TYPE_P(query)) {
 			zend_string *key;
 			int start = 0, end = 0;
 
-			ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(query), key, tmp) {
-				if (key && IS_STRING == Z_TYPE_P(tmp)) {
+			ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(query), key, zv) {
+				if (key) {
+					val = zval_get_string(zv);
 					if (!start) {
-						smart_str_appendc(&tvalue, '?');
+						smart_str_appendc(&str, '?');
 						start = 1;
 					}
 					if (end) {
-						smart_str_appendc(&tvalue, '&');
+						smart_str_appendc(&str, '&');
 						end = 0;
 					}
-					smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
-					smart_str_appendc(&tvalue, '=');
-					smart_str_appendl(&tvalue, Z_STRVAL_P(tmp), Z_STRLEN_P(tmp));
+					smart_str_appendl(&str, ZSTR_VAL(key), ZSTR_LEN(key));
+					smart_str_appendc(&str, '=');
+					smart_str_appendl(&str, ZSTR_VAL(val), ZSTR_LEN(val));
 					end = 1;
+					zend_string_release(val);
 				}
 			} ZEND_HASH_FOREACH_END();
 		}
 
-		smart_str_0(&tvalue);
-		return tvalue.s;
+		smart_str_0(&str);
+		return str.s;
 	} while (0);
 		
-	smart_str_free(&tvalue);
+	smart_str_free(&str);
 	return NULL;
 }
 /* }}} */

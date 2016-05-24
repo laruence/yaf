@@ -156,10 +156,11 @@ PHP_METHOD(yaf_route_map, route) {
 /** {{{ zend_string * yaf_route_map_assemble(zval *info, zval *query)
  */
 zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *query) {
-	char *tmp, *ptrptr, *pname;
-	smart_str tvalue = {0};
-	uint tmp_len, has_delim = 0;
-	zval *delim, *ctl_prefer, *tmp_data;
+	char *seg, *ptrptr, *pname;
+	smart_str uri = {0};
+	size_t seg_len;
+	zend_bool has_delim = 0;
+	zval *delim, *ctl_prefer, *zv;
 
 	ctl_prefer = zend_read_property(yaf_route_map_ce, this_ptr, ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER), 1, NULL);
 	delim = zend_read_property(yaf_route_map_ce, this_ptr, ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_DELIMETER), 1, NULL);
@@ -170,69 +171,74 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 
 	do {
 		if (Z_TYPE_P(ctl_prefer) == IS_TRUE) {
-			if ((tmp_data = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) != NULL) {
-				pname = estrndup(Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
+			if ((zv = zend_hash_str_find(Z_ARRVAL_P(info),
+					ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) != NULL && Z_TYPE_P(zv) == IS_STRING) {
+				pname = estrndup(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
 			} else {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Undefined the 'action' parameter for the 1st parameter");
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s",
+						"Undefined the 'action' parameter for the 1st parameter");
 				break;
 			}
 		} else {
-			if ((tmp_data = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) != NULL) {
-				pname = estrndup(Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
+			if ((zv = zend_hash_str_find(Z_ARRVAL_P(info),
+					ZEND_STRL(YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT))) != NULL && Z_TYPE_P(zv) == IS_STRING) {
+				pname = estrndup(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
 			} else {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Undefined the 'controller' parameter for the 1st parameter");
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s",
+						"Undefined the 'controller' parameter for the 1st parameter");
 				break;
 			}
 		}
 
-		tmp = php_strtok_r(pname, "_", &ptrptr);	
-		while(tmp) {
-			tmp_len = strlen(tmp);
-			if (tmp_len) {
-				smart_str_appendc(&tvalue, '/');
-				smart_str_appendl(&tvalue, tmp, tmp_len);
+		seg = php_strtok_r(pname, "_", &ptrptr);	
+		while (seg) {
+			seg_len = strlen(seg);
+			if (seg_len) {
+				smart_str_appendc(&uri, '/');
+				smart_str_appendl(&uri, seg, seg_len);
 			}
-			tmp = php_strtok_r(NULL, "_", &ptrptr);
+			seg = php_strtok_r(NULL, "_", &ptrptr);
 		}
 		efree(pname);
 
 		if (query && IS_ARRAY == Z_TYPE_P(query)) {
-			uint i = 0;
-			zend_string *key;
-			zval *tmp_data;
+			zend_bool start = 1;
+			zend_string *key, *val;
 
 			if (has_delim) {
-				smart_str_appendc(&tvalue, '/');
-				smart_str_appendl(&tvalue, Z_STRVAL_P(delim), Z_STRLEN_P(delim));
+				smart_str_appendc(&uri, '/');
+				smart_str_appendl(&uri, Z_STRVAL_P(delim), Z_STRLEN_P(delim));
 			}
 
-            ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(query), key, tmp_data) {
-				if (key && IS_STRING == Z_TYPE_P(tmp_data)) {
+            ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(query), key, zv) {
+				if (key) {
+					val = zval_get_string(zv);
 					if (has_delim) {
-						smart_str_appendc(&tvalue, '/');
-						smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
-						smart_str_appendc(&tvalue, '/');
-						smart_str_appendl(&tvalue, Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
+						smart_str_appendc(&uri, '/');
+						smart_str_appendl(&uri, ZSTR_VAL(key), ZSTR_LEN(key));
+						smart_str_appendc(&uri, '/');
+						smart_str_appendl(&uri, ZSTR_VAL(val), ZSTR_LEN(val));
 					} else {
-						if (i == 0) {
-							smart_str_appendc(&tvalue, '?');
-							smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
-							smart_str_appendc(&tvalue, '=');
-							smart_str_appendl(&tvalue, Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
+						if (start) {
+							smart_str_appendc(&uri, '?');
+							smart_str_appendl(&uri, ZSTR_VAL(key), ZSTR_LEN(key));
+							smart_str_appendc(&uri, '=');
+							smart_str_appendl(&uri, ZSTR_VAL(val), ZSTR_LEN(val));
+							start = 0;
 						} else {
-							smart_str_appendc(&tvalue, '&');
-							smart_str_appendl(&tvalue, ZSTR_VAL(key), ZSTR_LEN(key));
-							smart_str_appendc(&tvalue, '=');
-							smart_str_appendl(&tvalue, Z_STRVAL_P(tmp_data), Z_STRLEN_P(tmp_data));
+							smart_str_appendc(&uri, '&');
+							smart_str_appendl(&uri, ZSTR_VAL(key), ZSTR_LEN(key));
+							smart_str_appendc(&uri, '=');
+							smart_str_appendl(&uri, ZSTR_VAL(val), ZSTR_LEN(val));
 						}
 					}
+					zend_string_release(val);
 				}
-				i += 1;
 			} ZEND_HASH_FOREACH_END();
 		}
 
-		smart_str_0(&tvalue);
-		return tvalue.s;
+		smart_str_0(&uri);
+		return uri.s;
 	} while (0);
 
 	return NULL;
