@@ -102,12 +102,17 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
+#if PHP_VERSION_ID < 70100
+			zend_class_entry *scope = EG(scope);
+#else
+			zend_class_entry *scope = zend_get_executed_scope();
+#endif
 			/* GLOBALS protection */
 			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
 			}
 
-			if (zend_string_equals_literal(var_name, "this") && EG(scope) && ZSTR_LEN(EG(scope)->name) != 0) {
+			if (zend_string_equals_literal(var_name, "this") && scope && ZSTR_LEN(scope->name) != 0) {
 				continue;
 			}
 
@@ -121,12 +126,17 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 
 	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(vars), var_name, entry) {
+#if PHP_VERSION_ID < 70100
+			zend_class_entry *scope = EG(scope);
+#else
+			zend_class_entry *scope = zend_get_executed_scope();
+#endif
 			/* GLOBALS protection */
 			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
 			}
 
-			if (zend_string_equals_literal(var_name, "this") && EG(scope) && ZSTR_LEN(EG(scope)->name) != 0) {
+			if (zend_string_equals_literal(var_name, "this") && scope && ZSTR_LEN(scope->name) != 0) {
 				continue;
 			}
 
@@ -257,15 +267,24 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 
 	(void)yaf_view_simple_extract(tpl_vars, vars);
 
+#if PHP_VERSION_ID < 70100
 	old_scope = EG(scope);
 	EG(scope) = yaf_view_simple_ce;
+#else
+	old_scope = EG(fake_scope);
+	EG(fake_scope) = yaf_view_simple_ce;
+#endif
 
 	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
 		script 	= Z_STRVAL_P(tpl);
 		len 	= Z_STRLEN_P(tpl);
 		if (yaf_loader_import(script, len, 0) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s" , script, strerror(errno));
+#if PHP_VERSION_ID < 70100
 			EG(scope) = old_scope;
+#else
+			EG(fake_scope) = old_scope;
+#endif
 			return 0;
 		}
 	} else {
@@ -278,7 +297,11 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
 						ZSTR_VAL(yaf_view_simple_ce->name));
+#if PHP_VERSION_ID < 70100
 				EG(scope) = old_scope;
+#else
+				EG(fake_scope) = old_scope;
+#endif
 				return 0;
 			}
 		} else {
@@ -288,13 +311,21 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 		if (yaf_loader_import(script, len, 0) == 0) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", script, strerror(errno));
 			efree(script);
+#if PHP_VERSION_ID < 70100
 			EG(scope) = old_scope;
+#else
+			EG(fake_scope) = old_scope;
+#endif
 			return 0;
 		}
 		efree(script);
 	}
 
+#if PHP_VERSION_ID < 70100
 	EG(scope) = old_scope;
+#else
+	EG(fake_scope) = old_scope;
+#endif
 
 	return 1;
 }
