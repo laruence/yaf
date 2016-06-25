@@ -254,9 +254,6 @@ YAF_STARTUP_FUNCTION(request_simple){
 	yaf_request_simple_ce = zend_register_internal_class_ex(&ce, yaf_request_ce);
 	yaf_request_simple_ce->ce_flags |= ZEND_ACC_FINAL;
 
-	zend_declare_class_constant_string(yaf_request_simple_ce, ZEND_STRL("SCHEME_HTTP"),  "http");
-	zend_declare_class_constant_string(yaf_request_simple_ce, ZEND_STRL("SCHEME_HTTPS"), "https");
-
 	return SUCCESS;
 }
 /* }}} */

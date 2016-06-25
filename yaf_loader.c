@@ -83,9 +83,13 @@ int yaf_loader_register(yaf_loader_t *loader) /* {{{ */ {
 	do {
 		zend_fcall_info fci = {
 			sizeof(fci),
+#if PHP_VERSION_ID < 70100
 			EG(function_table),
+#endif
 			function,
+#if PHP_VERSION_ID < 70100
 			NULL,
+#endif
 			&ret,
 			params,
 			NULL,
