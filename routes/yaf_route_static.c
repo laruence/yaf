@@ -43,14 +43,15 @@ ZEND_END_ARG_INFO()
 int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{{ */ {
 	zval params;
 	char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
+	size_t module_len, controller_len, action_len;
 
 	do {
 #define strip_slashs(p) while (*p == ' ' || *p == '/') { ++p; }
 		char *s, *p;
 		char *uri;
 
-		if (ZSTR_LEN(req_uri) == 0
-				|| (ZSTR_LEN(req_uri) == 1 && *ZSTR_VAL(req_uri) == '/')) {
+		if (ZSTR_LEN(req_uri) == 0 ||
+			(ZSTR_LEN(req_uri) == 1 && *ZSTR_VAL(req_uri) == '/')) {
 			break;
 		}
 
@@ -68,22 +69,26 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 
 		if ((s = strstr(p, "/")) != NULL) {
 			if (yaf_application_is_module_name_str(p, s-p)) {
-				module = estrndup(p, s - p);
+				module = p;
+				module_len = s - p;
 				p  = s + 1;
 		        strip_slashs(p);
 				if ((s = strstr(p, "/")) != NULL) {
-					controller = estrndup(p, s - p);
+					controller = p;
+					controller_len = s - p;
 					p  = s + 1;
 				}
 			} else {
-				controller = estrndup(p, s - p);
+				controller = p;
+				controller_len = s - p;
 				p  = s + 1;
 			}
 		}
 
 		strip_slashs(p);
 		if ((s = strstr(p, "/")) != NULL) {
-			action = estrndup(p, s - p);
+			action = p;
+			action_len = s - p;
 			p  = s + 1;
 		}
 
@@ -92,63 +97,67 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 			do {
 				if (!module && !controller && !action) {
 					if (yaf_application_is_module_name_str(p, strlen(p))) {
-						module = estrdup(p);
+						module = p;
+						module_len = strlen(p);
 						break;
 					}
 				}
 
 				if (!controller) {
-					controller = estrdup(p);
+					controller = p;
+					controller_len = strlen(p);
 					break;
 				}
 
 				if (!action) {
-					action = estrdup(p);
+					action = p;
+					action_len = strlen(p);
 					break;
 				}
 
-				rest = estrdup(p);
+				rest = p;
 			} while (0);
 		}
 
 		if (module && controller == NULL) {
 			controller = module;
+			controller_len = module_len;
 			module = NULL;
 		} else if (module && action == NULL) {
 			action = controller;
+			action_len = controller_len;
 			controller = module;
+			controller_len = module_len;
 			module = NULL;
 	    } else if (controller && action == NULL ) {
 			/* /controller */
 			if (YAF_G(action_prefer)) {
 				action = controller;
+				action_len = controller_len;
 				controller = NULL;
 			}
 		}
 	} while (0);
 
 	if (module != NULL) {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module);
-		efree(module);
+		zend_update_property_stringl(yaf_request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module, module_len);
 	}
 	if (controller != NULL) {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller);
-		efree(controller);
+		zend_update_property_stringl(yaf_request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller, controller_len);
 	}
 
 	if (action != NULL) {
-		zend_update_property_string(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action);
-		efree(action);
+		zend_update_property_stringl(yaf_request_ce,
+				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action, action_len);
 	}
 
 	if (rest) {
 		(void)yaf_router_parse_parameters(rest, &params);
 		(void)yaf_request_set_params_multi(request, &params);
 		zval_ptr_dtor(&params);
-		efree(rest);
 	}
-
-	zend_string_release(req_uri);
 
 	return 1;
 }
@@ -165,10 +174,12 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) /* {{{ */
 			&& !strncasecmp(Z_STRVAL_P(zuri), Z_STRVAL_P(base_uri), Z_STRLEN_P(base_uri))) {
 		req_uri = zend_string_init(Z_STRVAL_P(zuri) + Z_STRLEN_P(base_uri), Z_STRLEN_P(zuri) - Z_STRLEN_P(base_uri), 0);
 	} else {
-		req_uri = zend_string_copy(Z_STR_P(zuri));
+		req_uri = zend_string_init(Z_STRVAL_P(zuri), Z_STRLEN_P(zuri), 0);
 	}
 
 	yaf_route_pathinfo_route(request, req_uri);
+
+	zend_string_release(req_uri);
 	return 1;
 }
 /* }}} */
