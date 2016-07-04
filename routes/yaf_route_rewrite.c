@@ -44,7 +44,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_construct_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *route, zval *verify) /* {{{ */{
+yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *route, zval *verify) /* {{{ */ {
 	if (Z_ISUNDEF_P(this_ptr)) {
 		object_init_ex(this_ptr, yaf_route_rewrite_ce);
 	}

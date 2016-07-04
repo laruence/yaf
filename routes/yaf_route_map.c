@@ -40,7 +40,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_map_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, char *delim, uint len) /* {{{ */{
+yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, zend_string *delim) /* {{{ */{
 	if (Z_ISUNDEF_P(this_ptr)) {
 		object_init_ex(this_ptr, yaf_route_map_ce);
 	} 
@@ -50,9 +50,8 @@ yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller
 				ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER), 1);
 	}
 
-	if (delim && len) {
-		zend_update_property_stringl(yaf_route_map_ce, this_ptr,
-				ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_DELIMETER), delim, len);
+	if (delim && ZSTR_LEN(delim)) {
+		zend_update_property_str(yaf_route_map_ce, this_ptr, ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_DELIMETER), delim);
 	}
 
 	return this_ptr;
@@ -248,21 +247,15 @@ zend_string * yaf_route_map_assemble(yaf_route_t *this_ptr, zval *info, zval *qu
 /** {{{ proto public Yaf_Route_Simple::__construct(bool $controller_prefer=FALSE, string $delimer = '#!')
 */
 PHP_METHOD(yaf_route_map, __construct) {
-	char *delim	= NULL;
-	size_t delim_len = 0;
+	zend_string *delim	= NULL;
 	zend_bool controller_prefer = 0;
-	zval rself, *self = getThis();
+	zval *self = getThis();
 
-	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|bs",
-			   	&controller_prefer, &delim, &delim_len) == FAILURE) {
+	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|bS", &controller_prefer, &delim) == FAILURE) {
 		return;
 	}
 
-    if (!self) {
-        ZVAL_NULL(&rself);
-        self = &rself;
-    }
-	(void)yaf_route_map_instance(self, controller_prefer, delim, delim_len);
+	(void)yaf_route_map_instance(self, controller_prefer, delim);
 }
 /* }}} */
 
