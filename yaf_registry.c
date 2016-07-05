@@ -51,7 +51,7 @@ yaf_registry_t *yaf_registry_instance(yaf_registry_t *this_ptr) /* {{{ */ {
 			yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), 1);
 
 	if (UNEXPECTED(Z_TYPE_P(instance) != IS_OBJECT ||
-				!instanceof_function(Z_OBJCE_P(instance), yaf_registry_ce))) {
+		!instanceof_function(Z_OBJCE_P(instance), yaf_registry_ce))) {
 		zval regs;
 
 		object_init_ex(this_ptr, yaf_registry_ce);
@@ -176,8 +176,8 @@ PHP_METHOD(yaf_registry, has) {
 /** {{{ proto public Yaf_Registry::getInstance(void)
 */
 PHP_METHOD(yaf_registry, getInstance) {
-	yaf_registry_t *registry, rregistry;
-	registry = yaf_registry_instance(&rregistry);
+	yaf_registry_t *registry, rv = {0};
+	registry = yaf_registry_instance(&rv);
 	RETURN_ZVAL(registry, 1, 0);
 }
 /* }}} */

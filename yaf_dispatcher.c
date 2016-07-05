@@ -781,6 +781,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 	yaf_request_set_dispatched(request, 0);
 
 	view = yaf_dispatcher_init_view(dispatcher, NULL, NULL, &rv);
+
 	if (UNEXPECTED(!view)) {
 		return;
 	}
@@ -812,15 +813,19 @@ int yaf_dispatcher_route(yaf_dispatcher_t *dispatcher, yaf_request_t *request) /
 			dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ROUTER), 1, NULL);
 	if (EXPECTED(IS_OBJECT == Z_TYPE_P(router))) {
 		if (EXPECTED((router_ce = Z_OBJCE_P(router)) == yaf_router_ce)) {
-			/* use built-in router */
-			yaf_router_route(router, request);
+			/* use built-in route */
+			if (yaf_router_route(router, request)) {
+				return 1;
+			}
 		} else {
-			/* user custom router */
+			/* user custom route */
 			zend_call_method_with_1_params(router, router_ce, NULL, "route", &ret, request);
 			if (Z_TYPE(ret) != IS_TRUE) {
 				yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request faild");
+				zval_ptr_dtor(&ret);
 				return 0;
 			}
+			zval_ptr_dtor(&ret);
 		}
 		return 1;
 	}
@@ -900,8 +905,9 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *resp
 
 	if (Z_TYPE_P(return_response) == IS_FALSE) {
 		zval ret;
-		/* it must return bool */
 		zend_call_method_with_0_params(response, Z_OBJCE_P(response), NULL, "response", &ret);
+		/* it must return bool */
+		/* zval_ptr_dtor(&ret); */
 		yaf_response_clear_body(response, NULL);
 	}
 
@@ -996,7 +1002,7 @@ PHP_METHOD(yaf_dispatcher, returnResponse) {
 
 	if (ZEND_NUM_ARGS()) {
 		zend_update_property_bool(yaf_dispatcher_ce,
-				self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), (auto_response)? 1:0);
+				self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN), auto_response);
 		RETURN_ZVAL(self, 1, 0);
 	} else {
 		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
@@ -1017,7 +1023,7 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 
 	if (ZEND_NUM_ARGS()) {
 		zend_update_property_bool(yaf_dispatcher_ce,
-				self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), (instantly_flush)? 1:0);
+				self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), instantly_flush);
 		RETURN_ZVAL(self, 1, 0);
 	} else {
 		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
@@ -1036,7 +1042,8 @@ PHP_METHOD(yaf_dispatcher, registerPlugin) {
 		return;
 	}
 
-	if (EXPECTED(Z_TYPE_P(plugin) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(plugin), yaf_plugin_ce))) {
+	if (EXPECTED(Z_TYPE_P(plugin) != IS_OBJECT ||
+		!instanceof_function(Z_OBJCE_P(plugin), yaf_plugin_ce))) {
 		php_error_docref(NULL, E_WARNING, "Expect a %s instance", ZSTR_VAL(yaf_plugin_ce->name));
 		RETURN_FALSE;
 	}
@@ -1060,8 +1067,8 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 		return;
 	}
 
-	if (IS_OBJECT != Z_TYPE_P(request)
-		   || !instanceof_function(Z_OBJCE_P(request), yaf_request_ce))	{
+	if (IS_OBJECT != Z_TYPE_P(request) ||
+		!instanceof_function(Z_OBJCE_P(request), yaf_request_ce))	{
 		php_error_docref(NULL, E_WARNING, "Expects a %s instance", ZSTR_VAL(yaf_request_ce->name));
 		RETURN_FALSE;
 	}

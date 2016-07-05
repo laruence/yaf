@@ -73,11 +73,11 @@ static_route:
 /** {{{ int yaf_router_route(yaf_router_t *router, yaf_request_t *request)
 */
 int yaf_router_route(yaf_router_t *router, yaf_request_t *request) {
-	zval 		*routers, ret;
+	zval *routers, ret;
 	yaf_route_t	*route;
 	HashTable 	*ht;
 	zend_string *key;
-	ulong        idx = 0;
+	zend_long idx;
 
 	routers = zend_read_property(yaf_router_ce, router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_ROUTES), 1, NULL);
 
@@ -94,13 +94,14 @@ int yaf_router_route(yaf_router_t *router, yaf_request_t *request) {
 						router, ZEND_STRL(YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE), idx);
 			}
 			yaf_request_set_routed(request, 1);
-			break;
+			return 1;
 		} else {
 			zval_ptr_dtor(&ret);
 			continue;
 		}
 	} ZEND_HASH_FOREACH_END();
-	return 1;
+
+	return 0;
 }
 /* }}} */
 
