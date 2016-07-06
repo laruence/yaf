@@ -5,6 +5,7 @@ PHP framework written in c and built as a PHP extension.
 
 ## Requirement
 - PHP 5.2 +
+- Master branch is for PHP 7.0+, for PHP5 use php5 branch
 
 ## Install
 ### Install Yaf 
