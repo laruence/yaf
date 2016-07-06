@@ -232,14 +232,7 @@ int yaf_response_send(yaf_response_t *response) {
 /** {{{ proto private Yaf_Response_Abstract::__construct()
 */
 PHP_METHOD(yaf_response, __construct) {
-    zval rself, *self = getThis();
-
-    if (!self) {
-        ZVAL_NULL(&rself);
-        self = &rself;
-    }
-    
-	(void)yaf_response_instance(self, sapi_module.name);
+	(void)yaf_response_instance(getThis(), sapi_module.name);
 }
 /* }}} */
 

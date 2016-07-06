@@ -176,7 +176,7 @@ PHP_METHOD(yaf_registry, has) {
 /** {{{ proto public Yaf_Registry::getInstance(void)
 */
 PHP_METHOD(yaf_registry, getInstance) {
-	yaf_registry_t *registry, rv = {0};
+	yaf_registry_t *registry, rv = {{0}};
 	registry = yaf_registry_instance(&rv);
 	RETURN_ZVAL(registry, 1, 0);
 }

@@ -67,17 +67,14 @@ ZEND_END_ARG_INFO()
 /* }}} */
 
 int yaf_loader_register(yaf_loader_t *loader) /* {{{ */ {
-	zval autoload, method, function, ret;
-	zval params[1];
+	zval autoload, function, method, ret;
 
 	array_init(&autoload);
 
-	ZVAL_STRING(&method, YAF_AUTOLOAD_FUNC_NAME);
-
+    ZVAL_STRING(&method, YAF_AUTOLOAD_FUNC_NAME);
 	zend_hash_next_index_insert(Z_ARRVAL(autoload), loader);
 	zend_hash_next_index_insert(Z_ARRVAL(autoload), &method);
 
-    ZVAL_COPY(&params[0], &autoload);
 	ZVAL_STRING(&function, YAF_SPL_AUTOLOAD_REGISTER_NAME);
 
 	do {
@@ -91,47 +88,42 @@ int yaf_loader_register(yaf_loader_t *loader) /* {{{ */ {
 			NULL,
 #endif
 			&ret,
-			params,
+			&autoload,
 			NULL,
 			1,
 			1
 		};
 
 		if (zend_call_function(&fci, NULL) == FAILURE) {
-		    if (!Z_ISUNDEF(ret)) {
-				zval_ptr_dtor(&ret);
-			}
 			zval_ptr_dtor(&function);
 			zval_ptr_dtor(&autoload);
-			zval_ptr_dtor(&params[0]);
-			php_error_docref(NULL, E_WARNING, "Unable to register autoload function %s", YAF_AUTOLOAD_FUNC_NAME);
+			php_error_docref(NULL,
+					E_WARNING,
+					"Unable to register autoload function %s",
+					YAF_AUTOLOAD_FUNC_NAME);
 			return 0;
-		}
-
-		if (!Z_ISUNDEF(ret)) {
-			zval_ptr_dtor(&ret);
 		}
 		zval_ptr_dtor(&function);
 		zval_ptr_dtor(&autoload);
-		zval_ptr_dtor(&params[0]);
 	} while (0);
 	return 1;
 }
 /* }}} */
 
 static int yaf_loader_is_category(char *class, size_t class_len, char *category, size_t category_len) /* {{{ */ {
-	uint separator_len = YAF_G(name_separator_len);
+	size_t separator_len = YAF_G(name_separator_len);
 
 	if (YAF_G(name_suffix)) {
 		if (class_len > category_len && strncmp(class + class_len - category_len, category, category_len) == 0) {
 			if (!separator_len || 
-					!strncmp(class + class_len - category_len - separator_len, YAF_G(name_separator), separator_len)) {
+				!strncmp(class + class_len - category_len - separator_len, YAF_G(name_separator), separator_len)) {
 				return 1;
 			}
 		}
 	} else {
 		if (strncmp(class, category, category_len) == 0) {
-			if (!separator_len || strncmp(class + category_len, YAF_G(name_separator), separator_len) == 0) {
+			if (!separator_len ||
+				strncmp(class + category_len, YAF_G(name_separator), separator_len) == 0) {
 				return 1;
 			}
 		}
@@ -144,9 +136,9 @@ static int yaf_loader_is_category(char *class, size_t class_len, char *category,
 /** {{{ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len)
  */
 int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len) {
-	char *pos, *ns, *prefix = NULL;
+	char *pos, *ns, *prefix;
 	char orig_char = 0, *backup = NULL;
-	uint prefix_len = 0;
+	size_t prefix_len;
 
 	if (!YAF_G(local_namespaces)) {
 		return 0;
@@ -279,14 +271,11 @@ int yaf_loader_import(char *path, size_t len, int use_path) {
 	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
 
 	if (op_array && file_handle.handle.stream.handle) {
-	    zval dummy;
-	    ZVAL_NULL(&dummy);
-
 		if (!file_handle.opened_path) {
 			file_handle.opened_path = zend_string_init(path, len, 0);
 		}
 
-		zend_hash_add(&EG(included_files), file_handle.opened_path, &dummy);
+		zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
 	}
 	zend_destroy_file_handle(&file_handle);
 
@@ -310,7 +299,7 @@ int yaf_loader_import(char *path, size_t len, int use_path) {
 /* }}} */
 
 int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /* {{{ */ {
-	uint status;
+	int status;
 	zval *library_dir, *global_dir;
 	char *q, *p;
 	size_t seg_len, directory_len;
@@ -601,9 +590,10 @@ PHP_METHOD(yaf_loader, import) {
 */
 PHP_METHOD(yaf_loader, autoload) {
 	char *class_name, *origin_classname, *app_directory, *directory = NULL, *file_name = NULL;
-	char *origin_lcname = NULL;
+	char *dup_lcname = NULL;
 	size_t separator_len, file_name_len = 0;
 	size_t class_name_len;
+	zend_bool ret = 1;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &class_name, &class_name_len) == FAILURE) {
 		return;
@@ -616,16 +606,18 @@ PHP_METHOD(yaf_loader, autoload) {
 	do {
 		if (!class_name_len) {
 			break;
-		}
-		{
-			int pos = 0;
-			origin_lcname = estrndup(class_name, class_name_len);
-			class_name 	  = origin_lcname;
-			while (pos < class_name_len) {
-				if (*(class_name + pos) == '\\') {
-					*(class_name + pos) = '_';
+		} else {
+			char *pos;
+			if ((pos = strchr(class_name, '\\')) != NULL) {
+				dup_lcname = estrndup(class_name, class_name_len);
+				class_name = dup_lcname;
+				pos = dup_lcname + (pos - class_name);
+				*pos = '_';
+				while (*(++pos) != '\0') {
+					if (*pos == '\\') {
+						*pos = '_';
+					}
 				}
-				pos += 1;
 			}
 		}
 
@@ -690,17 +682,12 @@ PHP_METHOD(yaf_loader, autoload) {
 	} while(0);
 
 	if (!app_directory && directory) {
-		efree(directory);
-		if (origin_lcname) {
-			efree(origin_lcname);
-		}
-		if (file_name != class_name) {
-			efree(file_name);
-		}
-
-		php_error_docref(NULL, E_WARNING,
-				"Couldn't load a framework MVC class without an %s initializing", ZSTR_VAL(yaf_application_ce->name));
-		RETURN_FALSE;
+		php_error_docref(NULL,
+				E_WARNING,
+				"Couldn't load a MVC class unless an %s is initialized",
+				ZSTR_VAL(yaf_application_ce->name));
+		ret = 0;
+		goto out;
 	}
 
 	if (!YAF_G(use_spl_autoload)) {
@@ -708,66 +695,38 @@ PHP_METHOD(yaf_loader, autoload) {
 		if (yaf_internal_autoload(file_name, file_name_len, &directory)) {
 			char *lc_classname = zend_str_tolower_dup(origin_classname, class_name_len);
 			if (zend_hash_str_exists(EG(class_table), lc_classname, class_name_len)) {
-				if (origin_lcname) {
-					efree(origin_lcname);
-				}
-				if (directory) {
-					efree(directory);
-				}
-
-				if (file_name != class_name) {
-					efree(file_name);
-				}
-
 				efree(lc_classname);
-				RETURN_TRUE;
-			} else {
-				efree(lc_classname);
-				php_error_docref(NULL, E_STRICT, "Could not find class %s in %s", class_name, directory);
+				goto out;
 			}
-		}  else {
+			efree(lc_classname);
+			php_error_docref(NULL, E_STRICT, "Could not find class %s in %s", class_name, directory);
+		} else {
 			php_error_docref(NULL, E_WARNING, "Failed opening script %s: %s", directory, strerror(errno));
 		}
-
-		if (origin_lcname) {
-			efree(origin_lcname);
-		}
-		if (directory) {
-			efree(directory);
-		}
-		if (file_name != class_name) {
-			efree(file_name);
-		}
-		RETURN_TRUE;
+		goto out;
 	} else {
 		char *lower_case_name = zend_str_tolower_dup(origin_classname, class_name_len);
 		if (yaf_internal_autoload(file_name, file_name_len, &directory) &&
 				zend_hash_str_exists(EG(class_table), lower_case_name, class_name_len)) {
-			if (origin_lcname) {
-				efree(origin_lcname);
-			}
-			if (directory) {
-				efree(directory);
-			}
-			if (file_name != class_name) {
-				efree(file_name);
-			}
-
 			efree(lower_case_name);
-			RETURN_TRUE;
-		}
-		if (origin_lcname) {
-			efree(origin_lcname);
-		}
-		if (directory) {
-			efree(directory);
-		}
-		if (file_name != class_name) {
-			efree(file_name);
+			goto out;
 		}
 		efree(lower_case_name);
-		RETURN_FALSE;
+		ret = 0;
+		goto out;
 	}
+
+out:
+	if (directory) {
+		efree(directory);
+	}
+	if (dup_lcname) {
+		efree(dup_lcname);
+	}
+	if (file_name != class_name) {
+		efree(file_name);
+	}
+	RETURN_BOOL(ret);
 }
 /* }}} */
 
