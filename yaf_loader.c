@@ -300,10 +300,8 @@ int yaf_loader_import(char *path, size_t len, int use_path) {
 
 int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /* {{{ */ {
 	int status;
-	zval *library_dir, *global_dir;
 	char *q, *p;
-	size_t seg_len, directory_len;
-	char *ext = ZSTR_VAL(YAF_G(ext));
+	size_t directory_len;
 	smart_str buf = {0};
 
 	if (NULL == *directory) {
@@ -317,21 +315,15 @@ int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /*
 			php_error_docref(NULL, E_WARNING, "%s need to be initialize first", ZSTR_VAL(yaf_loader_ce->name));
 			return 0;
 		} else {
-			library_dir = zend_read_property(yaf_loader_ce,
-					loader, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_LIBRARY), 1, NULL);
-			global_dir	= zend_read_property(yaf_loader_ce,
-					loader, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB), 1, NULL);
+			zval *library_dir;
 
 			if (yaf_loader_is_local_namespace(loader, file_name, name_len)) {
-				library_path = Z_STR_P(library_dir);
+				library_dir = zend_read_property(yaf_loader_ce, loader, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_LIBRARY), 1, NULL);
 			} else {
-				library_path = Z_STR_P(global_dir);
+				library_dir	= zend_read_property(yaf_loader_ce, loader, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB), 1, NULL);
 			}
-		}
 
-		if (NULL == library_path) {
-			php_error_docref(NULL, E_WARNING, "%s requires %s(which set the library_directory) to be initialized first", ZSTR_VAL(yaf_loader_ce->name), ZSTR_VAL(yaf_application_ce->name));
-			return 0;
+			library_path = Z_STR_P(library_dir);
 		}
 
 		smart_str_appendl(&buf, ZSTR_VAL(library_path), ZSTR_LEN(library_path));
@@ -349,10 +341,11 @@ int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /*
 	q = p;
 
 	while (1) {
-		while (++q && *q != '_' && *q != '\0');
+		do {
+			q++;
+		} while (*q != '_' && *q != '\0');
 		if (*q != '\0') {
-			seg_len	= q - p;
-			smart_str_appendl(&buf, p, seg_len);
+			smart_str_appendl(&buf, p, q - p);
 			smart_str_appendc(&buf, DEFAULT_SLASH);
 			p = q + 1;
 		} else {
@@ -367,7 +360,7 @@ int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /*
 
 	smart_str_appendl(&buf, p, strlen(p));
 	smart_str_appendc(&buf, '.');
-	smart_str_appendl(&buf, ext, strlen(ext));
+	smart_str_appendl(&buf, ZSTR_VAL(YAF_G(ext)), ZSTR_LEN(YAF_G(ext)));
 
 	smart_str_0(&buf);
 
@@ -610,7 +603,6 @@ PHP_METHOD(yaf_loader, autoload) {
 			char *pos;
 			if ((pos = strchr(class_name, '\\')) != NULL) {
 				dup_lcname = estrndup(class_name, class_name_len);
-				class_name = dup_lcname;
 				pos = dup_lcname + (pos - class_name);
 				*pos = '_';
 				while (*(++pos) != '\0') {
@@ -618,6 +610,7 @@ PHP_METHOD(yaf_loader, autoload) {
 						*pos = '_';
 					}
 				}
+				class_name = dup_lcname;
 			}
 		}
 
