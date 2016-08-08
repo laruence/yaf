@@ -217,6 +217,7 @@ yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_p
 	}
 
 	if (!global_path && !library_path) {
+		php_error_docref(NULL, E_WARNING, "Missed library directory arguments");
 		return NULL;
 	}
 
@@ -242,7 +243,7 @@ yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_p
 	}
 
 	if (!yaf_loader_register(this_ptr)) {
-		return NULL;
+		php_error_docref(NULL, E_WARNING, "Failed to register autoload function");
 	}
 
 	zend_update_static_property(yaf_loader_ce, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_INSTANCE), this_ptr);
@@ -737,7 +738,9 @@ PHP_METHOD(yaf_loader, getInstance) {
 	loader = yaf_loader_instance(&rv, library, global);
 	if (loader) {
 		RETURN_ZVAL(loader, 1, 0);
-    }
+    } else {
+
+	}
 
 	RETURN_FALSE;
 }
