@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_View_Simple recursive render error message outputing
+Check for variables out of scope
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
@@ -15,28 +15,14 @@ startup();
 $view = new Yaf_View_Simple(DIR_ROOT);
 $view->assign("name", "laruence");
 $tpl  =  APPLICATION_PATH . '/tpls/foo.phtml';
-$tpl2  =  APPLICATION_PATH . '/tpls/foo2.phtml';
 
 file_put_contents($tpl, <<<HTML
 <?php
-   echo \$this->render(\$tpl);
-?>
+   echo \$name, \$tpl;
 HTML
 );
 
-file_put_contents($tpl2, <<<HTML
-<?php
-   if ((1) { //syntax error
-   }
-?>
-HTML
-);
-
-try {
-	echo $view->render($tpl, array('tpl' => $tpl2));
-} catch (Error $e) {
-	echo $e->getMessage();
-}
+echo $view->render($tpl);
 ?>
 --CLEAN--
 <?php
@@ -45,4 +31,5 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-syntax error, unexpected '}'
+laruence
+Notice: Undefined variable: tpl in %sfoo.phtml on line %d

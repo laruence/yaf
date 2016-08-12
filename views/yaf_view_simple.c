@@ -96,9 +96,14 @@ static int yaf_view_simple_valid_var_name(char *var_name, int len) /* {{{ */
 }
 /* }}} */
 
-static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
+static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */ {
 	zval *entry;
 	zend_string *var_name;
+	zend_array *symbol_table;
+
+	symbol_table = emalloc(sizeof(zend_array));
+	zend_hash_init(symbol_table, 8, NULL, ZVAL_PTR_DTOR, 0);
+	zend_hash_real_init(symbol_table, 0);
 
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
@@ -117,7 +122,7 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 			}
 
 			if (yaf_view_simple_valid_var_name(ZSTR_VAL(var_name), ZSTR_LEN(var_name))) {
-				if (EXPECTED(zend_set_local_var(var_name, entry, 1) == SUCCESS)) {
+				if (EXPECTED(zend_hash_add_new(symbol_table, var_name, entry))) {
 					Z_TRY_ADDREF_P(entry);
 				}
 			}
@@ -141,14 +146,106 @@ static int yaf_view_simple_extract(zval *tpl_vars, zval *vars) /* {{{ */ {
 			}
 
 			if (yaf_view_simple_valid_var_name(ZSTR_VAL(var_name), ZSTR_LEN(var_name))) {
-				if (EXPECTED(zend_set_local_var(var_name, entry, 1) == SUCCESS)) {
+				if (EXPECTED(zend_hash_add_new(symbol_table, var_name, entry))) {
 					Z_TRY_ADDREF_P(entry);
 				}
 			}
 		} ZEND_HASH_FOREACH_END();
 	}
 
+	return symbol_table;
+}
+/* }}} */
+
+static inline void yaf_view_destroy_symtable(zend_array *symbol_table) /* {{{ */ {
+	zend_array_destroy(symbol_table);
+}
+/* }}} */
+
+static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_array *symbol_table, zval* ret) /* {{{ */ {
+	zend_execute_data *call;
+	zval result;
+
+	ZVAL_UNDEF(&result);
+
+	op_array->scope = Z_OBJCE_P(view);
+
+	call = zend_vm_stack_push_call_frame(ZEND_CALL_NESTED_CODE,
+			(zend_function*)op_array, 0, op_array->scope, Z_OBJ_P(view));
+
+	call->symbol_table = symbol_table;
+
+	if (ret && php_output_start_user(NULL, 0, PHP_OUTPUT_HANDLER_STDFLAGS) == FAILURE) {
+		php_error_docref("ref.outcontrol", E_WARNING, "failed to create buffer");
+		return 0;
+	}
+
+	zend_init_execute_data(call, op_array, &result);
+
+	ZEND_ADD_CALL_FLAG(call, ZEND_CALL_TOP);
+	zend_execute_ex(call);
+	zend_vm_stack_free_call_frame(call);
+
+	zval_ptr_dtor(&result);
+	if (UNEXPECTED(EG(exception) != NULL)) {
+		if (ret) {
+			php_output_discard();
+		}
+		return 0;
+	}
+
+	if (ret) {
+		if (php_output_get_contents(ret) == FAILURE) {
+			php_output_end();
+			php_error_docref(NULL, E_WARNING, "Unable to fetch ob content");
+			return 0;
+		}
+
+		if (php_output_discard() != SUCCESS ) {
+			return 0;
+		}
+	}
+
 	return 1;
+}
+/* }}} */
+
+static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_string *tpl, zval *ret) /* {{{ */ {
+	int status = 0;
+	zend_file_handle file_handle;
+	zend_op_array 	*op_array;
+	char realpath[MAXPATHLEN];
+
+	if (!VCWD_REALPATH(ZSTR_VAL(tpl), realpath)) {
+		yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", ZSTR_VAL(tpl), strerror(errno));
+		return 0;
+	}
+
+	file_handle.filename = ZSTR_VAL(tpl);
+	file_handle.free_filename = 0;
+	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.opened_path = NULL;
+	file_handle.handle.fp = NULL;
+
+	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
+
+	if (op_array) {
+		if (file_handle.handle.stream.handle) {
+			if (!file_handle.opened_path) {
+				file_handle.opened_path = zend_string_copy(tpl);
+			}
+			zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
+		}
+
+		status = yaf_view_exec_tpl(view, op_array, symbol_table, ret);
+
+		destroy_op_array(op_array);
+		efree_size(op_array, sizeof(zend_op_array));
+	} 
+
+	zend_destroy_file_handle(&file_handle);
+
+	return status;
 }
 /* }}} */
 
@@ -181,83 +278,11 @@ yaf_view_t *yaf_view_simple_instance(yaf_view_t *this_ptr, zval *tpl_dir, zval *
 }
 /* }}} */
 
-int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) /* {{{ */ {
-	zval *tpl_vars;
-	char *script;
-	uint len;
-
-	if (IS_STRING != Z_TYPE_P(tpl)) {
-		return 0;
-	}
-
-	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
-
-	(void)yaf_view_simple_extract(tpl_vars, vars);
-
-	if (php_output_start_user(NULL, 0, PHP_OUTPUT_HANDLER_STDFLAGS) == FAILURE) {
-		php_error_docref("ref.outcontrol", E_WARNING, "failed to create buffer");
-		return 0;
-	}
-
-	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
-		script 	= Z_STRVAL_P(tpl);
-		len 	= Z_STRLEN_P(tpl);
-
-		if (yaf_loader_import(script, len + 1, 0) == 0) {
-			php_output_end(TSRMLS_C);
-
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", script, strerror(errno));
-			return 0;
-		}
-	} else {
-		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, NULL);
-
-		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
-			if (YAF_G(view_directory)) {
-				len = spprintf(&script, 0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
-			} else {
-				php_output_end(TSRMLS_C);
-
-				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
-						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
-						ZSTR_VAL(yaf_view_simple_ce->name));
-				return 0;
-			}
-		} else {
-			len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
-		}
-
-		if (yaf_loader_import(script, len + 1, 0) == 0) {
-			php_output_end(TSRMLS_C);
-
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s" , script, strerror(errno));
-			efree(script);
-			return 0;
-		}
-		efree(script);
-	}
-
-	if (php_output_get_contents(ret) == FAILURE) {
-		php_output_end(TSRMLS_C);
-		php_error_docref(NULL, E_WARNING, "Unable to fetch ob content");
-		return 0;
-	}
-
-	if (php_output_discard(TSRMLS_C) != SUCCESS ) {
-		return 0;
-	}
-
-	return 1;
-}
-/* }}} */
-
-/** {{{ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret)
+/** {{{ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret)
 */
-int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
+int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 	zval *tpl_vars;
-	char *script;
-	uint len;
-	zend_class_entry *old_scope;
+	zend_array *symbol_table;
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;
@@ -265,67 +290,40 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 
-	(void)yaf_view_simple_extract(tpl_vars, vars);
-
-#if PHP_VERSION_ID < 70100
-	old_scope = EG(scope);
-	EG(scope) = yaf_view_simple_ce;
-#else
-	old_scope = EG(fake_scope);
-	EG(fake_scope) = yaf_view_simple_ce;
-#endif
+	symbol_table = yaf_view_build_symtable(tpl_vars, vars);
 
 	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
-		script 	= Z_STRVAL_P(tpl);
-		len 	= Z_STRLEN_P(tpl);
-		if (yaf_loader_import(script, len, 0) == 0) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s" , script, strerror(errno));
-#if PHP_VERSION_ID < 70100
-			EG(scope) = old_scope;
-#else
-			EG(fake_scope) = old_scope;
-#endif
+		if (yaf_view_render_tpl(view, symbol_table, Z_STR_P(tpl), ret) == 0) {
+			yaf_view_destroy_symtable(symbol_table);
 			return 0;
 		}
 	} else {
+		zend_string *script;
 		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0, NULL);
 
 		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
 			if (YAF_G(view_directory)) {
-				len = spprintf(&script, 0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+				script = strpprintf(0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 			} else {
+				yaf_view_destroy_symtable(symbol_table);
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
 						ZSTR_VAL(yaf_view_simple_ce->name));
-#if PHP_VERSION_ID < 70100
-				EG(scope) = old_scope;
-#else
-				EG(fake_scope) = old_scope;
-#endif
 				return 0;
 			}
 		} else {
-			len = spprintf(&script, 0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+			script = strpprintf(0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		}
 
-		if (yaf_loader_import(script, len, 0) == 0) {
-			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", script, strerror(errno));
-			efree(script);
-#if PHP_VERSION_ID < 70100
-			EG(scope) = old_scope;
-#else
-			EG(fake_scope) = old_scope;
-#endif
+		if (yaf_view_render_tpl(view, symbol_table, script, ret) == 0) {
+			yaf_view_destroy_symtable(symbol_table);
+			zend_string_release(script);
 			return 0;
 		}
-		efree(script);
+		zend_string_release(script);
 	}
 
-#if PHP_VERSION_ID < 70100
-	EG(scope) = old_scope;
-#else
-	EG(fake_scope) = old_scope;
-#endif
+	yaf_view_destroy_symtable(symbol_table);
 
 	return 1;
 }
@@ -335,6 +333,7 @@ int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) 
 */
 int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 	zval *tpl_vars;
+	zend_array *symbol_table;
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;
@@ -342,48 +341,30 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 
-	(void)yaf_view_simple_extract(tpl_vars, vars);
-
-	if (php_output_start_user(NULL, 0, PHP_OUTPUT_HANDLER_STDFLAGS) == FAILURE) {
-		php_error_docref("ref.outcontrol", E_WARNING, "failed to create buffer");
-		return 0;
-	}
+	symbol_table = yaf_view_build_symtable(tpl_vars, vars);
 
 	if (Z_STRLEN_P(tpl)) {
 		zval phtml;
-		zend_op_array *new_op_array;
+		zend_op_array *op_array;
 		char *eval_desc = zend_make_compiled_string_description("template code");
-		zend_string *str;
 		
 		/* eval require code mustn't be wrapped in opening and closing PHP tags */
-		str = strpprintf(0, "?>%s", Z_STRVAL_P(tpl));
-		ZVAL_STR(&phtml, str);
+		ZVAL_STR(&phtml, strpprintf(0, "?>%s", Z_STRVAL_P(tpl)));
 
-		new_op_array = zend_compile_string(&phtml, eval_desc);
+		op_array = zend_compile_string(&phtml, eval_desc);
 
 		zval_ptr_dtor(&phtml);
 		efree(eval_desc);
 
-		if (new_op_array) {
-			zval result;
-
-			ZVAL_NULL(&result);
-			zend_execute(new_op_array, &result);
-			destroy_op_array(new_op_array);
-			efree(new_op_array);
-			zval_ptr_dtor(&result);
+		if (op_array) {
+			(void)yaf_view_exec_tpl(view, op_array, symbol_table, ret);
+			destroy_op_array(op_array);
+			efree(op_array);
 		}
 	}
 
-	if (php_output_get_contents(ret) == FAILURE) {
-		php_output_end(TSRMLS_C);
-		php_error_docref(NULL, E_WARNING, "Unable to fetch ob content");
-		return 0;
-	}
+	yaf_view_destroy_symtable(symbol_table);
 
-	if (php_output_discard(TSRMLS_C) != SUCCESS ) {
-		return 0;
-	}
 	return 1;
 }
 /* }}} */
@@ -617,7 +598,7 @@ PHP_METHOD(yaf_view_simple, display) {
 		return;
 	}
 
-	if (!yaf_view_simple_display(getThis(), tpl, vars, return_value)) {
+	if (!yaf_view_simple_render(getThis(), tpl, vars, NULL)) {
 		RETURN_FALSE;
 	}
 
