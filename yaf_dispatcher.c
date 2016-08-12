@@ -377,14 +377,12 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		}
 
 		if ((paction = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
-			char *action_path;
-			size_t action_path_len;
+			zend_string *action_path;
 
-			action_path_len = spprintf(&action_path, 0,
-					"%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, Z_STRVAL_P(paction));
-			if (yaf_loader_import(action_path, action_path_len, 0)) {
+			action_path = strpprintf(0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, Z_STRVAL_P(paction));
+			if (yaf_loader_import(action_path, 0)) {
 				if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) != NULL) {
-					efree(action_path);
+					zend_string_release(action_path);
 					efree(action_upper);
 					zend_string_release(class_lowercase);
 
@@ -399,17 +397,17 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 
 				} else {
 					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
-							"Could not find action %s in %s", ZSTR_VAL(class), action_path);
+							"Could not find action %s in %s", ZSTR_VAL(class), ZSTR_VAL(action_path));
 				}
 
-				efree(action_path);
+				zend_string_release(action_path);
 				efree(action_upper);
 				zend_string_release(class);
 				zend_string_release(class_lowercase);
 			} else {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
-						"Failed opening action script %s: %s", action_path, strerror(errno));
-				efree(action_path);
+						"Failed opening action script %s: %s", ZSTR_VAL(action_path), strerror(errno));
+				zend_string_release(action_path);
 			}
 		} else {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "There is no method %s%s in %s::$%s", ZSTR_VAL(action),

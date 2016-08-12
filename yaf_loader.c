@@ -252,18 +252,18 @@ yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_p
 }
 /* }}} */
 
-/** {{{ int yaf_loader_import(char *path, size_t len, int use_path)
+/** {{{ int yaf_loader_import(zend_string *path, int use_path)
 */
-int yaf_loader_import(char *path, size_t len, int use_path) {
+int yaf_loader_import(zend_string *path, int use_path) {
 	zend_file_handle file_handle;
 	zend_op_array 	*op_array;
 	char realpath[MAXPATHLEN];
 
-	if (!VCWD_REALPATH(path, realpath)) {
+	if (!VCWD_REALPATH(ZSTR_VAL(path), realpath)) {
 		return 0;
 	}
 
-	file_handle.filename = path;
+	file_handle.filename = ZSTR_VAL(path);
 	file_handle.free_filename = 0;
 	file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.opened_path = NULL;
@@ -273,7 +273,7 @@ int yaf_loader_import(char *path, size_t len, int use_path) {
 
 	if (op_array && file_handle.handle.stream.handle) {
 		if (!file_handle.opened_path) {
-			file_handle.opened_path = zend_string_init(path, len, 0);
+			file_handle.opened_path = zend_string_copy(path);
 		}
 
 		zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
@@ -369,7 +369,7 @@ int yaf_internal_autoload(char *file_name, size_t name_len, char **directory) /*
 		*(directory) = estrndup(ZSTR_VAL(buf.s), ZSTR_LEN(buf.s));
 	}
 
-	status = yaf_loader_import(ZSTR_VAL(buf.s), ZSTR_LEN(buf.s), 0);
+	status = yaf_loader_import(buf.s, 0);
 	smart_str_free(&buf);
 
 	return status;
@@ -570,7 +570,7 @@ PHP_METHOD(yaf_loader, import) {
 			RETURN_TRUE;
 		}
 
-		retval = yaf_loader_import(ZSTR_VAL(file), ZSTR_LEN(file), 0);
+		retval = yaf_loader_import(file, 0);
 		if (need_free) {
 			zend_string_release(file);
 		}

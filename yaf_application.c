@@ -533,7 +533,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 			bootstrap_path = strpprintf(0, "%s%c%s.%s",
 					ZSTR_VAL(YAF_G(directory)), DEFAULT_SLASH, YAF_DEFAULT_BOOTSTRAP, ZSTR_VAL(YAF_G(ext)));
 		}
-		if (!yaf_loader_import(ZSTR_VAL(bootstrap_path), ZSTR_LEN(bootstrap_path), 0)) {
+		if (!yaf_loader_import(bootstrap_path, 0)) {
 			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", ZSTR_VAL(bootstrap_path));
 			retval = 0;
 		} else if (UNEXPECTED((ce = zend_hash_str_find_ptr(EG(class_table),
