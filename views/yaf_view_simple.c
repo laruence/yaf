@@ -170,7 +170,11 @@ static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_arr
 
 	op_array->scope = Z_OBJCE_P(view);
 
-	call = zend_vm_stack_push_call_frame(ZEND_CALL_NESTED_CODE,
+	call = zend_vm_stack_push_call_frame(ZEND_CALL_NESTED_CODE
+#if PHP_VERSION_ID >= 70100
+		    | ZEND_CALL_HAS_SYMBOL_TABLE
+#endif
+			,
 			(zend_function*)op_array, 0, op_array->scope, Z_OBJ_P(view));
 
 	call->symbol_table = symbol_table;
@@ -187,6 +191,7 @@ static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_arr
 	zend_vm_stack_free_call_frame(call);
 
 	zval_ptr_dtor(&result);
+
 	if (UNEXPECTED(EG(exception) != NULL)) {
 		if (ret) {
 			php_output_discard();
