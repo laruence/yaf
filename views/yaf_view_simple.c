@@ -100,18 +100,19 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 	zval *entry;
 	zend_string *var_name;
 	zend_array *symbol_table;
+#if PHP_VERSION_ID < 70100
+	zend_class_entry *scope = EG(scope);
+#else
+	zend_class_entry *scope = zend_get_executed_scope();
+#endif
 
 	symbol_table = emalloc(sizeof(zend_array));
+
 	zend_hash_init(symbol_table, 8, NULL, ZVAL_PTR_DTOR, 0);
 	zend_hash_real_init(symbol_table, 0);
 
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
-#if PHP_VERSION_ID < 70100
-			zend_class_entry *scope = EG(scope);
-#else
-			zend_class_entry *scope = zend_get_executed_scope();
-#endif
 			/* GLOBALS protection */
 			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
@@ -131,11 +132,6 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 
 	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(vars), var_name, entry) {
-#if PHP_VERSION_ID < 70100
-			zend_class_entry *scope = EG(scope);
-#else
-			zend_class_entry *scope = zend_get_executed_scope();
-#endif
 			/* GLOBALS protection */
 			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
