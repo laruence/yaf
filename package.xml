@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2016-07-02</date>
- <time>14:40:00</time>
+ <date>2016-08-18</date>
+ <time>13:00:00</time>
  <version>
-  <release>3.0.3</release>
-  <api>3.0.3</api>
+  <release>3.0.4</release>
+  <api>3.0.4</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,8 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #273 (segfault if stdclass passed to dispatch)
-  - PHP-7.1 compatible fixes
+  - Fixed bug wrong variables scope in tpl
+  - Minor optimizations 
  </notes>
  <contents> 
   <dir name="/"> 
@@ -222,6 +222,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2016-08-18</date> 
+   <version> 
+    <release>3.0.4</release> 
+    <api>3.0.4</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug wrong variables scope in tpl
+    - Minor optimizations 
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2016-07-02</date> 
    <version> 
     <release>3.0.3</release> 
@@ -237,7 +254,6 @@
     - PHP-7.1 compatible fixes
    </notes> 
   </release> 
-
   <release> 
    <date>2015-12-28</date> 
    <version> 
