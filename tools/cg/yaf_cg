@@ -34,8 +34,12 @@ $conf= array (
  	'DEV_PC' 	=> $author . '@' . $hostname ,//开发机,用于生产makefile自动部署
 );
 
-define('INPUT_DIR', dirname(__FILE__).'/templates');
 
+if($argv[3] == 'n'){
+define('INPUT_DIR', dirname(__FILE__).'/templatesNamespace');
+}else{
+define('INPUT_DIR', dirname(__FILE__).'/templates');
+}
 $strOutputRoot = $app_path;
 
 if(file_exists($strOutputRoot)) {
@@ -53,41 +57,41 @@ foreach($arrTpls as $strFultTplPath) {
     {
         mkdir($strOutputDir, 0777, true);
     }
-    file_put_contents($strOutputPath, $strContent);    
+    file_put_contents($strOutputPath, $strContent);
 }
 
 echo "DONE\n";
 
 //获取所有的代码模板文件
-function getAllTpls() 
+function getAllTpls()
 {
 	$intFirst = 0;
     $intLast = 1;
     $arrQueue = array(INPUT_DIR);
     $arrFiles = array ();
-    while ($intFirst < $intLast) 
+    while ($intFirst < $intLast)
     {
 		$strPath = $arrQueue[$intFirst++];
-		if (!is_dir($strPath)) 
+		if (!is_dir($strPath))
 		{
-			if (file_exists($strPath)) 
+			if (file_exists($strPath))
 			{
 			    $arrSep = explode('.', $strPath);
 			    //只取.tpl文件
 			    if($arrSep[count($arrSep) - 1] == 'tpl')
 			    {
-				    array_push($arrFiles, $strPath);   
+				    array_push($arrFiles, $strPath);
 			    }
 			}
 		}
-        else 
+        else
         {
 			$arrPaths = scandir($strPath);
-			if (count($arrPaths) == 0) 
+			if (count($arrPaths) == 0)
 			{
 				continue;
 			}
-            foreach ($arrPaths as $strSubPath) 
+            foreach ($arrPaths as $strSubPath)
             {
 				if ($strSubPath === '.' || $strSubPath === '..')
 				{
@@ -95,11 +99,11 @@ function getAllTpls()
 				}
 				$strCurPath = $strPath.'/'.$strSubPath;
 				$arrQueue[$intLast++] = $strCurPath;
-			}   
-        }   
+			}
+        }
     }
 	return $arrFiles;
-} 
+}
 
 //将模板文件名转换成输出的文件名
 function convertPath($strPath)
@@ -107,7 +111,7 @@ function convertPath($strPath)
     global $conf;
     //去掉模板后缀
     $strPath = str_replace('.tpl', '', $strPath);
-    
+
     $arrSep = explode('.', $strPath);
     $bolIsPhp = false;
     if($arrSep[count($arrSep) - 1] == 'php')
@@ -133,7 +137,7 @@ function processTemplates($strTpl)
         $arrSearch[] = '{&$'.$strKey.'&}';
         $arrReplace[] = $strValue;
     }
-    
+
     $strResult = str_replace($arrSearch, $arrReplace, $strContent);
     return $strResult;
 }
