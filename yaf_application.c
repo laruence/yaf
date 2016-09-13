@@ -324,8 +324,13 @@ PHP_METHOD(yaf_application, __construct) {
 		ZVAL_STRING(&zsection, YAF_G(environ_name));
 		(void)yaf_config_instance(&zconfig, config, &zsection);
 		zval_ptr_dtor(&zsection);
+		zend_update_property_string(yaf_application_ce, self, 
+				ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name));		
 	} else {
 		(void)yaf_config_instance(&zconfig, config, section);
+		char *environ = estrdup(Z_STRVAL_P(section));
+		zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), environ);
+		efree(environ);
 	}
 
 	if  (UNEXPECTED(Z_TYPE(zconfig) != IS_OBJECT
@@ -382,7 +387,6 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0);
-	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name));
 
 	if (Z_TYPE(YAF_G(modules)) == IS_ARRAY) {
 		zend_update_property(yaf_application_ce,
