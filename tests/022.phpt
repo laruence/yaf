@@ -32,4 +32,4 @@ rmdir(dirname(__FILE__) . "/tmp");
 string(%d) "%stests"
 string(%d) "%stmp"
 
-Catchable fatal error: Yaf_Application::run(): Failed opening controller script %stmp%ccontrollers%cIndex.php: No such file or directory in %s022.php on line %d
+%s fatal error: Yaf_Application::run(): Failed opening controller script %stmp%ccontrollers%cIndex.php: No such file or directory in %s022.php on line %d
