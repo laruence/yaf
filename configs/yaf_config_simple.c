@@ -75,7 +75,7 @@ yaf_config_t *yaf_config_simple_instance(yaf_config_t *this_ptr, zval *values, z
 			zend_update_property(yaf_config_simple_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), values);
 			if (readonly) {
 				convert_to_boolean(readonly);
-				zend_update_property_bool(yaf_config_simple_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY), 
+				zend_update_property_bool(yaf_config_simple_ce, this_ptr, ZEND_STRL(YAF_CONFIG_PROPERT_NAME_READONLY),
 						Z_TYPE_P(readonly) == IS_TRUE ? 1 : 0);
 			}
 			return this_ptr;
@@ -128,7 +128,7 @@ PHP_METHOD(yaf_config_simple, get) {
 	} else {
 		zval *properties;
 		HashTable *hash;
-		long lval;
+		zend_long lval;
 		double dval;
 
 		properties = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
@@ -137,11 +137,11 @@ PHP_METHOD(yaf_config_simple, get) {
 		if (is_numeric_string(ZSTR_VAL(name), ZSTR_LEN(name), &lval, &dval, 0) != IS_LONG) {
 			if ((pzval = zend_hash_find(hash, name)) == NULL) {
 				RETURN_FALSE;
-			} 
+			}
 		} else {
 			if ((pzval = zend_hash_index_find(hash, lval)) == NULL) {
 				RETURN_FALSE;
-			} 
+			}
 		}
 
 		if (Z_TYPE_P(pzval) == IS_ARRAY) {
@@ -185,7 +185,7 @@ PHP_METHOD(yaf_config_simple, set) {
 		if (zend_hash_update(Z_ARRVAL_P(props), name, value) != NULL) {
 			Z_TRY_ADDREF_P(value);
 			RETURN_TRUE;
-		} 
+		}
 	}
 
 	RETURN_FALSE;
@@ -276,7 +276,7 @@ PHP_METHOD(yaf_config_simple, current) {
 PHP_METHOD(yaf_config_simple, key) {
 	zval *prop;
 	zend_string *string;
-	ulong index;
+	zend_ulong index;
 
 	prop = zend_read_property(yaf_config_simple_ce, getThis(), ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
 	zend_hash_get_current_key(Z_ARRVAL_P(prop), &string, &index);
