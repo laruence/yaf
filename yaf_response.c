@@ -59,7 +59,7 @@ yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name
 	zend_class_entry 	*ce;
 	yaf_response_t 		*instance;
 
-	if (strncasecmp(sapi_name, "cli", 3)) {
+	if (strncasecmp(sapi_name, "cli", 4)) {
 		ce = yaf_response_http_ce;
 	} else {
 		ce = yaf_response_cli_ce;
