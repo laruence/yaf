@@ -219,7 +219,7 @@ PHP_METHOD(yaf_response_http, setHeader) {
 }
 /* }}} */
 
-/** {{{ proto protected Yaf_Response_Http::setAllHeaders(void)
+/** {{{ proto public Yaf_Response_Http::setAllHeaders(void)
 */
 PHP_METHOD(yaf_response_http, setAllHeaders) {
   zval *headers;
