@@ -41,6 +41,7 @@ extern zend_module_entry yaf_module_entry;
 
 #define PHP_YAF_VERSION 					"3.0.5-dev"
 
+// module init  函数
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
@@ -70,16 +71,17 @@ extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
 
 // yaf 扩展 全局变量定义
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
-	zend_string	*ext;
-	zend_string *base_uri;
+	zend_string	*ext;						// 扩展名, php
+	zend_string *base_uri;					
 	zend_string *directory;
 	zend_string *local_library;
 	zend_string *local_namespaces;
 	zend_string *view_directory;
-	zend_string *view_ext;
-	zend_string *default_module;
-	zend_string *default_controller;
-	zend_string *default_action;
+	zend_string *view_ext;					// view 模板的文件扩展名
+	zend_string *default_module;			// 默认module Index
+	zend_string *default_controller;		// 默认controller Index
+	zend_string *default_action;			// 默认action 
+
 	zend_string *bootstrap;
 	char         *global_library;
     char         *environ_name;
@@ -108,10 +110,22 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zend_bool	use_namespace;
 ZEND_END_MODULE_GLOBALS(yaf)
 
+// 函数申明, php 扩展模块的执行模块
+// 1. init module
+// 2. shutdown module
+// 3. request init
+// 4. request shutdown
+// 5. module infomation
+//
+// 顺序为: 1, 3, 4, 2
+
+
 PHP_MINIT_FUNCTION(yaf);
 PHP_MSHUTDOWN_FUNCTION(yaf);
 PHP_RINIT_FUNCTION(yaf);
 PHP_RSHUTDOWN_FUNCTION(yaf);
+
+// 输出的扩展信息, 在php -i 中输出
 PHP_MINFO_FUNCTION(yaf);
 
 extern ZEND_DECLARE_MODULE_GLOBALS(yaf);

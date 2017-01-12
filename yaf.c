@@ -61,8 +61,11 @@ PHP_INI_MH(OnUpdateSeparator) {
 }
 /* }}} */
 
+
 /** {{{ PHP_INI
  */
+
+// php.ini 文件中的配置
 PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("yaf.library",         	"",  PHP_INI_ALL, OnUpdateString, global_library, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_BOOLEAN("yaf.action_prefer",   	"0", PHP_INI_ALL, OnUpdateBool, action_prefer, zend_yaf_globals, yaf_globals)
@@ -173,6 +176,9 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 */
 PHP_RINIT_FUNCTION(yaf)
 {
+	// 每次请求，都会执行该代码。初始化global的数据。但无需在做类加载(PHP_MINIT_FUNCTION)。
+	// 包括 ext, view_ext, default_module, default_controller, default_action 变量.
+	// 此函数之后，开始用户态的代码
 	YAF_G(throw_exception) = 1;
 	YAF_G(ext) = zend_string_init(YAF_DEFAULT_EXT, sizeof(YAF_DEFAULT_EXT) - 1, 0);
 	YAF_G(view_ext) = zend_string_init(YAF_DEFAULT_VIEW_EXT, sizeof(YAF_DEFAULT_VIEW_EXT) - 1, 0);
@@ -190,6 +196,7 @@ PHP_RINIT_FUNCTION(yaf)
 */
 PHP_RSHUTDOWN_FUNCTION(yaf)
 {
+	// 请求结束之后，需要释放掉申请的相关内存资源
 	YAF_G(running) = 0;
 	YAF_G(in_exception)	= 0;
 	YAF_G(catch_exception) = 0;
@@ -271,6 +278,8 @@ ZEND_GET_MODULE(yaf)
 
 /** {{{ module depends
  */
+
+// 依赖 标准库（standard php library）， PCRE， SESSION 三个库
 #if ZEND_MODULE_API_NO >= 20050922
 zend_module_dep yaf_deps[] = {
 	ZEND_MOD_REQUIRED("spl")

@@ -298,7 +298,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 PHP_METHOD(yaf_application, __construct) {
 	zval *config;
 	zval *section = NULL, zsection = {{0}};
-	yaf_config_t zconfig = {{0}};
+	yaf_config_t zconfig = {{0}};			// 保存 application config
 	yaf_request_t zrequest = {{0}};
 	yaf_dispatcher_t zdispatcher = {{0}};
 	yaf_application_t *app, *self;
@@ -308,10 +308,13 @@ PHP_METHOD(yaf_application, __construct) {
 	php_error_docref(NULL, E_STRICT, "Yaf is running in debug mode");
 #endif
 
+	// section 要读取的配置节, config 则可能是数组，或者一个配置文件路径
+	// section 的好处在于，测试环境和线上环境可直接区分
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "z|z", &config, &section) == FAILURE) {
 		return;
 	}
 
+	// _app 存储的是yaf_application 对象的引用，单例模式,一个Request只能初始化一次，通过::app() 读取引用。
 	app	= zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1);
 
 	if (!ZVAL_IS_NULL(app)) {
@@ -320,6 +323,8 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	self = getThis();
+
+	// 若没有有配置节，则将environ_name
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
 		ZVAL_STRING(&zsection, YAF_G(environ_name));
 		(void)yaf_config_instance(&zconfig, config, &zsection);
@@ -662,6 +667,8 @@ zend_function_entry yaf_application_methods[] = {
 };
 /* }}} */
 
+// 初始化Applicaiton 类
+//
 /** {{{ YAF_STARTUP_FUNCTION
 */
 YAF_STARTUP_FUNCTION(application) {
