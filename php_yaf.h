@@ -68,6 +68,7 @@ extern zend_module_entry yaf_module_entry;
 extern PHPAPI void php_var_dump(zval **struc, int level);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
 
+// yaf 扩展的全局变量
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zend_string	*ext;
 	zend_string *base_uri;
