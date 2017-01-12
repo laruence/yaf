@@ -79,10 +79,13 @@ PHP_INI_BEGIN()
 PHP_INI_END();
 /* }}} */
 
+
 /** {{{ PHP_GINIT_FUNCTION
 */
 PHP_GINIT_FUNCTION(yaf)
 {
+// 此过程初始化全局变量
+	
 	memset(yaf_globals, 0, sizeof(*yaf_globals));
 }
 /* }}} */
@@ -91,13 +94,16 @@ PHP_GINIT_FUNCTION(yaf)
 */
 PHP_MINIT_FUNCTION(yaf)
 {
+	// 执行 PHP_INI_BEGIN 模块的代码，即加载php.ini 中的配置
 	REGISTER_INI_ENTRIES();
 
+	// 加载const 变量
 	if (YAF_G(use_namespace)) {
 
 		REGISTER_STRINGL_CONSTANT("YAF\\VERSION", PHP_YAF_VERSION, 	sizeof(PHP_YAF_VERSION) - 1, CONST_PERSISTENT | CONST_CS);
 		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(environ_name), strlen(YAF_G(environ_name)), CONST_PERSISTENT | CONST_CS);
 
+		// 异常情况，在except 中定义
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\STARTUP_FAILED", 		YAF_ERR_STARTUP_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\ROUTE_FAILED", 		YAF_ERR_ROUTE_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\DISPATCH_FAILED", 	YAF_ERR_DISPATCH_FAILED, CONST_PERSISTENT | CONST_CS);
@@ -125,22 +131,24 @@ PHP_MINIT_FUNCTION(yaf)
 		REGISTER_LONG_CONSTANT("YAF_ERR_TYPE_ERROR",			YAF_ERR_TYPE_ERROR, CONST_PERSISTENT | CONST_CS);
 	}
 
+	// 初始化各个模块的类,调用 YAF_STARTUP_FUNCTION
+	// 因此Yaf 在启动fastcgi之后，会将Yaf内置的类载入到内存，不必重新加载。
 	/* startup components */
 	YAF_STARTUP(application);
 	YAF_STARTUP(bootstrap);
 	YAF_STARTUP(dispatcher);
 	YAF_STARTUP(loader);
-	YAF_STARTUP(request);
-	YAF_STARTUP(response);
-	YAF_STARTUP(controller);
-	YAF_STARTUP(action);
-	YAF_STARTUP(config);
-	YAF_STARTUP(view);
-	YAF_STARTUP(router);
-	YAF_STARTUP(plugin);
-	YAF_STARTUP(registry);
-	YAF_STARTUP(session);
-	YAF_STARTUP(exception);
+	YAF_STARTUP(request);  // 此处，载入了 Yaf\Request_Abstract, Yaf\Request\Http, Yaf\Request\Simple 三个类
+	YAF_STARTUP(response); // 此处，载入了 Yaf\Response_Abstract, Yaf\Response\Http, Yaf\Response\Cli 三个类
+	YAF_STARTUP(controller); // Yaf\Controller_Abstract
+	YAF_STARTUP(action); // Yaf\Action_Abstract
+	YAF_STARTUP(config); // 此处，载入了 Yaf\Config_Abstract, Yaf\Config\ini, Yaf\Config\Simple 三个类
+	YAF_STARTUP(view);	// 此处，载入了 Yaf\View_Interface, Yaf\View\Simple 两个类
+	YAF_STARTUP(router); // 此处，载入了 Yaf\Router, Yaf\Route_Interface, Yaf\Route\Map, Yaf\Route\Regex, Yaf\Route\Rewrite, Yaf\Route\Simple, Yaf\Route\Supervar, Yaf\Route_Static
+	YAF_STARTUP(plugin); // Yaf\Plugin_Abstract
+	YAF_STARTUP(registry); // Yaf\Registry
+	YAF_STARTUP(session);  // Yaf\Session
+	YAF_STARTUP(exception); // 此处，载入了 Yaf\Exception, Yaf\Exception\StartupError, Yaf\Exception\RouterFailed, Yaf\Exception\DispatchFailed, Yaf\Exception\LoadFailed, Yaf\Exception\LoadFailed\Module, Yaf\Exception\LoadFailed\Controller, Yaf\Exception\LoadFailed\Action, Yaf\Exception\LoadFailed\View, Yaf\Exception\TypeError
 
 	return SUCCESS;
 }
