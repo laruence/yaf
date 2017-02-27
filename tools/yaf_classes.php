@@ -13,7 +13,7 @@ final class Yaf_Application {
 	protected $_err_msg = "";
 
 	/* methods */
-	public function __construct($config, $envrion = NULL) {
+	public function __construct($config, $environ = NULL) {
 	}
 	public function run() {
 	}
