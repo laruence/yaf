@@ -190,6 +190,8 @@
     <file name="080.phpt" role="test" />
     <file name="081.phpt" role="test" />
     <file name="082.phpt" role="test" />
+    <file name="083.phpt" role="test" />
+    <file name="084.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
