@@ -413,6 +413,16 @@ YAF_REQUEST_IS_METHOD(Post);
 YAF_REQUEST_IS_METHOD(Put);
 /* }}} */
 
+/** {{{ proto public Yaf_Request_Abstract::isDelete(void)
+*/
+YAF_REQUEST_IS_METHOD(Delete);
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::isPatch(void)
+*/
+YAF_REQUEST_IS_METHOD(Patch);
+/* }}} */
+
 /** {{{ proto public Yaf_Request_Abstract::isHead(void)
 */
 YAF_REQUEST_IS_METHOD(Head);
@@ -721,6 +731,8 @@ PHP_METHOD(yaf_request, setRouted) {
 zend_function_entry yaf_request_methods[] = {
 	PHP_ME(yaf_request, isGet, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isPost, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, isDelete, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, isPatch, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isPut, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isHead, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isOptions, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
