@@ -105,6 +105,7 @@ static int yaf_route_rewrite_match(yaf_route_t *router, zend_string *uri, zval *
 	}
 
 	efree(pmatch);
+	smart_str_appendc(&pattern, '$');
 	smart_str_appendc(&pattern, YAF_ROUTE_REGEX_DILIMITER);
 	smart_str_appendc(&pattern, 'i');
 	smart_str_0(&pattern);
