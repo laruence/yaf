@@ -89,7 +89,7 @@ server {
   index  index.php index.html index.htm;
  
   if (!-e $request_filename) {
-    rewrite ^/(.*)  /index.php/$1 last;
+    rewrite ^/(.*)  /index.php?$1 last;
   }
 }
 ```
