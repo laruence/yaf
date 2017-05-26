@@ -157,7 +157,7 @@ int yaf_response_http_send(yaf_response_t *response) {
 	sapi_header_line ctr = {0};
 
 	zresponse_code = zend_read_property(yaf_response_ce,
-			response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), 1, NULL);  
+			response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_RESPONSECODE), 1, NULL);
 
 	if (Z_LVAL_P(zresponse_code)) {
 		SG(sapi_headers).http_response_code = Z_LVAL_P(zresponse_code);
@@ -178,7 +178,7 @@ int yaf_response_http_send(yaf_response_t *response) {
 			return 0;
 		}
 	} ZEND_HASH_FOREACH_END();
-	efree(ctr.line);    
+	efree(ctr.line);
 
 	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, NULL);
 
@@ -235,11 +235,7 @@ PHP_METHOD(yaf_response_http, setAllHeaders) {
 
   ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(headers), name, entry) {
 	  zend_string *str = zval_get_string(entry);
-	  if (Z_TYPE_P(entry) != IS_STRING) {
-		  yaf_response_alter_header(self, name, ZSTR_VAL(str), str->len, 1);
-	  } else {
-		  yaf_response_alter_header(self, name, ZSTR_VAL(str), str->len, 1);
-	  }
+	  yaf_response_alter_header(self, name, ZSTR_VAL(str), str->len, 1);
 	  zend_string_release(str);
   } ZEND_HASH_FOREACH_END();
 
