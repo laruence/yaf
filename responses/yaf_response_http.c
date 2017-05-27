@@ -184,7 +184,7 @@ int yaf_response_http_send(yaf_response_t *response) {
 
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(zbody), val) {
 		zend_string *str = zval_get_string(val);
-		php_write(ZSTR_VAL(str), str->len);
+		php_write(ZSTR_VAL(str), ZSTR_LEN(str));
 		zend_string_release(str);
 	} ZEND_HASH_FOREACH_END();
 
@@ -235,7 +235,7 @@ PHP_METHOD(yaf_response_http, setAllHeaders) {
 
   ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(headers), name, entry) {
 	  zend_string *str = zval_get_string(entry);
-	  yaf_response_alter_header(self, name, ZSTR_VAL(str), str->len, 1);
+	  yaf_response_alter_header(self, name, ZSTR_VAL(str), ZSTR_LEN(str), 1);
 	  zend_string_release(str);
   } ZEND_HASH_FOREACH_END();
 
