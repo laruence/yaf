@@ -139,7 +139,7 @@ PHP_METHOD(yaf_session, __clone) {
 */
 PHP_METHOD(yaf_session, getInstance) {
 	yaf_session_t *instance;
-	    
+
 	instance = zend_read_static_property(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), 1);
 
 	if (Z_TYPE_P(instance) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(instance), yaf_session_ce)) {
@@ -286,7 +286,7 @@ PHP_METHOD(yaf_session, current) {
 PHP_METHOD(yaf_session, key) {
 	zval *sess;
 	zend_string *key;
-	ulong index;
+	zend_ulong index;
 
 	sess = zend_read_property(yaf_session_ce,
 			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
