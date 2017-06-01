@@ -61,8 +61,11 @@ PHP_INI_MH(OnUpdateSeparator) {
 }
 /* }}} */
 
+
 /** {{{ PHP_INI
  */
+
+// php.ini 文件中的配置
 PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("yaf.library",         	"",  PHP_INI_ALL, OnUpdateString, global_library, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_BOOLEAN("yaf.action_prefer",   	"0", PHP_INI_ALL, OnUpdateBool, action_prefer, zend_yaf_globals, yaf_globals)
@@ -79,10 +82,13 @@ PHP_INI_BEGIN()
 PHP_INI_END();
 /* }}} */
 
+
 /** {{{ PHP_GINIT_FUNCTION
 */
 PHP_GINIT_FUNCTION(yaf)
 {
+// 此过程初始化全局变量
+	
 	memset(yaf_globals, 0, sizeof(*yaf_globals));
 }
 /* }}} */
@@ -91,13 +97,16 @@ PHP_GINIT_FUNCTION(yaf)
 */
 PHP_MINIT_FUNCTION(yaf)
 {
+	// 执行 PHP_INI_BEGIN 模块的代码，即加载php.ini 中的配置
 	REGISTER_INI_ENTRIES();
 
+	// 加载const 变量
 	if (YAF_G(use_namespace)) {
 
 		REGISTER_STRINGL_CONSTANT("YAF\\VERSION", PHP_YAF_VERSION, 	sizeof(PHP_YAF_VERSION) - 1, CONST_PERSISTENT | CONST_CS);
 		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(environ_name), strlen(YAF_G(environ_name)), CONST_PERSISTENT | CONST_CS);
 
+		// 异常情况，在except 中定义
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\STARTUP_FAILED", 		YAF_ERR_STARTUP_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\ROUTE_FAILED", 		YAF_ERR_ROUTE_FAILED, CONST_PERSISTENT | CONST_CS);
 		REGISTER_LONG_CONSTANT("YAF\\ERR\\DISPATCH_FAILED", 	YAF_ERR_DISPATCH_FAILED, CONST_PERSISTENT | CONST_CS);
@@ -125,22 +134,24 @@ PHP_MINIT_FUNCTION(yaf)
 		REGISTER_LONG_CONSTANT("YAF_ERR_TYPE_ERROR",			YAF_ERR_TYPE_ERROR, CONST_PERSISTENT | CONST_CS);
 	}
 
+	// 初始化各个模块的类,调用 YAF_STARTUP_FUNCTION
+	// 因此Yaf 在启动fastcgi之后，会将Yaf内置的类载入到内存，不必重新加载。
 	/* startup components */
 	YAF_STARTUP(application);
 	YAF_STARTUP(bootstrap);
 	YAF_STARTUP(dispatcher);
 	YAF_STARTUP(loader);
-	YAF_STARTUP(request);
-	YAF_STARTUP(response);
-	YAF_STARTUP(controller);
-	YAF_STARTUP(action);
-	YAF_STARTUP(config);
-	YAF_STARTUP(view);
-	YAF_STARTUP(router);
-	YAF_STARTUP(plugin);
-	YAF_STARTUP(registry);
-	YAF_STARTUP(session);
-	YAF_STARTUP(exception);
+	YAF_STARTUP(request);  // 此处，载入了 Yaf\Request_Abstract, Yaf\Request\Http, Yaf\Request\Simple 三个类
+	YAF_STARTUP(response); // 此处，载入了 Yaf\Response_Abstract, Yaf\Response\Http, Yaf\Response\Cli 三个类
+	YAF_STARTUP(controller); // Yaf\Controller_Abstract
+	YAF_STARTUP(action); // Yaf\Action_Abstract
+	YAF_STARTUP(config); // 此处，载入了 Yaf\Config_Abstract, Yaf\Config\ini, Yaf\Config\Simple 三个类
+	YAF_STARTUP(view);	// 此处，载入了 Yaf\View_Interface, Yaf\View\Simple 两个类
+	YAF_STARTUP(router); // 此处，载入了 Yaf\Router, Yaf\Route_Interface, Yaf\Route\Map, Yaf\Route\Regex, Yaf\Route\Rewrite, Yaf\Route\Simple, Yaf\Route\Supervar, Yaf\Route_Static
+	YAF_STARTUP(plugin); // Yaf\Plugin_Abstract
+	YAF_STARTUP(registry); // Yaf\Registry
+	YAF_STARTUP(session);  // Yaf\Session
+	YAF_STARTUP(exception); // 此处，载入了 Yaf\Exception, Yaf\Exception\StartupError, Yaf\Exception\RouterFailed, Yaf\Exception\DispatchFailed, Yaf\Exception\LoadFailed, Yaf\Exception\LoadFailed\Module, Yaf\Exception\LoadFailed\Controller, Yaf\Exception\LoadFailed\Action, Yaf\Exception\LoadFailed\View, Yaf\Exception\TypeError
 
 	return SUCCESS;
 }
@@ -165,6 +176,9 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 */
 PHP_RINIT_FUNCTION(yaf)
 {
+	// 每次请求，都会执行该代码。初始化global的数据。但无需在做类加载(PHP_MINIT_FUNCTION)。
+	// 包括 ext, view_ext, default_module, default_controller, default_action 变量.
+	// 此函数之后，开始用户态的代码
 	YAF_G(throw_exception) = 1;
 	YAF_G(ext) = zend_string_init(YAF_DEFAULT_EXT, sizeof(YAF_DEFAULT_EXT) - 1, 0);
 	YAF_G(view_ext) = zend_string_init(YAF_DEFAULT_VIEW_EXT, sizeof(YAF_DEFAULT_VIEW_EXT) - 1, 0);
@@ -182,6 +196,7 @@ PHP_RINIT_FUNCTION(yaf)
 */
 PHP_RSHUTDOWN_FUNCTION(yaf)
 {
+	// 请求结束之后，需要释放掉申请的相关内存资源
 	YAF_G(running) = 0;
 	YAF_G(in_exception)	= 0;
 	YAF_G(catch_exception) = 0;
@@ -263,6 +278,8 @@ ZEND_GET_MODULE(yaf)
 
 /** {{{ module depends
  */
+
+// 依赖 标准库（standard php library）， PCRE， SESSION 三个库
 #if ZEND_MODULE_API_NO >= 20050922
 zend_module_dep yaf_deps[] = {
 	ZEND_MOD_REQUIRED("spl")
