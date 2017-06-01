@@ -552,12 +552,12 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 			object_init_ex(&icontroller, ce);
 
-			yaf_controller_construct(ce, &icontroller, request, response, view, NULL);
-
 			if (EG(exception)) {
 				zval_ptr_dtor(&icontroller);
 				return 0;
 			}
+
+			yaf_controller_construct(ce, &icontroller, request, response, view, NULL);
 
 			if (!yaf_request_is_dispatched(request)) {
 				/* forward is called in init method */
@@ -630,6 +630,11 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				zend_string_release(func_name);
 
 				object_init_ex(&iaction, ce);
+
+				if (EG(exception)) {
+					zval_ptr_dtor(&icontroller);
+					return 0;
+				}
 
 				yaf_controller_construct(ce, &iaction, request, response, view, NULL);
 				executor = &iaction;
