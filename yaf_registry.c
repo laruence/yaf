@@ -182,6 +182,23 @@ PHP_METHOD(yaf_registry, getInstance) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Registry::flush(void)
+*/
+PHP_METHOD(yaf_registry, flush) {
+	yaf_registry_t 	*instance;
+	zval *regs;
+
+	instance = yaf_registry_instance(NULL TSRMLS_CC);
+
+	MAKE_STD_ZVAL(regs);
+	array_init(regs);
+	zend_update_property(yaf_registry_ce, instance, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS), regs TSRMLS_CC);
+	zval_ptr_dtor(&regs);
+
+	RETURN_TRUE;
+}
+/* }}} */
+
 /** {{{ yaf_registry_methods
 */
 zend_function_entry yaf_registry_methods[] = {
@@ -191,6 +208,7 @@ zend_function_entry yaf_registry_methods[] = {
 	PHP_ME(yaf_registry, has, yaf_registry_has_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_registry, set, yaf_registry_set_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_registry, del, yaf_registry_del_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+	PHP_ME(yaf_registry, flush, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
