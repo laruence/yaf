@@ -1314,7 +1314,7 @@ PHP_METHOD(yaf_dispatcher, __clone) {
 */
 zend_function_entry yaf_dispatcher_methods[] = {
 	PHP_ME(yaf_dispatcher, __construct, 			NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-	PHP_ME(yaf_dispatcher, __clone,				NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CLONE)
+	PHP_ME(yaf_dispatcher, __clone,				NULL, 					ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_dispatcher, __sleep,				NULL, 					ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_dispatcher, __wakeup,			NULL, 					ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_dispatcher, enableView,			yaf_dispatcher_void_arginfo,  		ZEND_ACC_PUBLIC)
