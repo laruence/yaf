@@ -19,7 +19,7 @@
 #endif
 
 #include "php.h"
-#include "Zend/zend_interfaces.h"  /* for zend_ce_iterator */
+#include "Zend/zend_interfaces.h"  /* for zend_ce_iterator, zend_ce_countable*/
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -28,7 +28,7 @@
 
 zend_class_entry *yaf_session_ce;
 
-#ifdef HAVE_SPL
+#if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 extern PHPAPI zend_class_entry *spl_ce_Countable;
 #endif
 
@@ -320,7 +320,7 @@ PHP_METHOD(yaf_session, valid) {
 */
 zend_function_entry yaf_session_methods[] = {
 	PHP_ME(yaf_session, __construct, NULL, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_session, __clone, NULL, ZEND_ACC_CLONE|ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_session, __clone, NULL, ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_session, __sleep, NULL, ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_session, __wakeup, NULL, ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_session, getInstance, yaf_session_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
@@ -358,8 +358,10 @@ YAF_STARTUP_FUNCTION(session) {
 	yaf_session_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_session_ce->ce_flags |= ZEND_ACC_FINAL;
 
-#ifdef HAVE_SPL
+#if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 	zend_class_implements(yaf_session_ce, 3, zend_ce_iterator, zend_ce_arrayaccess, spl_ce_Countable);
+#elif PHP_VERSION_ID >= 70200
+	zend_class_implements(yaf_session_ce, 3, zend_ce_iterator, zend_ce_arrayaccess, zend_ce_countable);
 #else
 	zend_class_implements(yaf_session_ce, 2, zend_ce_iterator, zend_ce_arrayaccess);
 #endif

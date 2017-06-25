@@ -234,7 +234,7 @@ PHP_METHOD(yaf_request_simple, __clone) {
  */
 zend_function_entry yaf_request_simple_methods[] = {
 	PHP_ME(yaf_request_simple, __construct,	NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_request_simple, __clone,		NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CLONE)
+	PHP_ME(yaf_request_simple, __clone,		NULL, ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_request_simple, getQuery, 	NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_simple, getRequest, 	NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_simple, getPost, 		NULL, ZEND_ACC_PUBLIC)

@@ -651,7 +651,7 @@ zend_function_entry yaf_application_methods[] = {
 	PHP_ME(yaf_application, getLastErrorMsg,     yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, clearLastError,      yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, __destruct,          NULL,                     ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
-	PHP_ME(yaf_application, __clone,             NULL,                     ZEND_ACC_PRIVATE | ZEND_ACC_CLONE)
+	PHP_ME(yaf_application, __clone,             NULL,                     ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_application, __sleep,             NULL,                     ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_application, __wakeup,            NULL,                     ZEND_ACC_PRIVATE)
 	{NULL, NULL, NULL}
