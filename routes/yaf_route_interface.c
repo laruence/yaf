@@ -50,8 +50,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config) {
 		return NULL;
 	}
 
-	if (Z_STRLEN_P(pzval) == (sizeof("rewrite") - 1) &&
-		strncasecmp(Z_STRVAL_P(pzval), "rewrite", sizeof("rewrite") - 1) == 0) {
+	if (zend_string_equals_literal_ci(Z_STR_P(pzval), "rewrite")) {
 		if ((match = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("match"))) == NULL ||
 			Z_TYPE_P(match) != IS_STRING) {
 			return NULL;
@@ -67,8 +66,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config) {
 		}
 
         instance = yaf_route_rewrite_instance(this_ptr, match, def, verify);
-	} else if (Z_STRLEN_P(pzval) == (sizeof("regex") - 1) &&
-		strncasecmp(Z_STRVAL_P(pzval), "regex", sizeof("regex") - 1) == 0) {
+	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "regex")) {
 		if ((match = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("match"))) == NULL ||
 			Z_TYPE_P(match) != IS_STRING) {
 			return NULL;
@@ -93,8 +91,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config) {
 		}
 
 		instance = yaf_route_regex_instance(this_ptr, match, def, map, verify, reverse);
-	} else if (Z_STRLEN_P(pzval) == (sizeof("map") - 1) &&
-		strncasecmp(Z_STRVAL_P(pzval), "map", sizeof("map") - 1) == 0) {
+	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "map")) {
 		zend_string *delimiter = NULL;
 		zend_bool controller_prefer = 0;
 		
@@ -108,8 +105,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config) {
 		}
 
 		instance = yaf_route_map_instance(this_ptr, controller_prefer, delimiter);
-	} else if (Z_STRLEN_P(pzval) == (sizeof("simple") - 1) &&
-		strncasecmp(Z_STRVAL_P(pzval), "simple", sizeof("simple") - 1) == 0) {
+	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "simple")) {
 		if ((match = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("module"))) == NULL ||
 			Z_TYPE_P(match) != IS_STRING) {
 			return NULL;
@@ -124,8 +120,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config) {
 		}
 
 		instance = yaf_route_simple_instance(this_ptr, match, def, map);
-	} else if (Z_STRLEN_P(pzval) == (sizeof("supervar") - 1) &&
-		strncasecmp(Z_STRVAL_P(pzval), "supervar", sizeof("supervar") - 1) == 0) {
+	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "supervar")) {
 		if ((match = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("varname"))) == NULL ||
 			Z_TYPE_P(match) != IS_STRING) {
 			return NULL;
