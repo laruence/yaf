@@ -671,7 +671,7 @@ PHP_METHOD(yaf_loader, autoload) {
 /* }}} */
 
 		file_name_len = class_name_len;
-		file_name     = class_name;
+		file_name     = estrndup(class_name, class_name_len);
 
 	} while(0);
 
