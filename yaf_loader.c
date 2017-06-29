@@ -671,7 +671,7 @@ PHP_METHOD(yaf_loader, autoload) {
 /* }}} */
 
 		file_name_len = class_name_len;
-		file_name     = class_name;
+		file_name     = estrndup(class_name, class_name_len);
 
 	} while(0);
 
@@ -717,9 +717,8 @@ out:
 	if (dup_lcname) {
 		efree(dup_lcname);
 	}
-	if (file_name != class_name) {
-		efree(file_name);
-	}
+	efree(file_name);
+
 	RETURN_BOOL(ret);
 }
 /* }}} */
