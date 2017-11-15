@@ -121,7 +121,7 @@ static int yaf_loader_is_category(char *class, size_t class_len, char *category,
 			}
 		}
 	} else {
-		if (strncmp(class, category, category_len) == 0) {
+		if (class_len != category_len && strncmp(class, category, category_len) == 0) {
 			if (!separator_len ||
 				strncmp(class + category_len, YAF_G(name_separator), separator_len) == 0) {
 				return 1;
@@ -584,9 +584,9 @@ PHP_METHOD(yaf_loader, import) {
 */
 PHP_METHOD(yaf_loader, autoload) {
 	char *class_name, *origin_classname, *app_directory, *directory = NULL, *file_name = NULL;
-	char *dup_lcname = NULL;
+	char *dup_lcname = NULL, *base_class_name;
 	size_t separator_len, file_name_len = 0;
-	size_t class_name_len;
+	size_t class_name_len, base_class_name_len;
 	zend_bool ret = 1;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &class_name, &class_name_len) == FAILURE) {
@@ -596,6 +596,7 @@ PHP_METHOD(yaf_loader, autoload) {
 	separator_len = YAF_G(name_separator_len);
 	app_directory = YAF_G(directory)? ZSTR_VAL(YAF_G(directory)) : NULL; 
 	origin_classname = class_name;
+	base_class_name = class_name;
 
 	do {
 		if (!class_name_len) {
@@ -604,22 +605,25 @@ PHP_METHOD(yaf_loader, autoload) {
 			char *pos;
 			if ((pos = strchr(class_name, '\\')) != NULL) {
 				dup_lcname = estrndup(class_name, class_name_len);
+				base_class_name = pos + 1;
 				pos = dup_lcname + (pos - class_name);
 				*pos = '_';
 				while (*(++pos) != '\0') {
 					if (*pos == '\\') {
 						*pos = '_';
+						base_class_name = pos + 1;
 					}
 				}
 				class_name = dup_lcname;
 			}
+			base_class_name_len = class_name_len + class_name - base_class_name;
 		}
 
 		if (strncmp(class_name, YAF_LOADER_RESERVERD, YAF_LOADER_LEN_RESERVERD) == 0) {
 			php_error_docref(NULL, E_WARNING, "You should not use '%s' as class name prefix", YAF_LOADER_RESERVERD);
 		}
 
-		if (yaf_loader_is_category(class_name, class_name_len, YAF_LOADER_MODEL, YAF_LOADER_LEN_MODEL)) {
+		if (yaf_loader_is_category(base_class_name, base_class_name_len, YAF_LOADER_MODEL, YAF_LOADER_LEN_MODEL)) {
 			/* this is a model class */
 			spprintf(&directory, 0, "%s%c%s", app_directory, DEFAULT_SLASH, YAF_MODEL_DIRECTORY_NAME);
 			file_name_len = class_name_len - separator_len - YAF_LOADER_LEN_MODEL;
@@ -633,7 +637,7 @@ PHP_METHOD(yaf_loader, autoload) {
 			break;
 		}
 
-		if (yaf_loader_is_category(class_name, class_name_len, YAF_LOADER_PLUGIN, YAF_LOADER_LEN_PLUGIN)) {
+		if (yaf_loader_is_category(base_class_name, base_class_name_len, YAF_LOADER_PLUGIN, YAF_LOADER_LEN_PLUGIN)) {
 			/* this is a plugin class */
 			spprintf(&directory, 0, "%s%c%s", app_directory, DEFAULT_SLASH, YAF_PLUGIN_DIRECTORY_NAME);
 			file_name_len = class_name_len - separator_len - YAF_LOADER_LEN_PLUGIN;
@@ -647,7 +651,7 @@ PHP_METHOD(yaf_loader, autoload) {
 			break;
 		}
 
-		if (yaf_loader_is_category(class_name, class_name_len, YAF_LOADER_CONTROLLER, YAF_LOADER_LEN_CONTROLLER)) {
+		if (yaf_loader_is_category(base_class_name, base_class_name_len, YAF_LOADER_CONTROLLER, YAF_LOADER_LEN_CONTROLLER)) {
 			/* this is a controller class */
 			spprintf(&directory, 0, "%s%c%s", app_directory, DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 			file_name_len = class_name_len - separator_len - YAF_LOADER_LEN_CONTROLLER;
