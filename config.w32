@@ -13,7 +13,7 @@ if (PHP_YAF == "yes") {
 	ADD_SOURCES(configure_module_dirname + "\\requests", "yaf_request_http.c yaf_request_simple.c", "yaf");
 	ADD_SOURCES(configure_module_dirname + "\\responses", "yaf_response_http.c yaf_response_cli.c", "yaf");
 	ADD_SOURCES(configure_module_dirname + "\\views", "yaf_view_interface.c yaf_view_simple.c", "yaf");
-	ADD_SOURCES(configure_module_dirname + "\\routes", "yaf_route_interface.c yaf_route_static.c yaf_route_simple.c yaf_route_supervar.c yaf_route_regex.c yaf_route_rewrite.c yaf_route_map.c", "yaf");
+	ADD_SOURCES(configure_module_dirname + "\\routes", "yaf_route_interface.c yaf_route_static.c yaf_route_simple.c yaf_route_supervar.c yaf_route_regex.c yaf_route_rewrite.c yaf_route_rest.c yaf_route_map.c", "yaf");
 
     AC_DEFINE("HAVE_YAF", 1, "Have Yaf Support");
 }

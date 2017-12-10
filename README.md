@@ -151,7 +151,55 @@ The view script for default controller and default action is in the application/
  </body>
 </html>
 ```
+###RESTful
+```php
+//Bootstrap.php
+public function _initRoute(Yaf_Dispatcher $dispatcher)
+{
+    //在这里注册自己的路由协议,默认使用简单路由
+    $routeConfig = array(
+        "default" => array(
+            "type" => "rest",
+            "match" => "/v1/:_c",
+            "route" => array('module' => 'YourModuleName', 'controller' => ":_c", 'action' => 'index'),
+        ),
+        "full" => array(
+            "type" => "rest",
+            "match" => "/v1/:_c/:_a",
+            "route" => array('module' => 'YourModuleName', 'controller' => ":_c", 'action' => ":_a"),
+        ),
+        "info" => array(
+            "type" => "rest",
+            "match" => "/v1/:_c/:_a/*",
+            "route" => array('module' => 'YourModuleName', 'controller' => ":_c", 'action' => ":_a"),
+        )
+    );
+    $dispatcher->getRouter()->addConfig($routeConfig);
+}
+//\/modules\/YourModelName\/YourController.php
+abstract class YourController extends Yaf_Controller_Abstract
+{
+  public function get_indexAction(float $page = 1, int $pageSize = 20): array
+  {
+    //list
+    // get domain/v1/YourModelName/YourController
+    //...
+  }
 
+  public function get_Action(float $id = 0): array
+  {
+    //info
+    // get domain/v1/YourModelName/YourController/<id>
+    //...
+  }
+  public function post_indexAction(): array
+  {
+    //new
+    //post domain/v1/YourModelName/YourController
+    //...
+  }
+}
+```
 ## Run the Applicatioin
   http://www.yourhostname.com/
 
