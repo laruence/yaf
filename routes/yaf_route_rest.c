@@ -243,10 +243,10 @@ int yaf_route_rest_route(yaf_route_t *router, yaf_request_t *request) {
                     yaf_request_set_params_single(request, param_page, &page);
                     yaf_request_set_params_single(request, param_pageSize, &pageSize);
                     zend_string_release(param_page);
-                    zend_string_release(param_pageSize);                           
+                    zend_string_release(param_pageSize);
+                    zval_ptr_dtor(&page);
+                    zval_ptr_dtor(&pageSize);                         
                 }
-                zval_ptr_dtor(&page);
-                zval_ptr_dtor(&pageSize);
             }
 
             if (Z_STRVAL_P(action)[0] != ':') {
