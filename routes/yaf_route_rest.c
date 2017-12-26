@@ -210,21 +210,15 @@ int yaf_route_rest_route(yaf_route_t *router, yaf_request_t *request) {
             zval rest_action;
             ZVAL_STRINGL(&rest_action, "", 0);
 
-            if (Z_STRVAL_P(action)[0] != ':') {
-                //Method_action
-                concat_function(&rest_action, method_ptr, action);
-                if(Z_STRVAL_P(method_ptr)[0] == 'G' && Z_STRVAL_P(action)[0] == 'i'){
-                    //method为GET,action开头为i(index)的 取分页数据参数
-                    zval page, pageSize;
-                    zval *page_ptr = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_PAGE", sizeof("HTTP_PAGE") - 1);
-                    zval *pageSize_ptr = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_PAGESIZE", sizeof("HTTP_PAGESIZE") - 1);
-                    
-                    if(page_ptr) {
-                        ZVAL_STRINGL(&page, Z_STRVAL_P(page_ptr), Z_STRLEN_P(page_ptr));  
-                        zval_ptr_dtor(page_ptr);      
-                    }else{
-                        ZVAL_STRINGL(&page, "1", sizeof("1") - 1);                           
-                    }
+            if(Z_STRVAL_P(method_ptr)[0] == 'G'){
+                //method为GET,有page 取分页数据参数
+                zval page, pageSize;
+                zval *page_ptr = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_PAGE", sizeof("HTTP_PAGE") - 1);
+                zval *pageSize_ptr = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "HTTP_PAGESIZE", sizeof("HTTP_PAGESIZE") - 1);
+                
+                if(page_ptr) {
+                    ZVAL_STRINGL(&page, Z_STRVAL_P(page_ptr), Z_STRLEN_P(page_ptr));  
+                    zval_ptr_dtor(page_ptr);
 
                     if(pageSize_ptr) {
                         ZVAL_STRINGL(&pageSize, Z_STRVAL_P(pageSize_ptr), Z_STRLEN_P(pageSize_ptr));  
@@ -249,10 +243,15 @@ int yaf_route_rest_route(yaf_route_t *router, yaf_request_t *request) {
                     yaf_request_set_params_single(request, param_page, &page);
                     yaf_request_set_params_single(request, param_pageSize, &pageSize);
                     zend_string_release(param_page);
-                    zend_string_release(param_pageSize);
-                    zval_ptr_dtor(&page);
-                    zval_ptr_dtor(&pageSize);
+                    zend_string_release(param_pageSize);                           
                 }
+                zval_ptr_dtor(&page);
+                zval_ptr_dtor(&pageSize);
+            }
+
+            if (Z_STRVAL_P(action)[0] != ':') {
+                //Method_action
+                concat_function(&rest_action, method_ptr, action);
             } else {
                 zval *a;
                 if ((a = zend_hash_str_find(Z_ARRVAL(args), Z_STRVAL_P(action) + 1, Z_STRLEN_P(action) - 1)) != NULL && IS_STRING == Z_TYPE_P(a)) {
