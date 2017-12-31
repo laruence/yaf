@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2017-06-29</date>
- <time>17:00:00</time>
+ <date>2017-12-31</date>
+ <time>12:00:00</time>
  <version>
-  <release>3.0.5</release>
-  <api>3.0.5</api>
+  <release>3.0.6</release>
+  <api>3.0.6</api>
  </version>
  <stability>
   <release>stable</release>
@@ -23,7 +23,7 @@
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
   - PHP-7.2 Support
-  - Fixed issue #360 (class not found in high traffice server)
+  - Fixed assertion faile (potential unexpected write to immutable array)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -224,6 +224,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2017-12-31</date> 
+   <version> 
+    <release>3.0.6</release> 
+    <api>3.0.6</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - PHP-7.2 Support
+    - Fixed issue #360 (class not found in high traffice server)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2017-06-29</date> 
    <version> 
     <release>3.0.5</release> 
@@ -239,7 +256,6 @@
     - Fixed issue #360 (class not found in high traffice server)
    </notes> 
   </release> 
-
   <release> 
    <date>2016-08-18</date> 
    <version> 

@@ -39,7 +39,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define PHP_YAF_VERSION 					"3.0.6-dev"
+#define PHP_YAF_VERSION 					"3.0.6"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
