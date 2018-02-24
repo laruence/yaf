@@ -35,7 +35,7 @@ $conf= array (
 );
 
 
-if($argv[3] == 'n'){
+if($argc >= 4 && $argv[3] == 'n'){
 define('INPUT_DIR', dirname(__FILE__).'/templatesNamespace');
 }else{
 define('INPUT_DIR', dirname(__FILE__).'/templates');
