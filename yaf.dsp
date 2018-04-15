@@ -260,6 +260,10 @@ SOURCE=.\routes\yaf_route_rewrite.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\routes\yaf_route_rest.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\routes\yaf_route_map.c
 # End Source File
 # Begin Source File
