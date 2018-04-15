@@ -4,6 +4,8 @@ Check for Yaf_Session
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.use_namespace=0
+session.save_handler=files
+session.save_path=
 --FILE--
 <?php 
 $session = Yaf_Session::getInstance();

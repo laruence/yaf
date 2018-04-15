@@ -21,6 +21,7 @@
 #include "php.h"
 #include "main/SAPI.h"
 #include "ext/standard/url.h" /* for php_url */
+#include "Zend/zend_smart_str.h"
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -172,6 +173,39 @@ YAF_REQUEST_METHOD(yaf_request_http, Files, 	YAF_GLOBAL_VARS_FILES);
 YAF_REQUEST_METHOD(yaf_request_http, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
 /* }}} */
 
+/** {{{ proto public Yaf_Request_Http::getRaw()
+*/
+PHP_METHOD(yaf_request_http, getRaw) {
+	php_stream *s;
+	smart_str raw_data = {0};
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	s = SG(request_info).request_body;
+	if (!s || FAILURE == php_stream_rewind(s)) {
+		RETURN_FALSE;
+	}
+
+	while (!php_stream_eof(s)) {
+		char buf[512];
+		size_t len = php_stream_read(s, buf, sizeof(buf));
+
+		if (len && len != (size_t) -1) {
+			smart_str_appendl(&raw_data, buf, len);
+		}
+	}
+
+	if (raw_data.s) {
+		smart_str_0(&raw_data);
+		RETURN_STR(raw_data.s);
+	} else {
+		RETURN_FALSE;
+	}
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Request_Http::isXmlHttpRequest()
 */
 PHP_METHOD(yaf_request_http, isXmlHttpRequest) {
@@ -261,6 +295,7 @@ zend_function_entry yaf_request_http_methods[] = {
 	PHP_ME(yaf_request_http, getRequest, 		NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_http, getPost, 		NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_http, getCookie,		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request_http, getRaw,		NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_http, getFiles,		NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_http, get,			NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_http, isXmlHttpRequest, 	NULL, ZEND_ACC_PUBLIC)

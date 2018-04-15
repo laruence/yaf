@@ -614,8 +614,8 @@ abstract class Yaf_Action_Abstract extends Yaf_Controller_Abstract {
 	protected $_controller = NULL;
 
 	/* methods */
-	abstract public function execute() {
-	}
+	abstract public function execute();
+
 	public function getController() {
 	}
 	final protected function render($tpl, array $parameters = NULL) {
@@ -658,14 +658,10 @@ abstract class Yaf_Config_Abstract {
 	protected $_readonly = "1";
 
 	/* methods */
-	abstract public function get() {
-	}
-	abstract public function set() {
-	}
-	abstract public function readonly() {
-	}
-	abstract public function toArray() {
-	}
+	abstract public function get();
+	abstract public function set();
+	abstract public function readonly();
+	abstract public function toArray();
 }
 
 final class Yaf_Config_Ini extends Yaf_Config_Abstract implements Iterator, Traversable, ArrayAccess, Countable { 

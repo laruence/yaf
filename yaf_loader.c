@@ -242,11 +242,11 @@ yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_p
 				this_ptr, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB), global_path);
 	}
 
+	zend_update_static_property(yaf_loader_ce, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_INSTANCE), this_ptr);
+
 	if (!yaf_loader_register(this_ptr)) {
 		php_error_docref(NULL, E_WARNING, "Failed to register autoload function");
 	}
-
-	zend_update_static_property(yaf_loader_ce, ZEND_STRL(YAF_LOADER_PROPERTY_NAME_INSTANCE), this_ptr);
 
 	return this_ptr;
 }

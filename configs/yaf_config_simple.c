@@ -99,7 +99,7 @@ zval *yaf_config_simple_format(yaf_config_t *instance, zval *pzval, zval *rv) /*
 PHP_METHOD(yaf_config_simple, __construct) {
 	zval *values, *readonly = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &values, &readonly) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|z", &values, &readonly) == FAILURE) {
 		zval prop;
 
 		array_init(&prop);
@@ -107,6 +107,10 @@ PHP_METHOD(yaf_config_simple, __construct) {
 		zval_ptr_dtor(&prop);
 
 		return;
+	}
+
+	if (!readonly || Z_TYPE_P(readonly) != IS_TRUE) {
+		SEPARATE_ARRAY(values);
 	}
 
 	(void)yaf_config_simple_instance(getThis(), values, readonly);
