@@ -138,7 +138,7 @@ class IndexController extends Yaf_Controller_Abstract {
 ?>
 ```
 
-###view script
+### view script
 The view script for default controller and default action is in the application/views/index/index.phtml, Yaf provides a simple view engine called "Yaf_View_Simple", which support the view template written in PHP.
 
 ```php
