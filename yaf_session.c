@@ -94,7 +94,12 @@ static yaf_session_t *yaf_session_instance(yaf_session_t *this_ptr) /* {{{ */ {
 
 	zval_ptr_dtor(&member);
 
-	if (property_info->offset != ZEND_WRONG_PROPERTY_OFFSET) {
+#if PHP_VERSION_ID < 70300
+	if (property_info->offset != ZEND_WRONG_PROPERTY_OFFSET)
+#else
+	if (IS_VALID_PROPERTY_OFFSET(property_info->offset))
+#endif
+	{
 		zval *prop = OBJ_PROP(obj, property_info->offset);
 		ZVAL_COPY(prop, sess);
 	}

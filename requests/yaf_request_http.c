@@ -96,9 +96,14 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 					 * only use url path */
 					if (strncasecmp(Z_STRVAL_P(uri), "http", sizeof("http") - 1) == 0) {
 						php_url *url_info = php_url_parse(Z_STRVAL_P(uri));
+#if PHP_VERSION_ID < 70300
 						if (url_info && url_info->path) {
 							settled_uri = zend_string_init(url_info->path, strlen(url_info->path), 0);
 						}
+#else
+						settled_uri = url_info->path;
+						url_info->path = NULL;
+#endif
 						php_url_free(url_info);
 					} else {
 						char *pos = NULL;
