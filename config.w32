@@ -1,4 +1,3 @@
-// $Id: config.w32 765 2010-10-21 13:04:03Z huixinchen $
 // vim:ft=javascript
 
 ARG_ENABLE("yaf", "enable yaf support", "no");
