@@ -1,6 +1,6 @@
-##Yaf Codes Generator
+## Yaf Codes Generator
 
-###Usage
+### Usage
 ```
 php yaf_cg Sample
 ```
