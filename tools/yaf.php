@@ -4,7 +4,6 @@
  *
  * @author  Laruence
  * @date    2012-07-21 13:46
- * @version $Id$
  */
 
 $useNamespace = (bool) ini_get("yaf.use_namespace");
