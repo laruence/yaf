@@ -371,7 +371,7 @@ YAF_STARTUP_FUNCTION(session) {
 	zend_class_implements(yaf_session_ce, 2, zend_ce_iterator, zend_ce_arrayaccess);
 #endif
 
-	zend_declare_property_null(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC);
+	zend_declare_property_null(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), ZEND_ACC_STATIC);
 	zend_declare_property_null(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION),  ZEND_ACC_PROTECTED);
 	zend_declare_property_bool(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_STATUS),   0, ZEND_ACC_PROTECTED);
 

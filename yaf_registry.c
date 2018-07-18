@@ -205,7 +205,7 @@ YAF_STARTUP_FUNCTION(registry) {
 	yaf_registry_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_registry_ce->ce_flags |= ZEND_ACC_FINAL;
 
-	zend_declare_property_null(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC);
+	zend_declare_property_null(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_INSTANCE), ZEND_ACC_STATIC);
 	zend_declare_property_null(yaf_registry_ce, ZEND_STRL(YAF_REGISTRY_PROPERTY_NAME_ENTRYS),  ZEND_ACC_PROTECTED);
 
 	return SUCCESS;

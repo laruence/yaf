@@ -1356,7 +1356,7 @@ YAF_STARTUP_FUNCTION(dispatcher) {
 	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_REQUEST), 	ZEND_ACC_PROTECTED);
 	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_PLUGINS), 	ZEND_ACC_PROTECTED);
 
-	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC);
+	zend_declare_property_null(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_INSTANCE), ZEND_ACC_STATIC);
 
 	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER),	1,  ZEND_ACC_PROTECTED);
 	zend_declare_property_bool(yaf_dispatcher_ce, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RETURN),   0, ZEND_ACC_PROTECTED);
