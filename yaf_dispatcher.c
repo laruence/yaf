@@ -377,6 +377,10 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		}
 
 		if ((paction = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
+			if (Z_TYPE_P(paction) == IS_REFERENCE) {
+                            paction = Z_REFVAL_P(paction);
+                        }
+
 			zend_string *action_path;
 
 			action_path = strpprintf(0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, Z_STRVAL_P(paction));
