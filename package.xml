@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2018-03-22</date>
- <time>11:20:00</time>
+ <date>2018-12-10</date>
+ <time>17:30:00</time>
  <version>
-  <release>3.0.7</release>
-  <api>3.0.7</api>
+  <release>3.0.8</release>
+  <api>3.0.8</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #389 (segfault in debug mode while running with phpunit)
+  - Fixed build with PHP-7.3
  </notes>
  <contents> 
   <dir name="/"> 
@@ -224,6 +224,22 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2018-12-10</date> 
+   <version> 
+    <release>3.0.8</release> 
+    <api>3.0.8</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed build with PHP-7.3
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2018-03-22</date> 
    <version> 
     <release>3.0.7</release> 
@@ -238,7 +254,6 @@
     - Fixed issue #389 (segfault in debug mode while running with phpunit)
    </notes> 
   </release> 
-
   <release> 
    <date>2017-12-31</date> 
    <version> 
