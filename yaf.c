@@ -42,6 +42,7 @@
 #include "yaf_plugin.h"
 #include "yaf_registry.h"
 #include "yaf_session.h"
+#include "yaf_db.h"
 
 ZEND_DECLARE_MODULE_GLOBALS(yaf);
 
@@ -141,6 +142,7 @@ PHP_MINIT_FUNCTION(yaf)
 	YAF_STARTUP(registry);
 	YAF_STARTUP(session);
 	YAF_STARTUP(exception);
+	YAF_STARTUP(db);
 
 	return SUCCESS;
 }

@@ -72,7 +72,8 @@ if test "$PHP_YAF" != "no"; then
     yaf_loader.c                    \
     yaf_registry.c                  \
     yaf_plugin.c                    \
-    yaf_session.c,
+    yaf_session.c                   \
+    yaf_db.c,
   $ext_shared)
   PHP_ADD_BUILD_DIR([$ext_builddir/configs])
   PHP_ADD_BUILD_DIR([$ext_builddir/requests])
