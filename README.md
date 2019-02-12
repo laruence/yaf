@@ -152,7 +152,7 @@ The view script for default controller and default action is in the application/
 </html>
 ```
 
-## Run the Applicatioin
+## Run the Application
   http://www.yourhostname.com/
 
 ## Alternative
