@@ -32,6 +32,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret);
 int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret);
 int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value);
 void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name);
+zend_bool yaf_view_add_method(yaf_view_t *view, zend_string *name, zval *closure);
 
 YAF_STARTUP_FUNCTION(view);
 

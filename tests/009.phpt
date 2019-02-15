@@ -15,6 +15,8 @@ var_dump(strlen($view->render(dirname(__FILE__) . "/001.phpt")));
 var_dump($view->name);
 var_dump($view->noexists);
 print_r($view);
+var_dump($view->addMethod("test", function () {return "Yaf_View_Simple::test";}));
+
 ?>
 --EXPECTF--
 Yaf_View_Simple Object
@@ -40,3 +42,4 @@ Yaf_View_Simple Object
     [_tpl_dir:protected] => %s
     [_options:protected] => 
 )
+bool(true)

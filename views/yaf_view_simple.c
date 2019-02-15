@@ -30,6 +30,8 @@
 #include "views/yaf_view_interface.h"
 #include "views/yaf_view_simple.h"
 
+#include "Zend/zend_closures.h"
+
 zend_class_entry *yaf_view_simple_ce;
 
 /** {{{ ARG_INFO */
@@ -58,6 +60,11 @@ ZEND_END_ARG_INFO();
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO();
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_view_add_method_arginfo, 0, 0, 2)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_INFO(0, closure)
 ZEND_END_ARG_INFO();
 /* }}} */
 
@@ -404,6 +411,32 @@ void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name) {
 }
 /* }}} */
 
+/** {{{ void yaf_view_add_method(zend_string *name, zval *closure)
+ */
+zend_bool yaf_view_add_method(yaf_view_t *view, zend_string *name, zval *closure) {
+	HashTable *table = &Z_OBJCE_P(view)->function_table;
+	zend_string *key = zend_string_tolower(name);
+	zend_function *function;
+
+	if (zend_hash_exists(table, key)) {
+        php_error_docref(NULL, E_WARNING, "method %s already exists", ZSTR_VAL(Z_OBJCE_P(view)->name), ZSTR_VAL(name));
+        zend_string_release(key);
+        return 0;
+	}
+
+	zval_copy_ctor(closure);
+
+	function = (zend_function*) zend_get_closure_method_def(closure);
+
+	zend_hash_update_ptr(table, key, (void*) function);
+
+    zend_string_release(key);
+    zval_ptr_dtor(closure);
+
+	return 1;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_View_Simple::__construct(string $tpl_dir, array $options = NULL)
 */
 PHP_METHOD(yaf_view_simple, __construct) {
@@ -622,6 +655,20 @@ PHP_METHOD(yaf_view_simple, clear) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_View_Simple::addMethod(string $name, Closure function)
+*/
+PHP_METHOD(yaf_view_simple, addMethod) {
+	zend_string *name = NULL;
+	zval *closure = NULL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SO", &name, &closure, zend_ce_closure) == FAILURE) {
+		return;
+	}
+
+	RETURN_BOOL(yaf_view_add_method(getThis(), name, closure));
+}
+/* }}} */
+
 /** {{{ yaf_view_simple_methods
 */
 zend_function_entry yaf_view_simple_methods[] = {
@@ -636,6 +683,7 @@ zend_function_entry yaf_view_simple_methods[] = {
 	PHP_ME(yaf_view_simple, clear, yaf_view_simple_clear_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, setScriptPath, yaf_view_setpath_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, getScriptPath, yaf_view_getpath_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, addMethod, yaf_view_add_method_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_view_simple, __get, get, yaf_view_simple_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_view_simple, __set, assign, yaf_view_assign_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
