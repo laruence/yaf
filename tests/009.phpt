@@ -16,7 +16,7 @@ var_dump($view->name);
 var_dump($view->noexists);
 print_r($view);
 var_dump($view->addMethod("test", function () {return "Yaf_View_Simple::test";}));
-
+var_dump($view->test());
 ?>
 --EXPECTF--
 Yaf_View_Simple Object
@@ -43,3 +43,4 @@ Yaf_View_Simple Object
     [_options:protected] => 
 )
 bool(true)
+string(21) "Yaf_View_Simple::test"
