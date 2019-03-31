@@ -85,7 +85,7 @@ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, zval *config) {
 			verify = NULL;
 		}
 
-		if ((reverse = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("route"))) == NULL ||
+		if ((reverse = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("reverse"))) == NULL ||
 			Z_TYPE_P(reverse) != IS_STRING) {
 			reverse = NULL;
 		}
