@@ -18,11 +18,8 @@ $config = array(
 );
 
 class SimpleView extends Yaf_View_Simple {
-      public function __constrct() {
-      }
-
       public function assign($name, $value = NULL) {
-             $this->_tpls_vars[$name] = $value;
+             $this->_tpl_vars[$name] = $value;
       }
 }
 
