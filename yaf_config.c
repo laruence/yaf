@@ -32,12 +32,6 @@
 
 zend_class_entry *yaf_config_ce;
 
-/* {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-/* }}} */
-
 yaf_config_t *yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2) /* {{{ */ {
 	yaf_config_t *instance;
 
