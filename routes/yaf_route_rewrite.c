@@ -118,7 +118,11 @@ static int yaf_route_rewrite_match(yaf_route_t *router, zend_string *uri, zval *
 		smart_str_free(&pattern);
 
 		ZVAL_NULL(&subparts);
+#if PHP_VERSION_ID < 70400
 		php_pcre_match_impl(pce_regexp, ZSTR_VAL(uri), ZSTR_LEN(uri), &matches, &subparts /* subpats */,
+#else
+		php_pcre_match_impl(pce_regexp, uri, &matches, &subparts /* subpats */,
+#endif
 				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */);
 
 		if (!zend_hash_num_elements(Z_ARRVAL(subparts))) {
