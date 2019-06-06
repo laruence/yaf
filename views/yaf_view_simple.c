@@ -171,7 +171,11 @@ static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_arr
 		    | ZEND_CALL_HAS_SYMBOL_TABLE
 #endif
 			,
-			(zend_function*)op_array, 0, op_array->scope, Z_OBJ_P(view));
+			(zend_function*)op_array, 0,
+#if PHP_VERSION_ID < 70400
+            op_array->scope,
+#endif
+            Z_OBJ_P(view));
 
 	call->symbol_table = symbol_table;
 
