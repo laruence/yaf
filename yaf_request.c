@@ -307,7 +307,7 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 			seg = php_strtok_r(langs, ",", &ptrptr);
 			while(seg) {
 				char *qvalue;
-				while (*(seg) == ' ') { 
+				while (*(seg) == ' ') {
 					seg++;
 				}
 				/* Accept-Language: da, en-gb;q=0.8, en;q=0.7 */
@@ -771,7 +771,7 @@ YAF_STARTUP_FUNCTION(request){
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Abstract", "Yaf\\Request_Abstract", yaf_request_methods);
 	yaf_request_ce 			= zend_register_internal_class_ex(&ce, NULL);
-	yaf_request_ce->ce_flags = ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
+	yaf_request_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), ZEND_ACC_PUBLIC);
