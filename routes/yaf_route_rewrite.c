@@ -118,8 +118,14 @@ static int yaf_route_rewrite_match(yaf_route_t *router, zend_string *uri, zval *
 		smart_str_free(&pattern);
 
 		ZVAL_NULL(&subparts);
+
+#if PHP_VERSION_ID < 70400
 		php_pcre_match_impl(pce_regexp, ZSTR_VAL(uri), ZSTR_LEN(uri), &matches, &subparts /* subpats */,
 				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */);
+#else
+		php_pcre_match_impl(pce_regexp, uri, &matches, &subparts /* subpats */,
+				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */);
+#endif
 
 		if (!zend_hash_num_elements(Z_ARRVAL(subparts))) {
 			zval_ptr_dtor(&subparts);
@@ -249,7 +255,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 	size_t seg_len;
 	smart_str query_str = {0};
 	smart_str wildcard = {0};
-	
+
 	array_init(&pidents);
 
 	match  = zend_read_property(yaf_route_rewrite_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), 0, NULL);
@@ -257,7 +263,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 	pmatch = estrndup(Z_STRVAL_P(match), Z_STRLEN_P(match));
 	zend_hash_copy(Z_ARRVAL(pidents), Z_ARRVAL_P(info), (copy_ctor_func_t) zval_add_ref);
 
-	seg = php_strtok_r(pmatch, YAF_ROUTER_URL_DELIMIETER, &ptrptr);	
+	seg = php_strtok_r(pmatch, YAF_ROUTER_URL_DELIMIETER, &ptrptr);
 	while (seg) {
 		seg_len = strlen(seg);
 		if (seg_len) {
@@ -274,7 +280,7 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 				} ZEND_HASH_FOREACH_END();
 				smart_str_0(&wildcard);
 				inter = php_str_to_str(ZSTR_VAL(uri), ZSTR_LEN(uri),
-						"*", 1, ZSTR_VAL(wildcard.s), ZSTR_LEN(wildcard.s));	
+						"*", 1, ZSTR_VAL(wildcard.s), ZSTR_LEN(wildcard.s));
 				zend_string_release(uri);
 				uri = inter;
 				break;
@@ -289,12 +295,12 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 					zend_string_release(uri);
 					zend_hash_str_del(Z_ARRVAL(pidents), seg, seg_len);
 					uri = inter;
-				} 
-			} 
+				}
+			}
 		}
 		seg = php_strtok_r(NULL, YAF_ROUTER_URL_DELIMIETER, &ptrptr);
 	}
-	
+
 	smart_str_free(&wildcard);
 	efree(pmatch);
 	zval_ptr_dtor(&pidents);
@@ -319,11 +325,11 @@ zend_string * yaf_route_rewrite_assemble(yaf_route_t *this_ptr, zval *info, zval
 		size_t orig_len = ZSTR_LEN(uri);
 		ZSTR_LEN(query_str.s)--; /* get rid of the tail & */
 		smart_str_0(&query_str);
-		uri = zend_string_realloc(uri, ZSTR_LEN(uri) + ZSTR_LEN(query_str.s), 0); 
+		uri = zend_string_realloc(uri, ZSTR_LEN(uri) + ZSTR_LEN(query_str.s), 0);
 		memcpy(ZSTR_VAL(uri) + orig_len, ZSTR_VAL(query_str.s), ZSTR_LEN(query_str.s));
 		ZSTR_VAL(uri)[ZSTR_LEN(uri)] = '\0';
 		smart_str_free(&query_str);
-	}   
+	}
 
 	return uri;
 }
