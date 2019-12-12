@@ -331,6 +331,12 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 		if (VCWD_STAT(ini_file, &sb) == 0) {
 			if (S_ISREG(sb.st_mode)) {
 				if ((fh.handle.fp = VCWD_FOPEN(ini_file, "r"))) {
+#if PHP_VERSION_ID < 70400
+					fh.filename = ini_file;
+#else
+					/* setup file-handle */
+					zend_stream_init_filename(&fh, ini_file);
+#endif
 					fh.type = ZEND_HANDLE_FP;
 					fh.free_filename = 0;
 					fh.opened_path = NULL;
@@ -342,9 +348,6 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 					} else {
 						YAF_G(ini_wanted_section) = NULL;
 					}
-
-					/* setup file-handle */
-					zend_stream_init_filename(&fh, ini_file);
 
 	 				array_init(&configs);
 					if (zend_parse_ini_file(&fh, 0, 0 /* ZEND_INI_SCANNER_NORMAL */,
