@@ -127,7 +127,7 @@ PHP_METHOD(yaf_request_simple, __construct) {
 	} else {
         if (params) {
 			SEPARATE_ZVAL(params);
-		} 
+		}
 
         if (UNEXPECTED(!self)) {
 			RETURN_FALSE;

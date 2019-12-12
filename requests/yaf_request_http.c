@@ -122,7 +122,7 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
 					settled_uri = zend_string_copy(Z_STR_P(uri));
 					break;
-				} 
+				}
 			}
 		} while (0);
 	}
@@ -282,7 +282,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|SS", &request_uri, &base_uri) == FAILURE) {
 		return;
 	}
-	
+
 	(void)yaf_request_http_instance(self, request_uri, base_uri);
 }
 /* }}} */

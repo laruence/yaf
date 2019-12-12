@@ -564,7 +564,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				zval_ptr_dtor(&icontroller);
 				return yaf_dispatcher_handle(dispatcher, request, response, view TSRMLS_CC);
 			}
-		
+
 			/* view template directory for application, please notice that view engine's directory has high priority */
 			if (is_def_module) {
 				view_dir = strpprintf(0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, "views");
@@ -678,7 +678,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 				if (render == &EG(uninitialized_zval)) {
 					render = zend_read_property(yaf_dispatcher_ce,
 							dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, NULL);
-				} 
+				}
 				auto_render = (Z_TYPE_P(render) == IS_TRUE || (Z_TYPE_P(render) == IS_LONG && Z_LVAL_P(render)));
 
 				instantly_flush	= zend_read_property(yaf_dispatcher_ce,
@@ -698,7 +698,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 						if (Z_TYPE(ret) == IS_STRING && Z_STRLEN(ret)) {
 							yaf_response_alter_body(response, NULL, Z_STR(ret), YAF_RESPONSE_APPEND );
-						} 
+						}
 
 						zval_ptr_dtor(&ret);
 					} else {
@@ -754,7 +754,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 	ZVAL_OBJ(&exception, EG(exception));
 	EG(exception) = NULL;
 	opline = EG(opline_before_exception);
-#if ZEND_DEBUG 
+#if ZEND_DEBUG
 	EG(opline_before_exception) = NULL;
 #endif
 
@@ -1026,7 +1026,7 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 		RETURN_ZVAL(self, 1, 0);
 	} else {
 		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
-						self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, NULL)) == IS_TRUE ? 1 : 0);		
+						self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_FLUSH), 1, NULL)) == IS_TRUE ? 1 : 0);
 	}
 }
 /* }}} */
@@ -1162,7 +1162,7 @@ PHP_METHOD(yaf_dispatcher, catchException) {
 		return;
 	}
 
-	if (ZEND_NUM_ARGS()) { 
+	if (ZEND_NUM_ARGS()) {
 		YAF_G(catch_exception) = flag? 1: 0;
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
@@ -1187,7 +1187,7 @@ PHP_METHOD(yaf_dispatcher, autoRender) {
 	} else {
 		RETURN_BOOL(Z_TYPE_P(zend_read_property(yaf_dispatcher_ce,
 						self, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_RENDER), 1, NULL)) == IS_TRUE ? 1 : 0);
-	} 
+	}
 }
 /* }}} */
 
