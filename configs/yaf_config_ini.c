@@ -333,14 +333,16 @@ yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zv
 				if ((fh.handle.fp = VCWD_FOPEN(ini_file, "r"))) {
 #if PHP_VERSION_ID < 70400
 					fh.filename = ini_file;
-#else
-					/* setup file-handle */
-					zend_stream_init_filename(&fh, ini_file);
 #endif
 					fh.type = ZEND_HANDLE_FP;
 					fh.free_filename = 0;
 					fh.opened_path = NULL;
 					ZVAL_UNDEF(&YAF_G(active_ini_file_section));
+
+#if PHP_VERSION_ID >= 70400
+					/* setup file-handle */
+					zend_stream_init_filename(&fh, ini_file);
+#endif
 
 					YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_START;
 					if (section_name && EXPECTED(Z_TYPE_P(section_name) == IS_STRING && Z_STRLEN_P(section_name))) {
