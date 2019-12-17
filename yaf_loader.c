@@ -265,14 +265,14 @@ int yaf_loader_import(zend_string *path, int use_path) {
 
 #if PHP_VERSION_ID < 70400
 	file_handle.filename = ZSTR_VAL(path);
+	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.free_filename = 0;
+	file_handle.opened_path = NULL;
+	file_handle.handle.fp = NULL;
 #else
 	/* setup file-handle */
 	zend_stream_init_filename(&file_handle, ZSTR_VAL(path));
 #endif
-	file_handle.free_filename = 0;
-	file_handle.type = ZEND_HANDLE_FILENAME;
-	file_handle.opened_path = NULL;
-	file_handle.handle.fp = NULL;
 
 	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
 

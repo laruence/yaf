@@ -234,14 +234,14 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 
 #if PHP_VERSION_ID < 70400
 	file_handle.filename = ZSTR_VAL(tpl);
+	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.free_filename = 0;
+	file_handle.opened_path = NULL;
+	file_handle.handle.fp = NULL;
 #else
 	/* setup file-handle */
 	zend_stream_init_filename(&file_handle, ZSTR_VAL(tpl));
 #endif
-	file_handle.free_filename = 0;
-	file_handle.type = ZEND_HANDLE_FILENAME;
-	file_handle.opened_path = NULL;
-	file_handle.handle.fp = NULL;
 
 	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
 
