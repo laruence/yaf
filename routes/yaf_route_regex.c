@@ -48,7 +48,7 @@ ZEND_END_ARG_INFO()
 yaf_route_t * yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval *def, zval *map, zval *verify, zval *reverse) /* {{{ */ {
 	if (Z_ISUNDEF_P(this_ptr)) {
 		object_init_ex(this_ptr, yaf_route_regex_ce);
-	} 
+	}
 
 	zend_update_property(yaf_route_regex_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MATCH), route);
 	zend_update_property(yaf_route_regex_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE), def);
@@ -62,7 +62,7 @@ yaf_route_t * yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval 
 	} else {
 		zend_update_property(yaf_route_regex_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_VERIFY), verify);
 	}
-	
+
 
 	if (!reverse || IS_STRING != Z_TYPE_P(reverse)) {
 		zend_update_property_null(yaf_route_regex_ce, this_ptr, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_REVERSE));
@@ -95,8 +95,13 @@ static int yaf_route_regex_match(yaf_route_t *route, zend_string *uri, zval *ret
 
 		map = zend_read_property(yaf_route_regex_ce, route, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_MAP), 1, NULL);
 
+#if PHP_VERSION_ID < 70400
 		php_pcre_match_impl(pce_regexp, ZSTR_VAL(uri), ZSTR_LEN(uri), &matches, &subparts /* subpats */,
 				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */);
+#else
+		php_pcre_match_impl(pce_regexp, uri, &matches, &subparts /* subpats */,
+				0/* global */, 0/* ZEND_NUM_ARGS() >= 4 */, 0/*flags PREG_OFFSET_CAPTURE*/, 0/* start_offset */);
+#endif
 
 		if (!zend_hash_num_elements(Z_ARRVAL(subparts))) {
 			zval_ptr_dtor(&subparts);
@@ -114,7 +119,7 @@ static int yaf_route_regex_match(yaf_route_t *route, zend_string *uri, zval *ret
 				if (key) {
 					Z_TRY_ADDREF_P(pzval);
 					zend_hash_update(Z_ARRVAL_P(ret), key, pzval);
-				} else {	
+				} else {
 					if (Z_TYPE_P(map) == IS_ARRAY &&
 						(name = zend_hash_index_find(Z_ARRVAL_P(map), idx)) != NULL && Z_TYPE_P(name) == IS_STRING) {
 						Z_TRY_ADDREF_P(pzval);
