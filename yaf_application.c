@@ -169,7 +169,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 			}
 			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 							ZEND_STRL("namespace"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
-				uint i, len;
+				unsigned i, len;
 				char *src = Z_STRVAL_P(psval);
 				if (Z_STRLEN_P(psval)) {
 				    char *target = emalloc(Z_STRLEN_P(psval) + 1);
@@ -517,7 +517,7 @@ PHP_METHOD(yaf_application, environ) {
 */
 PHP_METHOD(yaf_application, bootstrap) {
 	zend_string	*bootstrap_path;
-	uint  retval = 1;
+	unsigned  retval = 1;
 	zend_class_entry  *ce;
 	yaf_application_t *self = getThis();
 

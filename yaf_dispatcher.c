@@ -143,10 +143,10 @@ yaf_dispatcher_t *yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ 
 }
 /* }}} */
 
-static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval **params, uint *count) /* {{{ */ {
+static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf_request_t *request, zend_function *fptr, zval **params, unsigned *count) /* {{{ */ {
 	zval          *args, *arg;
 	zend_arg_info *arg_info;
-	uint           current;
+	unsigned       current;
 	HashTable 	  *params_ht;
 
 	args = zend_read_property(request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1, NULL);
@@ -417,7 +417,7 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 /* {{{ This only effects internally */
 	   	if (YAF_G(st_compatible)) {
 		char *directory, *class, *class_lowercase, *p;
-		uint class_len;
+		unsigned class_len;
 		zend_class_entry *ce;
 		char *action_upper = estrndup(ZSTR_VAL(action), ZSTR_LEN(action));
 
@@ -588,7 +588,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 
 			/* @TODO: Magic __call supports? */
 			if ((fptr = zend_hash_find_ptr(&((ce)->function_table), func_name)) != NULL) {
-				uint count = 0;
+				unsigned count = 0;
 				zval *call_args = NULL;
 				executor = &icontroller;
 				if (fptr->common.num_args) {
@@ -625,7 +625,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 								YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1))) {
 				zval *call_args;
 				yaf_action_t iaction;
-				uint count = 0;
+				unsigned count = 0;
 
 				zend_string_release(func_name);
 
@@ -835,7 +835,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *resp
 	zval *return_response, *plugins, *view, rv;
 	yaf_response_t *response;
 	yaf_request_t *request;
-	uint nesting = YAF_G(forward_limit);
+	unsigned nesting = YAF_G(forward_limit);
 
 	response = yaf_response_instance(response_ptr, sapi_module.name);
 	request	= zend_read_property(yaf_dispatcher_ce,

@@ -500,7 +500,7 @@ PHP_METHOD(yaf_view_simple, compose) {
 /** {{{ proto public Yaf_View_Simple::assign(mixed $value, mixed $value = null)
 */
 PHP_METHOD(yaf_view_simple, assign) {
-	uint argc = ZEND_NUM_ARGS();
+	unsigned argc = ZEND_NUM_ARGS();
 	if (argc == 1) {
 		zval *value;
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &value) == FAILURE) {
