@@ -80,6 +80,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_request_getenv_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(0, default)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_dispatched_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, state)
+ZEND_END_ARG_INFO()
 	/* }}} */
 
 yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *request_uri) /* {{{ */ {
@@ -654,7 +658,19 @@ PHP_METHOD(yaf_request, isDispatched) {
 /** {{{ proto public Yaf_Request_Abstract::setDispatched(void)
 */
 PHP_METHOD(yaf_request, setDispatched) {
-	yaf_request_set_dispatched(getThis(), 1);
+	zend_bool state;
+	zval *self = getThis();
+ 	
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "b", &state) == FAILURE){
+		return;
+	}
+	
+	if(state){
+		yaf_request_set_dispatched(getThis(), 1);
+	}else{
+		yaf_request_set_dispatched(getThis(), 0);
+	}
+
 	RETURN_TRUE;
 }
 /* }}} */
