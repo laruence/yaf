@@ -346,6 +346,10 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 	actions_map = zend_read_property(Z_OBJCE_P(controller),
 			controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
 
+        if (Z_TYPE_P(actions_map) == IS_REFERENCE) {
+            actions_map = Z_REFVAL_P(actions_map);
+        }
+
 	if (EXPECTED(IS_ARRAY == Z_TYPE_P(actions_map))) {
 		zend_class_entry *ce;
 		zend_string *class;
@@ -377,6 +381,10 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		}
 
 		if ((paction = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
+			if (Z_TYPE_P(paction) == IS_REFERENCE) {
+                            paction = Z_REFVAL_P(paction);
+                        }
+
 			zend_string *action_path;
 
 			action_path = strpprintf(0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, Z_STRVAL_P(paction));
