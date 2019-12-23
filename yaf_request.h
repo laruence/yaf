@@ -46,7 +46,7 @@ extern PHPAPI void php_session_start();
 
 yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
 int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri);
-zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t len);
+zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size_t len);
 
 zval *yaf_request_get_method(yaf_request_t *instance);
 zval *yaf_request_get_param(yaf_request_t *instance, zend_string *key);

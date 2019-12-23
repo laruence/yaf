@@ -176,7 +176,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 }
 /* }}} */
 
-zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t len) /* {{{ */ {
+zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size_t len) /* {{{ */ {
 	zval *carrier = NULL, *ret;
 
 	zend_bool jit_initialization = PG(auto_globals_jit);
@@ -299,7 +299,7 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 			return NULL;
 		} else {
 			char  	*ptrptr, *seg;
-			uint	prefer_len = 0;
+			unsigned	prefer_len = 0;
 			double	max_qvlaue = 0;
 			char 	*prefer = NULL;
 			char  	*langs = estrndup(Z_STRVAL_P(accept_langs), Z_STRLEN_P(accept_langs));
@@ -547,7 +547,7 @@ PHP_METHOD(yaf_request, setActionName) {
 /** {{{ proto public Yaf_Request_Abstract::setParam(mixed $value)
 */
 PHP_METHOD(yaf_request, setParam) {
-	uint argc;
+	unsigned argc;
 	yaf_request_t *self	= getThis();
 
 	argc = ZEND_NUM_ARGS();

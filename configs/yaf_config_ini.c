@@ -237,7 +237,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 	if (callback_type == ZEND_INI_PARSER_SECTION) {
 		zval *parent;
 		char *seg, *skey, *skey_orig;
-		uint skey_len;
+		unsigned skey_len;
 
 		if (YAF_G(parsing_flag) == YAF_CONFIG_INI_PARSING_PROCESS) {
 			YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_END;

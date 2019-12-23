@@ -112,8 +112,8 @@ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_
 /** {{{ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag)
  */
 int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag) {
-	zval *zbody, *pzval;
-	uint  free_name = 0;
+	zval     *zbody, *pzval;
+	unsigned  free_name = 0;
 	zend_string *obody;
 
 	if (ZSTR_LEN(body) == 0) {
