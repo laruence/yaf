@@ -96,7 +96,7 @@ int yaf_response_clear_header(yaf_response_t *response, zend_string *name) {
 
 /** {{{ int yaf_response_alter_header(yaf_response_t *response, zend_string *name, char *value, long value_len, int flag)
 */
-int yaf_response_alter_header(yaf_response_t *response, zend_string *name, char *value, long value_len, uint rep) {
+int yaf_response_alter_header(yaf_response_t *response, zend_string *name, char *value, long value_len, unsigned rep) {
 	zval *z_headers, *pzval;
 	zend_string *oheader;
 

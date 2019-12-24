@@ -151,7 +151,7 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 void yaf_router_parse_parameters(char *uri, zval *params) {
 	char *key, *ptrptr, *tmp, *value;
 	zval val;
-	uint key_len;
+	unsigned key_len;
 
 	array_init(params);
 
