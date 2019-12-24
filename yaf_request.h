@@ -58,6 +58,7 @@ void yaf_request_set_dispatched(yaf_request_t *request, int flag);
 void yaf_request_set_routed(yaf_request_t *request, int flag);
 int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value);
 int yaf_request_set_params_multi(yaf_request_t *instance, zval *values);
+char *yaf_request_get_request_method(void);
 
 #define yaf_request_query(type, name)  yaf_request_query_ex((type), 1, (name), 0)
 #define yaf_request_query_str(type, name, len)  yaf_request_query_ex((type), 0, (name), (len))

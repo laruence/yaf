@@ -27,7 +27,7 @@ Yaf_Request_Http Object
     [module] => 
     [controller] => controller
     [action] => action
-    [method] => Cli
+    [method] => CLI
     [params:protected] => Array
         (
             [name] => laruence

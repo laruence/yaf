@@ -39,15 +39,8 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 	if (Z_ISUNDEF_P(this_ptr)) {
 		object_init_ex(this_ptr, yaf_request_http_ce);
 	}
-
-	if (SG(request_info).request_method) {
-		ZVAL_STRING(&method, (char *)SG(request_info).request_method);
-	} else if (strncasecmp(sapi_module.name, "cli", 3)) {
-		ZVAL_STRING(&method, "Unknow");
-	} else {
-		ZVAL_STRING(&method, "Cli");
-	}
-
+	
+	ZVAL_STRING(&method, yaf_request_get_request_method());
 	zend_update_property(yaf_request_http_ce, this_ptr, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), &method);
 	zval_ptr_dtor(&method);
 
