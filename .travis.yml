@@ -19,5 +19,4 @@ before_script:
     - ./travis/compile.sh
 
 # Run PHPs run-tests.php
-script:
-    - ./travis/run-test.sh
+script: TEST_PHP_ARGS="--show-diff" make test
