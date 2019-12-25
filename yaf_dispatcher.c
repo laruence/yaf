@@ -297,12 +297,30 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, zend_strin
 		zend_string *class_lowercase;
 		zend_class_entry *ce 	= NULL;
 
+		zend_string *real_controller;
+		real_controller = zend_string_dup(controller, 0);
+
+		int i = 0;
+		int len = 0;
+		while(i < ZSTR_LEN(real_controller)) {
+			if (ZSTR_VAL(real_controller)[i] == '-') {
+				ZSTR_VAL(real_controller)[len++] = toupper(ZSTR_VAL(real_controller)[++i]);
+				i++;
+			} else {
+				ZSTR_VAL(real_controller)[len++] = ZSTR_VAL(real_controller)[i++];
+			}
+		}
+		
+		ZSTR_VAL(real_controller)[len] = '\0';
+		ZSTR_LEN(real_controller) = len;
+		controller = real_controller;
+
 		if (YAF_G(name_suffix)) {
 			class = strpprintf(0, "%s%s%s", ZSTR_VAL(controller), YAF_G(name_separator), "Controller");
 		} else {
 			class = strpprintf(0, "%s%s%s", "Controller", YAF_G(name_separator), ZSTR_VAL(controller));
 		}
-
+	
 		class_lowercase = zend_string_tolower(class);
 
 		if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) == NULL) {
@@ -312,6 +330,7 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, zend_strin
 				zend_string_release(class);
 				zend_string_release(class_lowercase);
 				efree(directory);
+				zend_string_release(real_controller);
 				return NULL;
 			} else if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) == NULL)  {
 				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
@@ -319,17 +338,19 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, zend_strin
 				zend_string_release(class);
 				zend_string_release(class_lowercase);
 				efree(directory);
+				zend_string_release(real_controller);
 				return 0;
 			} else if (!instanceof_function(ce, yaf_controller_ce)) {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR,
 						"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
 				zend_string_release(class);
 				zend_string_release(class_lowercase);
+				zend_string_release(real_controller);
 				efree(directory);
 				return 0;
 			}
 		}
-
+		zend_string_release(real_controller);
 		zend_string_release(class);
 		zend_string_release(class_lowercase);
 		efree(directory);
