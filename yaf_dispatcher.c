@@ -667,6 +667,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_t *dispatcher, yaf_request_t *request, 
 			} else {
 				zend_string_release(func_name);
 				zval_ptr_dtor(&icontroller);
+				zval_ptr_dtor(&action);
 				return 0;
 			}
 
@@ -792,7 +793,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_t *dispatcher, yaf_request_
 					dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, NULL);
 			/* failover to default module error catcher */
 			zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), m);
-			EG(exception) = NULL;
+			zend_clear_exception();
 			(void)yaf_dispatcher_handle(dispatcher, request, response, view);
 		}
 	}
