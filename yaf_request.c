@@ -403,7 +403,7 @@ zval * yaf_request_get_param(yaf_request_t *request, zend_string *key) /* {{{ */
 }
 /* }}} */
 
-char *yaf_request_get_request_method(void) /* {{{ */ {
+const char *yaf_request_get_request_method(void) /* {{{ */ {
 	if (SG(request_info).request_method) {
 		return SG(request_info).request_method;
 	} else if (strncasecmp(sapi_module.name, "cli", 3) == 0) {

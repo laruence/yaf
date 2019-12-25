@@ -192,6 +192,7 @@
     <file name="083.phpt" role="test" />
     <file name="084.phpt" role="test" />
     <file name="085.phpt" role="test" />
+    <file name="086.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
@@ -199,6 +200,7 @@
     <file name="bug63900.phpt" role="test" />
     <file name="bug62702.phpt" role="test" />
     <file name="bug70913.phpt" role="test" />
+    <file name="bug76213.phpt" role="test" />
     <file name="issue134.phpt" role="test" />
     <file name="issue163.phpt" role="test" />
     <file name="issue231.phpt" role="test" />
