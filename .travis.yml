@@ -1,14 +1,16 @@
-language: php 
+language: php
 
 php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
+  - 7.4
 
 notifications:
   email: false
   irc: "irc.efnet.org#php.yaf"
-   
+
 env:
   - REPORT_EXIT_STATUS=1 NO_INTERACTION=1
 
@@ -16,6 +18,5 @@ env:
 before_script:
     - ./travis/compile.sh
 
-# Run PHPs run-tests.php 
-script:
-    - ./travis/run-test.sh
+# Run PHPs run-tests.php
+script: TEST_PHP_ARGS="--show-diff" make test

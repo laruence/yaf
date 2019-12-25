@@ -36,7 +36,7 @@ zend_class_entry *yaf_buildin_exceptions[YAF_MAX_BUILDIN_EXCEPTION];
 void yaf_trigger_error(int type, char *format, ...) {
 	va_list args;
 	char *message;
-	uint msg_len;
+	unsigned msg_len;
 
 	va_start(args, format);
 	msg_len = vspprintf(&message, 0, format, args);

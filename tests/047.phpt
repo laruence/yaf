@@ -12,7 +12,7 @@ $config = array(
 	"application" => array(
 		"directory" => realpath(dirname(__FILE__)),
         "library" => array(
-            "directory" => "/tmp",
+            "directory" => "./Notexists",
             "namespace" => "Foo",
         ),
 	),
@@ -40,7 +40,7 @@ print_r($a);
 --EXPECTF--
 string(3) "Foo"
 
-Warning: Yaf_Loader::autoload(): Failed opening script %stmp%cFoo.php: No such file or directory in %s047.php on line %d
+Warning: Yaf_Loader::autoload(): Failed opening script %sNotexists%cFoo.php: No such file or directory in %s047.php on line %d
 Foo Object
 (
 )

@@ -33,15 +33,7 @@ yaf_request_t *yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module
 	zval zv;
 
 	if (!method || Z_TYPE_P(method) != IS_STRING) {
-		if (!SG(request_info).request_method) {
-			if (!strncasecmp(sapi_module.name, "cli", 3)) {
-				ZVAL_STRING(&zv, "CLI");
-			} else {
-				ZVAL_STRING(&zv, "Unknow");
-			}
-		} else {
-			ZVAL_STRING(&zv, (char *)SG(request_info).request_method);
-		}
+		ZVAL_STRING(&zv, yaf_request_get_request_method());
 		method = &zv;
 	} else {
 		Z_TRY_ADDREF_P(method);
@@ -127,7 +119,7 @@ PHP_METHOD(yaf_request_simple, __construct) {
 	} else {
         if (params) {
 			SEPARATE_ZVAL(params);
-		} 
+		}
 
         if (UNEXPECTED(!self)) {
 			RETURN_FALSE;

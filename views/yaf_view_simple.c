@@ -161,17 +161,27 @@ static inline void yaf_view_destroy_symtable(zend_array *symbol_table) /* {{{ */
 static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_array *symbol_table, zval* ret) /* {{{ */ {
 	zend_execute_data *call;
 	zval result;
+	uint32_t call_info;
 
 	ZVAL_UNDEF(&result);
 
 	op_array->scope = Z_OBJCE_P(view);
 
-	call = zend_vm_stack_push_call_frame(ZEND_CALL_NESTED_CODE
-#if PHP_VERSION_ID >= 70100
-		    | ZEND_CALL_HAS_SYMBOL_TABLE
+	zend_function *func = (zend_function *)op_array;
+
+#if PHP_VERSION_ID >= 70400
+	call_info = ZEND_CALL_HAS_THIS | ZEND_CALL_NESTED_CODE | ZEND_CALL_HAS_SYMBOL_TABLE;
+#elif PHP_VERSION_ID >= 70100
+	call_info = ZEND_CALL_NESTED_CODE | ZEND_CALL_HAS_SYMBOL_TABLE;
+#else
+	call_info = ZEND_CALL_NESTED_CODE;
 #endif
-			,
-			(zend_function*)op_array, 0, op_array->scope, Z_OBJ_P(view));
+
+#if PHP_VERSION_ID < 70400
+	call = zend_vm_stack_push_call_frame(call_info, func, 0, op_array->scope, Z_OBJ_P(view));
+#else
+    call = zend_vm_stack_push_call_frame(call_info, func, 0, Z_OBJ_P(view));
+#endif
 
 	call->symbol_table = symbol_table;
 
@@ -222,11 +232,16 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 		return 0;
 	}
 
+#if PHP_VERSION_ID < 70400
 	file_handle.filename = ZSTR_VAL(tpl);
-	file_handle.free_filename = 0;
 	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.free_filename = 0;
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
+#else
+	/* setup file-handle */
+	zend_stream_init_filename(&file_handle, ZSTR_VAL(tpl));
+#endif
 
 	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
 
@@ -242,7 +257,7 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 
 		destroy_op_array(op_array);
 		efree_size(op_array, sizeof(zend_op_array));
-	} 
+	}
 
 	zend_destroy_file_handle(&file_handle);
 
@@ -269,7 +284,7 @@ yaf_view_t *yaf_view_simple_instance(yaf_view_t *this_ptr, zval *tpl_dir, zval *
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an absolute path for templates directory");
 			return NULL;
 		}
-	} 
+	}
 
 	if (options && IS_ARRAY == Z_TYPE_P(options)) {
 		zend_update_property(yaf_view_simple_ce, this_ptr, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_OPTS), options);
@@ -348,7 +363,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 		zval phtml;
 		zend_op_array *op_array;
 		char *eval_desc = zend_make_compiled_string_description("template code");
-		
+
 		/* eval require code mustn't be wrapped in opening and closing PHP tags */
 		ZVAL_STR(&phtml, strpprintf(0, "?>%s", Z_STRVAL_P(tpl)));
 
@@ -400,7 +415,7 @@ void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name) {
 		} else {
 			zend_hash_clean(Z_ARRVAL_P(tpl_vars));
 		}
-	} 
+	}
 }
 /* }}} */
 
@@ -461,7 +476,7 @@ PHP_METHOD(yaf_view_simple, getScriptPath) {
 			getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, NULL);
 	if (IS_STRING != Z_TYPE_P(tpl_dir) && YAF_G(view_directory)) {
 		RETURN_STR(zend_string_copy(YAF_G(view_directory)));
-	} 
+	}
 	RETURN_ZVAL(tpl_dir, 1, 0);
 }
 /* }}} */
@@ -485,7 +500,7 @@ PHP_METHOD(yaf_view_simple, compose) {
 /** {{{ proto public Yaf_View_Simple::assign(mixed $value, mixed $value = null)
 */
 PHP_METHOD(yaf_view_simple, assign) {
-	uint argc = ZEND_NUM_ARGS();
+	unsigned argc = ZEND_NUM_ARGS();
 	if (argc == 1) {
 		zval *value;
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &value) == FAILURE) {
@@ -514,7 +529,7 @@ PHP_METHOD(yaf_view_simple, assign) {
 /** {{{ proto public Yaf_View_Simple::assignRef(mixed $value, mixed $value)
 */
 PHP_METHOD(yaf_view_simple, assignRef) {
-	zend_string *name; 
+	zend_string *name;
 	zval *value, *tpl_vars;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
@@ -549,7 +564,7 @@ PHP_METHOD(yaf_view_simple, get) {
 		if (name) {
 			if ((ret = zend_hash_find(Z_ARRVAL_P(tpl_vars), name)) != NULL) {
 				RETURN_ZVAL(ret, 1, 0);
-			} 
+			}
 		} else {
 			RETURN_ZVAL(tpl_vars, 1, 0);
 		}
@@ -615,7 +630,7 @@ PHP_METHOD(yaf_view_simple, clear) {
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S", &name) == FAILURE) {
 		return;
 	}
-    
+
 	yaf_view_simple_clear_assign(getThis(), name);
 
 	RETURN_ZVAL(getThis(), 1, 0);

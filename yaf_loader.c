@@ -115,7 +115,7 @@ static int yaf_loader_is_category(char *class, size_t class_len, char *category,
 
 	if (YAF_G(name_suffix)) {
 		if (class_len > category_len && strncmp(class + class_len - category_len, category, category_len) == 0) {
-			if (!separator_len || 
+			if (!separator_len ||
 				!strncmp(class + class_len - category_len - separator_len, YAF_G(name_separator), separator_len)) {
 				return 1;
 			}
@@ -173,7 +173,7 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 				efree(prefix);
 			}
 			return 1;
-		} else if (*(pos - 1) == DEFAULT_DIR_SEPARATOR 
+		} else if (*(pos - 1) == DEFAULT_DIR_SEPARATOR
 				&& (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
 			if (backup) {
 				*backup = orig_char;
@@ -223,7 +223,7 @@ yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_p
 
 	if (Z_ISUNDEF_P(this_ptr)) {
         object_init_ex(this_ptr, yaf_loader_ce);
-	} 
+	}
 
 	if (library_path && global_path) {
 		zend_update_property_str(yaf_loader_ce,
@@ -263,11 +263,16 @@ int yaf_loader_import(zend_string *path, int use_path) {
 		return 0;
 	}
 
+#if PHP_VERSION_ID < 70400
 	file_handle.filename = ZSTR_VAL(path);
-	file_handle.free_filename = 0;
 	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.free_filename = 0;
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
+#else
+	/* setup file-handle */
+	zend_stream_init_filename(&file_handle, ZSTR_VAL(path));
+#endif
 
 	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
 
@@ -594,7 +599,7 @@ PHP_METHOD(yaf_loader, autoload) {
 	}
 
 	separator_len = YAF_G(name_separator_len);
-	app_directory = YAF_G(directory)? ZSTR_VAL(YAF_G(directory)) : NULL; 
+	app_directory = YAF_G(directory)? ZSTR_VAL(YAF_G(directory)) : NULL;
 	origin_classname = class_name;
 
 	do {
@@ -732,7 +737,7 @@ PHP_METHOD(yaf_loader, getInstance) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|SS", &library, &global) == FAILURE) {
 		return;
-	} 
+	}
 
 	loader = yaf_loader_instance(&rv, library, global);
 	if (loader) {

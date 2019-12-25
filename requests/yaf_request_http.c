@@ -39,15 +39,8 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 	if (Z_ISUNDEF_P(this_ptr)) {
 		object_init_ex(this_ptr, yaf_request_http_ce);
 	}
-
-	if (SG(request_info).request_method) {
-		ZVAL_STRING(&method, (char *)SG(request_info).request_method);
-	} else if (strncasecmp(sapi_module.name, "cli", 3)) {
-		ZVAL_STRING(&method, "Unknow");
-	} else {
-		ZVAL_STRING(&method, "Cli");
-	}
-
+	
+	ZVAL_STRING(&method, yaf_request_get_request_method());
 	zend_update_property(yaf_request_http_ce, this_ptr, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), &method);
 	zval_ptr_dtor(&method);
 
@@ -96,9 +89,14 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 					 * only use url path */
 					if (strncasecmp(Z_STRVAL_P(uri), "http", sizeof("http") - 1) == 0) {
 						php_url *url_info = php_url_parse(Z_STRVAL_P(uri));
+#if PHP_VERSION_ID < 70300
 						if (url_info && url_info->path) {
 							settled_uri = zend_string_init(url_info->path, strlen(url_info->path), 0);
 						}
+#else
+						settled_uri = url_info->path;
+						url_info->path = NULL;
+#endif
 						php_url_free(url_info);
 					} else {
 						char *pos = NULL;
@@ -117,7 +115,7 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
 					settled_uri = zend_string_copy(Z_STR_P(uri));
 					break;
-				} 
+				}
 			}
 		} while (0);
 	}
@@ -277,7 +275,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|SS", &request_uri, &base_uri) == FAILURE) {
 		return;
 	}
-	
+
 	(void)yaf_request_http_instance(self, request_uri, base_uri);
 }
 /* }}} */

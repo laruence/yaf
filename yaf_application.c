@@ -144,7 +144,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(app),
 						ZEND_STRL("ext"))) != NULL && Z_TYPE_P(pzval) == IS_STRING)) {
 		YAF_G(ext) = zend_string_copy(Z_STR_P(pzval));
-	} 
+	}
 
 	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(app),
 						ZEND_STRL("bootstrap"))) != NULL && Z_TYPE_P(pzval) == IS_STRING)) {
@@ -169,7 +169,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 			}
 			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 							ZEND_STRL("namespace"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
-				uint i, len;
+				unsigned i, len;
 				char *src = Z_STRVAL_P(psval);
 				if (Z_STRLEN_P(psval)) {
 				    char *target = emalloc(Z_STRLEN_P(psval) + 1);
@@ -281,7 +281,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 			if (len > sizeof(name) -1) {
 				len = sizeof(name) - 1;
 			}
-			str = zend_string_init(name, len, 0); 
+			str = zend_string_init(name, len, 0);
 			val = zval_get_string(value);
 			zend_alter_ini_entry(str, val, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
 			zend_string_release(str);
@@ -517,7 +517,7 @@ PHP_METHOD(yaf_application, environ) {
 */
 PHP_METHOD(yaf_application, bootstrap) {
 	zend_string	*bootstrap_path;
-	uint  retval = 1;
+	unsigned  retval = 1;
 	zend_class_entry  *ce;
 	yaf_application_t *self = getThis();
 

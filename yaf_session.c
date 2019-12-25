@@ -94,7 +94,12 @@ static yaf_session_t *yaf_session_instance(yaf_session_t *this_ptr) /* {{{ */ {
 
 	zval_ptr_dtor(&member);
 
-	if (property_info->offset != ZEND_WRONG_PROPERTY_OFFSET) {
+#if PHP_VERSION_ID < 70300
+	if (property_info->offset != ZEND_WRONG_PROPERTY_OFFSET)
+#else
+	if (IS_VALID_PROPERTY_OFFSET(property_info->offset))
+#endif
+	{
 		zval *prop = OBJ_PROP(obj, property_info->offset);
 		ZVAL_COPY(prop, sess);
 	}
@@ -139,7 +144,7 @@ PHP_METHOD(yaf_session, __clone) {
 */
 PHP_METHOD(yaf_session, getInstance) {
 	yaf_session_t *instance;
-	    
+
 	instance = zend_read_static_property(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), 1);
 
 	if (Z_TYPE_P(instance) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(instance), yaf_session_ce)) {
@@ -286,7 +291,7 @@ PHP_METHOD(yaf_session, current) {
 PHP_METHOD(yaf_session, key) {
 	zval *sess;
 	zend_string *key;
-	ulong index;
+	zend_ulong index;
 
 	sess = zend_read_property(yaf_session_ce,
 			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);

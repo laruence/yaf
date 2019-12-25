@@ -39,7 +39,12 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_G(v) (yaf_globals.v)
 #endif
 
-#define PHP_YAF_VERSION 					"3.0.8-dev"
+#ifndef ZEND_ACC_CTOR
+# define ZEND_ACC_CTOR	0x0
+# define ZEND_ACC_DTOR	0x0
+#endif
+
+#define PHP_YAF_VERSION 					"3.0.10-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
@@ -63,7 +68,7 @@ extern zend_module_entry yaf_module_entry;
 #define yaf_session_t		zval
 #define yaf_exception_t		zval
 
-#define YAF_ME(c, m, a, f) {m, PHP_MN(c), a, (uint) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
+#define YAF_ME(c, m, a, f) {m, PHP_MN(c), a, (unsigned) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 
 extern PHPAPI void php_var_dump(zval **struc, int level);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
@@ -103,7 +108,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zval        *default_route;
 	zval        active_ini_file_section;
 	zval        *ini_wanted_section;
-	uint        parsing_flag;
+	unsigned    parsing_flag;
 	zend_bool	use_namespace;
 ZEND_END_MODULE_GLOBALS(yaf)
 
@@ -115,6 +120,10 @@ PHP_MINFO_FUNCTION(yaf);
 
 extern ZEND_DECLARE_MODULE_GLOBALS(yaf);
 
+#endif
+
+#if PHP_VERSION_ID >= 70400
+typedef unsigned long ulong;
 #endif
 
 /*

@@ -19,6 +19,7 @@
 #endif
 
 #include "php.h"
+#include "main/SAPI.h"
 #include "standard/php_string.h" /* for php_basename */
 #include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
 
@@ -79,6 +80,10 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_getenv_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(0, default)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_dispatched_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, state)
 ZEND_END_ARG_INFO()
 	/* }}} */
 
@@ -176,7 +181,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 }
 /* }}} */
 
-zval *yaf_request_query_ex(uint type, zend_bool fetch_type, void *name, size_t len) /* {{{ */ {
+zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size_t len) /* {{{ */ {
 	zval *carrier = NULL, *ret;
 
 	zend_bool jit_initialization = PG(auto_globals_jit);
@@ -299,7 +304,7 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 			return NULL;
 		} else {
 			char  	*ptrptr, *seg;
-			uint	prefer_len = 0;
+			unsigned	prefer_len = 0;
 			double	max_qvlaue = 0;
 			char 	*prefer = NULL;
 			char  	*langs = estrndup(Z_STRVAL_P(accept_langs), Z_STRLEN_P(accept_langs));
@@ -307,7 +312,7 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 			seg = php_strtok_r(langs, ",", &ptrptr);
 			while(seg) {
 				char *qvalue;
-				while (*(seg) == ' ') { 
+				while (*(seg) == ' ') {
 					seg++;
 				}
 				/* Accept-Language: da, en-gb;q=0.8, en;q=0.7 */
@@ -395,6 +400,17 @@ int yaf_request_set_params_multi(yaf_request_t *request, zval *values) /* {{{ */
 zval * yaf_request_get_param(yaf_request_t *request, zend_string *key) /* {{{ */ {
 	zval *params = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1, NULL);
 	return zend_hash_find(Z_ARRVAL_P(params), key);
+}
+/* }}} */
+
+const char *yaf_request_get_request_method(void) /* {{{ */ {
+	if (SG(request_info).request_method) {
+		return SG(request_info).request_method;
+	} else if (strncasecmp(sapi_module.name, "cli", 3) == 0) {
+		return "CLI";
+	} else {
+		return "UNKNOW";
+	}
 }
 /* }}} */
 
@@ -547,7 +563,7 @@ PHP_METHOD(yaf_request, setActionName) {
 /** {{{ proto public Yaf_Request_Abstract::setParam(mixed $value)
 */
 PHP_METHOD(yaf_request, setParam) {
-	uint argc;
+	unsigned argc;
 	yaf_request_t *self	= getThis();
 
 	argc = ZEND_NUM_ARGS();
@@ -654,7 +670,19 @@ PHP_METHOD(yaf_request, isDispatched) {
 /** {{{ proto public Yaf_Request_Abstract::setDispatched(void)
 */
 PHP_METHOD(yaf_request, setDispatched) {
-	yaf_request_set_dispatched(getThis(), 1);
+	zend_bool state;
+	zval *self = getThis();
+ 	
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "b", &state) == FAILURE){
+		return;
+	}
+	
+	if(state){
+		yaf_request_set_dispatched(getThis(), 1);
+	}else{
+		yaf_request_set_dispatched(getThis(), 0);
+	}
+
 	RETURN_TRUE;
 }
 /* }}} */
@@ -771,7 +799,7 @@ YAF_STARTUP_FUNCTION(request){
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Abstract", "Yaf\\Request_Abstract", yaf_request_methods);
 	yaf_request_ce 			= zend_register_internal_class_ex(&ce, NULL);
-	yaf_request_ce->ce_flags = ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
+	yaf_request_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), ZEND_ACC_PUBLIC);
 	zend_declare_property_null(yaf_request_ce, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), ZEND_ACC_PUBLIC);

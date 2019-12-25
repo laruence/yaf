@@ -64,7 +64,7 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
 	zval *ctl_prefer, *delimer, *zuri, *base_uri, params;
 	char *req_uri, *tmp, *rest, *ptrptr, *seg;
 	char *query_str = NULL;
-	uint seg_len = 0;
+	unsigned seg_len = 0;
 
 	smart_str route_result = {0};
 

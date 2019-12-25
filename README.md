@@ -4,7 +4,8 @@
 PHP framework written in c and built as a PHP extension.
 
 ## Requirement
-- PHP 5.2 +
+- PHP 7.0+  (master branch))
+- PHP 5.2+  ([php5 branch](https://github.com/laruence/yaf/tree/php5))
 
 ## Install
 ### Install Yaf 
@@ -138,7 +139,7 @@ class IndexController extends Yaf_Controller_Abstract {
 ?>
 ```
 
-###view script
+### view script
 The view script for default controller and default action is in the application/views/index/index.phtml, Yaf provides a simple view engine called "Yaf_View_Simple", which support the view template written in PHP.
 
 ```php
@@ -152,7 +153,7 @@ The view script for default controller and default action is in the application/
 </html>
 ```
 
-## Run the Applicatioin
+## Run the Application
   http://www.yourhostname.com/
 
 ## Alternative
