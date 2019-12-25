@@ -110,7 +110,7 @@ Yaf_Application Object
                     [module] => 
                     [controller] => 
                     [action] => 
-                    [method] => Cli
+                    [method] => CLI
                     [params:protected] => Array
                         (
                         )

@@ -19,6 +19,7 @@
 #endif
 
 #include "php.h"
+#include "main/SAPI.h"
 #include "standard/php_string.h" /* for php_basename */
 #include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
 
@@ -399,6 +400,17 @@ int yaf_request_set_params_multi(yaf_request_t *request, zval *values) /* {{{ */
 zval * yaf_request_get_param(yaf_request_t *request, zend_string *key) /* {{{ */ {
 	zval *params = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_PARAMS), 1, NULL);
 	return zend_hash_find(Z_ARRVAL_P(params), key);
+}
+/* }}} */
+
+char *yaf_request_get_request_method(void) /* {{{ */ {
+	if (SG(request_info).request_method) {
+		return SG(request_info).request_method;
+	} else if (strncasecmp(sapi_module.name, "cli", 3) == 0) {
+		return "CLI";
+	} else {
+		return "UNKNOW";
+	}
 }
 /* }}} */
 
