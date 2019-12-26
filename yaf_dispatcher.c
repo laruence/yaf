@@ -925,6 +925,8 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *resp
 
 static void yaf_dispatcher_set_default_method(INTERNAL_FUNCTION_PARAMETERS, const char *name, size_t name_length, zend_bool opt) /* {{{ */ {
 	zend_string *value;
+	zend_string *lc_name;
+	zval *self = getThis();
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &value) == FAILURE) {
 		return;
@@ -934,9 +936,8 @@ static void yaf_dispatcher_set_default_method(INTERNAL_FUNCTION_PARAMETERS, cons
 		RETURN_FALSE;
 	}
 
-	zval *self = getThis();
-	zend_string *lc_name = zend_string_tolower(value);
-	*ZSTR_VAL(lc_name) = toupper(*ZSTR_VAL(lc_name));
+	lc_name = zend_string_init(ZSTR_VAL(value), ZSTR_LEN(value), 0);
+	*(ZSTR_VAL(lc_name)) = toupper(*(ZSTR_VAL(lc_name)));
 	zend_update_property_str(yaf_dispatcher_ce, self, name, name_length, lc_name);
 	zend_string_release(lc_name);
 

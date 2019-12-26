@@ -201,6 +201,7 @@
     <file name="bug62702.phpt" role="test" />
     <file name="bug70913.phpt" role="test" />
     <file name="bug76213.phpt" role="test" />
+    <file name="bug76217.phpt" role="test" />
     <file name="issue134.phpt" role="test" />
     <file name="issue163.phpt" role="test" />
     <file name="issue231.phpt" role="test" />
