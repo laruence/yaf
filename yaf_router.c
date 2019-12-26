@@ -114,7 +114,7 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 	if (!configs || IS_ARRAY != Z_TYPE_P(configs)) {
 		return 0;
 	} else {
-		ulong idx;
+		zend_ulong idx;
 		zend_string *key;
 		zval *routes;
 

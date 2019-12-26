@@ -72,7 +72,7 @@ ZEND_END_ARG_INFO()
 static inline void yaf_deep_copy_section(zval *dst, zval *src) {
 	zval *pzval, *dstpzval, value;
 	HashTable *ht;
-	ulong idx;
+	zend_ulong idx;
 	zend_string *key;
 
 	ht = Z_ARRVAL_P(src);

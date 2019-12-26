@@ -109,7 +109,7 @@ static int yaf_route_regex_match(yaf_route_t *route, zend_string *uri, zval *ret
 		} else {
 			zval *name, *pzval;
 			zend_string	*key = NULL;
-			ulong idx = 0;
+			zend_ulong idx = 0;
 			HashTable *ht;
 
 			array_init(ret);

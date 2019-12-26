@@ -155,7 +155,7 @@ int yaf_response_set_redirect(yaf_response_t *response, char *url, int len) {
 int yaf_response_http_send(yaf_response_t *response) {
 	zval *zresponse_code, *zheader, *zbody;
 	zval *val, *entry;
-	ulong num_key;
+	zend_ulong num_key;
 	zend_string *header_name;
 	sapi_header_line ctr = {0};
 

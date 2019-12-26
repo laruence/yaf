@@ -122,10 +122,6 @@ extern ZEND_DECLARE_MODULE_GLOBALS(yaf);
 
 #endif
 
-#if PHP_VERSION_ID >= 70400
-typedef unsigned long ulong;
-#endif
-
 /*
  * Local variables:
  * tab-width: 4
