@@ -382,7 +382,11 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	zend_update_property_bool(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_RUN), 0);
-	zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name));
+	if (section && Z_TYPE_P(section) == IS_STRING && Z_STRLEN_P(section)) {
+		zend_update_property_str(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), Z_STR_P(section));
+	} else {
+		zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name));
+	}
 
 	if (Z_TYPE(YAF_G(modules)) == IS_ARRAY) {
 		zend_update_property(yaf_application_ce,
