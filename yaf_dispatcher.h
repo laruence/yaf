@@ -43,6 +43,9 @@
 #define YAF_PLUGIN_HOOK_LOOPSHUTDOWN            "dispatchloopshutdown"
 #define YAF_PLUGIN_HOOK_PRERESPONSE             "preresponse"
 
+#define YAF_DISPATCHER_CHECK_MODULE	1
+#define YAF_DISPATCHER_CHECK_NONE	0
+
 #define YAF_PLUGIN_HANDLE(p, n, request, response) \
 	do { \
 		if (!ZVAL_IS_NULL(p)) { \
