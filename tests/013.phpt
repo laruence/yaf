@@ -94,12 +94,7 @@ Array
                     [2] => value
                 )
 
-            [_verify:protected] => Array
-                (
-                    [controller] => Index
-                    [action] => action
-                )
-
+            [_verify:protected] => 
             [_reverse:protected] => 
         )
 
@@ -124,12 +119,7 @@ Array
                     [action] => action
                 )
 
-            [_verify:protected] => Array
-                (
-                    [controller] => Index
-                    [action] => action
-                )
-
+            [_verify:protected] => 
         )
 
 )
