@@ -159,13 +159,12 @@ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf
 			ZVAL_COPY_VALUE(&((*params)[current]), arg);
 			(*count)++;
 		} else {
+#if 0 /* is this really useful out of there? */
 			zend_string *key;
-
-			arg  = NULL;
 			/* since we need search ignoring case, can't use zend_hash_find */
 			ZEND_HASH_FOREACH_STR_KEY_VAL(params_ht, key, arg) {
                 if (key) {
-					if (zend_string_equals(key, arg_info->name)) {
+					if (zend_string_equals_ci(key, arg_info->name)) {
 							/* return when we find first match, there is a trap
 							 * when multi different parameters in different case presenting in params_ht
 							 * only the first take affect
@@ -175,11 +174,15 @@ static void yaf_dispatcher_get_call_parameters(zend_class_entry *request_ce, yaf
 							break;
 					}
 				}
+				arg = NULL;
 			} ZEND_HASH_FOREACH_END();
 
-			if (NULL == arg) {
+			if (arg == NULL) {
 				break;
 			}
+#else
+			break;
+#endif
 		}
 	}
 }
