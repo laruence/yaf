@@ -136,62 +136,34 @@ static int yaf_loader_is_category(char *class, size_t class_len, char *category,
 /** {{{ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len)
  */
 int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len) {
-	char *pos, *ns, *prefix;
-	char orig_char = 0, *backup = NULL;
-	size_t prefix_len;
+	char *pos, *ns;
+	size_t prefix_len, ns_len;
 
 	if (!YAF_G(local_namespaces)) {
 		return 0;
 	}
 
 	ns = ZSTR_VAL(YAF_G(local_namespaces));
+	ns_len = ZSTR_LEN(YAF_G(local_namespaces));
 
-	pos = strstr(class_name, "_");
-	if (pos) {
-		prefix_len 	= pos - class_name;
-		prefix 	= class_name;
-		backup = class_name + prefix_len;
-		orig_char = '_';
-		*backup = '\0';
-	} else if ((pos = strstr(class_name, "\\"))) {
-		prefix_len 	= pos - class_name;
-		prefix 	= estrndup(class_name, prefix_len);
-		orig_char = '\\';
-		backup = class_name + prefix_len;
-		*backup = '\0';
+	if ((pos = memchr(class_name, '_', len))  || (pos = memchr(class_name, '\\', len))) {
+		prefix_len = pos - class_name;
 	} else {
-		prefix = class_name;
 		prefix_len = len;
 	}
 
-	while ((pos = strstr(ns, prefix))) {
-		if ((pos == ns) && (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
-			if (backup) {
-				*backup = orig_char;
-			}
-			if (prefix != class_name) {
-				efree(prefix);
-			}
-			return 1;
-		} else if (*(pos - 1) == DEFAULT_DIR_SEPARATOR
-				&& (*(pos + prefix_len) == DEFAULT_DIR_SEPARATOR || *(pos + prefix_len) == '\0')) {
-			if (backup) {
-				*backup = orig_char;
-			}
-			if (prefix != class_name) {
-				efree(prefix);
-			}
+	while ((pos = memchr(ns, DEFAULT_DIR_SEPARATOR, ns_len))) {
+		if (prefix_len == pos - ns && memcmp(ns, class_name, prefix_len) == 0) {
 			return 1;
 		}
-		ns = pos + prefix_len;
+		ns_len = ns_len - (pos - ns) + 1;
+		ns = pos + 1;
 	}
 
-	if (backup) {
-		*backup = orig_char;
-	}
-
-	if (prefix != class_name) {
-		efree(prefix);
+	if (ns_len) {
+		if (prefix_len == ns_len && memcmp(ns, class_name, ns_len) == 0) {
+			return 1;
+		}
 	}
 
 	return 0;

@@ -15,6 +15,7 @@ $loader->registerLocalNamespace("Sina");
 $loader->registerLocalNamespace(array("Wb", "Inf", NULL, array(), "123"));
 var_dump($loader->getLocalNamespace());
 var_dump($loader->isLocalName("Baidu_Name"));
+var_dump($loader->isLocalName("Inf\\Name"));
 
 try {
 	var_dump($loader->autoload("Baidu_Name"));
@@ -30,6 +31,7 @@ try {
 ?>
 --EXPECTF--
 string(21) "Baidu%cSina%cWb%cInf%c123"
+bool(true)
 bool(true)
 
 Warning: Yaf_Loader::autoload(): Failed opening script %sBaidu%cName.php: No such file or directory in %s
