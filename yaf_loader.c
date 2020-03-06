@@ -728,14 +728,6 @@ PHP_METHOD(yaf_loader, __destruct) {
 }
 /* }}} */
 
-/** {{{ proto yaf_override_spl_autoload($class_name)
-*/
-PHP_FUNCTION(yaf_override_spl_autoload) {
-	php_error_docref(NULL, E_WARNING, "%s is disabled by ap.use_spl_autoload", YAF_SPL_AUTOLOAD_REGISTER_NAME);
-	RETURN_BOOL(0);
-}
-/* }}} */
-
 /** {{{ yaf_loader_methods
 */
 zend_function_entry yaf_loader_methods[] = {
