@@ -44,7 +44,7 @@ extern zend_module_entry yaf_module_entry;
 # define ZEND_ACC_DTOR	0x0
 #endif
 
-#define PHP_YAF_VERSION 					"3.0.10-dev"
+#define PHP_YAF_VERSION 					"3.1.0-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
@@ -99,9 +99,6 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	zend_bool  	in_exception;
 	zend_bool  	catch_exception;
 	zend_bool   suppressing_warning;
-/* {{{ This only effects internally */
-	zend_bool  	st_compatible;
-/* }}} */
 	long		forward_limit;
 	HashTable	*configs;
 	zval 		 modules;
