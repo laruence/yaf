@@ -283,223 +283,150 @@ int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *requ
 /* }}} */
 
 zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, zend_string *module, zend_string *controller, int def_module) /* {{{ */ {
-	char *directory;
+	char directory[MAXPATHLEN];
 	size_t directory_len;
+	zend_class_entry *ce;
+	zend_string *lc_name;
 
 	if (def_module) {
-		directory_len = spprintf(&directory, 0,
+		directory_len = snprintf(directory, sizeof(directory),
 				"%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	} else {
-		directory_len = spprintf(&directory, 0,
+		directory_len = snprintf(directory, 0,
 				"%s%c%s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, YAF_MODULE_DIRECTORY_NAME,
 				DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	}
 
-	if (EXPECTED(directory_len)) {
-		zend_string *class;
-		zend_string *class_lowercase;
-		zend_class_entry *ce 	= NULL;
-
-		if (YAF_G(name_suffix)) {
-			class = strpprintf(0, "%s%s%s", ZSTR_VAL(controller), YAF_G(name_separator), "Controller");
-		} else {
-			class = strpprintf(0, "%s%s%s", "Controller", YAF_G(name_separator), ZSTR_VAL(controller));
-		}
-
-		class_lowercase = zend_string_tolower(class);
-
-		if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) == NULL) {
-			if (!yaf_internal_autoload(ZSTR_VAL(controller), ZSTR_LEN(controller), &directory)) {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
-						"Failed opening controller script %s: %s", directory, strerror(errno));
-				zend_string_release(class);
-				zend_string_release(class_lowercase);
-				efree(directory);
-				return NULL;
-			} else if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) == NULL)  {
-				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
-						"Could not find class %s in controller script %s", ZSTR_VAL(class), directory);
-				zend_string_release(class);
-				zend_string_release(class_lowercase);
-				efree(directory);
-				return 0;
-			} else if (!instanceof_function(ce, yaf_controller_ce)) {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR,
-						"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
-				zend_string_release(class);
-				zend_string_release(class_lowercase);
-				efree(directory);
-				return 0;
-			}
-		}
-
-		zend_string_release(class);
-		zend_string_release(class_lowercase);
-		efree(directory);
-
-		return ce;
+	if (directory_len >= sizeof(directory)) {
+		yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s: %s", directory);
+		return NULL;
 	}
 
-	return NULL;
+	lc_name = zend_string_alloc(ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("Controller") - 1, 0);
+	if (EXPECTED(YAF_G(name_suffix))) {
+		char *p = ZSTR_VAL(lc_name);
+		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller));
+		p += ZSTR_LEN(controller);
+		if (UNEXPECTED(YAF_G(name_separator_len))) {
+			zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
+			p += YAF_G(name_separator_len);
+		}
+		memcpy(p, "controller", sizeof("controller"));
+	} else {
+		char *p = ZSTR_VAL(lc_name);
+		memcpy(p, "controller", sizeof("controller") - 1);
+		p += sizeof("controller") - 1;
+		if (UNEXPECTED(YAF_G(name_separator_len))) {
+			zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
+			p += YAF_G(name_separator_len);
+		}
+		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller) + 1);
+	}
+
+	if ((ce = (zend_class_entry*)zend_hash_find_ptr(EG(class_table), lc_name)) == NULL) {
+		if (!yaf_loader_load(NULL, ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
+			yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
+					"Failed opening controller script %s: %s", directory, strerror(errno));
+			zend_string_release(lc_name);
+			return NULL;
+		} else if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) == NULL)  {
+			zend_string_release(lc_name);
+			if (EXPECTED(YAF_G(name_suffix))) {
+				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
+					"Could not find class %s%s%s in controller script %s",
+					ZSTR_VAL(controller), YAF_G(name_separator), "Controller", directory);
+			} else {
+				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
+					"Could not find class %s%s%s in controller script %s",
+					"Controller", YAF_G(name_separator), ZSTR_VAL(controller), directory);
+			}
+			return 0;
+		} else if (!instanceof_function(ce, yaf_controller_ce)) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR,
+					"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
+			zend_string_release(lc_name);
+			return 0;
+		}
+	}
+
+	zend_string_release(lc_name);
+
+	return ce;
+
 }
 /* }}} */
 
 zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller_t *controller, char *module, int def_module, zend_string *action) /* {{{ */ {
 	zval *paction, *actions_map;
-	actions_map = zend_read_property(Z_OBJCE_P(controller),
-			controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
+	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
 
-        if (Z_TYPE_P(actions_map) == IS_REFERENCE) {
-            actions_map = Z_REFVAL_P(actions_map);
-        }
+	ZVAL_DEREF(actions_map);
 
 	if (EXPECTED(IS_ARRAY == Z_TYPE_P(actions_map))) {
 		zend_class_entry *ce;
-		zend_string *class;
-		zend_string *class_lowercase;
-		char *action_upper = estrndup(ZSTR_VAL(action), ZSTR_LEN(action));
+		zend_string *lc_name;
 
-		*(action_upper) = toupper(*action_upper);
-
-		if (YAF_G(name_suffix)) {
-			class = strpprintf(0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
+		lc_name = zend_string_alloc(ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("Action") - 1, 0);
+		if (EXPECTED(YAF_G(name_suffix))) {
+			char *p = ZSTR_VAL(lc_name);
+			zend_str_tolower_copy(p, ZSTR_VAL(action), ZSTR_LEN(action));
+			p += ZSTR_LEN(action);
+			if (UNEXPECTED(YAF_G(name_separator_len))) {
+				zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
+				p += YAF_G(name_separator_len);
+			}
+			memcpy(p, "action", sizeof("action"));
 		} else {
-			class = strpprintf(0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
+			char *p = ZSTR_VAL(lc_name);
+			memcpy(p, "action", sizeof("action"));
+			p += sizeof("action") - 1;
+			if (UNEXPECTED(YAF_G(name_separator_len))) {
+				zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
+				p += YAF_G(name_separator_len);
+			}
+			zend_str_tolower_copy(p, ZSTR_VAL(action), ZSTR_LEN(action) + 1);
 		}
 
-		class_lowercase = zend_string_tolower(class);
-
-		if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) != NULL) {
-			efree(action_upper);
-			zend_string_release(class_lowercase);
+		if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
+			zend_string_release(lc_name);
 			if (instanceof_function(ce, yaf_action_ce)) {
-				zend_string_release(class);
 				return ce;
 			} else {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR,
-						"Action %s must extends from %s", ZSTR_VAL(class), ZSTR_VAL(yaf_action_ce->name));
-				zend_string_release(class);
+						"Action %s must extends from %s", ZSTR_VAL(action), ZSTR_VAL(yaf_action_ce->name));
 				return NULL;
 			}
 		}
 
 		if ((paction = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
-			if (Z_TYPE_P(paction) == IS_REFERENCE) {
-                            paction = Z_REFVAL_P(paction);
-                        }
-
 			zend_string *action_path;
+			ZVAL_DEREF(paction);
 
 			action_path = strpprintf(0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, Z_STRVAL_P(paction));
-			if (yaf_loader_import(action_path, 0)) {
-				if ((ce = zend_hash_find_ptr(EG(class_table), class_lowercase)) != NULL) {
-					zend_string_release(action_path);
-					efree(action_upper);
-					zend_string_release(class_lowercase);
-
+			if (yaf_loader_import(ZSTR_VAL(action_path), ZSTR_LEN(action_path))) {
+				if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
 					if (instanceof_function(ce, yaf_action_ce)) {
-						zend_string_release(class);
+						zend_string_release(action_path);
+						zend_string_release(lc_name);
 						return ce;
 					} else {
 						yaf_trigger_error(YAF_ERR_TYPE_ERROR,
-								"Action %s must extends from %s", ZSTR_VAL(class), ZSTR_VAL(yaf_action_ce->name));
-						zend_string_release(class);
+								"Action %s must extends from %s", ZSTR_VAL(action), ZSTR_VAL(yaf_action_ce->name));
 					}
-
 				} else {
 					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
-							"Could not find action %s in %s", ZSTR_VAL(class), ZSTR_VAL(action_path));
+							"Could not find action %s in %s", ZSTR_VAL(action), ZSTR_VAL(action_path));
 				}
-
-				zend_string_release(action_path);
-				efree(action_upper);
-				zend_string_release(class);
-				zend_string_release(class_lowercase);
 			} else {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
 						"Failed opening action script %s: %s", ZSTR_VAL(action_path), strerror(errno));
-				zend_string_release(action_path);
 			}
+			zend_string_release(action_path);
 		} else {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "There is no method %s%s in %s::$%s", ZSTR_VAL(action),
 					"Action", ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_CONTROLLER_PROPERTY_NAME_ACTIONS);
 		}
-	} else
-/* {{{ This only effects internally */
-	   	if (YAF_G(st_compatible)) {
-		char *directory, *class, *class_lowercase, *p;
-		unsigned class_len;
-		zend_class_entry *ce;
-		char *action_upper = estrndup(ZSTR_VAL(action), ZSTR_LEN(action));
-
-		/**
-		 * upper Action Name
-		 * eg: Index_sub -> Index_Sub
-		 */
-		p = action_upper;
-		*(p) = toupper(*p);
-		while (*p != '\0') {
-			if (*p == '_' || *p == '\\') {
-				if (*(p+1) != '\0') {
-					*(p+1) = toupper(*(p+1));
-					p++;
-				}
-			}
-			p++;
-		}
-
-		if (def_module) {
-			spprintf(&directory, 0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, "actions");
-		} else {
-			spprintf(&directory, 0, "%s%c%s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH,
-					"modules", DEFAULT_SLASH, module, DEFAULT_SLASH, "actions");
-		}
-
-		if (YAF_G(name_suffix)) {
-			class_len = spprintf(&class, 0, "%s%s%s", action_upper, YAF_G(name_separator), "Action");
-		} else {
-			class_len = spprintf(&class, 0, "%s%s%s", "Action", YAF_G(name_separator), action_upper);
-		}
-
-		class_lowercase = zend_str_tolower_dup(class, class_len);
-
-		if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) == NULL) {
-			if (!yaf_internal_autoload(action_upper, ZSTR_LEN(action), &directory)) {
-				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "Failed opening action script %s: %s", directory, strerror(errno));
-
-				efree(class);
-				efree(action_upper);
-				efree(class_lowercase);
-				efree(directory);
-				return NULL;
-			} else if ((ce = zend_hash_str_find_ptr(EG(class_table), class_lowercase, class_len)) == NULL)  {
-				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "Could find class %s in action script %s", class, directory);
-
-				efree(class);
-				efree(action_upper);
-				efree(class_lowercase);
-				efree(directory);
-				return NULL;
-			} else if (!instanceof_function(ce, yaf_action_ce)) {
-				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Action must be an instance of %s", ZSTR_VAL(yaf_action_ce->name));
-
-				efree(class);
-				efree(action_upper);
-				efree(class_lowercase);
-				efree(directory);
-				return NULL;
-			}
-		}
-
-		efree(class);
-		efree(action_upper);
-		efree(class_lowercase);
-		efree(directory);
-
-		return ce;
-	} else
-/* }}} */
-	{
+	} else {
 		yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
 				"There is no method %s%s in %s", ZSTR_VAL(action), "Action", ZSTR_VAL(Z_OBJCE_P(controller)->name));
 	}

@@ -32,22 +32,6 @@
 #define YAF_LOADER_PROPERTY_NAME_INSTANCE	"_instance"
 #define YAF_LOADER_PROPERTY_NAME_NAMESPACE	"_local_ns"
 
-#define YAF_LOADER_CONTROLLER				"Controller"
-#define YAF_LOADER_LEN_CONTROLLER			10
-#define YAF_LOADER_MODEL					"Model"
-#define YAF_LOADER_LEN_MODEL				5
-#define YAF_LOADER_PLUGIN					"Plugin"
-#define YAF_LOADER_LEN_PLUGIN				6
-#define YAF_LOADER_RESERVERD				"Yaf_"
-#define YAF_LOADER_LEN_RESERVERD			3
-
-/* {{{ This only effects internally */
-#define YAF_LOADER_DAO						"Dao_"
-#define YAF_LOADER_LEN_DAO					4
-#define YAF_LOADER_SERVICE					"Service_"
-#define YAF_LOADER_LEN_SERVICE				8
-/* }}} */
-
 #define	YAF_LOADER_PROPERTY_NAME_LIBRARY	"_library"
 #define YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB "_global_library"
 
@@ -65,8 +49,8 @@
 
 extern zend_class_entry *yaf_loader_ce;
 
-int yaf_internal_autoload(char *file_name, size_t name_len, char **directory);
-int yaf_loader_import(zend_string *path, int use_path);
+int yaf_loader_load(yaf_loader_t *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
+int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
 int yaf_loader_register_namespace_single(char *prefix, size_t len);
 yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_path, zend_string *global_path);

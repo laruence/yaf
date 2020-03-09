@@ -520,20 +520,20 @@ PHP_METHOD(yaf_application, environ) {
 /** {{{ proto public Yaf_Application::bootstrap(void)
 */
 PHP_METHOD(yaf_application, bootstrap) {
-	zend_string	*bootstrap_path;
 	unsigned  retval = 1;
 	zend_class_entry  *ce;
 	yaf_application_t *self = getThis();
 
 	if (!(ce = zend_hash_str_find_ptr(EG(class_table),
 					YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1))) {
+		zend_string *bootstrap_path;
 		if (YAF_G(bootstrap)) {
 			bootstrap_path = zend_string_copy(YAF_G(bootstrap));
 		} else {
 			bootstrap_path = strpprintf(0, "%s%c%s.%s",
 					ZSTR_VAL(YAF_G(directory)), DEFAULT_SLASH, YAF_DEFAULT_BOOTSTRAP, ZSTR_VAL(YAF_G(ext)));
 		}
-		if (!yaf_loader_import(bootstrap_path, 0)) {
+		if (!yaf_loader_import(ZSTR_VAL(bootstrap_path), ZSTR_LEN(bootstrap_path))) {
 			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", ZSTR_VAL(bootstrap_path));
 			retval = 0;
 		} else if (UNEXPECTED((ce = zend_hash_str_find_ptr(EG(class_table),
