@@ -21,6 +21,10 @@
 #include "php.h"
 #include "zend_smart_str.h" /* for smart_str */
 
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
+
 #include "php_yaf.h"
 #include "yaf_application.h"
 #include "yaf_namespace.h"
@@ -221,7 +225,31 @@ static inline char* yaf_loader_sanitize_name(char *name, size_t len) /* {{{ */ {
 		/* replace all '\' to '_' */
 		sanitized_name = estrndup(name, len);
 		pos = sanitized_name + (pos - name);
-		while ((*pos = '_', pos = memchr(pos, '\\', len - (pos - sanitized_name))));
+#ifdef __SSE2__
+		do {
+			const __m128i slash = _mm_set1_epi8('\\');
+			const __m128i delta = _mm_set1_epi8('_' - '\\');
+			len -= (pos - sanitized_name);
+			while (len >= 16) {
+				__m128i op = _mm_loadu_si128((__m128i *)pos);
+				__m128i eq = _mm_cmpeq_epi8(op, slash);
+				if (_mm_movemask_epi8(eq)) {
+					eq = _mm_and_si128(eq, delta);
+					op = _mm_add_epi8(op, eq);
+					_mm_storeu_si128((__m128i*)pos, op);
+				}
+				len -= 16;
+				pos += 16;
+			}
+		} while (0);
+
+		name = pos;
+		while ((pos = memchr(pos, '\\', len - (pos - name)))) {
+			*pos++ = '_';
+		}
+#else
+		while ((*pos++ = '_', pos = memchr(pos, '\\', len - (pos - sanitized_name))));
+#endif
 	}
 
 	return sanitized_name;
