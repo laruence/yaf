@@ -304,13 +304,13 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 			return NULL;
 		} else {
 			char  	*ptrptr, *seg;
-			unsigned	prefer_len = 0;
+			unsigned prefer_len = 0;
 			double	max_qvlaue = 0;
 			char 	*prefer = NULL;
 			char  	*langs = estrndup(Z_STRVAL_P(accept_langs), Z_STRLEN_P(accept_langs));
 
 			seg = php_strtok_r(langs, ",", &ptrptr);
-			while(seg) {
+			while (seg) {
 				char *qvalue;
 				while (*(seg) == ' ') {
 					seg++;
@@ -671,17 +671,12 @@ PHP_METHOD(yaf_request, isDispatched) {
 */
 PHP_METHOD(yaf_request, setDispatched) {
 	zend_bool state;
-	zval *self = getThis();
  	
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "b", &state) == FAILURE){
 		return;
 	}
 	
-	if(state){
-		yaf_request_set_dispatched(getThis(), 1);
-	}else{
-		yaf_request_set_dispatched(getThis(), 0);
-	}
+	yaf_request_set_dispatched(getThis(), state);
 
 	RETURN_TRUE;
 }
