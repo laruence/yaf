@@ -655,7 +655,7 @@ PHP_METHOD(yaf_loader, import) {
 PHP_METHOD(yaf_loader, autoload) {
 	zend_string *class_name;
 	char directory[MAXPATHLEN];
-	char *sanitized_name, *pos;
+	char *sanitized_name;
 	size_t sanitized_len;
 	uint32_t directory_len = 0;
 	uint32_t class_type, status;
