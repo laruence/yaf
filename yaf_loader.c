@@ -243,9 +243,11 @@ static inline char* yaf_loader_sanitize_name(char *name, size_t len) /* {{{ */ {
 			}
 		} while (0);
 
-		name = pos;
-		while ((pos = memchr(pos, '\\', len - (pos - name)))) {
-			*pos++ = '_';
+		if (len) {
+			name = pos;
+			while ((pos = memchr(pos, '\\', len - (pos - name)))) {
+				*pos++ = '_';
+			}
 		}
 #else
 		while ((*pos++ = '_', pos = memchr(pos, '\\', len - (pos - sanitized_name))));
