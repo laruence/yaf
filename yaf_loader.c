@@ -19,7 +19,7 @@
 #endif
 
 #include "php.h"
-#include "zend_smart_str.h" /* for smart_str */
+#include "ext/standard/php_string.h" /* php_trim */
 
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -261,15 +261,13 @@ static inline char* yaf_loader_sanitize_name(char *name, size_t len) /* {{{ */ {
 /** {{{ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len)
  */
 int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int len) {
-	char *pos, *ns;
-	size_t prefix_len, ns_len;
+	char *pos;
+	size_t prefix_len;
 
-	if (!YAF_G(local_namespaces)) {
+	if (!YAF_G(local_namespaces) || zend_hash_num_elements(YAF_G(local_namespaces)) == 0) {
 		return 0;
 	}
 
-	ns = ZSTR_VAL(YAF_G(local_namespaces));
-	ns_len = ZSTR_LEN(YAF_G(local_namespaces));
 
 	if ((pos = memchr(class_name, '_', len))) {
 		prefix_len = pos - class_name;
@@ -277,21 +275,7 @@ int yaf_loader_is_local_namespace(yaf_loader_t *loader, char *class_name, int le
 		prefix_len = len;
 	}
 
-	while ((pos = memchr(ns, DEFAULT_DIR_SEPARATOR, ns_len))) {
-		if (prefix_len == pos - ns && memcmp(ns, class_name, prefix_len) == 0) {
-			return 1;
-		}
-		ns_len -= pos - ns + 1;
-		ns = pos + 1;
-	}
-
-	if (ns_len) {
-		if (prefix_len == ns_len && memcmp(ns, class_name, ns_len) == 0) {
-			return 1;
-		}
-	}
-
-	return 0;
+	return zend_hash_str_exists(YAF_G(local_namespaces), class_name, prefix_len);
 }
 /* }}} */
 
@@ -470,16 +454,17 @@ int yaf_loader_load(yaf_loader_t *loader, char *filename, size_t fname_len, char
 }
 /* }}} */
 
-int yaf_loader_register_namespace_single(char *prefix, size_t len) /* {{{ */ {
+int yaf_loader_register_namespace_single(zend_string *prefix) /* {{{ */ {
+	zend_string *sanitized_prefix;
 
-	if (YAF_G(local_namespaces)) {
-		YAF_G(local_namespaces) = zend_string_realloc(
-				YAF_G(local_namespaces), ZSTR_LEN(YAF_G(local_namespaces)) + len + 1, 0);
-		snprintf(ZSTR_VAL(YAF_G(local_namespaces)) +
-				ZSTR_LEN(YAF_G(local_namespaces)) - (len + 1), len + 1 + 1, "%c%s", DEFAULT_DIR_SEPARATOR, prefix);
-	} else {
-		YAF_G(local_namespaces) = zend_string_init(prefix, len, 0);
+	if (!YAF_G(local_namespaces)) {
+		ALLOC_HASHTABLE(YAF_G(local_namespaces));
+		zend_hash_init(YAF_G(local_namespaces), 8, NULL, NULL, 0);
 	}
+	sanitized_prefix = php_trim(prefix, NULL, 0, 3);
+
+	zend_hash_add_empty_element(YAF_G(local_namespaces), sanitized_prefix);
+	zend_string_release(sanitized_prefix);
 
 	return 1;
 }
@@ -494,7 +479,7 @@ int yaf_loader_register_namespace_multi(zval *prefixes) {
 	ht = Z_ARRVAL_P(prefixes);
 	ZEND_HASH_FOREACH_VAL(ht, pzval) {
 		if (IS_STRING == Z_TYPE_P(pzval)) {
-			yaf_loader_register_namespace_single(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
+			yaf_loader_register_namespace_single(Z_STR_P(pzval));
 		}
 	} ZEND_HASH_FOREACH_END();
 
@@ -536,7 +521,7 @@ PHP_METHOD(yaf_loader, registerLocalNamespace) {
 	}
 
 	if (IS_STRING == Z_TYPE_P(namespaces)) {
-		if (yaf_loader_register_namespace_single(Z_STRVAL_P(namespaces), Z_STRLEN_P(namespaces))) {
+		if (yaf_loader_register_namespace_single(Z_STR_P(namespaces))) {
 			RETURN_ZVAL(getThis(), 1, 0);
 		}
 	} else if (IS_ARRAY == Z_TYPE_P(namespaces)) {
@@ -555,7 +540,9 @@ PHP_METHOD(yaf_loader, registerLocalNamespace) {
 */
 PHP_METHOD(yaf_loader, getLocalNamespace) {
 	if (YAF_G(local_namespaces)) {
-		RETURN_STR(zend_string_copy(YAF_G(local_namespaces)));
+		ZVAL_ARR(return_value, YAF_G(local_namespaces));
+		Z_TRY_ADDREF_P(return_value);
+		return;
 	}
 	RETURN_NULL();
 }
@@ -564,8 +551,7 @@ PHP_METHOD(yaf_loader, getLocalNamespace) {
 /** {{{ proto public Yaf_Loader::clearLocalNamespace(void)
 */
 PHP_METHOD(yaf_loader, clearLocalNamespace) {
-	zend_string_release(YAF_G(local_namespaces));
-	YAF_G(local_namespaces) = NULL;
+	zend_hash_clean(YAF_G(local_namespaces));
 	RETURN_TRUE;
 }
 /* }}} */

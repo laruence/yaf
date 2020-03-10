@@ -30,7 +30,18 @@ try {
 
 ?>
 --EXPECTF--
-string(21) "Baidu%cSina%cWb%cInf%c123"
+array(5) {
+  ["Baidu"]=>
+  NULL
+  ["Sina"]=>
+  NULL
+  ["Wb"]=>
+  NULL
+  ["Inf"]=>
+  NULL
+  ["123"]=>
+  NULL
+}
 bool(true)
 bool(true)
 

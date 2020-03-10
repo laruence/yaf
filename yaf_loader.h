@@ -52,7 +52,7 @@ extern zend_class_entry *yaf_loader_ce;
 int yaf_loader_load(yaf_loader_t *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
 int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
-int yaf_loader_register_namespace_single(char *prefix, size_t len);
+int yaf_loader_register_namespace_single(zend_string *prefix);
 yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_path, zend_string *global_path);
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);

@@ -126,7 +126,7 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 			}
 
 			ZVAL_UNDEF(&rv);
-			route = yaf_route_instance(&rv, entry);
+			route = yaf_route_instance(&rv, Z_ARRVAL_P(entry));
 			if (key) {
 				if (!route) {
 					php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", ZSTR_VAL(key));

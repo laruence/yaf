@@ -192,16 +192,20 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		YAF_G(local_library) = NULL;
 	}
 	if (YAF_G(local_namespaces)) {
-		zend_string_release(YAF_G(local_namespaces));
+		if (--(GC_REFCOUNT(YAF_G(local_namespaces))) == 0) {
+			zend_array_destroy(YAF_G(local_namespaces));
+		}
 		YAF_G(local_namespaces) = NULL;
 	}
 	if (YAF_G(bootstrap)) {
 		zend_string_release(YAF_G(bootstrap));
 		YAF_G(bootstrap) = NULL;
 	}
-	if (Z_TYPE(YAF_G(modules)) == IS_ARRAY) {
-		zval_ptr_dtor(&YAF_G(modules));
-		ZVAL_UNDEF(&YAF_G(modules));
+	if (YAF_G(modules)) {
+		if (--(GC_REFCOUNT(YAF_G(modules))) == 0) {
+			zend_array_destroy(YAF_G(modules));
+		}
+		YAF_G(modules) = NULL;
 	}
 	if (YAF_G(base_uri)) {
 		zend_string_release(YAF_G(base_uri));

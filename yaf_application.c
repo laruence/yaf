@@ -168,22 +168,26 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 				}
 			}
 			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
-							ZEND_STRL("namespace"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
-				unsigned i, len;
-				char *src = Z_STRVAL_P(psval);
+						ZEND_STRL("namespace"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
 				if (Z_STRLEN_P(psval)) {
-				    char *target = emalloc(Z_STRLEN_P(psval) + 1);
-					len = 0;
-					for(i=0; i<Z_STRLEN_P(psval); i++) {
-						if (src[i] == ',') {
-							target[len++] = DEFAULT_DIR_SEPARATOR;
-						} else if (src[i] != ' ') {
-							target[len++] = src[i];
-						}
+					zend_string *prefix;
+					char *src = Z_STRVAL_P(psval), *pos;
+					size_t len = Z_STRLEN_P(psval);
+					while ((pos = memchr(src, ',', len))) {
+						len -= pos - src;
+						while (*src == ' ') src++;
+						while (*pos == ' ') pos--;
+						prefix = zend_string_init(src, pos - src, 0);
+						yaf_loader_register_namespace_single(prefix);
+						zend_string_release(prefix);
+						src = pos + 1;
 					}
-					target[len] = '\0';
-					yaf_loader_register_namespace_single(target, len);
-					efree(target);
+
+					if (len) {
+						prefix = zend_string_init(src, len, 0);
+						yaf_loader_register_namespace_single(prefix);
+						zend_string_release(prefix);
+					}
 				}
 			}
 		}
@@ -238,7 +242,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 						ZEND_STRL("defaultRoute"))) != NULL && Z_TYPE_P(psval) == IS_ARRAY) {
 			/* increase the refcount? */
-			YAF_G(default_route) = psval;
+			YAF_G(default_route) = Z_ARRVAL_P(psval);
 		}
 	}
 
@@ -246,9 +250,11 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 		char *ptrptr;
 		zval module;
 
-		array_init(&YAF_G(modules));
+		ALLOC_HASHTABLE(YAF_G(modules));
+		zend_hash_init(YAF_G(modules), 8, NULL, ZVAL_PTR_DTOR, 0);
+
 		if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app),
-						ZEND_STRL("modules"))) != NULL && Z_TYPE_P(pzval) == IS_STRING && Z_STRLEN_P(pzval)) {
+				ZEND_STRL("modules"))) != NULL && Z_TYPE_P(pzval) == IS_STRING && Z_STRLEN_P(pzval)) {
 			char *seg, *modules;
 			modules = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 			seg = php_strtok_r(modules, ",", &ptrptr);
@@ -256,19 +262,19 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 				if (seg && strlen(seg)) {
 					ZVAL_STRINGL(&module, seg, strlen(seg));
 					*(Z_STRVAL(module)) = toupper(*Z_STRVAL(module));
-					zend_hash_next_index_insert(Z_ARRVAL(YAF_G(modules)), &module);
+					zend_hash_next_index_insert(YAF_G(modules), &module);
 				}
 				seg = php_strtok_r(NULL, ",", &ptrptr);
 			}
 			efree(modules);
 		} else {
 			ZVAL_STR_COPY(&module, YAF_G(default_module));
-			zend_hash_next_index_insert(Z_ARRVAL(YAF_G(modules)), &module);
+			zend_hash_next_index_insert(YAF_G(modules), &module);
 		}
 	} while (0);
 
 	if ((pzval = zend_hash_str_find(Z_ARRVAL_P(app),
-					ZEND_STRL("system"))) != NULL && Z_TYPE_P(pzval) == IS_ARRAY) {
+			ZEND_STRL("system"))) != NULL && Z_TYPE_P(pzval) == IS_ARRAY) {
 		zval *value;
 		char name[128];
 		zend_string *key;
@@ -297,12 +303,12 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 */
 PHP_METHOD(yaf_application, __construct) {
 	zval *config;
-	zval *section = NULL, zsection = {{0}};
+	zval *section = NULL;
 	yaf_config_t zconfig = {{0}};
 	yaf_request_t zrequest = {{0}};
 	yaf_dispatcher_t zdispatcher = {{0}};
-	yaf_application_t *app, *self;
 	yaf_loader_t *loader, zloader = {{0}};
+	yaf_application_t *app, *self;
 
 #if PHP_YAF_DEBUG
 	php_error_docref(NULL, E_STRICT, "Yaf is running in debug mode");
@@ -321,16 +327,16 @@ PHP_METHOD(yaf_application, __construct) {
 
 	self = getThis();
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
+		zval zsection;
 		ZVAL_STRING(&zsection, YAF_G(environ_name));
-		(void)yaf_config_instance(&zconfig, config, &zsection);
+		yaf_config_instance(&zconfig, config, &zsection);
 		zval_ptr_dtor(&zsection);
 	} else {
-		(void)yaf_config_instance(&zconfig, config, section);
+		yaf_config_instance(&zconfig, config, section);
 	}
 
-	if  (UNEXPECTED(Z_TYPE(zconfig) != IS_OBJECT
-			|| yaf_application_parse_option(zend_read_property(yaf_config_ce,
-					&zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL)) == FAILURE)) {
+	if (UNEXPECTED(Z_TYPE(zconfig) != IS_OBJECT ||
+			yaf_application_parse_option(zend_read_property(yaf_config_ce, &zconfig, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL)) == FAILURE)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
 		zval_ptr_dtor(&zconfig);
 		RETURN_FALSE;
@@ -388,9 +394,10 @@ PHP_METHOD(yaf_application, __construct) {
 		zend_update_property_string(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ENV), YAF_G(environ_name));
 	}
 
-	if (Z_TYPE(YAF_G(modules)) == IS_ARRAY) {
-		zend_update_property(yaf_application_ce,
-				self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), &YAF_G(modules));
+	if (YAF_G(modules)) {
+		zval rv;
+		ZVAL_ARR(&rv, YAF_G(modules));
+		zend_update_property(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES), &rv);
 	} else {
 		zend_update_property_null(yaf_application_ce, self, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_MODULES));
 	}

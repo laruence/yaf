@@ -74,39 +74,44 @@ extern PHPAPI void php_var_dump(zval **struc, int level);
 extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
 
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
-	zend_string	*ext;
-	zend_string *base_uri;
-	zend_string *directory;
-	zend_string *local_library;
-	zend_string *local_namespaces;
-	zend_string *view_directory;
-	zend_string *view_ext;
-	zend_string *default_module;
-	zend_string *default_controller;
-	zend_string *default_action;
-	zend_string *bootstrap;
-	char         *global_library;
-    char         *environ_name;
-    char         *name_separator;
-    size_t        name_separator_len;
-	zend_bool 	lowcase_path;
-	zend_bool 	use_spl_autoload;
-	zend_bool 	throw_exception;
-	zend_bool   action_prefer;
-	zend_bool	name_suffix;
-	zend_bool  	autoload_started;
-	zend_bool  	running;
-	zend_bool  	in_exception;
-	zend_bool  	catch_exception;
-	zend_bool   suppressing_warning;
-	long		forward_limit;
-	HashTable	*configs;
-	zval 		 modules;
-	zval        *default_route;
-	zval        active_ini_file_section;
-	zval        *ini_wanted_section;
-	unsigned    parsing_flag;
-	zend_bool	use_namespace;
+    zend_string   *ext;
+    zend_string   *base_uri;
+    zend_string   *directory;
+    zend_string   *local_library;
+    zend_string   *view_directory;
+    zend_string   *view_ext;
+    zend_string   *default_module;
+    zend_string   *default_controller;
+    zend_string   *default_action;
+    zend_string   *bootstrap;
+    zend_array    *local_namespaces;
+    zend_array    *configs;
+    zend_array    *default_route;
+    zend_array    *modules;
+
+    char          *global_library;
+    char          *environ_name;
+    char          *name_separator;
+    size_t         name_separator_len;
+
+    zend_bool      lowcase_path;
+    zend_bool      use_spl_autoload;
+    zend_bool      throw_exception;
+    zend_bool      action_prefer;
+    zend_bool      name_suffix;
+    zend_bool      autoload_started;
+    zend_bool      running;
+    zend_bool      in_exception;
+
+    zend_bool      catch_exception;
+    zend_bool      suppressing_warning;
+    zend_bool      use_namespace;
+    uint32_t       forward_limit;
+
+    /*for ini parsing */
+    zval           active_ini_file_section;
+    zval          *ini_wanted_section;
+    unsigned       parsing_flag;
 ZEND_END_MODULE_GLOBALS(yaf)
 
 PHP_MINIT_FUNCTION(yaf);
