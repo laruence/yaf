@@ -192,7 +192,12 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		YAF_G(local_library) = NULL;
 	}
 	if (YAF_G(local_namespaces)) {
-		if (--(GC_REFCOUNT(YAF_G(local_namespaces))) == 0) {
+#if PHP_VERSION_ID >70300
+		if (zend_gc_delref(YAF_G(local_namespaces)) == 0)
+#else
+		if (--(GC_REFCOUNT(YAF_G(local_namespaces))) == 0)
+#endif
+		{
 			zend_array_destroy(YAF_G(local_namespaces));
 		}
 		YAF_G(local_namespaces) = NULL;
@@ -202,7 +207,12 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		YAF_G(bootstrap) = NULL;
 	}
 	if (YAF_G(modules)) {
-		if (--(GC_REFCOUNT(YAF_G(modules))) == 0) {
+#if PHP_VERSION_ID >70300
+		if (zend_gc_delref(YAF_G(modules)) == 0)
+#else
+		if (--(GC_REFCOUNT(YAF_G(modules))) == 0)
+#endif
+		{
 			zend_array_destroy(YAF_G(modules));
 		}
 		YAF_G(modules) = NULL;
