@@ -84,7 +84,7 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
 		if ((query_str = strstr(req_uri, Z_STRVAL_P(delimer))) && *(query_str - 1) == '/') {
 			const char *rest = query_str + Z_STRLEN_P(delimer);
 
-			while (*rest == YAF_ROUTER_URL_DELIMIETERC) {
+			while (*rest == YAF_ROUTER_URL_DELIMIETER) {
 				rest++;
 			}
 			if (*rest != '\0') {
@@ -102,7 +102,7 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
 		query_str = NULL;
 	}
 
-	while ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETERC, req_uri_len))) {
+	while ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len))) {
 		size_t seg_len = pos++ - req_uri;
 		if (seg_len) {
 			smart_str_appendl(&route_result, req_uri, seg_len);

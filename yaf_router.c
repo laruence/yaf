@@ -157,13 +157,13 @@ void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {
 	}
 
 	while (1) {
-		if ((k = memchr(str, YAF_ROUTER_URL_DELIMIETERC, len))) {
+		if ((k = memchr(str, YAF_ROUTER_URL_DELIMIETER, len))) {
 			zval *zv;
 			l = k++ - str;
 			if (l) {
 				zv = zend_hash_str_add_empty_element(Z_ARRVAL_P(params), str, l);
 				len -= k - str;
-				if ((v = memchr(k, YAF_ROUTER_URL_DELIMIETERC, len))) {
+				if ((v = memchr(k, YAF_ROUTER_URL_DELIMIETER, len))) {
 					if (v - k) {
 						ZVAL_STRINGL(zv, k, v - k);
 					}
@@ -175,8 +175,12 @@ void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {
 				} else if (len) {
 					ZVAL_STRINGL(zv, k, len);
 				}
+			} else {
+				str = k;
+				len--;
+				continue;
 			}
-		} else {
+		} else if (len) {
 			zend_hash_str_add_empty_element(Z_ARRVAL_P(params), str, len);
 		}
 		return;

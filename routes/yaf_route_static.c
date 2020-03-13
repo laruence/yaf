@@ -43,7 +43,7 @@ ZEND_END_ARG_INFO()
 static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len) /* {{{ */ {
 	register const char *p = *req_uri;
 	size_t l = *req_uri_len;
-	while (*p == ' ' || *p == YAF_ROUTER_URL_DELIMIETERC) {
+	while (*p == ' ' || *p == YAF_ROUTER_URL_DELIMIETER) {
 		p++; l--;
 	}
 	*req_uri = p;
@@ -63,7 +63,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 			break;
 		}
 
-		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETERC, req_uri_len)) != NULL) {
+		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {
 			if (yaf_application_is_module_name_str(req_uri, s - req_uri)) {
 				module = req_uri;
 				module_len = s++ - req_uri;
@@ -74,7 +74,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 				if (req_uri_len == 0) {
 					break;
 				}
-				if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETERC, req_uri_len)) != NULL) {
+				if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {
 					controller = req_uri;
 					controller_len = s++ - req_uri;
 					req_uri_len -= s - req_uri;
@@ -106,7 +106,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 			break;
 		}
 
-		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETERC, req_uri_len)) != NULL) {
+		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {
 			action = req_uri;
 			action_len = s++ - req_uri;
 			req_uri_len -= s - req_uri;
