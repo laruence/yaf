@@ -103,7 +103,7 @@ int yaf_application_is_module_name(zend_string *name) /* {{{ */ {
 }
 /* }}} */
 
-int yaf_application_is_module_name_str(char *name, size_t len) /* {{{ */ {
+int yaf_application_is_module_name_str(const char *name, size_t len) /* {{{ */ {
 	zend_string *str = zend_string_init(name, len, 0);
 	int ret = yaf_application_is_module_name(str);
 	zend_string_release(str);
