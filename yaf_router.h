@@ -28,7 +28,7 @@
 extern zend_class_entry *yaf_router_ce;
 
 yaf_router_t *yaf_router_instance(yaf_router_t *this_ptr);
-void yaf_router_parse_parameters(char *uri, zval *params);
+void yaf_router_parse_parameters(const char *str, size_t len, zval *params);
 int yaf_router_route(yaf_router_t *router, yaf_request_t *request);
 
 YAF_STARTUP_FUNCTION(router);

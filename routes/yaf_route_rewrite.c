@@ -142,7 +142,7 @@ static int yaf_route_rewrite_match(yaf_route_t *router, zend_string *uri, zval *
                 if (key) {
                     if (zend_string_equals_literal(key, "__yaf_route_rest")) {
                         zval args;
-                        (void)yaf_router_parse_parameters(Z_STRVAL_P(pzval), &args);
+                        (void)yaf_router_parse_parameters(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval), &args);
                          zend_hash_copy(Z_ARRVAL_P(ret), Z_ARRVAL(args), (copy_ctor_func_t) zval_add_ref);
                          zval_ptr_dtor(&args);
                     } else {

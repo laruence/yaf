@@ -154,7 +154,7 @@ int yaf_route_pathinfo_route(yaf_request_t *request, zend_string *req_uri) /* {{
 	}
 
 	if (rest) {
-		(void)yaf_router_parse_parameters(rest, &params);
+		(void)yaf_router_parse_parameters(rest, strlen(rest), &params);
 		(void)yaf_request_set_params_multi(request, &params);
 		zval_ptr_dtor(&params);
 	}

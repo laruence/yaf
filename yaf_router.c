@@ -146,33 +146,39 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 }
 /* }}} */
 
-/** {{{ void yaf_router_parse_parameters(char *uri, zval *params)
- */
-void yaf_router_parse_parameters(char *uri, zval *params) {
-	char *key, *ptrptr, *tmp, *value;
-	zval val;
-	unsigned key_len;
+void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {{{ */ {
+	char *k, *v;
+	uint32_t l;
 
 	array_init(params);
 
-	tmp = estrdup(uri);
-	key = php_strtok_r(tmp, YAF_ROUTER_URL_DELIMIETER, &ptrptr);
-	while (key) {
-		key_len = strlen(key);
-		if (key_len) {
-			value = php_strtok_r(NULL, YAF_ROUTER_URL_DELIMIETER, &ptrptr);
-			if (value && strlen(value)) {
-				ZVAL_STRING(&val, value);
-			} else {
-				ZVAL_NULL(&val);
-			}
-			zend_hash_str_update(Z_ARRVAL_P(params), key, key_len, &val);
-		}
-
-		key = php_strtok_r(NULL, YAF_ROUTER_URL_DELIMIETER, &ptrptr);
+	if (UNEXPECTED(len == 0)) {
+		return;
 	}
 
-	efree(tmp);
+	while (1) {
+		if ((k = memchr(str, YAF_ROUTER_URL_DELIMIETERC, len))) {
+			zval *zv;
+			l = k++ - str;
+			zv = zend_hash_str_add_empty_element(Z_ARRVAL_P(params), str, l);
+			len -= k - str;
+			if ((v = memchr(k, YAF_ROUTER_URL_DELIMIETERC, len))) {
+				if (v - k) {
+					ZVAL_STRINGL(zv, k, v - k);
+				}
+				str = v + 1;
+				len -= str - k;
+				if (len) {
+					continue;
+				}
+			} else if (len) {
+				ZVAL_STRINGL(zv, k, len);
+			}
+		} else {
+			zend_hash_str_add_empty_element(Z_ARRVAL_P(params), str, len);
+		}
+		return;
+	}	
 }
 /* }}} */
 

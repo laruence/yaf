@@ -27,7 +27,8 @@
 #define YAF_ROUTE_PROPETY_NAME_VERIFY 	"_verify"
 #define YAF_ROUTE_PROPETY_NAME_REVERSE 	"_reverse"
 
-#define YAF_ROUTER_URL_DELIMIETER  	 "/"
+#define YAF_ROUTER_URL_DELIMIETERC 	 '/'
+#define YAF_ROUTER_URL_DELIMIETER 	 "/"
 #define YAF_ROUTE_REGEX_DILIMITER  	 '#'
 
 YAF_BEGIN_ARG_INFO_EX(yaf_route_route_arginfo, 0, 0, 1)
