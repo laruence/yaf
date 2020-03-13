@@ -77,41 +77,34 @@ static int yaf_route_rewrite_match(yaf_route_t *router, const zend_string *uri, 
 
 	m = Z_STRVAL_P(match);
 	l = Z_STRLEN_P(match);
-	while ((pos = memchr(m, YAF_ROUTER_URL_DELIMIETER, l))) {
-		size_t seg_len = pos - m;
-		if (seg_len) {
-			if (*m == '*') {
-				smart_str_appendl(&pattern, "(?P<__yaf_route_rest>.*)", sizeof("(?P<__yaf_route_rest>.*)") -1);
-				break;
+	while (l) {
+		if (*m == '*') {
+			smart_str_appendl(&pattern, "(?P<__yaf_route_rest>.*)", sizeof("(?P<__yaf_route_rest>.*)") -1);
+			break;
+		} else {
+			uint32_t len;
+			pos = memchr(m, YAF_ROUTER_URL_DELIMIETER, l);
+			if (pos) {
+				len = pos - m;
+				l -= len;
+			} else {
+				len = l;
+				l = 0;
 			}
 			if (*m == ':') {
 				smart_str_appendl(&pattern, "(?P<", sizeof("(?P<") -1 );
-				smart_str_appendl(&pattern, m + 1, seg_len - 1);
+				smart_str_appendl(&pattern, m + 1, len - 1);
 				smart_str_appendl(&pattern, ">[^", sizeof(">[^") - 1);
 				smart_str_appendc(&pattern, YAF_ROUTER_URL_DELIMIETER);
 				smart_str_appendl(&pattern, "]+)", sizeof("]+)") - 1);
 			} else {
-				smart_str_appendl(&pattern, m, seg_len);
+				smart_str_appendl(&pattern, m, len);
 			}
-		}
-		pos++;
-		smart_str_appendc(&pattern, YAF_ROUTER_URL_DELIMIETER);
-		l -= pos - m;
-		m = pos;
-
-	}
-
-	if (l) {
-		if (*m == '*') {
-			smart_str_appendl(&pattern, "(?P<__yaf_route_rest>.*)", sizeof("(?P<__yaf_route_rest>.*)") -1);
-		} else if (*m == ':') {
-			smart_str_appendl(&pattern, "(?P<", sizeof("(?P<") -1 );
-			smart_str_appendl(&pattern, m, l - 1);
-			smart_str_appendl(&pattern, ">[^", sizeof(">[^") - 1);
-			smart_str_appendc(&pattern, YAF_ROUTER_URL_DELIMIETER);
-			smart_str_appendl(&pattern, "]+)", sizeof("]+)") - 1);
-		} else {
-			smart_str_appendl(&pattern, m, l);
+			if (pos) {
+				smart_str_appendc(&pattern, YAF_ROUTER_URL_DELIMIETER);
+				m = ++pos;
+				l--;
+			}
 		}
 	}
 
