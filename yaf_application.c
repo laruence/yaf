@@ -178,19 +178,11 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 
 	if (EXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(app), ZEND_STRL("library"))) != NULL)) {
 		if (IS_STRING == Z_TYPE_P(pzval)) {
-			if (*(Z_STRVAL_P(pzval) + Z_STRLEN_P(pzval)) == DEFAULT_SLASH) {
-				YAF_G(local_library) = zend_string_init(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval) - 1, 0);
-			} else {
-				YAF_G(local_library) = zend_string_copy(Z_STR_P(pzval));
-			}
+			YAF_G(local_library) = zend_string_copy(Z_STR_P(pzval));
 		} else if (IS_ARRAY == Z_TYPE_P(pzval)) {
 			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
-							ZEND_STRL("directory"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
-				if (*(Z_STRVAL_P(psval) + Z_STRLEN_P(psval)) == DEFAULT_SLASH) {
-					YAF_G(local_library) = zend_string_init(Z_STRVAL_P(psval), Z_STRLEN_P(psval) - 1, 0);
-				} else {
-					YAF_G(local_library) = zend_string_copy(Z_STR_P(psval));
-				}
+				ZEND_STRL("directory"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
+				YAF_G(local_library) = zend_string_copy(Z_STR_P(psval));
 			}
 			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 						ZEND_STRL("namespace"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
