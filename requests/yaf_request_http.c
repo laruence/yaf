@@ -121,18 +121,6 @@ yaf_request_t *yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *r
 	}
 
 	if (settled_uri) {
-		char *p = ZSTR_VAL(settled_uri);
-
-		while (*p == '/' && *(p + 1) == '/') {
-			p++;
-		}
-
-		if (p != ZSTR_VAL(settled_uri)) {
-			zend_string *garbage = settled_uri;
-			settled_uri = zend_string_init(p, ZSTR_LEN(settled_uri) - (p - ZSTR_VAL(settled_uri)), 0);
-			zend_string_release(garbage);
-		}
-
 		zend_update_property_str(yaf_request_http_ce, this_ptr, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), settled_uri);
 		yaf_request_set_base_uri(this_ptr, base_uri, settled_uri);
 		zend_string_release(settled_uri);
