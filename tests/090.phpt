@@ -72,4 +72,7 @@ $app->getDispatcher()->dispatch($request);
 require "build.inc"; 
 shutdown();
 ?>
---EXPECTF--
+--EXPECT--
+string(5) "Index"
+string(14) "CFoo_Bar_Index"
+string(14) "AFoo_Bar_Index"
