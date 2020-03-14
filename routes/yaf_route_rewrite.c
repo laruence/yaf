@@ -102,6 +102,7 @@ static int yaf_route_rewrite_match(yaf_route_t *router, const zend_string *uri, 
 			}
 			if (pos) {
 				smart_str_appendc(&pattern, YAF_ROUTER_URL_DELIMIETER);
+				smart_str_appendc(&pattern, '+');
 				m = ++pos;
 				l--;
 			}
