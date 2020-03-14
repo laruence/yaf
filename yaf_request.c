@@ -145,11 +145,6 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 		} while (0);
 
 		if (basename && strncmp(ZSTR_VAL(request_uri), ZSTR_VAL(basename), ZSTR_LEN(basename)) == 0) {
-			if (*(ZSTR_VAL(basename) + ZSTR_LEN(basename) - 1) == '/') {
-				zend_string *garbage = basename;
-				basename = zend_string_init(ZSTR_VAL(basename), ZSTR_LEN(basename) - 1, 0);
-				zend_string_release(garbage);
-			}
 			zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), basename);
 			zend_string_release(basename);
 			return 1;
@@ -200,17 +195,13 @@ zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size
 			break;
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
-				zend_string *server_str = zend_string_init("_SERVER", sizeof("_SERVER") - 1, 0);
-				zend_is_auto_global(server_str);
-				zend_string_release(server_str);
+				zend_is_auto_global_str(ZEND_STRL("_SERVER"));
 			}
 			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
 			break;
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
-				zend_string *env_str = zend_string_init("_ENV", sizeof("_ENV") - 1, 0);
-				zend_is_auto_global(env_str);
-				zend_string_release(env_str);
+				zend_is_auto_global_str(ZEND_STRL("_ENV"));
 			}
 			carrier = &PG(http_globals)[YAF_GLOBAL_VARS_ENV];
 			break;
@@ -219,9 +210,7 @@ zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size
 			break;
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
-				zend_string *request_str = zend_string_init("_REQUEST", sizeof("_REQUEST") - 1, 0);
-				zend_is_auto_global(request_str);
-				zend_string_release(request_str);
+				zend_is_auto_global_str(ZEND_STRL("_REQUEST"));
 			}
 			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
 			break;
@@ -238,25 +227,19 @@ zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size
 			break;
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
-				zend_string *env_str = zend_string_init("_ENV", sizeof("_ENV") - 1, 0);
-				zend_is_auto_global(env_str);
-				zend_string_release(env_str);
+				zend_is_auto_global_str(ZEND_STRL("_ENV"));
 			}
 			carrier = &PG(http_globals)[type];
 			break;
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
-				zend_string *server_str = zend_string_init("_SERVER", sizeof("_SERVER") - 1, 0);
-				zend_is_auto_global(server_str);
-				zend_string_release(server_str);
+				zend_is_auto_global_str(ZEND_STRL("_SERVER"));
 			}
 			carrier = &PG(http_globals)[type];
 			break;
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
-				zend_string *request_str = zend_string_init("_REQUEST", sizeof("_REQUEST") - 1, 0);
-				zend_is_auto_global(request_str);
-				zend_string_release(request_str);
+				zend_is_auto_global_str(ZEND_STRL("_REQUEST"));
 			}
 			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
 			break;

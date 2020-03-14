@@ -113,7 +113,6 @@ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_
  */
 int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag) {
 	zval     *zbody, *pzval;
-	unsigned  free_name = 0;
 	zend_string *obody;
 
 	if (ZSTR_LEN(body) == 0) {
@@ -122,13 +121,19 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_st
 
 	zbody = zend_read_property(yaf_response_ce, response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, NULL);
 	if (!name) {
-		name = zend_string_init(ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY), 0);
-		free_name = 1;
+		pzval = zend_hash_str_find(Z_ARRVAL_P(zbody), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+	} else {
+		pzval = zend_hash_find(Z_ARRVAL_P(zbody), name);
 	}
 
-	if ((pzval = zend_hash_find(Z_ARRVAL_P(zbody), name)) == NULL) {
+	if (pzval == NULL) {
 		obody = NULL;
-		pzval = zend_hash_update(Z_ARRVAL_P(zbody), name, &EG(uninitialized_zval));
+		if (!name) {
+			pzval = zend_hash_str_update(Z_ARRVAL_P(zbody),
+				   	YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY)-1, &EG(uninitialized_zval));
+		} else {
+			pzval = zend_hash_update(Z_ARRVAL_P(zbody), name, &EG(uninitialized_zval));
+		}
 	} else {
 		obody = Z_STR_P(pzval);
 	}
@@ -160,10 +165,6 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_st
 				ZVAL_STR_COPY(pzval, body);
 				break;
 		}
-	}
-
-	if (free_name) {
-		zend_string_release(name);
 	}
 
 	return 1;
@@ -199,14 +200,15 @@ zval * yaf_response_get_body(yaf_response_t *response, zend_string *name) {
 }
 /* }}} */
 
-/** {{{ zval * yaf_response_get_body_str(yaf_response_t *response, char *name, size_t len)
- */
-zval * yaf_response_get_body_str(yaf_response_t *response, char *name, size_t len) {
-	zval *ret;
-	zend_string *n = zend_string_init(name, len, 0);
-	ret = yaf_response_get_body(response, n);
-	zend_string_release(n);
-	return ret;
+zval* yaf_response_get_body_str(yaf_response_t *response, char *name, size_t len) /* {{{ */ {
+	zval *zbody = zend_read_property(yaf_response_ce,
+			response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_BODY), 1, NULL);
+
+	if (!name) {
+		return zbody;
+	}
+
+	return zend_hash_str_find(Z_ARRVAL_P(zbody), name, len);
 }
 /* }}} */
 
