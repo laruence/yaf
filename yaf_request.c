@@ -38,7 +38,7 @@ zend_class_entry *yaf_request_ce;
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_void_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_routed_arginfo, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_routed_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
@@ -83,7 +83,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_request_getenv_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_dispatched_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, state)
+    ZEND_ARG_INFO(0, dispatched)
 ZEND_END_ARG_INFO()
 	/* }}} */
 
@@ -361,8 +361,7 @@ int yaf_request_is_routed(yaf_request_t *request) /* {{{ */{
 /* }}} */
 
 int yaf_request_is_dispatched(yaf_request_t *request) /* {{{ */ {
-	zval *dispatched = zend_read_property(yaf_request_ce,
-			request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_STATE), 1, NULL);
+	zval *dispatched = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_STATE), 1, NULL);
 	return Z_TYPE_P(dispatched) == IS_TRUE ? 1 : 0;
 }
 /* }}} */
@@ -373,7 +372,10 @@ void yaf_request_set_dispatched(yaf_request_t *instance, int flag) /* {{{ */ {
 /* }}} */
 
 void yaf_request_set_routed(yaf_request_t *request, int flag) /* {{{ */ {
-	zend_update_property_bool(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ROUTED), flag);
+	zval *route = zend_read_property(yaf_request_ce, request,  ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ROUTED), 0, NULL);
+	if ((flag && Z_TYPE_P(route) == IS_FALSE) || (!flag && Z_TYPE_P(route) == IS_TRUE)) {
+		zend_update_property_bool(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ROUTED), flag);
+	}
 }
 /* }}} */
 
@@ -667,18 +669,18 @@ PHP_METHOD(yaf_request, isDispatched) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setDispatched(void)
+/** {{{ proto public Yaf_Request_Abstract::setDispatched(bool $dispatched = true)
 */
 PHP_METHOD(yaf_request, setDispatched) {
-	zend_bool state;
+	zend_bool state = 1;
  	
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "b", &state) == FAILURE){
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &state) == FAILURE){
 		return;
 	}
 	
 	yaf_request_set_dispatched(getThis(), state);
 
-	RETURN_TRUE;
+	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
 
@@ -741,10 +743,16 @@ PHP_METHOD(yaf_request, isRouted) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setRouted(void)
+/** {{{ proto public Yaf_Request_Abstract::setRouted(bool $routed = true)
 */
 PHP_METHOD(yaf_request, setRouted) {
-	yaf_request_set_routed(getThis(), 1);
+	zend_bool state = 1;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &state) == FAILURE){
+		return;
+	}
+
+	yaf_request_set_routed(getThis(), state);
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
@@ -780,7 +788,7 @@ zend_function_entry yaf_request_methods[] = {
 	PHP_ME(yaf_request, getRequestUri, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, setRequestUri, yaf_request_set_request_uri_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isDispatched, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request, setDispatched, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, setDispatched, yaf_request_set_dispatched_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isRouted, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, setRouted, yaf_request_set_routed_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
