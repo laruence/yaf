@@ -158,39 +158,17 @@ zend_string* yaf_controller_render(yaf_controller_t *instance, char *action_name
 /** {{{ int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array)
  */
 int yaf_controller_display(yaf_controller_t *instance, char *action_name, int len, zval *var_array) {
-	char *self_name, *tmp;
 	zval *name, param, ret;
 	yaf_view_t	*view;
-	zend_string *path, *view_ext;
+	zend_string *path;
 
 	view = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1, NULL);
 	name = zend_read_property(yaf_controller_ce, instance, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_NAME), 1, NULL);
-	view_ext  = YAF_G(view_ext);
 
-	self_name = zend_str_tolower_dup(Z_STRVAL_P(name), Z_STRLEN_P(name));
+	path = strpprintf(0, "%s%c%s.%s", Z_STRVAL_P(name), DEFAULT_SLASH, action_name, ZSTR_VAL(YAF_G(view_ext)));
+	zend_str_tolower(ZSTR_VAL(path), Z_STRLEN_P(name));
 
-	tmp = self_name;
-	while (*tmp != '\0') {
-		if (*tmp == '_') {
-			*tmp = DEFAULT_SLASH;
-		}
-		tmp++;
-	}
-
-	action_name = estrndup(action_name, len);
-
-	tmp = action_name;
- 	while (*tmp != '\0') {
-		if (*tmp == '_') {
-			*tmp = DEFAULT_SLASH;
-		}
-		tmp++;
-	}
-
-	path = strpprintf(0, "%s%c%s.%s", self_name, DEFAULT_SLASH, action_name, ZSTR_VAL(view_ext));
-
-	efree(self_name);
-	efree(action_name);
+	yaf_controller_sanitize_view_path(path);
 
 	ZVAL_STR(&param, path);
 
