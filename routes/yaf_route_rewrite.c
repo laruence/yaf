@@ -178,7 +178,7 @@ int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *request) {
 	uri  = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1, NULL);
 	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
 
-	if (base_uri && IS_STRING == Z_TYPE_P(base_uri) && Z_STRLEN_P(base_uri)) {
+	if (Z_STRLEN_P(base_uri)) {
 		req_uri = yaf_request_strip_base_uri(Z_STR_P(uri), Z_STR_P(base_uri), &req_uri_len);
 	} else {
 		req_uri = Z_STRVAL_P(uri);
