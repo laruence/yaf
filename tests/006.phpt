@@ -36,7 +36,7 @@ Yaf_Request_Http Object
 
     [language:protected] => 
     [_exception:protected] => 
-    [_base_uri:protected] => /prefix/
+    [_base_uri:protected] => /prefix
     [uri:protected] => /prefix/controller/action/name/laruence/age/28
     [dispatched:protected] => 
     [routed:protected] => 

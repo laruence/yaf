@@ -264,7 +264,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 		return;
 	}
 
-	(void)yaf_request_http_instance(self, request_uri, base_uri);
+	yaf_request_http_instance(self, request_uri, base_uri);
 }
 /* }}} */
 

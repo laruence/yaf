@@ -22,7 +22,7 @@ $request = new Yaf_Request_Http("/sample/A/B/C", "/sample");
 $router->route($request);
 var_dump($request->getControllerName());
 
-$request = new Yaf_Request_Http("/sample", "/sAmplE");
+$request = new Yaf_Request_Http("/sample", "/sAmplE/");
 $router->route($request);
 var_dump($request->getControllerName());
 
