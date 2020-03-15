@@ -292,7 +292,7 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, zend_strin
 		directory_len = snprintf(directory, sizeof(directory),
 				"%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	} else {
-		directory_len = snprintf(directory, 0,
+		directory_len = snprintf(directory, sizeof(directory),
 				"%s%c%s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, YAF_MODULE_DIRECTORY_NAME,
 				DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	}
