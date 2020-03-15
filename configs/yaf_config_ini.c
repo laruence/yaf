@@ -146,7 +146,7 @@ static zval* yaf_config_ini_parse_nesting_key(HashTable *target, char **key, siz
 			return NULL;
 		}
 		if (!(val = zend_symtable_str_find(target, seg, delim - seg))) {
-			zval rv = {0};
+			zval rv = {{0}};
 			val = zend_symtable_str_update(target, seg, delim - seg, &rv);
 		}
 
