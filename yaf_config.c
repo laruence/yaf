@@ -38,28 +38,23 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_config_void_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-yaf_config_t *yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg2) /* {{{ */ {
+yaf_config_t *yaf_config_instance(yaf_config_t *this_ptr, zval *config, zval *section) /* {{{ */ {
 	yaf_config_t *instance;
 
-	if (!arg1) {
+	if (!config) {
 		return NULL;
 	}
 
-	if (Z_TYPE_P(arg1) == IS_STRING) {
-		if (strncasecmp(Z_STRVAL_P(arg1) + Z_STRLEN_P(arg1) - 3, "ini", 3) == 0) {
-			instance = yaf_config_ini_instance(this_ptr, arg1, arg2);
-			if (!instance) {
-				return NULL;
-			}
-
-			return instance;
+	if (Z_TYPE_P(config) == IS_STRING) {
+		if (strncasecmp(Z_STRVAL_P(config) + Z_STRLEN_P(config) - 4, ".ini", 4) == 0) {
+			return yaf_config_ini_instance(this_ptr, config, section);
 		}
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a path to *.ini configuration file as parameter");
 		return NULL;
-	} else if (Z_TYPE_P(arg1) == IS_ARRAY) {
+	} else if (Z_TYPE_P(config) == IS_ARRAY) {
 		zval readonly;
 		ZVAL_BOOL(&readonly, 1);
-		instance = yaf_config_simple_instance(this_ptr, arg1, &readonly);
+		instance = yaf_config_simple_instance(this_ptr, config, &readonly);
 		return instance;
 	}
 
