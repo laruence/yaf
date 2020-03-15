@@ -43,6 +43,11 @@ var_dump($request->getControllerName());
 $request = new Yaf_Request_Http("/sample/test", "/sAmplE");
 $router->route($request);
 var_dump($request->getControllerName());
+
+$router = new Yaf_Route_Rewrite("/sample/", array("controller" => "info"), array());
+$request = new Yaf_Request_Http("/sample/test", "/sam");
+$router->route($request);
+var_dump($request->getControllerName());
 ?>
 --EXPECTF--
 NULL
@@ -52,4 +57,5 @@ NULL
 NULL
 string(4) "info"
 NULL
+string(4) "info"
 string(4) "info"

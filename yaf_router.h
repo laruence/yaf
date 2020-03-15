@@ -25,6 +25,9 @@
 #define YAF_ROUTER_PROPERTY_NAME_ROUTES 		"_routes"
 #define YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE	"_current"
 
+#define YAF_ROUTER_URL_DELIMIETER 	 '/'
+#define YAF_ROUTE_REGEX_DILIMITER  	 '#'
+
 extern zend_class_entry *yaf_router_ce;
 
 yaf_router_t *yaf_router_instance(yaf_router_t *this_ptr);

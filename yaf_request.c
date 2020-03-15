@@ -27,6 +27,7 @@
 #include "yaf_request.h"
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
+#include "yaf_router.h"
 
 #include "requests/yaf_request_simple.h"
 #include "requests/yaf_request_http.h"
@@ -89,6 +90,20 @@ ZEND_END_ARG_INFO()
 
 yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *request_uri) /* {{{ */ {
 	return yaf_request_http_instance(this_ptr, NULL, request_uri);
+}
+/* }}} */
+
+const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len) /* {{{ */ {
+	register const char *p = ZSTR_VAL(uri);
+	if (strncasecmp(p, ZSTR_VAL(base_uri), ZSTR_LEN(base_uri)) == 0) {
+		p += ZSTR_LEN(base_uri);
+		if (*p == '\0' || *p == YAF_ROUTER_URL_DELIMIETER || *(--p) == YAF_ROUTER_URL_DELIMIETER) {
+			*len = ZSTR_LEN(uri) - (p - ZSTR_VAL(uri));
+			return p;
+		}
+	}
+	*len = ZSTR_LEN(uri);
+	return ZSTR_VAL(uri);
 }
 /* }}} */
 

@@ -60,6 +60,7 @@ void yaf_request_set_dispatched(yaf_request_t *request, int flag);
 void yaf_request_set_routed(yaf_request_t *request, int flag);
 int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value);
 int yaf_request_set_params_multi(yaf_request_t *instance, zval *values);
+const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len);
 const char *yaf_request_get_request_method(void);
 
 #define YAF_REQUEST_IS_METHOD(x) \
