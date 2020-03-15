@@ -46,7 +46,9 @@ extern PHPAPI void php_session_start();
 
 yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
 int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri);
-zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size_t len);
+
+zval *yaf_request_query(unsigned type, zend_string *name);
+zval *yaf_request_query_str(unsigned type, const char *name, size_t len);
 
 zval *yaf_request_get_method(yaf_request_t *instance);
 zval *yaf_request_get_param(yaf_request_t *instance, zend_string *key);
@@ -59,9 +61,6 @@ void yaf_request_set_routed(yaf_request_t *request, int flag);
 int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value);
 int yaf_request_set_params_multi(yaf_request_t *instance, zval *values);
 const char *yaf_request_get_request_method(void);
-
-#define yaf_request_query(type, name)  yaf_request_query_ex((type), 1, (name), 0)
-#define yaf_request_query_str(type, name, len)  yaf_request_query_ex((type), 0, (name), (len))
 
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\

@@ -176,96 +176,58 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 }
 /* }}} */
 
-zval *yaf_request_query_ex(unsigned type, zend_bool fetch_type, void *name, size_t len) /* {{{ */ {
-	zval *carrier = NULL, *ret;
-
+static inline zval* yaf_request_fetch_container(unsigned type) /* {{{ */ {
 	zend_bool jit_initialization = PG(auto_globals_jit);
 
-	/* for phpunit test requirements */
-#if PHP_YAF_DEBUG
 	switch (type) {
 		case YAF_GLOBAL_VARS_POST:
-			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_POST"));
-			break;
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_POST"));
 		case YAF_GLOBAL_VARS_GET:
-			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_GET"));
-			break;
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_GET"));
 		case YAF_GLOBAL_VARS_COOKIE:
-			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_COOKIE"));
-			break;
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_COOKIE"));
+		case YAF_GLOBAL_VARS_FILES:
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_FILES"));
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
 				zend_is_auto_global_str(ZEND_STRL("_SERVER"));
 			}
-			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
-			break;
-		case YAF_GLOBAL_VARS_ENV:
-			if (jit_initialization) {
-				zend_is_auto_global_str(ZEND_STRL("_ENV"));
-			}
-			carrier = &PG(http_globals)[YAF_GLOBAL_VARS_ENV];
-			break;
-		case YAF_GLOBAL_VARS_FILES:
-			carrier = &PG(http_globals)[YAF_GLOBAL_VARS_FILES];
-			break;
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
 				zend_is_auto_global_str(ZEND_STRL("_REQUEST"));
 			}
-			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
-			break;
-		default:
-			break;
-	}
-#else
-	switch (type) {
-		case YAF_GLOBAL_VARS_POST:
-		case YAF_GLOBAL_VARS_GET:
-		case YAF_GLOBAL_VARS_FILES:
-		case YAF_GLOBAL_VARS_COOKIE:
-			carrier = &PG(http_globals)[type];
-			break;
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
 				zend_is_auto_global_str(ZEND_STRL("_ENV"));
 			}
-			carrier = &PG(http_globals)[type];
-			break;
-		case YAF_GLOBAL_VARS_SERVER:
-			if (jit_initialization) {
-				zend_is_auto_global_str(ZEND_STRL("_SERVER"));
-			}
-			carrier = &PG(http_globals)[type];
-			break;
-		case YAF_GLOBAL_VARS_REQUEST:
-			if (jit_initialization) {
-				zend_is_auto_global_str(ZEND_STRL("_REQUEST"));
-			}
-			carrier = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
-			break;
+			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_ENV"));
 		default:
-			break;
+			return NULL;
 	}
-#endif
+}
+/* }}} */
 
-	if (!carrier) {
+zval *yaf_request_query_str(unsigned type, const char *name, size_t len) /* {{{ */ {
+	zval *container = yaf_request_fetch_container(type);
+
+	if (UNEXPECTED(!container)) {
 		return NULL;
 	}
 
-	if (!name) {
-		return carrier;
+	return zend_hash_str_find(Z_ARRVAL_P(container), name, len);
+}
+/* }}} */
+
+zval *yaf_request_query(unsigned type, zend_string *name) /* {{{ */ {
+	zval *container = yaf_request_fetch_container(type);
+
+	if (UNEXPECTED(!container)) {
+		return NULL;
 	}
 
-	if (EXPECTED(fetch_type)) {
-		if ((ret = zend_hash_find(Z_ARRVAL_P(carrier), (zend_string *)name)) == NULL) {
-			return NULL;
-		}
-	} else {
-		if ((ret = zend_hash_str_find(Z_ARRVAL_P(carrier), (char *)name, len)) == NULL) {
-			return NULL;
-		}
-	}
-	return ret;
+	return zend_hash_find(Z_ARRVAL_P(container), name);
 }
 /* }}} */
 
@@ -286,11 +248,11 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 		} else if (UNEXPECTED(IS_STRING != Z_TYPE_P(accept_langs) || !Z_STRLEN_P(accept_langs))) {
 			return NULL;
 		} else {
-			char  	*ptrptr, *seg;
+			char *ptrptr, *seg;
 			unsigned prefer_len = 0;
 			double	max_qvlaue = 0;
-			char 	*prefer = NULL;
-			char  	*langs = estrndup(Z_STRVAL_P(accept_langs), Z_STRLEN_P(accept_langs));
+			char *prefer = NULL;
+			char *langs = estrndup(Z_STRVAL_P(accept_langs), Z_STRLEN_P(accept_langs));
 
 			seg = php_strtok_r(langs, ",", &ptrptr);
 			while (seg) {
