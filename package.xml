@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-03-15</date>
- <time>11:20:00</time>
+ <date>2020-03-16</date>
+ <time>10:00:00</time>
  <version>
-  <release>3.1.0</release>
-  <api>3.1.0</api>
+  <release>3.1.1</release>
+  <api>3.1.1</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,12 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Refactor Yaf_Loader for performance
-  - Refactor lots of codes to avoiding memory allocation
-  - Yaf_Loader::getNameSpaces() now return array instead of comma separated string
-  - Yaf_Route_Rewrite now process multiple repeated bach slashes as one
-  - Removed --enable-yaf-debug, now yaf allows user to moditify variables in $_POST etc 
-  - Fixed bug while stripping base_uri 
+    - Fixed memrchr missed in windows
  </notes>
  <contents> 
   <dir name="/"> 
@@ -239,6 +234,22 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-03-16</date> 
+   <version> 
+    <release>3.1.1</release> 
+    <api>3.1.1</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed memrchr missed in windows
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-03-15</date> 
    <version> 
     <release>3.1.0</release> 
@@ -256,9 +267,9 @@
     - Yaf_Route_Rewrite now process multiple repeated bach slashes as one
     - Removed --enable-yaf-debug, now yaf allows user to moditify variables in $_POST etc 
     - Fixed bug while stripping base_uri 
+    - Fixed memrchr missed in windows
    </notes> 
   </release> 
-
   <release> 
    <date>2019-12-19</date> 
    <version> 
