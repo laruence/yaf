@@ -123,7 +123,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 				if (script_name && EXPECTED(IS_STRING == Z_TYPE_P(script_name))) {
 					zend_string	*script = php_basename(Z_STRVAL_P(script_name), Z_STRLEN_P(script_name), NULL, 0);
 
-					if (memcpy(ZSTR_VAL(file_name), ZSTR_VAL(script), ZSTR_LEN(file_name)) == 0) {
+					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(script), ZSTR_LEN(file_name)) == 0) {
 						basename = zend_string_copy(Z_STR_P(script_name));
 						zend_string_release(file_name);
 						zend_string_release(script);
@@ -135,7 +135,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 				phpself_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "PHP_SELF", sizeof("PHP_SELF") - 1);
 				if (phpself_name && EXPECTED(IS_STRING == Z_TYPE_P(phpself_name))) {
 					zend_string *phpself = php_basename(Z_STRVAL_P(phpself_name), Z_STRLEN_P(phpself_name), NULL, 0);
-					if (memcpy(ZSTR_VAL(file_name), ZSTR_VAL(phpself), ZSTR_LEN(file_name)) == 0) {
+					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(phpself), ZSTR_LEN(file_name)) == 0) {
 						basename = zend_string_copy(Z_STR_P(phpself_name));
 						zend_string_release(file_name);
 						zend_string_release(phpself);
@@ -147,7 +147,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 				orig_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, "ORIG_SCRIPT_NAME", sizeof("ORIG_SCRIPT_NAME") - 1);
 				if (orig_name && IS_STRING == Z_TYPE_P(orig_name)) {
 					zend_string *orig = php_basename(Z_STRVAL_P(orig_name), Z_STRLEN_P(orig_name), NULL, 0);
-					if (memcpy(ZSTR_VAL(file_name), ZSTR_VAL(orig), ZSTR_LEN(file_name)) == 0) {
+					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(orig), ZSTR_LEN(file_name)) == 0) {
 						basename = zend_string_copy(Z_STR_P(orig_name));
 						zend_string_release(file_name);
 						zend_string_release(orig);
@@ -160,7 +160,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 		} while (0);
 
 		if (basename) {
-			if (memcpy(ZSTR_VAL(request_uri), ZSTR_VAL(basename), ZSTR_LEN(basename)) == 0) {
+			if (memcmp(ZSTR_VAL(request_uri), ZSTR_VAL(basename), ZSTR_LEN(basename)) == 0) {
 				if (ZSTR_VAL(basename)[ZSTR_LEN(basename) - 1] == '/') {
 					zend_string *sanitized_uri = zend_string_init(ZSTR_VAL(basename), ZSTR_LEN(basename) - 1, 0);
 					zend_string_release(basename);
@@ -178,7 +178,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 					ZSTR_LEN(dir)--;
 				}
 				if (ZSTR_LEN(dir)) {
-					if (memcpy(ZSTR_VAL(request_uri), ZSTR_VAL(dir), ZSTR_LEN(dir)) == 0) {
+					if (memcmp(ZSTR_VAL(request_uri), ZSTR_VAL(dir), ZSTR_LEN(dir)) == 0) {
 						zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), dir);
 						zend_string_release(dir);
 						return 1;
