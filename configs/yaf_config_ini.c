@@ -339,7 +339,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 		yaf_config_ini_strip_section_name(&p, &l, 3);
 
 		array_init(&YAF_G(active_ini_file_section));
-		while ((colon = memrchr(p, ':', l))) {
+		while ((colon = zend_memrchr(p, ':', l))) {
 			const char *pp = colon + 1;
 			size_t pl = l - (colon + 1 - p);
 
