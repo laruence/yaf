@@ -327,10 +327,6 @@ PHP_METHOD(yaf_application, __construct) {
 	yaf_loader_t *loader, zloader = {{0}};
 	yaf_application_t *app, *self;
 
-#if PHP_YAF_DEBUG
-	php_error_docref(NULL, E_STRICT, "Yaf is running in debug mode");
-#endif
-
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "z|z", &config, &section) == FAILURE) {
 		return;
 	}
