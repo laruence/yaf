@@ -172,7 +172,7 @@ int yaf_response_http_send(yaf_response_t *response) {
         if (header_name) {
 			ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
 		} else {
-			ctr.line_len = spprintf(&(ctr.line), 0, "%lu: %s", num_key, Z_STRVAL_P(entry));
+			ctr.line_len = spprintf(&(ctr.line), 0, "%llu: %s", num_key, Z_STRVAL_P(entry));
 		}
 
 		ctr.response_code = 0;
