@@ -193,7 +193,7 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 	}
 	if (YAF_G(local_namespaces)) {
 #if PHP_VERSION_ID >70300
-		if (zend_gc_delref(YAF_G(local_namespaces)) == 0)
+		if (zend_gc_delref((zend_refcounted_h*)YAF_G(local_namespaces)) == 0)
 #else
 		if (--(GC_REFCOUNT(YAF_G(local_namespaces))) == 0)
 #endif
@@ -208,7 +208,7 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 	}
 	if (YAF_G(modules)) {
 #if PHP_VERSION_ID >70300
-		if (zend_gc_delref(YAF_G(modules)) == 0)
+		if (zend_gc_delref((zend_refcounted_h*)YAF_G(modules)) == 0)
 #else
 		if (--(GC_REFCOUNT(YAF_G(modules))) == 0)
 #endif
