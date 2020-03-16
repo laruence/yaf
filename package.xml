@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-03-16</date>
- <time>10:00:00</time>
+ <date>2020-03-17</date>
+ <time>01:20:00</time>
  <version>
-  <release>3.1.1</release>
-  <api>3.1.1</api>
+  <release>3.1.2</release>
+  <api>3.1.2</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-    - Fixed memrchr missed in windows
+  - Fixed bug (Yaf detecting base_uri failed)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -235,6 +235,22 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-03-17</date> 
+   <version> 
+    <release>3.1.2</release> 
+    <api>3.1.2</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed bug (Yaf detecting base_uri failed)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-03-16</date> 
    <version> 
     <release>3.1.1</release> 
@@ -249,7 +265,6 @@
     - Fixed memrchr missed in windows
    </notes> 
   </release> 
-
   <release> 
    <date>2020-03-15</date> 
    <version> 
