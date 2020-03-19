@@ -27,8 +27,15 @@ var_dump($request->getPost("name"));
 var_dump($request->getEnv("name"));
 var_dump($request->getRequest("name"));
 var_dump($request->getRaw());
+
+var_dump(count($request->getServer()));
+var_dump(count($request->getQuery()));
+var_dump(count($request->getCookie()));
+var_dump(count($request->getPost()));
+var_dump(count($request->getEnv()));
+var_dump(count($request->getRequest()));
 ?>
---EXPECT--
+--EXPECTF--
 string(6) "server"
 string(3) "get"
 string(6) "cookie"
@@ -36,3 +43,9 @@ string(4) "post"
 string(3) "env"
 string(7) "request"
 string(8) "name=raw"
+int(%d)
+int(%d)
+int(%d)
+int(%d)
+int(%d)
+int(%d)

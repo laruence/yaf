@@ -254,6 +254,10 @@ zval *yaf_request_query(unsigned type, zend_string *name) /* {{{ */ {
 		return NULL;
 	}
 
+	if (UNEXPECTED(!name)) {
+		return container;
+	}
+
 	return zend_hash_find(Z_ARRVAL_P(container), name);
 }
 /* }}} */
