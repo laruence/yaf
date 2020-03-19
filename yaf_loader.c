@@ -415,7 +415,7 @@ int yaf_loader_load(yaf_loader_t *loader, char *filename, size_t fname_len, char
 			php_error_docref(NULL, E_WARNING, "%s need to be initialize first", ZSTR_VAL(yaf_loader_ce->name));
 			return 0;
 		}
-	} else if (UNEXPECTED(directory_len + fname_len + ZSTR_LEN(YAF_G(ext) + 3) > MAXPATHLEN)) {
+	} else if (UNEXPECTED((directory_len + fname_len + ZSTR_LEN(YAF_G(ext)) + 3) > MAXPATHLEN)) {
 		*position = '\0';
 		php_error_docref(NULL, E_WARNING, "path too long: '%s/%s'", directory, filename);
 		return 0;
