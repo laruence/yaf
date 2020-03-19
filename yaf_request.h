@@ -42,8 +42,6 @@
 
 extern zend_class_entry *yaf_request_ce;
 
-extern PHPAPI void php_session_start();
-
 yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
 int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri);
 

@@ -167,6 +167,7 @@ int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend
 					basename = sanitized_uri;
 				}
 				zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), basename);
+				zend_string_release(basename);
 				return 1;
 			} else {
 				zend_string *dir = zend_string_init(ZSTR_VAL(basename), ZSTR_LEN(basename), 0); /* php_dirname might alter the string */
@@ -241,6 +242,10 @@ zval *yaf_request_query_str(unsigned type, const char *name, size_t len) /* {{{ 
 
 	if (UNEXPECTED(!container)) {
 		return NULL;
+	}
+
+	if (name == NULL) {
+		return container;
 	}
 
 	return zend_hash_str_find(Z_ARRVAL_P(container), name, len);

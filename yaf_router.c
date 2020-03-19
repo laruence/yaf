@@ -135,7 +135,7 @@ int yaf_router_add_config(yaf_router_t *router, zval *configs) {
 				zend_hash_update(Z_ARRVAL_P(routes), key, route);
 			} else {
 				if (!route) {
-					php_error_docref(NULL, E_WARNING, "Unable to initialize route at index '%llu'", idx);
+					php_error_docref(NULL, E_WARNING, "Unable to initialize route at index '"ZEND_ULONG_FMT"'", idx);
 					continue;
 				}
 				zend_hash_index_update(Z_ARRVAL_P(routes), idx, route);

@@ -17,13 +17,17 @@
 #ifndef YAF_SESSION_H
 #define YAF_SESSION_H
 
-#define YAF_SESSION_PROPERTY_NAME_STATUS	    "_started"
+#define YAF_SESSION_PROPERTY_NAME_STATUS	"_started"
 #define YAF_SESSION_PROPERTY_NAME_SESSION	"_session"
 #define YAF_SESSION_PROPERTY_NAME_INSTANCE	"_instance"
 
 extern zend_class_entry *yaf_session_ce;
 
-PHPAPI void php_session_start(TSRMLS_D);
+#if PHP_VERSION_ID < 70200
+PHPAPI void php_session_start();
+#else
+PHPAPI int php_session_start();
+#endif
 YAF_STARTUP_FUNCTION(session);
 #endif
 
