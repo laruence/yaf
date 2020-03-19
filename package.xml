@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-03-17</date>
- <time>01:20:00</time>
+ <date>???</date>
+ <time>???</time>
  <version>
-  <release>3.1.2</release>
-  <api>3.1.2</api>
+  <release>3.1.3</release>
+  <api>3.1.3</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed bug (Yaf detecting base_uri failed)
+  - Fixed issue #466 (segfault if getRequest without name)
  </notes>
  <contents> 
   <dir name="/"> 
