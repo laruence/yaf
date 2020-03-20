@@ -149,11 +149,6 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 {
 	UNREGISTER_INI_ENTRIES();
 
-	if (YAF_G(configs)) {
-		zend_hash_destroy(YAF_G(configs));
-		pefree(YAF_G(configs), 1);
-	}
-
 	return SUCCESS;
 }
 /* }}} */

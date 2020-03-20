@@ -224,11 +224,11 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_MODULE), 1, NULL);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), default_module);
 	} else {
-		char *p = zend_str_tolower_dup(Z_STRVAL_P(module), Z_STRLEN_P(module));
-		*p = toupper(*p);
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), p, Z_STRLEN_P(module));
-		efree(p);
+		zend_string *p = zend_string_init(Z_STRVAL_P(module), Z_STRLEN_P(module), 0);
+		ZSTR_VAL(p)[0] = toupper(ZSTR_VAL(p)[0]);
+		zend_str_tolower(ZSTR_VAL(p) + 1, ZSTR_LEN(p) - 1);
+		zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), p);
+		zend_string_release(p);
 	}
 
 	if (Z_TYPE_P(controller) != IS_STRING || !Z_STRLEN_P(controller)) {
@@ -237,12 +237,14 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 		zend_update_property(yaf_request_ce,
 				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), default_controller);
 	} else {
-		char *q, *p = zend_str_tolower_dup(Z_STRVAL_P(controller), Z_STRLEN_P(controller));
+		char *q;
+		zend_string *p = zend_string_init(Z_STRVAL_P(controller), Z_STRLEN_P(controller), 0);
+		zend_str_tolower(ZSTR_VAL(p), ZSTR_LEN(p));
 		/**
 		 * Upper controller name
 		 * eg: Index_sub -> Index_Sub
 		 */
-		q = p;
+		q = ZSTR_VAL(p);
 		*q = toupper(*q);
 		while (*q != '\0') {
 			if (*q == '_' || *q == '\\') {
@@ -254,9 +256,8 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 			q++;
 		}
 
-		zend_update_property_stringl(yaf_request_ce, request,
-				ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), p, Z_STRLEN_P(controller));
-		efree(p);
+		zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), p);
+		zend_string_release(p);
 	}
 
 	if (Z_TYPE_P(action) != IS_STRING || !Z_STRLEN_P(action)) {
@@ -264,10 +265,9 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_t *dispatcher, yaf_
 				dispatcher, ZEND_STRL(YAF_DISPATCHER_PROPERTY_NAME_ACTION), 1, NULL);
 		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), default_action);
 	} else {
-		char *p = zend_str_tolower_dup(Z_STRVAL_P(action), Z_STRLEN_P(action));
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), p, Z_STRLEN_P(action));
-		efree(p);
+		zend_string *p = zend_string_tolower(Z_STR_P(action));
+		zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), p);
+		zend_string_release(p);
 	}
 }
 /* }}} */

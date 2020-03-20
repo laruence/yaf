@@ -301,17 +301,14 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 					float qval = strtod(qvalue + 2, NULL);
 					if (qval > max_qvlaue) {
 						max_qvlaue = qval;
-						if (prefer) {
-							efree(prefer);
-						}
 						prefer_len = qvalue - seg - 1;
-						prefer 	   = estrndup(seg, prefer_len);
+						prefer 	   = seg;
 					}
 				} else {
 					if (max_qvlaue < 1) {
 						max_qvlaue = 1;
 						prefer_len = strlen(seg);
-						prefer 	   = estrndup(seg, prefer_len);
+						prefer 	   = seg;
 					}
 				}
 
@@ -319,10 +316,9 @@ zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language) /
 			}
 
 			if (prefer) {
-				ZVAL_STRINGL(accept_language, prefer, prefer_len);
+				ZVAL_NEW_STR(accept_language, zend_string_init(prefer, prefer_len, 1));
 				zend_update_property(yaf_request_ce,
 						instance, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_LANG), accept_language);
-				efree(prefer);
 				efree(langs);
 				zval_ptr_dtor(accept_language);
 				return accept_language;
