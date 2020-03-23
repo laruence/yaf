@@ -1,0 +1,181 @@
+image: Visual Studio 2015
+version: '{branch}.{build}'
+
+clone_folder: c:\projects\yaf
+
+install:
+    ps: |
+        if (-not (Test-Path c:\build-cache)) {
+            mkdir c:\build-cache
+        }
+        $bname = 'php-sdk-' + $env:BIN_SDK_VER + '.zip'
+        if (-not (Test-Path c:\build-cache\$bname)) {
+            Invoke-WebRequest "https://github.com/microsoft/php-sdk-binary-tools/archive/$bname" -OutFile "c:\build-cache\$bname"
+        }
+        $dname0 = 'php-sdk-binary-tools-php-sdk-' + $env:BIN_SDK_VER
+        $dname1 = 'php-sdk-' + $env:BIN_SDK_VER
+        if (-not (Test-Path c:\build-cache\$dname1)) {
+            7z x c:\build-cache\$bname -oc:\build-cache
+            move c:\build-cache\$dname0 c:\build-cache\$dname1
+        }
+
+cache:
+  - c:\build-cache -> .appveyor.yml
+
+environment:
+    BIN_SDK_VER: 2.2.0
+    matrix:
+        - PHP_VER: 7.4.0
+          ARCH: x64
+          TS: 1
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.4.0
+          ARCH: x64
+          TS: 0
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.4.0
+          ARCH: x86
+          TS: 1
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.4.0
+          ARCH: x86
+          TS: 0
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.3.13
+          ARCH: x64
+          TS: 1
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.3.13
+          ARCH: x64
+          TS: 0
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.2.26
+          ARCH: x64
+          TS: 1
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.2.26
+          ARCH: x64
+          TS: 0
+          VC: vc15
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+        - PHP_VER: 7.1.33
+          ARCH: x64
+          TS: 1
+          VC: vc14
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+        - PHP_VER: 7.1.33
+          ARCH: x64
+          TS: 0
+          VC: vc14
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+build_script:
+    ps: |
+        $ts_part = ''
+        if ('0' -eq $env:TS) { $ts_part = '-nts' }
+        $bname = 'php-devel-pack-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
+        if (-not (Test-Path c:\build-cache\$bname)) {
+            Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
+            if (-not (Test-Path c:\build-cache\$bname)) {
+                Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+            }
+        }
+        $dname0 = 'php-' + $env:PHP_VER + '-devel-' + $env:VC.toUpper() + '-' + $env:ARCH
+        $dname1 = 'php-' + $env:PHP_VER + $ts_part + '-devel-' + $env:VC.toUpper() + '-' + $env:ARCH
+        if (-not (Test-Path c:\build-cache\$dname1)) {
+            7z x c:\build-cache\$bname -oc:\build-cache
+            if ($dname0 -ne $dname1) {
+                move c:\build-cache\$dname0 c:\build-cache\$dname1
+            }
+        }
+        cd c:\projects\yaf
+        $env:PATH = 'c:\build-cache\' + $dname1 + ';' + $env:PATH
+        #echo "@echo off" | Out-File -Encoding "ASCII" task.bat
+        #echo "" | Out-File -Encoding "ASCII" -Append task.bat
+        echo "" | Out-File -Encoding "ASCII" task.bat
+        echo "call phpize 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
+        echo "call configure --enable-yaf --enable-debug-pack 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
+        echo "nmake /nologo 2>&1" | Out-File -Encoding "ASCII" -Append task.bat
+        echo "exit %errorlevel%" | Out-File -Encoding "ASCII" -Append task.bat
+        $here = (Get-Item -Path "." -Verbose).FullName
+        $runner = 'c:\build-cache\php-sdk-' + $env:BIN_SDK_VER + '\phpsdk' + '-' + $env:VC + '-' + $env:ARCH + '.bat'
+        $task = $here + '\task.bat'
+        & $runner -t $task
+
+after_build:
+    ps: |
+        $ts_part = ''
+        if ('0' -eq $env:TS) { $ts_part = '-nts' }
+        $arch_part = ''
+        if ('x64' -eq $env:ARCH) { $arch_part = '-x86_64' }
+        if ($env:APPVEYOR_REPO_TAG -eq "true") {
+            $bname = 'php_yaf-' + $env:APPVEYOR_REPO_TAG_NAME + '-' + $env:PHP_VER.substring(0, 3) + '-' + $env:VC + $ts_part + $arch_part
+        } else {
+            $bname = 'php_yaf-' + $env:APPVEYOR_REPO_COMMIT.substring(0, 8) + '-' + $env:PHP_VER.substring(0, 3) + '-' + $env:VC + $ts_part + $arch_part
+        }
+        $zip_bname = $bname + '.zip'
+        $dll_bname = $bname + '.dll'
+
+        $dir = 'c:\projects\yaf\';
+        if ('x64' -eq $env:ARCH) { $dir = $dir + 'x64\' }
+        $dir = $dir + 'Release'
+        if ('1' -eq $env:TS) { $dir = $dir + '_TS' }
+
+        cp $dir\php_yaf.dll $dir\$dll_bname
+        & 7z a c:\$zip_bname $dir\$dll_bname $dir\php_yaf.pdb c:\projects\yaf\LICENSE
+        Push-AppveyorArtifact c:\$zip_bname
+
+test_script:
+    ps: |
+        $ts_part = ''
+        if ('0' -eq $env:TS) { $ts_part = '-nts' }
+        $bname = 'php-' + $env:PHP_VER + $ts_part + '-Win32-' + $env:VC.toUpper() + '-' + $env:ARCH + '.zip'
+        if (-not (Test-Path c:\build-cache\$bname)) {
+            Invoke-WebRequest "http://windows.php.net/downloads/releases/archives/$bname" -OutFile "c:\build-cache\$bname"
+            if (-not (Test-Path c:\build-cache\$bname)) {
+                Invoke-WebRequest "http://windows.php.net/downloads/releases/$bname" -OutFile "c:\build-cache\$bname"
+            }
+        }
+        $dname = 'php-' + $env:PHP_VER + $ts_part + '-' + $env:VC.toUpper() + '-' + $env:ARCH
+        if (-not (Test-Path c:\build-cache\$dname)) {
+            7z x c:\build-cache\$bname -oc:\build-cache\$dname
+        }
+        
+        $dir = 'c:\projects\yaf\';
+        if ('x64' -eq $env:ARCH) { $dir = $dir + 'x64\' }
+        $dir = $dir + 'Release'
+        if ('1' -eq $env:TS) { $dir = $dir + '_TS' }
+
+        $yaf_dll_opt = '-d extension=' + $dir + '\php_yaf.dll'
+
+
+        cd c:\projects\yaf
+        mkdir c:\tests_tmp
+        echo "" | Out-File -Encoding "ASCII" task.bat
+        echo "set REPORT_EXIT_STATUS=1" | Out-File -Encoding "ASCII" -Append task.bat
+        $cmd = 'call configure --enable-yaf --with-prefix=c:\build-cache\' + $dname + " 2>&1"
+        echo $cmd | Out-File -Encoding "ASCII" -Append task.bat
+
+        $opts = 'set TEST_PHP_ARGS=-n -d foo=yes'
+        if ('yes' -eq $env:OPCACHE) { $opts = $opts + ' -d zend_extension=c:\build-cache\' + $dname + '\ext\php_opcache.dll -d opcache.enabled=1 -d opcache.enable_cli=1' }
+        $opts = $opts + ' ' + $yaf_dll_opt
+        echo $opts | Out-File -Encoding "ASCII" -Append task.bat
+
+        $php = "c:\\build-cache\\" + $dname + '\php.exe'
+        $test_php_exec = "set TEST_PHP_EXECUTABLE=" + $php
+        echo $test_php_exec | Out-File -Encoding "ASCII" -Append task.bat
+        $tcmd = $php + ' run-tests.php -q --offline --show-diff --set-timeout 120 -g FAIL,XFAIL,BORK,WARN,LEAK,SKIP --temp-source c:\tests_tmp --temp-target c:\tests_tmp -p c:\build-cache\' + $dname + '\php.exe'
+        echo $tcmd | Out-File -Encoding "ASCII" -Append task.bat
+        echo "exit %errorlevel%" | Out-File -Encoding "ASCII" -Append task.bat
+
+        $here = (Get-Item -Path "." -Verbose).FullName
+        $runner = 'c:\build-cache\php-sdk-' + $env:BIN_SDK_VER + '\phpsdk' + '-' + $env:VC + '-' + $env:ARCH + '.bat'
+        $task = $here + '\task.bat'
+        & $runner -t $task

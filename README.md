@@ -1,5 +1,5 @@
 # Yaf - Yet Another Framework  
-[![Build Status](https://api.travis-ci.org/laruence/yaf.svg?branch=master)](https://travis-ci.org/laruence/yaf)
+[![Build Status](https://api.travis-ci.org/laruence/yaf.svg?branch=master)](https://travis-ci.org/laruence/yaf) [![Build status](https://ci.appveyor.com/api/projects/status/awii6wf2ocmy202p/branch/master?svg=true)](https://ci.appveyor.com/project/laruence/yaf/branch/master)
 
 PHP framework written in c and built as a PHP extension.
 
