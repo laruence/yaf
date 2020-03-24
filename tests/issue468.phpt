@@ -1,5 +1,5 @@
 --TEST--
-PR #468 Check for sysboml table bug
+ISSUE #468 Check for same name variables assignment
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
@@ -17,23 +17,9 @@ $config = array(
         "dispatcher" => array (
            "catchException" => true,
         ),
-        "library" => array(
-        ),
 	),
 );
 
-file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
-<?php
-   class Bootstrap extends Yaf_Bootstrap_Abstract {
-        public function _initConfig(Yaf_Dispatcher \$dispatcher) {
-            Yaf_Registry::set("config", Yaf_Application::app()->getConfig());
-        }
-   }
-PHP
-);
-
-
-$value = NULL;
 
 file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
@@ -54,7 +40,7 @@ file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "<?php
 ?>");
 
 $app = new Yaf_Application($config);
-$app->bootstrap()->run();
+$app->run();
 
 ?>
 --CLEAN--
@@ -64,4 +50,3 @@ shutdown();
 ?>
 --EXPECTF--
 string(11) "ref-changed"
-

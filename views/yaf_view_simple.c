@@ -106,8 +106,9 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 	zend_class_entry *scope = zend_get_executed_scope();
 #endif
 
-	ALLOC_HASHTABLE(symbol_table);
+	symbol_table = emalloc(sizeof(zend_array));
 	zend_hash_init(symbol_table, 8, NULL, ZVAL_PTR_DTOR, 0);
+	zend_hash_real_init(symbol_table, 0);
 
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
@@ -124,7 +125,7 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 			}
 
 			if (yaf_view_simple_valid_var_name(ZSTR_VAL(var_name), ZSTR_LEN(var_name))) {
-				if (EXPECTED(zend_hash_add_new(symbol_table, var_name, entry))) {
+				if (EXPECTED(zend_hash_update(symbol_table, var_name, entry))) {
 					Z_TRY_ADDREF_P(entry);
 				}
 			}
