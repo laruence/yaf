@@ -113,6 +113,9 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 
 	if (tpl_vars && Z_TYPE_P(tpl_vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tpl_vars), var_name, entry) {
+			if (var_name == NULL) {
+				continue;
+			}
 			/* GLOBALS protection */
 			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
@@ -132,6 +135,9 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 
 	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(vars), var_name, entry) {
+			if (var_name == NULL) {
+				continue;
+			}
 			/* GLOBALS protection */
 			if (zend_string_equals_literal(var_name, "GLOBALS")) {
 				continue;
