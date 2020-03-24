@@ -125,7 +125,7 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 			}
 
 			if (yaf_view_simple_valid_var_name(ZSTR_VAL(var_name), ZSTR_LEN(var_name))) {
-				if (EXPECTED(zend_hash_update(symbol_table, var_name, entry))) {
+				if (EXPECTED(zend_hash_add_new(symbol_table, var_name, entry))) {
 					Z_TRY_ADDREF_P(entry);
 				}
 			}

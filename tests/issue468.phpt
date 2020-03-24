@@ -27,8 +27,9 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
          public function init() {}
 
          public function indexAction() {
-            \$this->getView()->assign("ref", "ref-source");
-            \$this->getView()->display("index/index.phtml", ["ref" => "ref-changed"]);
+            \$this->getView()->assign("ref", "first-source");
+            \$this->getView()->assign("ref", "second-source");
+            \$this->getView()->display("index/index.phtml", ["ref" => "thrid-source"]);
             return false;
          }
    }
@@ -49,4 +50,4 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-string(11) "ref-changed"
+string(12) "thrid-source"
