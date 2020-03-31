@@ -96,17 +96,15 @@ static int yaf_view_simple_valid_var_name(char *var_name, int len) /* {{{ */
 }
 /* }}} */
 
-static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */ {
+static void yaf_view_build_symtable(zend_array *symbol_table, zval *tpl_vars, zval *vars) /* {{{ */ {
 	zval *entry;
 	zend_string *var_name;
-	HashTable *symbol_table;
 #if PHP_VERSION_ID < 70100
 	zend_class_entry *scope = EG(scope);
 #else
 	zend_class_entry *scope = zend_get_executed_scope();
 #endif
 
-	symbol_table = emalloc(sizeof(zend_array));
 	zend_hash_init(symbol_table, 8, NULL, ZVAL_PTR_DTOR, 0);
 	zend_hash_real_init(symbol_table, 0);
 
@@ -153,13 +151,6 @@ static zend_array *yaf_view_build_symtable(zval *tpl_vars, zval *vars) /* {{{ */
 			}
 		} ZEND_HASH_FOREACH_END();
 	}
-
-	return symbol_table;
-}
-/* }}} */
-
-static inline void yaf_view_destroy_symtable(zend_array *symbol_table) /* {{{ */ {
-	zend_array_destroy(symbol_table);
 }
 /* }}} */
 
@@ -303,7 +294,7 @@ yaf_view_t *yaf_view_simple_instance(yaf_view_t *this_ptr, zval *tpl_dir, zval *
 */
 int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 	zval *tpl_vars;
-	zend_array *symbol_table;
+	zend_array symbol_table;
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;
@@ -311,11 +302,11 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 
-	symbol_table = yaf_view_build_symtable(tpl_vars, vars);
+	yaf_view_build_symtable(&symbol_table, tpl_vars, vars);
 
 	if (IS_ABSOLUTE_PATH(Z_STRVAL_P(tpl), Z_STRLEN_P(tpl))) {
-		if (yaf_view_render_tpl(view, symbol_table, Z_STR_P(tpl), ret) == 0) {
-			yaf_view_destroy_symtable(symbol_table);
+		if (yaf_view_render_tpl(view, &symbol_table, Z_STR_P(tpl), ret) == 0) {
+			zend_hash_destroy(&symbol_table);
 			return 0;
 		}
 	} else {
@@ -326,7 +317,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 			if (YAF_G(view_directory)) {
 				script = strpprintf(0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 			} else {
-				yaf_view_destroy_symtable(symbol_table);
+				zend_hash_destroy(&symbol_table);
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 						"Could not determine the view script path, you should call %s::setScriptPath to specific it",
 						ZSTR_VAL(yaf_view_simple_ce->name));
@@ -336,15 +327,15 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 			script = strpprintf(0, "%s%c%s", Z_STRVAL_P(tpl_dir), DEFAULT_SLASH, Z_STRVAL_P(tpl));
 		}
 
-		if (yaf_view_render_tpl(view, symbol_table, script, ret) == 0) {
-			yaf_view_destroy_symtable(symbol_table);
+		if (yaf_view_render_tpl(view, &symbol_table, script, ret) == 0) {
+			zend_hash_destroy(&symbol_table);
 			zend_string_release(script);
 			return 0;
 		}
 		zend_string_release(script);
 	}
 
-	yaf_view_destroy_symtable(symbol_table);
+	zend_hash_destroy(&symbol_table);
 
 	return 1;
 }
@@ -354,7 +345,7 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 */
 int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 	zval *tpl_vars;
-	zend_array *symbol_table;
+	zend_array symbol_table;
 
 	if (IS_STRING != Z_TYPE_P(tpl)) {
 		return 0;
@@ -362,7 +353,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 
 	tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 
-	symbol_table = yaf_view_build_symtable(tpl_vars, vars);
+	yaf_view_build_symtable(&symbol_table, tpl_vars, vars);
 
 	if (Z_STRLEN_P(tpl)) {
 		zval phtml;
@@ -378,13 +369,13 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 		efree(eval_desc);
 
 		if (op_array) {
-			(void)yaf_view_exec_tpl(view, op_array, symbol_table, ret);
+			(void)yaf_view_exec_tpl(view, op_array, &symbol_table, ret);
 			destroy_op_array(op_array);
 			efree(op_array);
 		}
 	}
 
-	yaf_view_destroy_symtable(symbol_table);
+	zend_hash_destroy(&symbol_table);
 
 	return 1;
 }
