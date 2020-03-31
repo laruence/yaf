@@ -219,6 +219,7 @@
     <file name="issue311.phpt" role="test" />
     <file name="issue420.phpt" role="test" />
     <file name="issue468.phpt" role="test" />
+    <file name="issue469.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
     <file name="multi-section.ini" role="test" />

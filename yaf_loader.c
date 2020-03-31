@@ -135,31 +135,34 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				if (len < sizeof(YAF_LOADER_CONTROLLER) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				name += len - (sizeof(YAF_LOADER_CONTROLLER) - 1 - 1);
-				if (memcmp(name, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1) == 0) {
-					suspense_type = YAF_CLASS_NAME_CONTROLLER;
-					len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
+				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
+				name += len;
+				if (memcmp(name, YAF_LOADER_CONTROLLER, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
+					return YAF_CLASS_NAME_NORMAL;
 				}
+				suspense_type = YAF_CLASS_NAME_CONTROLLER;
 				break;
 			case 'n':
 				if (len < sizeof(YAF_LOADER_PLUGIN) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				name += len - (sizeof(YAF_LOADER_PLUGIN) - 1 - 1);
-				if (memcmp(name, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1) == 0) {
-					suspense_type = YAF_CLASS_NAME_PLUGIN;
-					len -= sizeof(YAF_LOADER_PLUGIN) - 1;
+				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
+				name += len;
+				if (memcmp(name, YAF_LOADER_PLUGIN, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
+					return YAF_CLASS_NAME_NORMAL;
 				}
+				suspense_type = YAF_CLASS_NAME_PLUGIN;
 				break;
 			case 'l':
 				if (len < sizeof(YAF_LOADER_MODEL) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				name += len - (sizeof(YAF_LOADER_MODEL) - 1 - 1);
-				if (memcmp(name, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1) == 0) {
-					suspense_type = YAF_CLASS_NAME_MODEL;
-					len -= sizeof(YAF_LOADER_MODEL) - 1;
+				len -= sizeof(YAF_LOADER_MODEL) - 1;
+				name += len;
+				if (memcmp(name, YAF_LOADER_MODEL, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
+					return YAF_CLASS_NAME_NORMAL;
 				}
+				suspense_type = YAF_CLASS_NAME_MODEL;
 				break;
 			default:
 				return YAF_CLASS_NAME_NORMAL;
@@ -176,31 +179,34 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				if (len < sizeof(YAF_LOADER_CONTROLLER) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				if (memcmp(name + 1, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1) == 0) {
-					suspense_type = YAF_CLASS_NAME_CONTROLLER;
-					name += sizeof(YAF_LOADER_CONTROLLER) - 1;
-					len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
+				if (memcmp(name + 1, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
+					return YAF_CLASS_NAME_NORMAL;
 				}
+				suspense_type = YAF_CLASS_NAME_CONTROLLER;
+				name += sizeof(YAF_LOADER_CONTROLLER) - 1;
+				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
 				break;
 			case 'P':
 				if (len < sizeof(YAF_LOADER_PLUGIN) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				if (memcmp(name + 1, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1) == 0) {
-					suspense_type = YAF_CLASS_NAME_PLUGIN;
-					name += sizeof(YAF_LOADER_PLUGIN) - 1;
-					len -= sizeof(YAF_LOADER_PLUGIN) - 1;
+				if (memcmp(name + 1, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
+					return YAF_CLASS_NAME_NORMAL;
 				}
+				suspense_type = YAF_CLASS_NAME_PLUGIN;
+				name += sizeof(YAF_LOADER_PLUGIN) - 1;
+				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
 				break;
 			case 'M':
 				if (len < sizeof(YAF_LOADER_MODEL) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				if (memcmp(name + 1, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1) == 0) {
-					suspense_type = YAF_CLASS_NAME_MODEL;
-					name += sizeof(YAF_LOADER_MODEL) - 1;
-					len -= sizeof(YAF_LOADER_MODEL) - 1;
+				if (memcmp(name + 1, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
+					return YAF_CLASS_NAME_NORMAL;
 				}
+				suspense_type = YAF_CLASS_NAME_MODEL;
+				name += sizeof(YAF_LOADER_MODEL) - 1;
+				len -= sizeof(YAF_LOADER_MODEL) - 1;
 				break;
 			default:
 				return YAF_CLASS_NAME_NORMAL;
