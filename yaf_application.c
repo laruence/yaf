@@ -229,7 +229,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 						ZEND_STRL("defaultModule"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
 			zend_string_release(YAF_G(default_module));
-			YAF_G(default_module) = zend_string_dup(Z_STR_P(psval), 0);
+			YAF_G(default_module) = zend_string_init(Z_STRVAL_P(psval), Z_STRLEN_P(psval), 0);
 			zend_str_tolower(ZSTR_VAL(YAF_G(default_module)), ZSTR_LEN(YAF_G(default_module)));
 			*ZSTR_VAL(YAF_G(default_module)) = toupper(*ZSTR_VAL(YAF_G(default_module)));
 		}
@@ -237,7 +237,7 @@ static int yaf_application_parse_option(zval *options) /* {{{ */ {
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval),
 						ZEND_STRL("defaultController"))) != NULL && Z_TYPE_P(psval) == IS_STRING) {
 			zend_string_release(YAF_G(default_controller));
-			YAF_G(default_controller) = zend_string_dup(Z_STR_P(psval), 0);
+			YAF_G(default_controller) = zend_string_init(Z_STRVAL_P(psval), Z_STRLEN_P(psval), 0);
 			zend_str_tolower(ZSTR_VAL(YAF_G(default_controller)), ZSTR_LEN(YAF_G(default_controller)));
 			*ZSTR_VAL(YAF_G(default_controller)) = toupper(*ZSTR_VAL(YAF_G(default_controller)));
 		}
