@@ -112,7 +112,7 @@ static int yaf_response_set_body(yaf_response_t *response, char *name, int name_
 /** {{{ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag)
  */
 int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag) {
-	zval     *zbody, *pzval;
+	zval *zbody, *pzval;
 	zend_string *obody;
 
 	if (ZSTR_LEN(body) == 0) {
@@ -127,13 +127,15 @@ int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_st
 	}
 
 	if (pzval == NULL) {
-		obody = NULL;
+		zval rv;
+		ZVAL_NULL(&rv);
 		if (!name) {
 			pzval = zend_hash_str_update(Z_ARRVAL_P(zbody),
-				   	YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY)-1, &EG(uninitialized_zval));
+				   	YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY)-1, &rv);
 		} else {
-			pzval = zend_hash_update(Z_ARRVAL_P(zbody), name, &EG(uninitialized_zval));
+			pzval = zend_hash_update(Z_ARRVAL_P(zbody), name, &rv);
 		}
+		obody = NULL;
 	} else {
 		obody = Z_STR_P(pzval);
 	}
