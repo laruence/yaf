@@ -64,6 +64,8 @@
    <file name="yaf_session.h" role="src" />
    <file name="yaf_view.c" role="src" />
    <file name="yaf_view.h" role="src" />
+   <file name="yaf_db.c" role="src" />
+   <file name="yaf_db.h" role="src" />
    <dir name="configs">
     <file name="yaf_config_ini.c" role="src" />
     <file name="yaf_config_ini.h" role="src" />

@@ -70,8 +70,8 @@ extern zend_module_entry yaf_module_entry;
 
 #define YAF_ME(c, m, a, f) {m, PHP_MN(c), a, (unsigned) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 
-extern PHPAPI void php_var_dump(zval **struc, int level);
-extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
+//extern PHPAPI void php_var_dump(zval **struc, int level);
+//extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
 
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
     zend_string   *ext;
