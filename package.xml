@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-03-20</date>
- <time>16:30:00</time>
+ <date>2020-04-01</date>
+ <time>12:00:00</time>
  <version>
-  <release>3.1.3</release>
-  <api>3.1.3</api>
+  <release>3.1.4</release>
+  <api>3.1.4</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,9 +22,9 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #466 (segfault if getRequest without name)
-  - Fixed bug (unexpected path too long error)
-  - Fixed valgrind warning about access to uninitilized value while memcmp
+  - Fixed issue #469 (treat autocontroller as Controller mistakenly)
+  - Fixed issue #468 (abort if same key assigned to view)
+  - minor optimization to avoding memory allocations
  </notes>
  <contents> 
   <dir name="/"> 
@@ -240,6 +240,24 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-04-01</date> 
+   <version> 
+    <release>3.1.4</release> 
+    <api>3.1.4</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed issue #469 (treat autocontroller as Controller mistakenly)
+    - Fixed issue #468 (abort if same key assigned to view)
+    - minor optimization to avoding memory allocations
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-03-20</date> 
    <version> 
     <release>3.1.3</release> 
@@ -256,7 +274,6 @@
     - Fixed valgrind warning about access to uninitilized value while memcmp
    </notes> 
   </release> 
-
   <release> 
    <date>2020-03-17</date> 
    <version> 
