@@ -324,7 +324,7 @@ PHP_METHOD(yaf_application, __construct) {
 	yaf_config_t zconfig = {{0}};
 	yaf_request_t zrequest = {{0}};
 	yaf_dispatcher_t zdispatcher = {{0}};
-	yaf_loader_t *loader, zloader = {{0}};
+	yaf_loader_t *loader;
 	yaf_application_t *app, *self;
 
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "z|z", &config, &section) == FAILURE) {
@@ -379,7 +379,7 @@ PHP_METHOD(yaf_application, __construct) {
 	if (YAF_G(local_library)) {
 		zend_string *global_library = strlen(YAF_G(global_library))?
 			zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0) : NULL;
-		loader = yaf_loader_instance(&zloader, YAF_G(local_library), global_library);
+		loader = yaf_loader_instance(YAF_G(local_library), global_library);
 		if (global_library) {
 			zend_string_release(global_library);
 		}
@@ -388,7 +388,7 @@ PHP_METHOD(yaf_application, __construct) {
 		local_library = strpprintf(0, "%s%c%s", ZSTR_VAL(YAF_G(directory)), DEFAULT_SLASH, YAF_LIBRARY_DIRECTORY_NAME);
 		global_library = strlen(YAF_G(global_library))?
 			zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0) : NULL;
-		loader = yaf_loader_instance(&zloader, local_library, global_library);
+		loader = yaf_loader_instance(local_library, global_library);
 		zend_string_release(local_library);
 		if (global_library) {
 			zend_string_release(global_library);

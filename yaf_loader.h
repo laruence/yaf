@@ -29,23 +29,12 @@
 
 #define YAF_SPL_AUTOLOAD_REGISTER_NAME 		"spl_autoload_register"
 #define YAF_AUTOLOAD_FUNC_NAME 				"autoload"
-#define YAF_LOADER_PROPERTY_NAME_INSTANCE	"_instance"
-#define YAF_LOADER_PROPERTY_NAME_NAMESPACE	"_local_ns"
 
-#define	YAF_LOADER_PROPERTY_NAME_LIBRARY	"_library"
-#define YAF_LOADER_PROPERTY_NAME_GLOBAL_LIB "_global_library"
-
-#define YAF_STORE_EG_ENVIRON() \
-	{ \
-		zval ** __old_return_value_pp   = EG(return_value_ptr_ptr); \
-		zend_op ** __old_opline_ptr  	= EG(opline_ptr); \
-		zend_op_array * __old_op_array  = EG(active_op_array);
-
-#define YAF_RESTORE_EG_ENVIRON() \
-		EG(return_value_ptr_ptr) = __old_return_value_pp;\
-		EG(opline_ptr)			 = __old_opline_ptr; \
-		EG(active_op_array)		 = __old_op_array; \
-	}
+typedef struct {
+	zend_object std;
+	zend_string *library;
+	zend_string *glibrary;
+} yaf_loader_object;
 
 extern zend_class_entry *yaf_loader_ce;
 
@@ -53,9 +42,11 @@ int yaf_loader_load(yaf_loader_t *loader, char *file_name, size_t name_len, char
 int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
 int yaf_loader_register_namespace_single(zend_string *prefix);
-yaf_loader_t *yaf_loader_instance(yaf_loader_t *this_ptr, zend_string *library_path, zend_string *global_path);
+yaf_loader_t *yaf_loader_instance(zend_string *library_path, zend_string *global_path);
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);
+
+#define Z_YAFLOADEROBJ_P(zv)  ((yaf_loader_object*)(Z_OBJ_P(zv)))
 
 YAF_STARTUP_FUNCTION(loader);
 

@@ -166,6 +166,8 @@ PHP_RINIT_FUNCTION(yaf)
 			YAF_ROUTER_DEFAULT_CONTROLLER, sizeof(YAF_ROUTER_DEFAULT_CONTROLLER) - 1, 0);
 	YAF_G(default_action) = zend_string_init(
 			YAF_ROUTER_DEFAULT_ACTION, sizeof(YAF_ROUTER_DEFAULT_ACTION) - 1, 0);
+
+	ZVAL_UNDEF(&YAF_G(loader));
 	return SUCCESS;
 }
 /* }}} */
@@ -236,6 +238,8 @@ PHP_RSHUTDOWN_FUNCTION(yaf)
 		zend_string_release(YAF_G(ext));
 	}
 	YAF_G(default_route) = NULL;
+
+	zval_ptr_dtor(&YAF_G(loader));
 
 	return SUCCESS;
 }

@@ -112,6 +112,9 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
     zval           active_ini_file_section;
     zval          *ini_wanted_section;
     unsigned       parsing_flag;
+
+	/* for conveniently reading */
+	yaf_loader_t   loader;
 ZEND_END_MODULE_GLOBALS(yaf)
 
 PHP_MINIT_FUNCTION(yaf);
