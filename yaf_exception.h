@@ -38,21 +38,20 @@
 
 #define YAF_CORRESPOND_ERROR(x) (x>>9L)
 
-#define YAF_EXCEPTION_HANDLE(dispatcher, request, response) \
+#define YAF_EXCEPTION_HANDLE(dispatcher) \
 	if (EG(exception)) { \
-		if (YAF_G(catch_exception) \
-				 && instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
-			yaf_dispatcher_exception_handler(dispatcher, request, response); \
+		if (YAF_G(catch_exception) && \
+			instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
+			yaf_dispatcher_exception_handler(dispatcher); \
 		} \
-		zval_ptr_dtor(response); \
 		return NULL; \
 	}
 
-#define YAF_EXCEPTION_HANDLE_NORET(dispatcher, request, response) \
+#define YAF_EXCEPTION_HANDLE_NORET(dispatcher) \
 	if (EG(exception)) { \
-		if (YAF_G(catch_exception) \
-	   			&& instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
-			yaf_dispatcher_exception_handler(dispatcher, request, response); \
+		if (YAF_G(catch_exception) && \
+			instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
+			yaf_dispatcher_exception_handler(dispatcher); \
 		} \
 	}
 

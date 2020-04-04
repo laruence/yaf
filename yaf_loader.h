@@ -17,36 +17,40 @@
 #ifndef YAF_LOADER_H
 #define YAF_LOADER_H
 
-#define YAF_DEFAULT_VIEW_EXT     	  		"phtml"
-#define YAF_DEFAULT_LIBRARY_EXT		   		YAF_DEFAULT_CONTROLLER_EXT
+#define YAF_DEFAULT_VIEW_EXT               "phtml"
+#define YAF_DEFAULT_EXT                    "php"
+#define YAF_DEFAULT_LIBRARY_EXT             YAF_DEFAULT_CONTROLLER_EXT
 
-#define YAF_LIBRARY_DIRECTORY_NAME    		"library"
-#define YAF_CONTROLLER_DIRECTORY_NAME 		"controllers"
-#define YAF_PLUGIN_DIRECTORY_NAME 	  		"plugins"
-#define YAF_MODULE_DIRECTORY_NAME     		"modules"
-#define YAF_VIEW_DIRECTORY_NAME       		"views"
-#define YAF_MODEL_DIRECTORY_NAME      		"models"
+#define YAF_LIBRARY_DIRECTORY_NAME         "library"
+#define YAF_CONTROLLER_DIRECTORY_NAME      "controllers"
+#define YAF_PLUGIN_DIRECTORY_NAME          "plugins"
+#define YAF_MODULE_DIRECTORY_NAME          "modules"
+#define YAF_VIEW_DIRECTORY_NAME            "views"
+#define YAF_MODEL_DIRECTORY_NAME           "models"
 
-#define YAF_SPL_AUTOLOAD_REGISTER_NAME 		"spl_autoload_register"
-#define YAF_AUTOLOAD_FUNC_NAME 				"autoload"
+#define YAF_SPL_AUTOLOAD_REGISTER_NAME     "spl_autoload_register"
+#define YAF_AUTOLOAD_FUNC_NAME             "autoload"
 
 typedef struct {
 	zend_object std;
 	zend_string *library;
 	zend_string *glibrary;
+	zend_array   namespaces;
 } yaf_loader_object;
+
+#define Z_YAFLOADEROBJ(zv)    ((yaf_loader_object*)(Z_OBJ(zv)))
+#define Z_YAFLOADEROBJ_P(zv)  Z_YAFLOADEROBJ(*zv)
 
 extern zend_class_entry *yaf_loader_ce;
 
 int yaf_loader_load(yaf_loader_t *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
 int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
-int yaf_loader_register_namespace_single(zend_string *prefix);
+int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string *prefix);
+void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path, zend_string *global_path);
 yaf_loader_t *yaf_loader_instance(zend_string *library_path, zend_string *global_path);
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);
-
-#define Z_YAFLOADEROBJ_P(zv)  ((yaf_loader_object*)(Z_OBJ_P(zv)))
 
 YAF_STARTUP_FUNCTION(loader);
 

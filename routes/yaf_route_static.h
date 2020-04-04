@@ -19,7 +19,7 @@
 
 extern zend_class_entry *yaf_route_static_ce;
 
-int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t req_uri_len);
+int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, size_t req_uri_len);
 
 YAF_STARTUP_FUNCTION(route_static);
 

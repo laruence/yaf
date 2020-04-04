@@ -314,8 +314,8 @@ int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval *vars, zval *ret) {
 		zval *tpl_dir = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 0, NULL);
 
 		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
-			if (YAF_G(view_directory)) {
-				script = strpprintf(0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl));
+			if (0/*YAF_G(view_directory) */) {
+				/* script = strpprintf(0, "%s%c%s", ZSTR_VAL(YAF_G(view_directory)), DEFAULT_SLASH, Z_STRVAL_P(tpl)); */
 			} else {
 				zend_hash_destroy(&symbol_table);
 				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
@@ -382,7 +382,7 @@ int yaf_view_simple_eval(yaf_view_t *view, zval *tpl, zval * vars, zval *ret) {
 /* }}} */
 
 int yaf_view_simple_assign_single(yaf_view_t *view, zend_string *name, zval *value) /* {{{ */ {
-	zval *tpl_vars = zend_read_property(yaf_view_simple_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
+	zval *tpl_vars = zend_read_property(Z_OBJCE_P(view), view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLVARS), 1, NULL);
 	if (zend_hash_update(Z_ARRVAL_P(tpl_vars), name, value) != NULL) {
 		Z_TRY_ADDREF_P(value);
 		return 1;
@@ -419,16 +419,12 @@ void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name) {
 */
 PHP_METHOD(yaf_view_simple, __construct) {
 	zval *tpl_dir, *options = NULL;
-	zval rt, *self = getThis();
+	zval *self = getThis();
 
 	if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "z|a", &tpl_dir, &options) == FAILURE) {
 		return;
 	}
 
-    if (!self) {
-        ZVAL_NULL(&rt);
-        self = &rt;
-    }
 	yaf_view_simple_instance(self, tpl_dir, options);
 }
 /* }}} */
@@ -470,9 +466,7 @@ PHP_METHOD(yaf_view_simple, setScriptPath) {
 PHP_METHOD(yaf_view_simple, getScriptPath) {
 	zval *tpl_dir = zend_read_property(yaf_view_simple_ce,
 			getThis(), ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, NULL);
-	if (IS_STRING != Z_TYPE_P(tpl_dir) && YAF_G(view_directory)) {
-		RETURN_STR(zend_string_copy(YAF_G(view_directory)));
-	}
+
 	RETURN_ZVAL(tpl_dir, 1, 0);
 }
 /* }}} */

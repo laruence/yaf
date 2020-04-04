@@ -52,6 +52,33 @@ zend_function_entry yaf_functions[] = {
 };
 /* }}} */
 
+zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ {
+	zend_string *canocical;
+	const char *p = ZSTR_VAL(name);
+	const char *e = ZSTR_VAL(name) + ZSTR_LEN(name);
+
+	if (type) {
+		/* Module, Controller */
+		if ((*p < 'A' || *p > 'Z') && *p != '_') {
+			goto sanitize;
+		}
+		while (p++ != e) {
+			if (*p >= 'A' && *p <= 'Z') {
+				goto sanitize;
+			}
+		}
+		return zend_string_copy(name);
+sanitize:
+		canocical = zend_string_init(ZSTR_VAL(name), ZSTR_LEN(name), 0);
+		zend_str_tolower(ZSTR_VAL(canocical), ZSTR_LEN(canocical));
+		*ZSTR_VAL(canocical) = toupper(*ZSTR_VAL(canocical));
+		return canocical;
+	} else {
+		return zend_string_tolower(name);
+	}
+}
+/* }}} */
+
 /** {{{ PHP_INI_MH(OnUpdateSeparator)
  */
 PHP_INI_MH(OnUpdateSeparator) {
@@ -158,16 +185,9 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 PHP_RINIT_FUNCTION(yaf)
 {
 	YAF_G(throw_exception) = 1;
-	YAF_G(ext) = zend_string_init(YAF_DEFAULT_EXT, sizeof(YAF_DEFAULT_EXT) - 1, 0);
-	YAF_G(view_ext) = zend_string_init(YAF_DEFAULT_VIEW_EXT, sizeof(YAF_DEFAULT_VIEW_EXT) - 1, 0);
-	YAF_G(default_module) = zend_string_init(
-			YAF_ROUTER_DEFAULT_MODULE, sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1, 0);
-	YAF_G(default_controller) = zend_string_init(
-			YAF_ROUTER_DEFAULT_CONTROLLER, sizeof(YAF_ROUTER_DEFAULT_CONTROLLER) - 1, 0);
-	YAF_G(default_action) = zend_string_init(
-			YAF_ROUTER_DEFAULT_ACTION, sizeof(YAF_ROUTER_DEFAULT_ACTION) - 1, 0);
-
+	YAF_G(catch_exception) = 0;
 	ZVAL_UNDEF(&YAF_G(loader));
+	ZVAL_UNDEF(&YAF_G(app));
 	return SUCCESS;
 }
 /* }}} */
@@ -176,70 +196,8 @@ PHP_RINIT_FUNCTION(yaf)
 */
 PHP_RSHUTDOWN_FUNCTION(yaf)
 {
-	YAF_G(running) = 0;
-	YAF_G(in_exception)	= 0;
-	YAF_G(catch_exception) = 0;
-
-	if (YAF_G(directory)) {
-		zend_string_release(YAF_G(directory));
-		YAF_G(directory) = NULL;
-	}
-	if (YAF_G(local_library)) {
-		zend_string_release(YAF_G(local_library));
-		YAF_G(local_library) = NULL;
-	}
-	if (YAF_G(local_namespaces)) {
-#if PHP_VERSION_ID >70300
-		if (GC_DELREF(YAF_G(local_namespaces)) == 0)
-#else
-		if (--(GC_REFCOUNT(YAF_G(local_namespaces))) == 0)
-#endif
-		{
-			zend_array_destroy(YAF_G(local_namespaces));
-		}
-		YAF_G(local_namespaces) = NULL;
-	}
-	if (YAF_G(bootstrap)) {
-		zend_string_release(YAF_G(bootstrap));
-		YAF_G(bootstrap) = NULL;
-	}
-	if (YAF_G(modules)) {
-#if PHP_VERSION_ID >70300
-		if (GC_DELREF(YAF_G(modules)) == 0)
-#else
-		if (--(GC_REFCOUNT(YAF_G(modules))) == 0)
-#endif
-		{
-			zend_array_destroy(YAF_G(modules));
-		}
-		YAF_G(modules) = NULL;
-	}
-	if (YAF_G(base_uri)) {
-		zend_string_release(YAF_G(base_uri));
-		YAF_G(base_uri) = NULL;
-	}
-	if (YAF_G(view_directory)) {
-		zend_string_release(YAF_G(view_directory));
-		YAF_G(view_directory) = NULL;
-	}
-	if (YAF_G(view_ext)) {
-		zend_string_release(YAF_G(view_ext));
-	}
-	if (YAF_G(default_module)) {
-		zend_string_release(YAF_G(default_module));
-	}
-	if (YAF_G(default_controller)) {
-		zend_string_release(YAF_G(default_controller));
-	}
-	if (YAF_G(default_action)) {
-		zend_string_release(YAF_G(default_action));
-	}
-	if (YAF_G(ext)) {
-		zend_string_release(YAF_G(ext));
-	}
-	YAF_G(default_route) = NULL;
-
 	zval_ptr_dtor(&YAF_G(loader));
+	zval_ptr_dtor(&YAF_G(app));
 
 	return SUCCESS;
 }

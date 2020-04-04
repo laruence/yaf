@@ -17,7 +17,10 @@
 #ifndef YAF_REQUEST_HTTP_H
 #define YAF_REQUEST_HTTP_H
 
-yaf_request_t * yaf_request_http_instance(yaf_request_t *this_ptr, zend_string *request_uri, zend_string *base_uri);
+extern zend_class_entry *yaf_request_http_ce;
+
+void yaf_request_http_init(yaf_request_object *request, zend_string *request_uri, zend_string *base_uri);
+
 YAF_STARTUP_FUNCTION(request_http);
 
 #endif

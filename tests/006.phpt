@@ -24,20 +24,19 @@ print_r($request);
 bool(true)
 Yaf_Request_Http Object
 (
+    [method] => CLI
     [module] => 
     [controller] => controller
     [action] => action
-    [method] => CLI
+    [uri] => /prefix/controller/action/name/laruence/age/28
+    [base_uri] => /prefix
+    [dispatched] => 
+    [routed] => 
+    [language:protected] => 
     [params:protected] => Array
         (
             [name] => laruence
             [age] => 28
         )
 
-    [language:protected] => 
-    [_exception:protected] => 
-    [_base_uri:protected] => /prefix
-    [uri:protected] => /prefix/controller/action/name/laruence/age/28
-    [dispatched:protected] => 
-    [routed:protected] => 
 )

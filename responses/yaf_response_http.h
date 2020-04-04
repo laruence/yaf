@@ -22,9 +22,9 @@
 
 extern zend_class_entry *yaf_response_http_ce;
 
-int yaf_response_alter_header(yaf_response_t *response, zend_string *name, char *value, long value_len, unsigned rep);
-zval * yaf_response_get_header(yaf_response_t *response, zend_string *name);
-int yaf_response_clear_header(yaf_response_t *response, zend_string *name);
+int yaf_response_alter_header(yaf_response_object *response, zend_string *name, zend_string *value, unsigned rep);
+zval *yaf_response_get_header(yaf_response_object *response, zend_string *name);
+int yaf_response_clear_header(yaf_response_object *response, zend_string *name);
 
 YAF_STARTUP_FUNCTION(response_http);
 

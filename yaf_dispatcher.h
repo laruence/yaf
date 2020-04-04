@@ -46,13 +46,14 @@
 #define YAF_DISPATCHER_CHECK_MODULE	1
 #define YAF_DISPATCHER_CHECK_NONE	0
 
-#define YAF_PLUGIN_HANDLE(p, n, request, response) \
+#define YAF_PLUGIN_HANDLE(dispatcher, ev) \
 	do { \
-		if (!ZVAL_IS_NULL(p)) { \
-			zval *_t_plugin;\
-			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(p), _t_plugin) { \
-			    if (zend_hash_str_exists(&(Z_OBJCE_P(_t_plugin)->function_table), n, sizeof(n) - 1)) { \
-			        zend_call_method_with_2_params(_t_plugin, Z_OBJCE_P(_t_plugin), NULL, n, NULL, request, response); \
+		yaf_dispatcher_object *_d = (dispatcher); \
+		if (zend_hash_num_elements(&_d->plugins)) { \
+			zval *_t;\
+			ZEND_HASH_FOREACH_VAL(&_d->plugins, _t) { \
+			    if (zend_hash_str_exists(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1)) { \
+			        zend_call_method_with_2_params(_t, Z_OBJCE_P(_t), NULL, (ev), NULL, &_d->request, &_d->response); \
 				} \
 			} ZEND_HASH_FOREACH_END(); \
 		} \
@@ -60,9 +61,24 @@
 
 extern zend_class_entry *yaf_dispatcher_ce;
 
-yaf_dispatcher_t *yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr);
-yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_t *dispatcher, zval *response_ptr);
-int yaf_dispatcher_set_request(yaf_dispatcher_t *dispatcher, yaf_request_t *request);
+typedef struct {
+	zend_object        std;
+	zend_array         plugins;
+	yaf_request_t      request;
+	yaf_response_t     response;
+	yaf_router_t       router;
+	yaf_view_t         view;
+	zend_bool          auto_render;
+	zend_bool          instantly_flush;
+	zend_bool          return_response;
+} yaf_dispatcher_object;
+
+#define Z_YAFDISPATCHEROBJ(zv)   ((yaf_dispatcher_object*)(Z_OBJ(zv)))
+#define Z_YAFDISPATCHEROBJ_P(zv) Z_YAFDISPATCHEROBJ(*zv)
+
+void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr);
+yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher);
+int yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_request_t *request);
 
 PHP_METHOD(yaf_application, app);
 PHP_FUNCTION(set_error_handler);

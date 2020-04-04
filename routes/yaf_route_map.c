@@ -58,22 +58,18 @@ yaf_route_t * yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller
 }
 /* }}} */
 
-/** {{{ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request)
-*/
-int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
-	zval *delimer, *uri, *base_uri;
+int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
+	zval *delimer;
 	const char *req_uri, *query_str, *pos;
 	size_t req_uri_len, query_str_len;
 	smart_str route_result = {0};
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 
-	uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1, NULL);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
-
-	if (Z_STRLEN_P(base_uri)) {
-		req_uri = yaf_request_strip_base_uri(Z_STR_P(uri), Z_STR_P(base_uri), &req_uri_len);
+	if (request->base_uri) {
+		req_uri = yaf_request_strip_base_uri(request->uri, request->base_uri, &req_uri_len);
 	} else {
-		req_uri = Z_STRVAL_P(uri);
-		req_uri_len = Z_STRLEN_P(uri);
+		req_uri = ZSTR_VAL(request->uri);
+		req_uri_len = ZSTR_LEN(request->uri);
 	}
 
 	delimer	= zend_read_property(yaf_route_map_ce, route, ZEND_STRL(YAF_ROUTE_MAP_VAR_NAME_DELIMETER), 1, NULL);
@@ -120,9 +116,9 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *request) {
 		ZSTR_LEN(route_result.s)--;
 		ZSTR_VAL(route_result.s)[ZSTR_LEN(route_result.s)] = '\0';
 		if (Z_TYPE_P(ctl_prefer) == IS_TRUE) {
-			zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), route_result.s);
+			yaf_request_set_mvc(request, NULL, route_result.s, NULL, NULL);
 		} else {
-			zend_update_property_str(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), route_result.s);
+			yaf_request_set_mvc(request, NULL, NULL, route_result.s, NULL);
 		}
 		smart_str_free(&route_result);
 	}

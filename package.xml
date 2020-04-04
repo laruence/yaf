@@ -22,9 +22,10 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #466 (segfault if getRequest without name)
-  - Fixed bug (unexpected path too long error)
-  - Fixed valgrind warning about access to uninitilized value while memcmp
+  - Added Yaf_Request::cleanParams()
+  - Added Yaf_Request::getUri()
+  - Added Yaf_Request::getBaseUri()
+  - Added Yaf_Request::getLanguage()
  </notes>
  <contents> 
   <dir name="/"> 
@@ -202,6 +203,8 @@
     <file name="091.phpt" role="test" />
     <file name="092.phpt" role="test" />
     <file name="093.phpt" role="test" />
+    <file name="094.phpt" role="test" />
+    <file name="095.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

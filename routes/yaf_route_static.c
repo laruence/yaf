@@ -51,7 +51,7 @@ static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len
 }
 /* }}} */
 
-int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
+int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
 	const char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
 	size_t module_len, controller_len, action_len, rest_len;
 
@@ -142,17 +142,23 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 		}
 	}
 
-	if (module != NULL) {
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module, module_len);
+	if (module) {
+		if (request->module) {
+			zend_string_release(request->module);
+		}
+		request->module = zend_string_init(module, module_len, 0);
 	}
-	if (controller != NULL) {
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller, controller_len);
+	if (controller) {
+		if (request->controller) {
+			zend_string_release(request->controller);
+		}
+		request->controller = zend_string_init(controller, controller_len, 0);
 	}
-	if (action != NULL) {
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action, action_len);
+	if (action) {
+		if (request->action) {
+			zend_string_release(request->action);
+		}
+		request->action = zend_string_init(action, action_len, 0);
 	}
 
 	if (rest) {
@@ -166,19 +172,16 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 }
 /* }}} */
 
-int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) /* {{{ */ {
-	zval *uri, *base_uri;
+int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	const char *req_uri;
 	size_t req_uri_len;
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 
-	uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1, NULL);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
-
-	if (Z_STRLEN_P(base_uri)) {
-		req_uri = yaf_request_strip_base_uri(Z_STR_P(uri), Z_STR_P(base_uri), &req_uri_len);
+	if (request->base_uri) {
+		req_uri = yaf_request_strip_base_uri(request->uri, request->base_uri, &req_uri_len);
 	} else {
-		req_uri = Z_STRVAL_P(uri);
-		req_uri_len = Z_STRLEN_P(uri);
+		req_uri = ZSTR_VAL(request->uri);
+		req_uri_len = ZSTR_LEN(request->uri);
 	}
 
 	yaf_route_pathinfo_route(request, req_uri, req_uri_len);

@@ -168,21 +168,17 @@ static int yaf_route_rewrite_match(yaf_route_t *router, const char *uri, size_t 
 }
 /* }}} */
 
-/** {{{ int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *request)
- */
-int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *request) {
-	zval args, *base_uri, *uri;
+int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *req) /* {{{ */ {
+	zval args;
 	const char *req_uri;
 	size_t req_uri_len;
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 
-	uri  = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1, NULL);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
-
-	if (Z_STRLEN_P(base_uri)) {
-		req_uri = yaf_request_strip_base_uri(Z_STR_P(uri), Z_STR_P(base_uri), &req_uri_len);
+	if (request->base_uri) {
+		req_uri = yaf_request_strip_base_uri(request->uri, request->base_uri, &req_uri_len);
 	} else {
-		req_uri = Z_STRVAL_P(uri);
-		req_uri_len = Z_STRLEN_P(uri);
+		req_uri = ZSTR_VAL(request->uri);
+		req_uri_len = ZSTR_LEN(request->uri);
 	}
 
 	if (req_uri_len == 0) {
@@ -195,33 +191,33 @@ int yaf_route_rewrite_route(yaf_route_t *router, yaf_request_t *request) {
 		routes = zend_read_property(yaf_route_rewrite_ce, router, ZEND_STRL(YAF_ROUTE_PROPETY_NAME_ROUTE), 1, NULL);
 		if ((module = zend_hash_str_find(Z_ARRVAL_P(routes), ZEND_STRL("module"))) != NULL && IS_STRING == Z_TYPE_P(module)) {
 			if (Z_STRVAL_P(module)[0] != ':') {
-				zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module);
+				yaf_request_set_mvc(request, Z_STR_P(module), NULL, NULL, NULL);
 			} else {
 				zval *m;
 				if ((m = zend_hash_str_find(Z_ARRVAL(args), Z_STRVAL_P(module) + 1, Z_STRLEN_P(module) - 1)) != NULL && IS_STRING == Z_TYPE_P(m)) {
-					zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), m);
+					yaf_request_set_mvc(request, Z_STR_P(m), NULL, NULL, NULL);
 				}
 			}
 		}
 
 		if ((controller = zend_hash_str_find(Z_ARRVAL_P(routes), ZEND_STRL("controller"))) != NULL && IS_STRING == Z_TYPE_P(controller)) {
 			if (Z_STRVAL_P(controller)[0] != ':') {
-				zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller);
+				yaf_request_set_mvc(request, NULL, Z_STR_P(controller), NULL, NULL);
 			} else {
 				zval *c;
 				if ((c = zend_hash_str_find(Z_ARRVAL(args), Z_STRVAL_P(controller) + 1, Z_STRLEN_P(controller) - 1)) != NULL && IS_STRING == Z_TYPE_P(c)) {
-					zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), c);
+					yaf_request_set_mvc(request, NULL, Z_STR_P(c), NULL, NULL);
 				}
 			}
 		}
 
 		if ((action = zend_hash_str_find(Z_ARRVAL_P(routes), ZEND_STRL("action"))) != NULL && IS_STRING == Z_TYPE_P(action)) {
 			if (Z_STRVAL_P(action)[0] != ':') {
-				zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action);
+				yaf_request_set_mvc(request, NULL, NULL, Z_STR_P(action), NULL);
 			} else {
 				zval *a;
 				if ((a = zend_hash_str_find(Z_ARRVAL(args), Z_STRVAL_P(action) + 1, Z_STRLEN_P(action) - 1)) != NULL && IS_STRING == Z_TYPE_P(a)) {
-					zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), a);
+					yaf_request_set_mvc(request, NULL, NULL, Z_STR_P(a), NULL);
 				}
 			}
 		}
@@ -246,11 +242,6 @@ PHP_METHOD(yaf_route_rewrite, route) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
 		return;
-	}
-
-	if (!request || IS_OBJECT != Z_TYPE_P(request) || !instanceof_function(Z_OBJCE_P(request), yaf_request_ce)) {
-		php_error_docref(NULL, E_WARNING, "Expect a %s instance", ZSTR_VAL(yaf_request_ce->name));
-		RETURN_FALSE;
 	}
 
 	RETURN_BOOL(yaf_route_rewrite_route(route, request));

@@ -40,9 +40,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_supervar_construct_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request)
- */
-int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request) {
+int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	zval *varname, *uri;
 
 	varname = zend_read_property(yaf_route_supervar_ce,
@@ -54,7 +52,7 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *request) {
 		return 0;
 	}
 
-	yaf_route_pathinfo_route(request, Z_STRVAL_P(uri), Z_STRLEN_P(uri));
+	yaf_route_pathinfo_route(Z_YAFREQUESTOBJ_P(req), Z_STRVAL_P(uri), Z_STRLEN_P(uri));
 
 	return 1;
 }

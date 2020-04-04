@@ -1,6 +1,5 @@
 --TEST--
-check for Yaf_Response_Http::setHeader() and Yaf_Response_Http::getHeader() 
-and Yaf_Response_Http::setAllHeaders() and Yaf_Response_Http::clearHeaders()
+check for Yaf_Response_Http headers function;
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--

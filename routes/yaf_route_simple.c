@@ -42,11 +42,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_simple_construct_arginfo, 0, 0, 3)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-/** {{{ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request)
- */
-int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request) {
+int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	zval *module, *controller, *action;
 	zval *nmodule, *ncontroller, *naction;
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 
 	nmodule	= zend_read_property(yaf_route_simple_ce,
 			route, ZEND_STRL(YAF_ROUTE_SIMPLE_VAR_NAME_MODULE), 1, NULL);
@@ -64,17 +63,11 @@ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *request) {
 		return 0;
 	}
 
-	if (module && Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STR_P(module))) {
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module);
-	}
-
-	if (controller) {
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller);
-	}
-
-	if (action) {
-		zend_update_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action);
-	}
+	yaf_request_set_mvc(request,
+			(module && Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STR_P(module)))?
+			Z_STR_P(module) : NULL,
+			(controller && Z_TYPE_P(controller) == IS_STRING)? Z_STR_P(controller) : NULL,
+			(action && Z_TYPE_P(action) == IS_STRING)? Z_STR_P(action) : NULL, NULL);
 
 	return 1;
 }

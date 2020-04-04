@@ -36,6 +36,9 @@ $req->setControllerName('Index');
 $req->setActionName('func');
 $req->setParam(array('b' => 'the second param'));
 $app->getDispatcher()->dispatch($req);
+$req->cleanParams();
+$req->setParam(array('a' => 'the first param'));
+$app->getDispatcher()->dispatch($req);
 ?>
 --CLEAN--
 <?php
@@ -44,4 +47,6 @@ shutdown();
 ?>
 --EXPECT--
 NULL
+NULL
+string(15) "the first param"
 NULL

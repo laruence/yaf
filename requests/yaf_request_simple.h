@@ -17,7 +17,9 @@
 #ifndef YAF_REQUEST_SIMPLE_H
 #define YAF_REQUEST_SIMPLE_H
 
-yaf_request_t * yaf_request_simple_instance(yaf_request_t *this_ptr, zval *module, zval *controller, zval *action, zval *method, zval *params);
+extern zend_class_entry yaf_request_simpile_ce;
+
+void yaf_request_simple_instance(yaf_request_object *request, zval *module, zval *controller, zval *action, zval *method, zval *params);
 YAF_STARTUP_FUNCTION(request_simple);
 
 #endif

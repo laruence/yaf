@@ -22,6 +22,7 @@
 
 #include "php_yaf.h"
 
+#include "yaf_request.h"
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
 #include "yaf_router.h"
@@ -36,8 +37,7 @@
 
 zend_class_entry *yaf_route_ce;
 
-/* {{{ yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr,  HashTable *config) */
-yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, HashTable *config) {
+yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, HashTable *config) /* {{{ */ {
 	zval *match, *def, *map, *verify, *reverse, *pzval;
 	yaf_route_t *instance = NULL;
 

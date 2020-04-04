@@ -51,70 +51,48 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_SHUTDOWN_FUNCTION(module)  	ZEND_MSHUTDOWN_FUNCTION(yaf_##module)
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
+#define YAF_ME(c, m, a, f)              {m, PHP_MN(c), a, (unsigned)(sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 
-#define yaf_application_t	zval
-#define yaf_view_t 			zval
-#define yaf_controller_t	zval
-#define yaf_request_t		zval
-#define yaf_router_t		zval
-#define yaf_route_t			zval
-#define yaf_dispatcher_t	zval
-#define yaf_action_t		zval
-#define yaf_loader_t		zval
-#define yaf_response_t		zval
-#define yaf_config_t		zval
-#define yaf_registry_t		zval
-#define yaf_plugin_t		zval
-#define yaf_session_t		zval
-#define yaf_exception_t		zval
-
-#define YAF_ME(c, m, a, f) {m, PHP_MN(c), a, (unsigned) (sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
-
-extern PHPAPI void php_var_dump(zval **struc, int level);
-extern PHPAPI void php_debug_zval_dump(zval **struc, int level);
+#define yaf_application_t  zval
+#define yaf_view_t         zval
+#define yaf_controller_t   zval
+#define yaf_request_t      zval
+#define yaf_router_t       zval
+#define yaf_route_t        zval
+#define yaf_dispatcher_t   zval
+#define yaf_action_t       zval
+#define yaf_loader_t       zval
+#define yaf_response_t     zval
+#define yaf_config_t       zval
+#define yaf_registry_t     zval
+#define yaf_plugin_t       zval
+#define yaf_session_t      zval
+#define yaf_exception_t    zval
 
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
-    zend_string   *ext;
-    zend_string   *base_uri;
-    zend_string   *directory;
-    zend_string   *local_library;
-    zend_string   *view_directory;
-    zend_string   *view_ext;
-    zend_string   *default_module;
-    zend_string   *default_controller;
-    zend_string   *default_action;
-    zend_string   *bootstrap;
-    zend_array    *local_namespaces;
-    zend_array    *configs;
-    zend_array    *default_route;
-    zend_array    *modules;
+	/* for conveniently retrieving */
+    yaf_loader_t      loader;
+	yaf_application_t app;
 
-    char          *global_library;
-    char          *environ_name;
-    char          *name_separator;
-    size_t         name_separator_len;
-
-    zend_bool      lowcase_path;
-    zend_bool      use_spl_autoload;
-    zend_bool      throw_exception;
-    zend_bool      action_prefer;
-    zend_bool      name_suffix;
-    zend_bool      autoload_started;
-    zend_bool      running;
-    zend_bool      in_exception;
-
-    zend_bool      catch_exception;
-    zend_bool      suppressing_warning;
-    zend_bool      use_namespace;
-    uint32_t       forward_limit;
+	/* ini configurations */
+    char             *global_library;
+    char             *environ_name;
+    char             *name_separator;
+    size_t            name_separator_len;
+    zend_bool         action_prefer;
+    zend_bool         name_suffix;
+    zend_bool         lowcase_path;
+    zend_bool         use_spl_autoload;
+    zend_bool         use_namespace;
+    zend_bool         in_exception;
+	zend_bool         throw_exception;
+	zend_bool         catch_exception;
+    unsigned int      forward_limit;
 
     /*for ini parsing */
-    zval           active_ini_file_section;
-    zval          *ini_wanted_section;
-    unsigned       parsing_flag;
-
-	/* for conveniently reading */
-	yaf_loader_t   loader;
+    unsigned int      parsing_flag;
+    zval              active_ini_file_section;
+    zval             *ini_wanted_section;
 ZEND_END_MODULE_GLOBALS(yaf)
 
 PHP_MINIT_FUNCTION(yaf);
@@ -124,6 +102,8 @@ PHP_RSHUTDOWN_FUNCTION(yaf);
 PHP_MINFO_FUNCTION(yaf);
 
 extern ZEND_DECLARE_MODULE_GLOBALS(yaf);
+
+zend_string *yaf_canonical_name(int type, zend_string *name);
 
 #endif
 

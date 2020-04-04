@@ -35,22 +35,27 @@ zend_class_entry *yaf_buildin_exceptions[YAF_MAX_BUILDIN_EXCEPTION];
  */
 void yaf_trigger_error(int type, char *format, ...) {
 	va_list args;
-	char *message;
-	unsigned msg_len;
-
-	va_start(args, format);
-	msg_len = vspprintf(&message, 0, format, args);
-	va_end(args);
 
 	if (YAF_G(throw_exception)) {
-		yaf_throw_exception(type, message);
+		char buf[256];
+		va_start(args, format);
+		vsnprintf(buf, sizeof(buf), format, args);
+		va_end(args);
+		yaf_throw_exception(type, buf);
 	} else {
-		yaf_application_t *app = zend_read_static_property(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_APP), 1);
-		zend_update_property_long(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRNO), type);
-		zend_update_property_stringl(yaf_application_ce, app, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_ERRMSG), message, msg_len);
-		php_error_docref(NULL, E_RECOVERABLE_ERROR, "%s", message);
+		zend_string *msg;
+		yaf_application_object *app = yaf_application_instance();
+
+		va_start(args, format);
+		msg = vstrpprintf(0, format, args);
+		va_end(args);
+
+		if (app) {
+			app->err_no = type;
+			app->err_msg = msg;
+		}
+		php_error_docref(NULL, E_RECOVERABLE_ERROR, "%s", ZSTR_VAL(msg));
 	}
-	efree(message);
 }
 /* }}} */
 
@@ -76,9 +81,7 @@ zend_class_entry * yaf_get_exception_base(int root) {
 }
 /* }}} */
 
-/** {{{ void yaf_throw_exception(long code, char *message)
-*/
-void yaf_throw_exception(long code, char *message) {
+void yaf_throw_exception(long code, char *message) /* {{{ */ {
 	zend_class_entry *base_exception = yaf_exception_ce;
 
 	if ((code & YAF_ERR_BASE) == YAF_ERR_BASE

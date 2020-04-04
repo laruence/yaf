@@ -20,7 +20,6 @@
 #define YAF_ROUTER_DEFAULT_ACTION	 	"index"
 #define YAF_ROUTER_DEFAULT_CONTROLLER  	"Index"
 #define YAF_ROUTER_DEFAULT_MODULE	  	"Index"
-#define YAF_DEFAULT_EXT 		 	   	"php"
 
 #define YAF_ROUTER_PROPERTY_NAME_ROUTES 		"_routes"
 #define YAF_ROUTER_PROPERTY_NAME_CURRENT_ROUTE	"_current"
