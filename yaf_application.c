@@ -604,7 +604,7 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 		return;
 	}
 
-	GC_REFCOUNT(object)--;
+	Z_DELREF(YAF_G(app));
 	ZVAL_UNDEF(&YAF_G(app));
 
 	zend_string_release(app->env);
@@ -800,8 +800,7 @@ PHP_METHOD(yaf_application, getDispatcher) {
 PHP_METHOD(yaf_application, getModules) {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 
-	GC_REFCOUNT(&app->modules)++;
-	RETURN_ARR(&app->modules);
+	RETURN_ARR(zend_array_dup(&app->modules));
 }
 /* }}} */
 
