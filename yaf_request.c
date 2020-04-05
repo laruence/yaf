@@ -189,9 +189,8 @@ static HashTable *yaf_request_get_debug_info(zval *object, int *is_temp) /* {{{ 
 	}
 	zend_hash_str_add(Z_ARRVAL(rt), "language:protected", sizeof("language:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, &request->params);
+	ZVAL_ARR(&rv, zend_array_dup(&request->params));
 	zend_hash_str_add(Z_ARRVAL(rt), "params:protected", sizeof("params:protected") - 1, &rv);
-	Z_ADDREF(rv);
 
 
 	return Z_ARRVAL(rt);
@@ -361,6 +360,11 @@ static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **
 		return &EG(uninitialized_zval);
 	}
 
+	if (zend_string_equals_literal(member, "routed")) {
+		ZVAL_BOOL(rv, request->routed);
+		return rv;
+	}
+	/*
 	if (zend_string_equals_literal(member, "language")) {
 		zend_string *val = yaf_request_get_language(request);
 		if (val) {
@@ -369,11 +373,7 @@ static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **
 		}
 		return &EG(uninitialized_zval);
 	}
-
-	if (zend_string_equals_literal(member, "routed")) {
-		ZVAL_BOOL(rv, request->routed);
-		return rv;
-	}
+	*/
 
 	if (zend_string_equals_literal(member, "dispatched")) {
 		ZVAL_BOOL(rv, request->dispatched);
@@ -972,8 +972,7 @@ PHP_METHOD(yaf_request, getException) {
 */
 PHP_METHOD(yaf_request, getParams) {
 	zend_array *params = &Z_YAFREQUESTOBJ_P(getThis())->params;
-	GC_REFCOUNT(params)++;
-	RETURN_ARR(params);
+	RETURN_ARR(zend_array_dup(params));
 }
 /* }}} */
 

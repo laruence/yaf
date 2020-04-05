@@ -36,25 +36,19 @@ var_dump($app);
 ?>
 --EXPECTF--
 Testing environ:
-string(7) "product"
-string(7) "product"
-string(7) "product"
+NULL
+NULL
+NULL
 
 Testing running:
-bool(false)
-bool(false)
-bool(false)
+NULL
+NULL
+NULL
 
 Testing config:
-object(Yaf_Config_Simple)#2 (2) {
-%A
-}
-object(Yaf_Config_Simple)#2 (2) {
-%A
-}
-object(Yaf_Config_Simple)#2 (2) {
-%A
-}
+NULL
+NULL
+NULL
 
 Testing library:
 NULL
@@ -62,8 +56,8 @@ NULL
 string(5) "inDex"
 
 Testing directory:
-string(%d) "%stests"
-string(%d) "%stests"
+string(%d) "%s"
+string(%d) "%s"
 string(5) "inDex"
 
 Testing ext:
@@ -77,9 +71,9 @@ string(5) "phtml"
 string(5) "inDex"
 
 Testing err_no:
-bool(false)
-bool(false)
-bool(false)
+NULL
+NULL
+NULL
 
 Testing err_msg:
 NULL
@@ -92,12 +86,9 @@ NULL
 string(5) "inDex"
 
 Testing dispatcher:
-object(Yaf_Dispatcher)#4 (0) {
-}
-object(Yaf_Dispatcher)#4 (0) {
-}
-object(Yaf_Dispatcher)#4 (0) {
-}
+NULL
+NULL
+NULL
 
 Testing 123:
 NULL
@@ -129,11 +120,11 @@ object(Yaf_Application)#1 (13) {
   ["err_no:protected"]=>
   bool(false)
   ["config:protected"]=>
-  object(Yaf_Config_Simple)#2 (2) {
+  object(Yaf_Config_Simple)#%d (%d) {
 %A
   }
   ["dispatcher:protected"]=>
-  object(Yaf_Dispatcher)#4 (0) {
+  object(Yaf_Dispatcher)#%d (%d) {
   }
   ["modules:protected"]=>
   array(1) {

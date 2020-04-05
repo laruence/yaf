@@ -15,17 +15,16 @@ echo $response;
 --EXPECTF--
 Yaf_Response_Http Object
 (
-    [_header:protected] => Array
+    [response_code] => 0
+    [headers:protected] => Array
         (
         )
 
-    [_body:protected] => Array
+    [bodys:protected] => Array
         (
             [content] => Hello
             [footer] =>  World
         )
 
-    [_sendheader:protected] => 1
-    [_response_code:protected] => 0
 )
 Hello World

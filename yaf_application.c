@@ -119,7 +119,7 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 	ZVAL_STR_COPY(&rv, app->view_ext);
 	zend_hash_str_add(Z_ARRVAL(rt), "view_ext", sizeof("view_ext") - 1, &rv);
 
-	ZVAL_STR_COPY(&rv, app->environ);
+	ZVAL_STR_COPY(&rv, app->env);
 	zend_hash_str_add(Z_ARRVAL(rt), "environ:protected", sizeof("environ:protected") - 1, &rv);
 
 	ZVAL_BOOL(&rv, app->running);
@@ -199,19 +199,6 @@ static zval *yaf_application_read_property(zval *zobj, zval *name, int type, voi
 
 	member = Z_STR_P(name);
 	
-	if (zend_string_equals_literal(member, "environ")) {
-		if (app->environ) {
-			ZVAL_STR_COPY(rv, app->environ);
-			return rv;
-		}
-		return &EG(uninitialized_zval);
-	}
-
-	if (zend_string_equals_literal(member, "running")) {
-		ZVAL_BOOL(rv, app->running);
-		return rv;
-	}
-
 	if (zend_string_equals_literal(member, "directory")) {
 		if (app->directory) {
 			ZVAL_STR_COPY(rv, app->directory);
@@ -252,6 +239,21 @@ static zval *yaf_application_read_property(zval *zobj, zval *name, int type, voi
 		return &EG(uninitialized_zval);
 	}
 
+	/*
+	if (zend_string_equals_literal(member, "environ")) {
+		if (app->env) {
+			ZVAL_STR_COPY(rv, app->env);
+			return rv;
+		}
+		return &EG(uninitialized_zval);
+	}
+
+	if (zend_string_equals_literal(member, "running")) {
+		ZVAL_BOOL(rv, app->running);
+		return rv;
+	}
+
+
 	if (zend_string_equals_literal(member, "dispatcher")) {
 		zend_object *dispatcher = yaf_application_get_dispatcher(app);
 		if (dispatcher) {
@@ -282,6 +284,7 @@ static zval *yaf_application_read_property(zval *zobj, zval *name, int type, voi
 		ZVAL_BOOL(rv, app->err_no);
 		return rv;
 	}
+	*/
 
 	return &EG(uninitialized_zval);
 }
@@ -604,7 +607,7 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 	GC_REFCOUNT(object)--;
 	ZVAL_UNDEF(&YAF_G(app));
 
-	zend_string_release(app->environ);
+	zend_string_release(app->env);
 	if (Z_TYPE(app->config) != IS_OBJECT) {
 		zend_object_std_dtor(object);
 		return;
@@ -666,10 +669,10 @@ PHP_METHOD(yaf_application, __construct) {
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
 		ZVAL_STRING(&rv, YAF_G(environ_name));
 		yaf_config_instance(&app->config, config, &rv);
-		app->environ = Z_STR(rv);
+		app->env = Z_STR(rv);
 	} else {
 		yaf_config_instance(&app->config, config, section);
-		app->environ = zend_string_copy(Z_STR_P(section));
+		app->env = zend_string_copy(Z_STR_P(section));
 	}
 
 	if (Z_TYPE(app->config) != IS_OBJECT) {
@@ -806,8 +809,8 @@ PHP_METHOD(yaf_application, getModules) {
 */
 PHP_METHOD(yaf_application, environ) {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
-	if (app->environ) {
-		RETURN_STR(zend_string_copy(app->environ));
+	if (app->env) {
+		RETURN_STR(zend_string_copy(app->env));
 	}
 	RETURN_EMPTY_STRING();
 }

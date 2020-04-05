@@ -53,6 +53,71 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_body_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+static HashTable *yaf_response_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+	zval rv, rt;
+	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(object);
+
+	*is_temp = 1;
+	array_init(&rt);
+
+	ZVAL_LONG(&rv, response->code);
+	zend_hash_str_add(Z_ARRVAL(rt), "response_code", sizeof("response_code") - 1, &rv);
+
+	ZVAL_ARR(&rv, zend_array_dup(&response->header));
+	zend_hash_str_add(Z_ARRVAL(rt), "headers:protected", sizeof("headers:protected") - 1, &rv);
+
+	ZVAL_ARR(&rv, zend_array_dup(&response->bodys));
+	zend_hash_str_add(Z_ARRVAL(rt), "bodys:protected", sizeof("bodys:protected") - 1, &rv);
+
+	return Z_ARRVAL(rt);
+}
+/* }}} */
+
+static zval *yaf_response_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+	zend_string *member;
+	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(zobj);
+
+	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+		return &EG(uninitialized_zval);
+	}
+	
+	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
+		return &EG(error_zval);
+	}
+
+	member = Z_STR_P(name);
+	
+	if (zend_string_equals_literal(member, "response_code")) {
+		ZVAL_LONG(rv, response->code);
+		return rv;
+	}
+
+	return &EG(uninitialized_zval);
+}
+/* }}} */
+
+static void yaf_response_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+	zend_string *member;
+	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(zobj);
+
+	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+		return;
+	}
+
+	member = Z_STR_P(name);
+	
+	if (zend_string_equals_literal(member, "response_code")) {
+		if (Z_TYPE_P(value) != IS_LONG) {
+			return;
+		}
+		response->code = Z_LVAL_P(value);
+		return;
+	}
+
+	return;
+}
+/* }}} */
+
 static zend_object *yaf_response_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_response_object *response = emalloc(sizeof(yaf_response_object) + zend_object_properties_size(ce));
 	
@@ -398,6 +463,9 @@ YAF_STARTUP_FUNCTION(response) {
 	yaf_response_obj_handlers.offset = XtOffsetOf(yaf_response_object, std);
 	yaf_response_obj_handlers.free_obj = yaf_response_object_free;
 	yaf_response_obj_handlers.clone_obj = NULL;
+	yaf_response_obj_handlers.get_debug_info = yaf_response_get_debug_info;
+	yaf_response_obj_handlers.read_property = yaf_response_read_property;
+	yaf_response_obj_handlers.write_property = yaf_response_write_property;
 
 	zend_declare_class_constant_stringl(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
 

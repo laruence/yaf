@@ -31,7 +31,7 @@ typedef struct {
 	zend_array       modules;
     zval             config;
     yaf_dispatcher_t dispatcher;
-	zend_string     *environ;
+	zend_string     *env;
 	zend_string     *default_module;
 	zend_string     *default_controller;
 	zend_string     *default_action;
