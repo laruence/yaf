@@ -1168,8 +1168,6 @@ YAF_STARTUP_FUNCTION(request){
 	yaf_request_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_request_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-
-	memcpy(&yaf_request_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_request_obj_handlers.offset = XtOffsetOf(yaf_request_object, std);
 	yaf_request_obj_handlers.free_obj = yaf_request_object_free;
 	yaf_request_obj_handlers.get_debug_info = yaf_request_get_debug_info;

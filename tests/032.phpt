@@ -20,12 +20,13 @@ print_r(new Yaf_Config_Ini(
 --EXPECTF--
 Yaf_Config_Ini Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [env] => bar
             [ini] => /foo/bar
             [const] => Dummy
         )
 
-    [_readonly:protected] => 1
+    [filename:protected] => %s
 )

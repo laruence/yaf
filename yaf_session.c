@@ -56,61 +56,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_session_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-void yaf_session_iterator_dtor(zend_object_iterator *iter) /* {{{ */ {
-	zval_ptr_dtor(&iter->data);
-	zend_iterator_dtor(iter);
-}
-/* }}} */
-
-static int yaf_session_iterator_valid(zend_object_iterator *iter) /* {{{ */ {
-	return zend_hash_has_more_elements_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
-}
-/* }}} */
-
-static void yaf_session_iterator_rewind(zend_object_iterator *iter) /* {{{ */ {
-	zend_hash_internal_pointer_reset_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
-}
-/* }}} */
-
-static void yaf_session_iterator_move_forward(zend_object_iterator *iter) /* {{{ */ {
-	zend_hash_move_forward_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
-}
-/* }}} */
-
-static zval *yaf_session_iterator_get_current_data(zend_object_iterator *iter) /* {{{ */ {
-	return zend_hash_get_current_data_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
-}
-/* }}} */
-
-static void yaf_session_iterator_get_current_key(zend_object_iterator *iter, zval *key) /* {{{ */ {
-	zend_ulong idx;
-	zend_string *str;
-
-	switch (zend_hash_get_current_key_ex(Z_ARRVAL(iter->data), &str, &idx, &(((yaf_session_iterator*)iter)->pos))) {
-		case HASH_KEY_IS_STRING:
-			ZVAL_STR_COPY(key, str);
-			break;
-		case HASH_KEY_IS_LONG:
-			ZVAL_LONG(key, idx);
-			break;
-		default:
-			ZVAL_NULL(key);
-			break;
-	}
-}
-/* }}} */
-
-static zend_object_iterator_funcs yaf_session_iterator_funcs = /* {{{ */ { 
-	yaf_session_iterator_dtor,
-	yaf_session_iterator_valid,
-	yaf_session_iterator_get_current_data,
-	yaf_session_iterator_get_current_key,
-	yaf_session_iterator_move_forward,
-	yaf_session_iterator_rewind,
-	NULL
-};
-/* }}} */
-
 static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
 	if (session->started) {
 		return;
@@ -146,7 +91,7 @@ static HashTable *yaf_session_get_debug_info(zval *object, int *is_tmp) /* {{{ *
 /* }}} */
 
 zend_object_iterator *yaf_session_get_iterator(zend_class_entry *ce, zval *object, int by_ref) /* {{{ */ {
-	yaf_session_iterator *iterator;
+	yaf_iterator *iterator;
 	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
 
 	if (by_ref) {
@@ -157,12 +102,14 @@ zend_object_iterator *yaf_session_get_iterator(zend_class_entry *ce, zval *objec
 		return NULL;
 	}
 
-	iterator = emalloc(sizeof(yaf_session_iterator));
+	iterator = emalloc(sizeof(yaf_iterator));
 	zend_iterator_init(&iterator->intern);
-	iterator->intern.funcs = &yaf_session_iterator_funcs;
+	iterator->intern.funcs = &yaf_iterator_funcs;
 
 	ZVAL_ARR(&iterator->intern.data, sess->session);
 	Z_ADDREF(iterator->intern.data);
+
+	ZVAL_UNDEF(&iterator->current);
 
 	return &iterator->intern;
 }

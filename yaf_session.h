@@ -23,11 +23,6 @@ typedef struct {
 	zend_bool started;
 } yaf_session_object;
 
-typedef struct {
-	zend_object_iterator intern;
-	HashPosition pos;
-} yaf_session_iterator;
-
 #define Z_YAFSESSIONOBJ(zv)   ((yaf_session_object*)(Z_OBJ(zv)))
 #define Z_YAFSESSIONOBJ_P(zv) Z_YAFSESSIONOBJ(*zv)
 

@@ -21,7 +21,8 @@ print_r($router->getRoutes());
 --EXPECTF--
 Yaf_Config_Ini Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [regex] => Array
                 (
@@ -70,7 +71,6 @@ Yaf_Config_Ini Object
 
         )
 
-    [_readonly:protected] => 1
 )
 Array
 (

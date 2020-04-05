@@ -160,17 +160,17 @@ int yaf_router_route(yaf_router_object *router, yaf_request_t *request) /* {{{ *
 }
 /* }}} */
 
-int yaf_router_add_config(yaf_router_object *router, zval *configs) /* {{{ */ {
+int yaf_router_add_config(yaf_router_object *router, zend_array *configs) /* {{{ */ {
 	zval rv;
 	zend_ulong idx;
 	zend_string *key;
 	zval *entry;
 
-	if (!configs) {
+	if (UNEXPECTED(configs == NULL)) {
 		return 0;
 	}
 
-	ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(configs), idx, key, entry) {
+	ZEND_HASH_FOREACH_KEY_VAL(configs, idx, key, entry) {
 		if (Z_TYPE_P(entry) != IS_ARRAY) {
 			continue;
 		}
@@ -279,7 +279,7 @@ PHP_METHOD(yaf_router, addRoute) {
 /** {{{  proto public Yaf_Router::addConfig(Yaf_Config_Abstract $config)
  */
 PHP_METHOD(yaf_router, addConfig) {
-	zval *routes;
+	zend_array *routes;
 	yaf_config_t *config;
 	yaf_router_object *router = Z_YAFROUTEROBJ_P(getThis());
 
@@ -288,9 +288,10 @@ PHP_METHOD(yaf_router, addConfig) {
 	}
 
 	if (IS_OBJECT == Z_TYPE_P(config) && instanceof_function(Z_OBJCE_P(config), yaf_config_ce)){
-		routes = zend_read_property(yaf_config_ce, config, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
+		yaf_config_object *conf = Z_YAFCONFIGOBJ_P(config);
+		routes = conf->config;
 	} else if (IS_ARRAY == Z_TYPE_P(config)) {
-		routes = config;
+		routes = Z_ARRVAL_P(config);
 	} else {
 		php_error_docref(NULL, E_WARNING,
 				"Expect a %s instance or an array, %s given",

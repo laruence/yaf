@@ -52,6 +52,62 @@ zend_function_entry yaf_functions[] = {
 };
 /* }}} */
 
+void yaf_iterator_dtor(zend_object_iterator *iter) /* {{{ */ {
+	zval_ptr_dtor(&iter->data);
+	zval_ptr_dtor(&((yaf_iterator*)iter)->current);
+	zend_iterator_dtor(iter);
+}
+/* }}} */
+
+static int yaf_iterator_valid(zend_object_iterator *iter) /* {{{ */ {
+	return zend_hash_has_more_elements_ex(Z_ARRVAL(iter->data), &(((yaf_iterator*)iter)->pos));
+}
+/* }}} */
+
+static void yaf_iterator_rewind(zend_object_iterator *iter) /* {{{ */ {
+	zend_hash_internal_pointer_reset_ex(Z_ARRVAL(iter->data), &(((yaf_iterator*)iter)->pos));
+}
+/* }}} */
+
+static void yaf_iterator_move_forward(zend_object_iterator *iter) /* {{{ */ {
+	zend_hash_move_forward_ex(Z_ARRVAL(iter->data), &(((yaf_iterator*)iter)->pos));
+}
+/* }}} */
+
+static zval *yaf_iterator_get_current_data(zend_object_iterator *iter) /* {{{ */ {
+	return zend_hash_get_current_data_ex(Z_ARRVAL(iter->data), &(((yaf_iterator*)iter)->pos));
+}
+/* }}} */
+
+static void yaf_iterator_get_current_key(zend_object_iterator *iter, zval *key) /* {{{ */ {
+	zend_ulong idx;
+	zend_string *str;
+
+	switch (zend_hash_get_current_key_ex(Z_ARRVAL(iter->data), &str, &idx, &(((yaf_iterator*)iter)->pos))) {
+		case HASH_KEY_IS_STRING:
+			ZVAL_STR_COPY(key, str);
+			break;
+		case HASH_KEY_IS_LONG:
+			ZVAL_LONG(key, idx);
+			break;
+		default:
+			ZVAL_NULL(key);
+			break;
+	}
+}
+/* }}} */
+
+zend_object_iterator_funcs yaf_iterator_funcs = /* {{{ */ { 
+	yaf_iterator_dtor,
+	yaf_iterator_valid,
+	yaf_iterator_get_current_data,
+	yaf_iterator_get_current_key,
+	yaf_iterator_move_forward,
+	yaf_iterator_rewind,
+	NULL
+};
+/* }}} */
+
 zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ {
 	zend_string *canocical;
 	const char *p = ZSTR_VAL(name);

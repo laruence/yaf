@@ -22,10 +22,9 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
+  - Rmoved all lead underline for fake protected property name(examing by var_dump)
   - Added Yaf_Request::cleanParams()
-  - Added Yaf_Request::getUri()
-  - Added Yaf_Request::getBaseUri()
-  - Added Yaf_Request::getLanguage()
+  - Yaf_Config_Ini::get now return Yaf_Config_Simple for arrays
  </notes>
  <contents> 
   <dir name="/"> 

@@ -399,13 +399,11 @@ int yaf_application_is_module_name_str(const char *name, size_t len) /* {{{ */ {
 /* }}} */
 
 static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
-	HashTable *conf;
 	zval *config;
+	HashTable *conf;
 	zval *pzval, *psval;
 
-	pzval = zend_read_property(yaf_config_ce, &app->config, ZEND_STRL(YAF_CONFIG_PROPERT_NAME), 1, NULL);
-
-	conf = Z_ARRVAL_P(pzval);
+	conf = Z_YAFCONFIGOBJ(app->config)->config;
 	if (UNEXPECTED((config = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL)) {
 		/* For back compatibilty */
 		if ((config = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) {
@@ -646,7 +644,6 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 /** {{{ proto Yaf_Application::__construct(mixed $config, string $environ = YAF_G(environ_name))
 */
 PHP_METHOD(yaf_application, __construct) {
-	zval rv;
 	zval *config;
 	zval *section = NULL;
 	yaf_loader_t *loader;
@@ -667,11 +664,11 @@ PHP_METHOD(yaf_application, __construct) {
 	app = Z_YAFAPPOBJ_P(getThis());
 
 	if (!section || Z_TYPE_P(section) != IS_STRING || !Z_STRLEN_P(section)) {
-		ZVAL_STRING(&rv, YAF_G(environ_name));
-		yaf_config_instance(&app->config, config, &rv);
-		app->env = Z_STR(rv);
+		zend_string *s = zend_string_init(YAF_G(environ_name), strlen(YAF_G(environ_name)), 0);
+		yaf_config_instance(&app->config, config, s);
+		app->env = s;
 	} else {
-		yaf_config_instance(&app->config, config, section);
+		yaf_config_instance(&app->config, config, Z_STR_P(section));
 		app->env = zend_string_copy(Z_STR_P(section));
 	}
 

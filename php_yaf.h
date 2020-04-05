@@ -103,7 +103,14 @@ PHP_RINIT_FUNCTION(yaf);
 PHP_RSHUTDOWN_FUNCTION(yaf);
 PHP_MINFO_FUNCTION(yaf);
 
+typedef struct {
+	zend_object_iterator intern;
+	zval current;
+	HashPosition pos;
+} yaf_iterator;
+
 extern ZEND_DECLARE_MODULE_GLOBALS(yaf);
+extern zend_object_iterator_funcs yaf_iterator_funcs;
 
 zend_string *yaf_canonical_name(int type, zend_string *name);
 

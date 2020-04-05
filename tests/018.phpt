@@ -13,7 +13,8 @@ print_r($config);
 --EXPECTF--
 Yaf_Config_Ini Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [application] => Array
                 (
@@ -79,5 +80,5 @@ Yaf_Config_Ini Object
 
         )
 
-    [_readonly:protected] => 1
+    [filename:protected] => %s
 )

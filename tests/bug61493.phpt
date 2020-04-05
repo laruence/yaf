@@ -19,9 +19,9 @@ print_r($config);
 --EXPECTF--
 Yaf_Config_Simple Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 
+    [config:protected] => Array
         (
         )
 
-    [_readonly:protected] => 
 )
