@@ -662,27 +662,13 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 /* }}} */
 
 int yaf_dispatcher_route(yaf_dispatcher_object *dispatcher) /* {{{ */ {
-	zval ret;
-	zend_class_entry *router_ce;
-	yaf_router_t *router = &dispatcher->router;
-	if (EXPECTED(IS_OBJECT == Z_TYPE_P(router))) {
-		if (EXPECTED((router_ce = Z_OBJCE_P(router)) == yaf_router_ce)) {
-			/* use built-in route */
-			if (yaf_router_route(router, &dispatcher->request)) {
-				return 1;
-			}
-		} else {
-			/* user custom route */
-			zend_call_method_with_1_params(router, router_ce, NULL, "route", &ret, &dispatcher->request);
-			if (Z_TYPE(ret) != IS_TRUE) {
-				yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request faild");
-				zval_ptr_dtor(&ret);
-				return 0;
-			}
-			zval_ptr_dtor(&ret);
-		}
+	yaf_router_object *router = Z_YAFROUTEROBJ(dispatcher->router);
+
+	/* use built-in route */
+	if (yaf_router_route(router, &dispatcher->request)) {
 		return 1;
 	}
+
 	return 0;
 }
 /* }}} */

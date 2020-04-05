@@ -36,10 +36,9 @@ YAF_BEGIN_ARG_INFO_EX(yaf_route_assemble_arginfo, 0, 0, 1)
 	YAF_ARG_ARRAY_INFO(0, query, 1)
 YAF_END_ARG_INFO()
 
-
 extern zend_class_entry *yaf_route_ce;
 
-yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, HashTable *config);
+yaf_route_t *yaf_route_instance(yaf_route_t *this_ptr, HashTable *config);
 
 YAF_STARTUP_FUNCTION(route);
 

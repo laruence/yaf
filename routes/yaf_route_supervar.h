@@ -22,6 +22,7 @@
 extern zend_class_entry *yaf_route_supervar_ce;
 
 yaf_route_t *yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name);
+int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *req);
 
 YAF_STARTUP_FUNCTION(route_supervar);
 

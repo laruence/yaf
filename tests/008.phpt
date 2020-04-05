@@ -22,7 +22,7 @@ var_dump($router->getRoute("noexists"));
 --EXPECTF--
 Yaf_Router Object
 (
-    [_routes:protected] => Array
+    [routes:protected] => Array
         (
             [_default] => Yaf_Route_Static Object
                 (
@@ -42,7 +42,7 @@ Yaf_Router Object
 
         )
 
-    [_current:protected] => 
+    [current:protected] => 
 )
 NULL
 Array
