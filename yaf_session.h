@@ -17,9 +17,19 @@
 #ifndef YAF_SESSION_H
 #define YAF_SESSION_H
 
-#define YAF_SESSION_PROPERTY_NAME_STATUS	"_started"
-#define YAF_SESSION_PROPERTY_NAME_SESSION	"_session"
-#define YAF_SESSION_PROPERTY_NAME_INSTANCE	"_instance"
+typedef struct {
+	zend_object std;
+	zend_array *session;
+	zend_bool started;
+} yaf_session_object;
+
+typedef struct {
+	zend_object_iterator intern;
+	HashPosition pos;
+} yaf_session_iterator;
+
+#define Z_YAFSESSIONOBJ(zv)   ((yaf_session_object*)(Z_OBJ(zv)))
+#define Z_YAFSESSIONOBJ_P(zv) Z_YAFSESSIONOBJ(*zv)
 
 extern zend_class_entry *yaf_session_ce;
 

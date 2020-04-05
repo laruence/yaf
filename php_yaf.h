@@ -74,6 +74,7 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	yaf_application_t app;
     yaf_loader_t      loader;
 	yaf_registry_t    registry;
+	yaf_session_t     session;
 
 	/* ini configurations */
     char             *global_library;

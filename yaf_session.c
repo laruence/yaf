@@ -27,6 +27,7 @@
 #include "yaf_exception.h"
 
 zend_class_entry *yaf_session_ce;
+zend_object_handlers yaf_session_obj_handlers;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 extern PHPAPI zend_class_entry *spl_ce_Countable;
@@ -55,58 +56,145 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_session_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static inline void yaf_session_start(yaf_session_t *session) /* {{{ */ {
-	zval *status;
-
-	status = zend_read_property(yaf_session_ce, session, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_STATUS), 1, NULL);
-	if (Z_TYPE_P(status) == IS_TRUE) {
-		return;
-	}
-
-	php_session_start();
-	zend_update_property_bool(yaf_session_ce, session, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_STATUS), 1);
-	return;
+void yaf_session_iterator_dtor(zend_object_iterator *iter) /* {{{ */ {
+	zval_ptr_dtor(&iter->data);
+	zend_iterator_dtor(iter);
 }
 /* }}} */
 
-static yaf_session_t *yaf_session_instance(yaf_session_t *this_ptr) /* {{{ */ {
-	zval *sess, member;
-	zend_object *obj;
-	zend_property_info *property_info;
+static int yaf_session_iterator_valid(zend_object_iterator *iter) /* {{{ */ {
+	return zend_hash_has_more_elements_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
+}
+/* }}} */
 
-	object_init_ex(this_ptr, yaf_session_ce);
+static void yaf_session_iterator_rewind(zend_object_iterator *iter) /* {{{ */ {
+	zend_hash_internal_pointer_reset_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
+}
+/* }}} */
 
-	yaf_session_start(this_ptr);
+static void yaf_session_iterator_move_forward(zend_object_iterator *iter) /* {{{ */ {
+	zend_hash_move_forward_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
+}
+/* }}} */
 
-	if ((sess = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SESSION"))) == NULL
-			|| Z_TYPE_P(sess) != IS_REFERENCE
-			|| Z_TYPE_P(Z_REFVAL_P(sess)) != IS_ARRAY) {
-		php_error_docref(NULL, E_WARNING, "Attempt to start session failed");
-		zval_ptr_dtor(this_ptr);
+static zval *yaf_session_iterator_get_current_data(zend_object_iterator *iter) /* {{{ */ {
+	return zend_hash_get_current_data_ex(Z_ARRVAL(iter->data), &(((yaf_session_iterator*)iter)->pos));
+}
+/* }}} */
+
+static void yaf_session_iterator_get_current_key(zend_object_iterator *iter, zval *key) /* {{{ */ {
+	zend_ulong idx;
+	zend_string *str;
+
+	switch (zend_hash_get_current_key_ex(Z_ARRVAL(iter->data), &str, &idx, &(((yaf_session_iterator*)iter)->pos))) {
+		case HASH_KEY_IS_STRING:
+			ZVAL_STR_COPY(key, str);
+			break;
+		case HASH_KEY_IS_LONG:
+			ZVAL_LONG(key, idx);
+			break;
+		default:
+			ZVAL_NULL(key);
+			break;
+	}
+}
+/* }}} */
+
+static zend_object_iterator_funcs yaf_session_iterator_funcs = /* {{{ */ { 
+	yaf_session_iterator_dtor,
+	yaf_session_iterator_valid,
+	yaf_session_iterator_get_current_data,
+	yaf_session_iterator_get_current_key,
+	yaf_session_iterator_move_forward,
+	yaf_session_iterator_rewind,
+	NULL
+};
+/* }}} */
+
+static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
+	if (session->started) {
+		return;
+	}
+	php_session_start();
+	session->started = 1;
+}
+/* }}} */
+
+static HashTable *yaf_session_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
+
+	*is_tmp = 1;
+
+	ALLOC_HASHTABLE(ht);
+	zend_hash_init(ht, 2, NULL, ZVAL_PTR_DTOR, 0);
+
+	ZVAL_BOOL(&rv, sess->started);
+	zend_hash_str_add(ht, "started:protected", sizeof("started:protected") - 1, &rv);
+
+	if (sess->session) {
+		ZVAL_ARR(&rv, sess->session);
+		Z_ADDREF(rv);
+	} else {
+		ZVAL_NULL(&rv);
+	}
+	zend_hash_str_add(ht, "session:protected", sizeof("session:protected") - 1, &rv);
+
+	return ht;
+}
+/* }}} */
+
+zend_object_iterator *yaf_session_get_iterator(zend_class_entry *ce, zval *object, int by_ref) /* {{{ */ {
+	yaf_session_iterator *iterator;
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
+
+	if (by_ref) {
+		zend_error(E_ERROR, "An iterator cannot be used with foreach by reference");
+	}
+
+	if (!sess->session) {
 		return NULL;
 	}
 
-	ZVAL_STRING(&member, YAF_SESSION_PROPERTY_NAME_SESSION);
+	iterator = emalloc(sizeof(yaf_session_iterator));
+	zend_iterator_init(&iterator->intern);
+	iterator->intern.funcs = &yaf_session_iterator_funcs;
 
-	obj = Z_OBJ_P(this_ptr);
+	ZVAL_ARR(&iterator->intern.data, sess->session);
+	Z_ADDREF(iterator->intern.data);
 
-	property_info = zend_get_property_info(obj->ce, Z_STR(member), 1);
+	return &iterator->intern;
+}
+/* }}} */
 
-	zval_ptr_dtor(&member);
+static yaf_session_t *yaf_session_instance() /* {{{ */ {
+	zval *pzval;
+	yaf_session_object *sess;
+	yaf_session_t *instance = &YAF_G(session);
 
-#if PHP_VERSION_ID < 70300
-	if (property_info->offset != ZEND_WRONG_PROPERTY_OFFSET)
-#else
-	if (IS_VALID_PROPERTY_OFFSET(property_info->offset))
-#endif
-	{
-		zval *prop = OBJ_PROP(obj, property_info->offset);
-		ZVAL_COPY(prop, sess);
+	if (IS_OBJECT == Z_TYPE_P(instance)) {
+		return instance;
 	}
 
-	zend_update_static_property(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), this_ptr);
+	sess = emalloc(sizeof(yaf_session_object));
+	zend_object_std_init(&sess->std, yaf_session_ce);
+	sess->std.handlers = &yaf_session_obj_handlers;
 
-	return this_ptr;
+	ZVAL_OBJ(&YAF_G(session), &sess->std);
+
+	sess->started = 0;
+	yaf_session_start(sess);
+
+	if ((pzval = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SESSION"))) == NULL ||
+		Z_TYPE_P(pzval) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(pzval)) != IS_ARRAY) {
+		php_error_docref(NULL, E_WARNING, "Attempt to start session failed");
+		sess->session = NULL;
+		return &YAF_G(session);
+	}
+	
+	sess->session = Z_ARRVAL_P(Z_REFVAL_P(pzval));
+	return &YAF_G(session);
 }
 /* }}} */
 
@@ -116,46 +204,15 @@ PHP_METHOD(yaf_session, __construct) {
 }
 /* }}} */
 
-/** {{{ proto private Yaf_Session::__destruct(void)
-*/
-PHP_METHOD(yaf_session, __destruct) {
-}
-/* }}} */
-
-/** {{{ proto private Yaf_Session::__sleep(void)
-*/
-PHP_METHOD(yaf_session, __sleep) {
-}
-/* }}} */
-
-/** {{{ proto private Yaf_Session::__wakeup(void)
-*/
-PHP_METHOD(yaf_session, __wakeup) {
-}
-/* }}} */
-
-/** {{{ proto private Yaf_Session::__clone(void)
-*/
-PHP_METHOD(yaf_session, __clone) {
-}
-/* }}} */
-
 /** {{{ proto public Yaf_Session::getInstance(void)
 */
 PHP_METHOD(yaf_session, getInstance) {
 	yaf_session_t *instance;
 
-	instance = zend_read_static_property(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), 1);
-
-	if (Z_TYPE_P(instance) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(instance), yaf_session_ce)) {
-		zval rv = {{0}};
-		if ((instance = yaf_session_instance(&rv))) {
-			RETURN_ZVAL(instance, 0, 0);
-		} else {
-			RETURN_NULL();
-		}
-	} else {
+	if ((instance = yaf_session_instance())) {
 		RETURN_ZVAL(instance, 1, 0);
+	} else {
+		RETURN_NULL();
 	}
 }
 /* }}} */
@@ -163,15 +220,21 @@ PHP_METHOD(yaf_session, getInstance) {
 /** {{{ proto public Yaf_Session::count(void)
 */
 PHP_METHOD(yaf_session, count) {
-	zval *sess = zend_read_property(yaf_session_ce, getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-	RETURN_LONG(zend_hash_num_elements(Z_ARRVAL_P(Z_REFVAL_P(sess))));
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+
+	if (sess->session) {
+		RETURN_LONG(zend_hash_num_elements(sess->session));
+	}
 }
 /* }}} */
 
 /** {{{ proto public static Yaf_Session::start()
 */
 PHP_METHOD(yaf_session, start) {
-	yaf_session_start(getThis());
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+
+	yaf_session_start(sess);
+
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
@@ -179,23 +242,44 @@ PHP_METHOD(yaf_session, start) {
 /** {{{ proto public static Yaf_Session::get($name)
 */
 PHP_METHOD(yaf_session, get) {
-	zend_string *name 	= NULL;
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S", &name) == FAILURE) {
-		WRONG_PARAM_COUNT;
-	} else {
-		zval *ret, *sess;
+	zend_string *name = NULL;
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S!", &name) == FAILURE) {
+		return;
+	} 
 
-		sess = zend_read_property(yaf_session_ce, getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-		if (!name) {
-			RETURN_ZVAL(sess, 1, 0);
+	if (EXPECTED(sess->session)) {
+		if (name == NULL) {
+			RETVAL_ARR(sess->session);
+			Z_ADDREF_P(return_value);
+			return;
+		} else {
+			zval *val;
+			if ((val = zend_hash_find(sess->session, name))) {
+				RETURN_ZVAL(val, 1, 0);
+			}
 		}
-
-		if ((ret = zend_hash_find(Z_ARRVAL_P(Z_REFVAL_P(sess)), name)) == NULL ){
-			RETURN_NULL();
-		}
-
-		RETURN_ZVAL(ret, 1, 0);
 	}
+	RETURN_NULL();
+}
+/* }}} */
+
+/** {{{ proto public static Yaf_Session::has($name)
+*/
+PHP_METHOD(yaf_session, has) {
+	zend_string *name = NULL;
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+	
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S!", &name) == FAILURE) {
+		return;
+	} 
+
+	if (EXPECTED(sess->session)) {
+		RETURN_BOOL(zend_hash_exists(sess->session, name));
+	}
+
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -204,18 +288,20 @@ PHP_METHOD(yaf_session, get) {
 PHP_METHOD(yaf_session, set) {
 	zval *value;
 	zend_string *name;
-	zval *self = getThis();
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
 		return;
-	} else {
-		zval *sess = zend_read_property(yaf_session_ce, self, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-		if (zend_hash_update(Z_ARRVAL_P(Z_REFVAL_P(sess)), name, value) == NULL) {
-			RETURN_FALSE;
-		}
-		Z_TRY_ADDREF_P(value);
 	}
 
-	RETURN_ZVAL(self, 1, 0);
+	if (EXPECTED(sess->session)) {
+		if (zend_hash_update(sess->session, name, value)) {
+			Z_TRY_ADDREF_P(value);
+			RETURN_TRUE;
+		}
+	}
+
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -223,14 +309,15 @@ PHP_METHOD(yaf_session, set) {
 */
 PHP_METHOD(yaf_session, del) {
 	zend_string *name;
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
 		return;
-	} else {
-		zval *sess = zend_read_property(yaf_session_ce, getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
+	}
 
-		if (zend_hash_del(Z_ARRVAL_P(Z_REFVAL_P(sess)), name) == SUCCESS) {
-			RETURN_ZVAL(getThis(), 1, 0);
+	if (EXPECTED(sess->session)) {
+		if (zend_hash_del(sess->session, name)) {
+			RETURN_TRUE;
 		}
 	}
 
@@ -241,83 +328,18 @@ PHP_METHOD(yaf_session, del) {
 /** {{{ proto public static Yaf_Session::clear()
 */
 PHP_METHOD(yaf_session, clear) {
-	zval *sess = zend_read_property(yaf_session_ce, getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
+	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
 
-	zend_hash_clean(Z_ARRVAL_P(Z_REFVAL_P(sess)));
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Session::has($name)
-*/
-PHP_METHOD(yaf_session, has) {
-	zend_string *name;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
+	if (zend_parse_parameters_none() == FAILURE) {
 		return;
-	} else {
-		zval *sess = zend_read_property(yaf_session_ce,
-				getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-		RETURN_BOOL(zend_hash_exists(Z_ARRVAL_P(Z_REFVAL_P(sess)), name));
 	}
 
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Session::rewind(void)
-*/
-PHP_METHOD(yaf_session, rewind) {
-	zval *sess = zend_read_property(yaf_session_ce,
-			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-	zend_hash_internal_pointer_reset(Z_ARRVAL_P(Z_REFVAL_P(sess)));
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Session::current(void)
-*/
-PHP_METHOD(yaf_session, current) {
-	zval *sess, *pzval;
-	sess = zend_read_property(yaf_session_ce,
-			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-	if ((pzval = zend_hash_get_current_data(Z_ARRVAL_P(Z_REFVAL_P(sess)))) == NULL) {
-		RETURN_FALSE;
+	if (EXPECTED(sess->session)) {
+		zend_hash_clean(sess->session);
+		RETURN_ZVAL(getThis(), 1, 0);
 	}
 
-	RETURN_ZVAL(pzval, 1, 0);
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Session::key(void)
-*/
-PHP_METHOD(yaf_session, key) {
-	zval *sess;
-	zend_string *key;
-	zend_ulong index;
-
-	sess = zend_read_property(yaf_session_ce,
-			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-	if (zend_hash_get_current_key(Z_ARRVAL_P(Z_REFVAL_P(sess)), &key, &index) == HASH_KEY_IS_LONG) {
-		RETURN_LONG(index);
-	} else {
-		RETURN_STR(zend_string_copy(key));
-	}
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Session::next(void)
-*/
-PHP_METHOD(yaf_session, next) {
-	zval *sess = zend_read_property(yaf_session_ce,
-			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-	zend_hash_move_forward(Z_ARRVAL_P(Z_REFVAL_P(sess)));
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Session::valid(void)
-*/
-PHP_METHOD(yaf_session, valid) {
-	zval *sess = zend_read_property(yaf_session_ce,
-			getThis(), ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION), 1, NULL);
-	RETURN_BOOL(zend_hash_has_more_elements(Z_ARRVAL_P(Z_REFVAL_P(sess))) == SUCCESS);
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -325,9 +347,6 @@ PHP_METHOD(yaf_session, valid) {
 */
 zend_function_entry yaf_session_methods[] = {
 	PHP_ME(yaf_session, __construct, NULL, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_session, __clone, NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_session, __sleep, NULL, ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_session, __wakeup, NULL, ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_session, getInstance, yaf_session_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_session, start, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)
@@ -335,11 +354,6 @@ zend_function_entry yaf_session_methods[] = {
 	PHP_ME(yaf_session, set, yaf_session_set_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, del, yaf_session_del_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, count, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, rewind, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, next, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, current, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, key, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, valid, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, clear, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetGet, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetSet, set, yaf_session_set_arginfo, ZEND_ACC_PUBLIC)
@@ -363,6 +377,14 @@ YAF_STARTUP_FUNCTION(session) {
 	yaf_session_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_session_ce->ce_flags |= ZEND_ACC_FINAL;
 
+	yaf_session_ce->get_iterator = yaf_session_get_iterator;
+	yaf_session_ce->serialize = zend_class_serialize_deny;
+	yaf_session_ce->unserialize = zend_class_unserialize_deny;
+
+	memcpy(&yaf_session_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	yaf_session_obj_handlers.clone_obj = NULL;
+	yaf_session_obj_handlers.get_debug_info = yaf_session_get_debug_info;
+
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 	zend_class_implements(yaf_session_ce, 3, zend_ce_iterator, zend_ce_arrayaccess, spl_ce_Countable);
 #elif PHP_VERSION_ID >= 70200
@@ -370,10 +392,6 @@ YAF_STARTUP_FUNCTION(session) {
 #else
 	zend_class_implements(yaf_session_ce, 2, zend_ce_iterator, zend_ce_arrayaccess);
 #endif
-
-	zend_declare_property_null(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), ZEND_ACC_PROTECTED|ZEND_ACC_STATIC);
-	zend_declare_property_null(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_SESSION),  ZEND_ACC_PROTECTED);
-	zend_declare_property_bool(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_STATUS),   0, ZEND_ACC_PROTECTED);
 
 	return SUCCESS;
 }
