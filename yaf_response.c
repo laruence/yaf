@@ -64,10 +64,10 @@ static HashTable *yaf_response_get_debug_info(zval *object, int *is_temp) /* {{{
 	zend_hash_str_add(Z_ARRVAL(rt), "response_code", sizeof("response_code") - 1, &rv);
 
 	ZVAL_ARR(&rv, zend_array_dup(&response->header));
-	zend_hash_str_add(Z_ARRVAL(rt), "headers:protected", sizeof("headers:protected") - 1, &rv);
+	zend_hash_str_add(Z_ARRVAL(rt), "header:protected", sizeof("header:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, zend_array_dup(&response->bodys));
-	zend_hash_str_add(Z_ARRVAL(rt), "bodys:protected", sizeof("bodys:protected") - 1, &rv);
+	ZVAL_ARR(&rv, zend_array_dup(&response->body));
+	zend_hash_str_add(Z_ARRVAL(rt), "body:protected", sizeof("body:protected") - 1, &rv);
 
 	return Z_ARRVAL(rt);
 }
@@ -124,7 +124,7 @@ static zend_object *yaf_response_new(zend_class_entry *ce) /* {{{ */ {
 	zend_object_std_init(&response->std, ce);
 	response->std.handlers = &yaf_response_obj_handlers;
 
-	zend_hash_init(&response->bodys, 8, NULL, ZVAL_PTR_DTOR, 0);
+	zend_hash_init(&response->body, 8, NULL, ZVAL_PTR_DTOR, 0);
 	zend_hash_init(&response->header, 8, NULL, ZVAL_PTR_DTOR, 0);
 
 	response->code = 0;
@@ -138,7 +138,7 @@ static void yaf_response_object_free(zend_object *object) /* {{{ */ {
 
 	zend_object_std_dtor(object);
 	
-	zend_hash_destroy(&response->bodys);
+	zend_hash_destroy(&response->body);
 	zend_hash_destroy(&response->header);
 }
 /* }}} */
@@ -165,9 +165,9 @@ int yaf_response_alter_body(yaf_response_object *response, zend_string *name, ze
 	}
 
 	if (!name) {
-		zbody = zend_hash_str_find(&response->bodys, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+		zbody = zend_hash_str_find(&response->body, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
 	} else {
-		zbody = zend_hash_find(&response->bodys, name);
+		zbody = zend_hash_find(&response->body, name);
 	}
 
 	if (zbody) {
@@ -210,9 +210,9 @@ int yaf_response_alter_body(yaf_response_object *response, zend_string *name, ze
 	} else {
 		ZVAL_STR(&rv, obody);
 		if (!name) {
-			zend_hash_str_update(&response->bodys, YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv);;
+			zend_hash_str_update(&response->body, YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv);;
 		} else {
-			zend_hash_update(&response->bodys, name, &rv);
+			zend_hash_update(&response->body, name, &rv);
 		}
 	}
 
@@ -222,28 +222,28 @@ int yaf_response_alter_body(yaf_response_object *response, zend_string *name, ze
 
 int yaf_response_clear_body(yaf_response_object *response, zend_string *name) /* {{{ */ {
 	if (name) {
-		zend_hash_del(&response->bodys, name);
+		zend_hash_del(&response->body, name);
 	} else {
-		zend_hash_clean(&response->bodys);
+		zend_hash_clean(&response->body);
 	}
 	return 1;
 }
 /* }}} */
 
 zval *yaf_response_get_body(yaf_response_object *response, zend_string *name) /* {{{ */{
-	return zend_hash_find(&response->bodys, name);
+	return zend_hash_find(&response->body, name);
 }
 /* }}} */
 
 zval* yaf_response_get_body_str(yaf_response_object *response, char *name, size_t len) /* {{{ */ {
-	return zend_hash_str_find(&response->bodys, name, len);
+	return zend_hash_str_find(&response->body, name, len);
 }
 /* }}} */
 
 int yaf_response_send(yaf_response_object *response) /* {{{ */ {
 	zval *val;
 
-	ZEND_HASH_FOREACH_VAL(&response->bodys, val) {
+	ZEND_HASH_FOREACH_VAL(&response->body, val) {
 		if (UNEXPECTED(Z_TYPE_P(val) != IS_STRING)) {
 			continue;
 		}
@@ -392,7 +392,7 @@ PHP_METHOD(yaf_response, getBody) {
 		body = yaf_response_get_body_str(response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
 	} else {
 		if (ZVAL_IS_NULL(name)) {
-			RETVAL_ARR(&response->bodys);
+			RETVAL_ARR(&response->body);
 			Z_ADDREF_P(return_value);
 			return;
 		} else {
@@ -425,7 +425,7 @@ PHP_METHOD(yaf_response, __toString) {
 
 	delim = ZSTR_EMPTY_ALLOC();
 
-	ZVAL_ARR(&rv, &Z_YAFRESPONSEOBJ_P(getThis())->bodys);
+	ZVAL_ARR(&rv, &Z_YAFRESPONSEOBJ_P(getThis())->body);
 	php_implode(delim, &rv, return_value);
 }
 /* }}} */

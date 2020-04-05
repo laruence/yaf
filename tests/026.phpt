@@ -16,11 +16,11 @@ echo $response;
 Yaf_Response_Http Object
 (
     [response_code] => 0
-    [headers:protected] => Array
+    [header:protected] => Array
         (
         )
 
-    [bodys:protected] => Array
+    [body:protected] => Array
         (
             [content] => Hello
             [footer] =>  World

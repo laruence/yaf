@@ -30,8 +30,8 @@ extern zend_class_entry *yaf_response_cli_ce;
 
 typedef struct {
 	unsigned int code;
-	zend_array   bodys;
 	zend_array   header;
+	zend_array   body;
 	zend_object  std;
 } yaf_response_object;
 

@@ -186,8 +186,10 @@ PHP_RINIT_FUNCTION(yaf)
 {
 	YAF_G(throw_exception) = 1;
 	YAF_G(catch_exception) = 0;
+	ZVAL_UNDEF(&YAF_G(registry));
 	ZVAL_UNDEF(&YAF_G(loader));
 	ZVAL_UNDEF(&YAF_G(app));
+
 	return SUCCESS;
 }
 /* }}} */
@@ -196,6 +198,7 @@ PHP_RINIT_FUNCTION(yaf)
 */
 PHP_RSHUTDOWN_FUNCTION(yaf)
 {
+	zval_ptr_dtor(&YAF_G(registry));
 	zval_ptr_dtor(&YAF_G(loader));
 	zval_ptr_dtor(&YAF_G(app));
 

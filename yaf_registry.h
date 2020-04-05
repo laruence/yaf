@@ -17,8 +17,13 @@
 #ifndef YAF_REGISTRY_H
 #define YAF_REGISTRY_H
 
-#define YAF_REGISTRY_PROPERTY_NAME_ENTRYS 	"_entries"
-#define YAF_REGISTRY_PROPERTY_NAME_INSTANCE	"_instance"
+typedef struct {
+	zend_object std;
+	zend_array entries;
+} yaf_registry_object;
+
+#define Z_YAFREGISTRYOBJ(zv)    ((yaf_registry_object*)(Z_OBJ(zv)))
+#define Z_YAFREGISTRYOBJ_P(zv)  Z_YAFREGISTRYOBJ(*zv)
 
 extern zend_class_entry *yaf_registry_ce;
 

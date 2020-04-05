@@ -70,9 +70,10 @@ extern zend_module_entry yaf_module_entry;
 #define yaf_exception_t    zval
 
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
-	/* for conveniently retrieving */
-    yaf_loader_t      loader;
+	/* for instances stash */
 	yaf_application_t app;
+    yaf_loader_t      loader;
+	yaf_registry_t    registry;
 
 	/* ini configurations */
     char             *global_library;

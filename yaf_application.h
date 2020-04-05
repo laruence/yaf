@@ -17,15 +17,6 @@
 #ifndef PHP_YAF_APPLICATION_H
 #define PHP_YAF_APPLICATION_H
 
-#define YAF_APPLICATION_PROPERTY_NAME_CONFIG        "config"
-#define YAF_APPLICATION_PROPERTY_NAME_DISPATCHER    "dispatcher"
-#define YAF_APPLICATION_PROPERTY_NAME_RUN           "_running"
-#define YAF_APPLICATION_PROPERTY_NAME_APP           "_app"
-#define YAF_APPLICATION_PROPERTY_NAME_ENV           "_environ"
-#define YAF_APPLICATION_PROPERTY_NAME_MODULES       "_modules"
-#define YAF_APPLICATION_PROPERTY_NAME_ERRNO         "_err_no"
-#define YAF_APPLICATION_PROPERTY_NAME_ERRMSG        "_err_msg"
-
 typedef struct {
     zend_object      std;
 	zend_array       modules;

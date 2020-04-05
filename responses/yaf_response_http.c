@@ -145,7 +145,7 @@ int yaf_response_http_send(yaf_response_object *response) /* {{{ */ {
 	} ZEND_HASH_FOREACH_END();
 	efree(ctr.line);
 
-	ZEND_HASH_FOREACH_VAL(&response->bodys, entry) {
+	ZEND_HASH_FOREACH_VAL(&response->body, entry) {
 		zend_string *str = zval_get_string(entry);
 		php_write(ZSTR_VAL(str), ZSTR_LEN(str));
 		zend_string_release(str);
