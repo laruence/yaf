@@ -64,12 +64,12 @@ static HashTable *yaf_route_regex_get_debug_info(zval *object, int *is_tmp) /* {
 	zend_hash_str_add(ht, "match:protected", sizeof("match:protected") - 1, &rv);
 
 	ZVAL_ARR(&rv, regex->router);
-	Z_TRY_ADDREF(rv);
+	GC_ADDREF(regex->router);
 	zend_hash_str_add(ht, "route:protected", sizeof("route:protected") - 1, &rv);
 
 	if (regex->map) {
 		ZVAL_ARR(&rv, regex->map);
-		Z_TRY_ADDREF(rv);
+		GC_ADDREF(regex->map);
 	} else {
 		ZVAL_NULL(&rv);
 	}
@@ -77,7 +77,7 @@ static HashTable *yaf_route_regex_get_debug_info(zval *object, int *is_tmp) /* {
 
 	if (regex->verify) {
 		ZVAL_ARR(&rv, regex->verify);
-		Z_TRY_ADDREF(rv);
+		GC_ADDREF(regex->verify);
 	} else {
 		ZVAL_NULL(&rv);
 	}
@@ -146,28 +146,19 @@ static void yaf_route_regex_init(yaf_route_regex_object *regex, zend_string *mat
 	regex->match = zend_string_copy(match);
 
 	if (router) {
-		regex->router = Z_ARRVAL_P(router);
-		if (!(GC_FLAGS(regex->router) & IS_ARRAY_IMMUTABLE)) {
-			GC_ADDREF(regex->router);
-		}
+		regex->router = zend_array_dup(Z_ARRVAL_P(router));
 	} else {
 		regex->router = NULL;
 	}
 
 	if (map) {
-		regex->map = Z_ARRVAL_P(map);
-		if (!(GC_FLAGS(regex->map) & IS_ARRAY_IMMUTABLE)) {
-			GC_ADDREF(regex->map);
-		}
+		regex->map = zend_array_dup(Z_ARRVAL_P(map));
 	} else {
 		regex->map = NULL;
 	}
 
 	if (verify) {
-		regex->verify = Z_ARRVAL_P(verify);
-		if (!(GC_FLAGS(regex->verify) & IS_ARRAY_IMMUTABLE)) {
-			GC_ADDREF(regex->verify);
-		}
+		regex->verify = zend_array_dup(Z_ARRVAL_P(verify));
 	} else {
 		regex->verify = NULL;
 	}

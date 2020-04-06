@@ -98,14 +98,14 @@ static void yaf_route_rewrite_object_free(zend_object *object) /* {{{ */ {
 	}
 
 	if (rewrite->router) {
-		if (!(GC_FLAGS(rewrite->router) & IS_ARRAY_IMMUTABLE) && (GC_DELREF(rewrite->router) == 0)) {
+		if ((GC_DELREF(rewrite->router) == 0)) {
 			GC_REMOVE_FROM_BUFFER(rewrite->router);
 			zend_array_destroy(rewrite->router);
 		}
 	}
 
 	if (rewrite->verify) {
-		if (!(GC_FLAGS(rewrite->verify) & IS_ARRAY_IMMUTABLE) && (GC_DELREF(rewrite->verify) == 0)) {
+		if ((GC_DELREF(rewrite->verify) == 0)) {
 			GC_REMOVE_FROM_BUFFER(rewrite->verify);
 			zend_array_destroy(rewrite->verify);
 		}
@@ -119,19 +119,13 @@ static void yaf_route_rewrite_init(yaf_route_rewrite_object *rewrite, zend_strin
 	rewrite->match = zend_string_copy(match);
 
 	if (router) {
-		rewrite->router = Z_ARRVAL_P(router);
-		if (!(GC_FLAGS(rewrite->router) & IS_ARRAY_IMMUTABLE)) {
-			GC_ADDREF(rewrite->router);
-		}
+		rewrite->router = zend_array_dup(Z_ARRVAL_P(router));
 	} else {
 		rewrite->router = NULL;
 	}
 
 	if (verify) {
-		rewrite->verify = Z_ARRVAL_P(verify);
-		if (!(GC_FLAGS(rewrite->verify) & IS_ARRAY_IMMUTABLE)) {
-			GC_ADDREF(rewrite->verify);
-		}
+		rewrite->verify = zend_array_dup(Z_ARRVAL_P(verify));
 	} else {
 		rewrite->verify = NULL;
 	}

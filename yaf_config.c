@@ -74,8 +74,7 @@ static HashTable *yaf_config_get_debug_info(zval *object, int *is_temp) /* {{{ *
 	zend_hash_str_add(ht, "readonly:protected", sizeof("readonly:protected") - 1, &rv);
 
 	if (conf->config) {
-		ZVAL_ARR(&rv, conf->config);
-		Z_ADDREF(rv);
+		ZVAL_ARR(&rv, zend_array_dup(conf->config));
 	}
 	zend_hash_str_add(ht, "config:protected", sizeof("config:protected") - 1, &rv);
 
