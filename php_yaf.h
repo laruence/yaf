@@ -46,6 +46,11 @@ extern zend_module_entry yaf_module_entry;
 
 #define PHP_YAF_VERSION 					"3.1.4-dev"
 
+#ifndef GC_ADDREF
+#define GC_ADDREF(gc)   (++GC_REFCOUNT(gc))
+#define GC_DELREF(gc)   (--GC_REFCOUNT(gc))
+#endif
+
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)

@@ -117,21 +117,21 @@ static void yaf_route_regex_object_free(zend_object *object) /* {{{ */ {
 	}
 
 	if (regex->router) {
-		if (--GC_REFCOUNT(regex->router) == 0) {
+		if (GC_DELREF(regex->router) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->router);
 			zend_array_destroy(regex->router);
 		}
 	}
 
 	if (regex->map) {
-		if (--GC_REFCOUNT(regex->map) == 0) {
+		if (GC_DELREF(regex->map) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->map);
 			zend_array_destroy(regex->map);
 		}
 	}
 
 	if (regex->verify) {
-		if (--GC_REFCOUNT(regex->verify) == 0) {
+		if (GC_DELREF(regex->verify) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->verify);
 			zend_array_destroy(regex->verify);
 		}
@@ -146,21 +146,21 @@ static void yaf_route_regex_init(yaf_route_regex_object *regex, zend_string *mat
 
 	if (router) {
 		regex->router = Z_ARRVAL_P(router);
-		Z_TRY_ADDREF_P(router);
+		GC_ADDREF(regex->router);
 	} else {
 		regex->router = NULL;
 	}
 
 	if (map) {
 		regex->map = Z_ARRVAL_P(map);
-		Z_TRY_ADDREF_P(map);
+		GC_ADDREF(regex->map);
 	} else {
 		regex->map = NULL;
 	}
 
 	if (verify) {
 		regex->verify = Z_ARRVAL_P(verify);
-		Z_TRY_ADDREF_P(verify);
+		GC_ADDREF(regex->verify);
 	} else {
 		regex->verify = NULL;
 	}

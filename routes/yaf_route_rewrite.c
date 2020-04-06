@@ -97,14 +97,14 @@ static void yaf_route_rewrite_object_free(zend_object *object) /* {{{ */ {
 	}
 
 	if (rewrite->router) {
-		if (--GC_REFCOUNT(rewrite->router) == 0) {
+		if (GC_DELREF(rewrite->router) == 0) {
 			GC_REMOVE_FROM_BUFFER(rewrite->router);
 			zend_array_destroy(rewrite->router);
 		}
 	}
 
 	if (rewrite->verify) {
-		if (--GC_REFCOUNT(rewrite->verify) == 0) {
+		if (GC_DELREF(rewrite->verify) == 0) {
 			GC_REMOVE_FROM_BUFFER(rewrite->verify);
 			zend_array_destroy(rewrite->verify);
 		}
@@ -119,14 +119,14 @@ static void yaf_route_rewrite_init(yaf_route_rewrite_object *rewrite, zend_strin
 
 	if (router) {
 		rewrite->router = Z_ARRVAL_P(router);
-		Z_TRY_ADDREF_P(router);
+		GC_ADDREF(rewrite->router);
 	} else {
 		rewrite->router = NULL;
 	}
 
 	if (verify) {
 		rewrite->verify = Z_ARRVAL_P(verify);
-		Z_TRY_ADDREF_P(verify);
+		GC_ADDREF(rewrite->verify);
 	} else {
 		rewrite->verify = NULL;
 	}

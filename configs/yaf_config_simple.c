@@ -51,7 +51,8 @@ ZEND_END_ARG_INFO()
 
 void yaf_config_simple_init(yaf_config_object *conf, zval *val, int readonly) /* {{{ */ {
 	if (Z_TYPE_P(val) == IS_ARRAY) {
-		conf->config = zend_array_dup(Z_ARRVAL_P(val));
+		conf->config = Z_ARRVAL_P(val);
+		GC_ADDREF(conf->config);
 		conf->readonly = readonly;
 		return;
 	}
