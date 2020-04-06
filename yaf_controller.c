@@ -339,24 +339,15 @@ PHP_METHOD(yaf_controller, getModuleName) {
 /** {{{ proto public Yaf_Controller_Abstract::setViewpath(string $view_directory)
 */
 PHP_METHOD(yaf_controller, setViewpath) {
-	zval 		 *path;
-	yaf_view_t 	 *view;
-	zend_class_entry *view_ce;
+	zend_string *path;
+	yaf_view_t *view;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &path) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &path) == FAILURE) {
 		return;
 	}
 
-	if (Z_TYPE_P(path) != IS_STRING) {
-		RETURN_FALSE;
-	}
-
 	view = zend_read_property(yaf_controller_ce, getThis(), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1, NULL);
-	if (EXPECTED((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce)) {
-		zend_update_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), path);
-	} else {
-		zend_call_method_with_1_params(view, view_ce, NULL, "setscriptpath", NULL, path);
-	}
+	yaf_view_set_tpl_dir(view, path);
 
 	RETURN_TRUE;
 }
@@ -365,23 +356,19 @@ PHP_METHOD(yaf_controller, setViewpath) {
 /** {{{ proto public Yaf_Controller_Abstract::getViewpath(void)
 */
 PHP_METHOD(yaf_controller, getViewpath) {
-	zend_class_entry *view_ce;
+	zend_string *tpl_dir;
 	zval *view = zend_read_property(yaf_controller_ce,
 			getThis(), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_VIEW), 1, NULL);
-	if (EXPECTED((view_ce = Z_OBJCE_P(view)) == yaf_view_simple_ce)) {
-		zval *tpl_dir = zend_read_property(view_ce, view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, NULL);
-		if (IS_STRING != Z_TYPE_P(tpl_dir)) {
-			RETURN_EMPTY_STRING();
-		}
-		RETURN_ZVAL(tpl_dir, 1, 0);
-	} else {
-		zval ret;
-		zend_call_method_with_0_params(view, view_ce, NULL, "getscriptpath", &ret);
-		if (Z_ISUNDEF(ret)) {
-			RETURN_NULL();
-		}
-		RETURN_ZVAL(&ret, 0, 0);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
 	}
+
+	if ((tpl_dir = yaf_view_get_tpl_dir(view, NULL)) == NULL) {
+		RETURN_EMPTY_STRING();
+	}
+
+	RETURN_STR_COPY(tpl_dir);
 }
 /* }}} */
 

@@ -163,7 +163,8 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 }
 /* }}} */
 
-static int yaf_dispatcher_init_view(yaf_dispatcher_object *dispatcher, zval *tpl_dir, zval *options) /* {{{ */ {
+static int yaf_dispatcher_init_view(yaf_dispatcher_object *dispatcher, zend_string *tpl_dir, zval *options) /* {{{ */ {
+	/*FIXME multiply re-instance?*/
 	yaf_view_t *view = &dispatcher->view;
 
 	if (EXPECTED(IS_OBJECT == Z_TYPE_P(view) &&
@@ -172,13 +173,9 @@ static int yaf_dispatcher_init_view(yaf_dispatcher_object *dispatcher, zval *tpl
 	}
 
 	zval_ptr_dtor(&dispatcher->view);
-	view = yaf_view_instance(&dispatcher->view, tpl_dir, options);
-	if (!view) {
-		ZVAL_UNDEF(&dispatcher->view);
-		return 0;
-	}
+	yaf_view_instance(&dispatcher->view, tpl_dir, options);
 
-	return 1;
+	return Z_TYPE(dispatcher->view) == IS_OBJECT;
 }
 /* }}} */
 
@@ -434,6 +431,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 
 		if ((ce = yaf_dispatcher_get_controller(app->directory, request, is_def_module))) {
 			zval *pzval, ret;
+			zend_string *view_dir;
 			zend_function *fptr;
 			zend_string *func_name;
 			zend_string *origin_action;
@@ -456,9 +454,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				return yaf_dispatcher_handle(dispatcher);
 			}
 
-			pzval = zend_read_property(Z_OBJCE_P(view), view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), 1, &ret);
-			if (Z_TYPE_P(pzval) != IS_STRING || !Z_STRLEN_P(pzval)) {
-				zend_string *view_dir;
+			if (EXPECTED((view_dir = yaf_view_get_tpl_dir(view, &dispatcher->request)) == NULL)) {
 				/* view template directory for application, please notice that view engine's directory has high priority */
 				if (is_def_module) {
 					view_dir = strpprintf(0, "%s%c%s", ZSTR_VAL(app->directory), DEFAULT_SLASH, "views");
@@ -467,7 +463,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 							DEFAULT_SLASH, "modules", DEFAULT_SLASH, ZSTR_VAL(request->module), DEFAULT_SLASH, "views");
 				}
 
-				zend_update_property_str(Z_OBJCE_P(view), view, ZEND_STRL(YAF_VIEW_PROPERTY_NAME_TPLDIR), view_dir);
+				yaf_view_set_tpl_dir(view, view_dir);
 				zend_string_release(view_dir);
 			}
 
@@ -1026,11 +1022,11 @@ PHP_METHOD(yaf_dispatcher, autoRender) {
 /** {{{ proto public Yaf_Dispatcher::initView(string $tpl_dir, array $options = NULL)
 */
 PHP_METHOD(yaf_dispatcher, initView) {
-	zval *tpl_dir;
+	zend_string *tpl_dir;
 	zval *options = NULL;
 	yaf_dispatcher_object *dispatcher;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &tpl_dir, &options) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|z", &tpl_dir, &options) == FAILURE) {
 		return;
 	}
 	
@@ -1049,7 +1045,7 @@ PHP_METHOD(yaf_dispatcher, setView) {
 	yaf_view_t *view;
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &view, yaf_view_ce) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &view, yaf_view_interface_ce) == FAILURE) {
 		return;
 	}
 

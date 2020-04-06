@@ -17,21 +17,15 @@
 #ifndef YAF_VIEW_H
 #define YAF_VIEW_H
 
-#define yaf_view_instance yaf_view_simple_instance
-#define yaf_view_ce		  yaf_view_simple_ce
-
-#define YAF_VIEW_PROPERTY_NAME_TPLVARS 	"_tpl_vars"
-#define YAF_VIEW_PROPERTY_NAME_TPLDIR	"_tpl_dir"
-#define YAF_VIEW_PROPERTY_NAME_OPTS 	"_options"
-
 extern zend_class_entry *yaf_view_interface_ce;
 extern zend_class_entry *yaf_view_simple_ce;
 
-yaf_view_t * yaf_view_instance(yaf_view_t * this_ptr, zval *tpl_dir, zval *options);
-int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret);
-int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret);
-int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value);
-void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name);
+void yaf_view_instance(yaf_view_t *view, zend_string *tpl_dir, zval *options);
+
+void yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval *ret);
+int yaf_view_display(yaf_view_t *view, zend_string *script, zval *var_array);
+zend_string *yaf_view_get_tpl_dir(yaf_view_t *view, yaf_request_t *request);
+void yaf_view_set_tpl_dir(yaf_view_t *view, zend_string *tpl_dir);
 
 YAF_STARTUP_FUNCTION(view);
 

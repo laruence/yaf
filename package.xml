@@ -24,7 +24,7 @@
  <notes>
   - Rmoved all lead underline for fake protected property name(examing by var_dump)
   - Added Yaf_Request::cleanParams()
-  - Yaf_Config_Ini::get now return Yaf_Config_Simple for arrays
+  - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
  </notes>
  <contents> 
   <dir name="/"> 

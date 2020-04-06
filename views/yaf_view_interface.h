@@ -37,6 +37,7 @@ YAF_BEGIN_ARG_INFO_EX(yaf_view_setpath_arginfo, 0, 0, 1)
 YAF_END_ARG_INFO()
 
 YAF_BEGIN_ARG_INFO_EX(yaf_view_getpath_arginfo, 0, 0, 0)
+	ZEND_ARG_INFO(0, request)
 YAF_END_ARG_INFO()
 
 extern zend_class_entry *yaf_view_interface_ce;

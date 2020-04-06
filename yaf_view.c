@@ -19,6 +19,7 @@
 #endif
 
 #include "php.h"
+#include "Zend/zend_interfaces.h" /* for zend_call_method_with_1_params */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -29,34 +30,80 @@
 #include "views/yaf_view_interface.h"
 #include "views/yaf_view_simple.h"
 
-/** {{{ yaf_view_t * yaf_view_instance(yaf_view_t *this_ptr)
-*/
-#if 0
-yaf_view_t * yaf_view_instance(yaf_view_t *this_ptr) {
-	yaf_view_t		*view	= NULL;
-	yaf_view_struct 	*p 		= yaf_buildin_views;
-
-	for(;;++p) {
-		yaf_current_view = p;
-		yaf_view_ce = *(p->ce);
-		break;
-	}
-
-	yaf_view_ce = *(yaf_current_view->ce);
-
-	MAKE_STD_ZVAL(view);
-	object_init_ex(view, *(yaf_current_view->ce));
-
-	if (yaf_current_view->init) {
-		yaf_current_view->init(view);
-	}
-	MAKE_STD_ZVAL(view);
-	object_init_ex(view, yaf_view_simple_ce);
-	yaf_view_simple_init(view);
-
-	return view;
+void yaf_view_instance(yaf_view_t *view, zend_string *tpl_dir, zval *options) /* {{{ */ {
+	yaf_view_simple_instance(view, tpl_dir);
 }
-#endif
+/* }}} */
+
+zend_string *yaf_view_get_tpl_dir(yaf_view_t *view, yaf_request_t *request) /* {{{ */ {
+	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
+		return yaf_view_simple_get_tpl_dir(view, request);
+	} else {
+		zval ret;
+		zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "getscriptpath", &ret, request);
+		if (Z_TYPE(ret) != IS_STRING) {
+			zval_ptr_dtor(&ret);
+			return NULL;
+		}
+		return Z_STR(ret);
+	}
+}
+/* }}} */
+
+void yaf_view_set_tpl_dir(yaf_view_t *view, zend_string *tpl) /* {{{ */ {
+	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
+		yaf_view_simple_set_tpl_dir(view, tpl);
+	} else {
+		zval arg, ret;
+
+		ZVAL_STR_COPY(&arg, tpl);
+		zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "setscriptpath", &ret, &arg);
+		if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
+			/* error handle? */
+		}
+		zval_dtor(&arg);
+	}
+}
+/* }}} */
+
+void yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval *ret) /* {{{ */ {
+	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
+		yaf_view_simple_render(view, script, var_array, ret);
+	} else {
+		zval arg;
+		
+		ZVAL_STR_COPY(&arg, script);
+		if (var_array) {
+			zend_call_method_with_2_params(view, Z_OBJCE_P(view), NULL, "render", ret, &arg, var_array);
+		} else {
+			zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "render", ret, &arg);
+		}
+		zval_ptr_dtor(&arg);
+	}
+}
+/* }}} */
+
+int yaf_view_display(yaf_view_t *view, zend_string *script, zval *var_array) /* {{{ */ {
+	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
+		return yaf_view_simple_render(view, script, var_array, NULL);
+	} else {
+		int result;
+		zval arg, ret;
+		
+		ZVAL_STR_COPY(&arg, script);
+		if (var_array) {
+			zend_call_method_with_2_params(view, Z_OBJCE_P(view), NULL, "display", &ret, &arg, var_array);
+		} else {
+			zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "display", &ret, &arg);
+		}
+		zval_ptr_dtor(&arg);
+		
+		result = zend_is_true(&ret);
+		zval_ptr_dtor(&ret);
+
+		return result;
+	}
+}
 /* }}} */
 
 /** {{{ YAF_STARTUP_FUNCTION
