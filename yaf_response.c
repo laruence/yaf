@@ -54,22 +54,29 @@ ZEND_END_ARG_INFO()
 /* }}} */
 
 static HashTable *yaf_response_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
-	zval rv, rt;
+	zval rv;
+	HashTable *ht;
 	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(object);
 
 	*is_temp = 1;
-	array_init(&rt);
+	ALLOC_HASHTABLE(ht);
+	zend_hash_init(ht, 4, NULL, ZVAL_PTR_DTOR, 0);
 
 	ZVAL_LONG(&rv, response->code);
-	zend_hash_str_add(Z_ARRVAL(rt), "response_code", sizeof("response_code") - 1, &rv);
+	zend_hash_str_add(ht, "response_code:protected", sizeof("response_code:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, zend_array_dup(&response->header));
-	zend_hash_str_add(Z_ARRVAL(rt), "header:protected", sizeof("header:protected") - 1, &rv);
+	ZVAL_BOOL(&rv, response->header_sent);
+	zend_hash_str_add(ht, "header_sent:protected", sizeof("header_sent:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, zend_array_dup(&response->body));
-	zend_hash_str_add(Z_ARRVAL(rt), "body:protected", sizeof("body:protected") - 1, &rv);
+	if (Z_OBJCE_P(object) == yaf_response_http_ce) {
+		ZVAL_ARR(&rv, zend_array_dup(&response->header));
+		zend_hash_str_add(ht, "header:protected", sizeof("header:protected") - 1, &rv);
 
-	return Z_ARRVAL(rt);
+		ZVAL_ARR(&rv, zend_array_dup(&response->body));
+		zend_hash_str_add(ht, "body:protected", sizeof("body:protected") - 1, &rv);
+	}
+
+	return ht;
 }
 /* }}} */
 
@@ -128,6 +135,7 @@ static zend_object *yaf_response_new(zend_class_entry *ce) /* {{{ */ {
 	zend_hash_init(&response->header, 8, NULL, ZVAL_PTR_DTOR, 0);
 
 	response->code = 0;
+	response->header_sent = 0;
 
 	return &response->std;
 }

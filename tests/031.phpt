@@ -28,8 +28,8 @@ Array
 (
     [_default] => Yaf_Route_Map Object
         (
-            [_ctl_router:protected] => 1
-            [_delimiter:protected] => ##
+            [ctl_prefer:protected] => 1
+            [delimiter:protected] => ##
         )
 
 )

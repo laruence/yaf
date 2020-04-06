@@ -20,35 +20,33 @@ print_r($request);
 --EXPECTF--
 Yaf_Request_Http Object
 (
+    [method] => POST
     [module] => 
     [controller] => 
     [action] => 
-    [method] => POST
+    [uri] => %syaf%ctests
+    [base_uri] => 
+    [dispatched] => 
+    [routed] => 
+    [language:protected] => 
     [params:protected] => Array
         (
         )
 
-    [language:protected] => 
-    [_exception:protected] => 
-    [_base_uri:protected] => 
-    [uri:protected] => %stests
-    [dispatched:protected] => 
-    [routed:protected] => 
 )
 Yaf_Request_Http Object
 (
+    [method] => POST
     [module] => 
     [controller] => 
     [action] => 
-    [method] => POST
+    [uri] => %syaf%ctests
+    [base_uri] => %syaf
+    [dispatched] => 
+    [routed] => 
+    [language:protected] => 
     [params:protected] => Array
         (
         )
 
-    [language:protected] => 
-    [_exception:protected] => 
-    [_base_uri:protected] => %s
-    [uri:protected] => %stests
-    [dispatched:protected] => 
-    [routed:protected] => 
 )

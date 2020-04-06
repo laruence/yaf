@@ -40,18 +40,18 @@ bool(true)
 bool(true)
 Yaf_Response_Http Object
 (
-    [_header:protected] => Array
+    [response_code:protected] => 0
+    [header_sent:protected] => 
+    [header:protected] => Array
         (
             [MyName1] => Header1, Header11
             [MyName2] => Header22
         )
 
-    [_body:protected] => Array
+    [body:protected] => Array
         (
         )
 
-    [_sendheader:protected] => 1
-    [_response_code:protected] => 0
 )
 bool(true)
 bool(true)
@@ -69,16 +69,16 @@ NULL
 string(16) "Header1, Header2"
 Yaf_Response_Http Object
 (
-    [_header:protected] => Array
+    [response_code:protected] => 302
+    [header_sent:protected] => 
+    [header:protected] => Array
         (
         )
 
-    [_body:protected] => Array
+    [body:protected] => Array
         (
         )
 
-    [_sendheader:protected] => 1
-    [_response_code:protected] => 302
 )
 bool(true)
 array(3) {

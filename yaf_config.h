@@ -36,6 +36,7 @@ static inline yaf_config_object *php_yaf_config_fetch_object(zend_object *obj) {
 
 extern zend_class_entry *yaf_config_ce;
 void yaf_config_instance(yaf_config_t *this_ptr, zval*, zend_string*);
+zend_object *yaf_config_format_child(zend_class_entry *ce, zval *child, int readonly);
 
 YAF_STARTUP_FUNCTION(config);
 #endif

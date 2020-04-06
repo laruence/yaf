@@ -151,8 +151,7 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 	}
 	zend_hash_str_add(Z_ARRVAL(rt), "dispatcher:protected", sizeof("dispatcher:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, &app->modules);
-	Z_ADDREF(rv);
+	ZVAL_ARR(&rv, zend_array_dup(&app->modules));
 	zend_hash_str_add(Z_ARRVAL(rt), "modules:protected", sizeof("modules:protected") - 1, &rv);
 	
 	if (app->default_route) {

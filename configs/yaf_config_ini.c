@@ -411,16 +411,16 @@ void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *s
 			return;
 		}
 
-		if (section_name  && ZSTR_LEN(section_name)) {
-			zval *section;
+		if (section_name && ZSTR_LEN(section_name)) {
+			zval *section, garbage;
 			if ((section = zend_symtable_find(Z_ARRVAL(configs), section_name)) == NULL) {
 				zval_ptr_dtor(&configs);
 				yaf_trigger_error(E_ERROR, "There is no section '%s' in '%s'", ZSTR_VAL(section_name), ini_file);
 				return;
 			}
-			Z_ADDREF_P(section);
-			zval_ptr_dtor(&configs);
-			ZVAL_COPY_VALUE(&configs, section);
+			ZVAL_COPY_VALUE(&garbage, &configs);
+			ZVAL_COPY(&configs, section);
+			zval_ptr_dtor(&garbage);
 		}
 
 		conf->config = Z_ARRVAL(configs);
@@ -467,7 +467,7 @@ PHP_METHOD(yaf_config_ini, get) {
 			RETURN_NULL();
 		}
 		if (Z_TYPE_P(val) == IS_ARRAY) {
-			yaf_config_instance(return_value, val, NULL);
+			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->readonly));
 		} else {
 			RETURN_ZVAL(val, 1, 0);
 		}
@@ -506,6 +506,7 @@ zend_function_entry yaf_config_ini_methods[] = {
 	PHP_ME(yaf_config_ini, get, yaf_config_ini_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_ini, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_ini, readonly, yaf_config_ini_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_ini, offsetGet, get, yaf_config_ini_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_ini, offsetSet, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_ini, __set, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}

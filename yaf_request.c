@@ -135,65 +135,66 @@ static void yaf_request_object_free(zend_object *object) /* {{{ */ {
 /* }}} */
 
 static HashTable *yaf_request_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
-	zval rv, rt;
+	zval rv;
+	HashTable *ht;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(object);
 
 	*is_temp = 1;
-	array_init(&rt);
+	ALLOC_HASHTABLE(ht);
+	zend_hash_init(ht, 16, NULL, ZVAL_PTR_DTOR, 0);
 
 	ZVAL_STR_COPY(&rv, request->method);
-	zend_hash_str_add(Z_ARRVAL(rt), "method", sizeof("method") - 1, &rv);
+	zend_hash_str_add(ht, "method", sizeof("method") - 1, &rv);
 	if (request->module) {
 		ZVAL_STR_COPY(&rv, request->module);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "module", sizeof("module") - 1, &rv);
+	zend_hash_str_add(ht, "module", sizeof("module") - 1, &rv);
 	if (request->controller) {
 		ZVAL_STR_COPY(&rv, request->controller);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "controller", sizeof("controller") - 1, &rv);
+	zend_hash_str_add(ht, "controller", sizeof("controller") - 1, &rv);
 	if (request->action) {
 		ZVAL_STR_COPY(&rv, request->action);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "action", sizeof("action") - 1, &rv);
+	zend_hash_str_add(ht, "action", sizeof("action") - 1, &rv);
 
 	if (request->uri) {
 		ZVAL_STR_COPY(&rv, request->uri);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "uri", sizeof("uri") - 1, &rv);
+	zend_hash_str_add(ht, "uri", sizeof("uri") - 1, &rv);
 
 	if (request->base_uri) {
 		ZVAL_STR_COPY(&rv, request->base_uri);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "base_uri", sizeof("base_uri") - 1, &rv);
+	zend_hash_str_add(ht, "base_uri", sizeof("base_uri") - 1, &rv);
 
 	ZVAL_BOOL(&rv, request->dispatched);
-	zend_hash_str_add(Z_ARRVAL(rt), "dispatched", sizeof("dispatched") - 1, &rv);
+	zend_hash_str_add(ht, "dispatched", sizeof("dispatched") - 1, &rv);
 
 	ZVAL_BOOL(&rv, request->routed);
-	zend_hash_str_add(Z_ARRVAL(rt), "routed", sizeof("routed") - 1, &rv);
+	zend_hash_str_add(ht, "routed", sizeof("routed") - 1, &rv);
 
 	if (request->language) {
 		ZVAL_STR_COPY(&rv, request->language);
 	} else {
 		ZVAL_EMPTY_STRING(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "language:protected", sizeof("language:protected") - 1, &rv);
+	zend_hash_str_add(ht, "language:protected", sizeof("language:protected") - 1, &rv);
 
 	ZVAL_ARR(&rv, zend_array_dup(&request->params));
-	zend_hash_str_add(Z_ARRVAL(rt), "params:protected", sizeof("params:protected") - 1, &rv);
+	zend_hash_str_add(ht, "params:protected", sizeof("params:protected") - 1, &rv);
 
-
-	return Z_ARRVAL(rt);
+	return ht;
 }
 /* }}} */
 

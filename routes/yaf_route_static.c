@@ -19,6 +19,7 @@
 #endif
 
 #include "php.h"
+#include "Zend/zend_smart_str.h" /* for smart_str */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -29,7 +30,6 @@
 #include "yaf_router.h"
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_static.h"
-#include "zend_smart_str.h" /* for smart_str */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -259,6 +259,13 @@ zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval 
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Router_Static::match(string $uri)
+*/
+PHP_METHOD(yaf_route_static, match) {
+	RETURN_TRUE;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Router_Static::route(Yaf_Request $req)
 */
 PHP_METHOD(yaf_route_static, route) {
@@ -266,16 +273,9 @@ PHP_METHOD(yaf_route_static, route) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
 		return;
-	} else {
-		RETURN_BOOL(yaf_route_static_route(getThis(), request));
 	}
-}
-/* }}} */
 
-/** {{{ proto public Yaf_Router_Static::match(string $uri)
-*/
-PHP_METHOD(yaf_route_static, match) {
-	RETURN_TRUE;
+	RETURN_BOOL(yaf_route_static_route(getThis(), request));
 }
 /* }}} */
 
@@ -314,6 +314,8 @@ YAF_STARTUP_FUNCTION(route_static) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Static", "Yaf\\Route_Static", yaf_route_static_methods);
 	yaf_route_static_ce = zend_register_internal_class(&ce);
+	yaf_route_static_ce->ce_flags |= ZEND_ACC_FINAL;
+
 	zend_class_implements(yaf_route_static_ce, 1, yaf_route_ce);
 
 	return SUCCESS;

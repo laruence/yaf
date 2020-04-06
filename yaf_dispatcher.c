@@ -752,18 +752,6 @@ PHP_METHOD(yaf_dispatcher, __construct) {
 }
 /* }}} */
 
-/** {{{ proto private Yaf_Dispatcher::__sleep(void)
-*/
-PHP_METHOD(yaf_dispatcher, __sleep) {
-}
-/* }}} */
-
-/** {{{ proto private Yaf_Dispatcher::__wakeup(void)
-*/
-PHP_METHOD(yaf_dispatcher, __wakeup) {
-}
-/* }}} */
-
 /** {{{ proto public Yaf_Dispatcher::setErrorHandler(string $callbacak[, int $error_types = E_ALL | E_STRICT ] )
 */
 PHP_METHOD(yaf_dispatcher, setErrorHandler) {
@@ -808,6 +796,10 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 PHP_METHOD(yaf_dispatcher, disableView) {
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	dispatcher->auto_render = 0;
 
 	RETURN_ZVAL(getThis(), 1, 0);
@@ -819,24 +811,28 @@ PHP_METHOD(yaf_dispatcher, disableView) {
 PHP_METHOD(yaf_dispatcher, enableView) {
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	dispatcher->auto_render = 1;
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Dispatcher::returnResponse()
+/** {{{ proto public Yaf_Dispatcher::returnResponse(bool $return_response = 1)
 */
 PHP_METHOD(yaf_dispatcher, returnResponse) {
-	zend_bool auto_response;
+	zend_bool return_response = 0;
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &auto_response) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &return_response) == FAILURE) {
 		return;
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		dispatcher->return_response = auto_response? 1 : 0;
+		dispatcher->return_response = return_response;
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
 		RETURN_BOOL(dispatcher->return_response);
@@ -909,9 +905,14 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 /** {{{ proto public Yaf_Dispatcher::getInstance(void)
 */
 PHP_METHOD(yaf_dispatcher, getInstance) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	if (!yaf_application_instance()) {
 		RETURN_NULL();
 	}
+
 	yaf_dispatcher_instance(return_value);
 }
 /* }}} */
@@ -921,6 +922,10 @@ PHP_METHOD(yaf_dispatcher, getInstance) {
 PHP_METHOD(yaf_dispatcher, getRouter) {
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	RETURN_ZVAL(&dispatcher->router, 1, 0);
 }
 /* }}} */
@@ -929,6 +934,10 @@ PHP_METHOD(yaf_dispatcher, getRouter) {
 */
 PHP_METHOD(yaf_dispatcher, getRequest) {
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	RETURN_ZVAL(&dispatcher->request, 1, 0);
 }

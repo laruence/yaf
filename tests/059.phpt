@@ -59,7 +59,7 @@ Yaf_View_Simple Object
         (
         )
 
-    [_tpl_dir:protected] => 
+    [_tpl_dir:protected] => %s
     [_options:protected] => 
 )
 dummyfoobar

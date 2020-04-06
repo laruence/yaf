@@ -103,7 +103,7 @@ int yaf_response_alter_header(yaf_response_object *response, zend_string *name, 
 }
 /* }}} */
 
-int yaf_response_set_redirect(yaf_response_object *response, zend_string *url) {
+int yaf_response_set_redirect(yaf_response_object *response, zend_string *url) /* {{{ */ {
 	sapi_header_line ctr = {0};
 
 	if (strcmp("cli", sapi_module.name) == 0 || strcmp("phpdbg", sapi_module.name) == 0) {
@@ -112,6 +112,7 @@ int yaf_response_set_redirect(yaf_response_object *response, zend_string *url) {
 	ctr.line_len = spprintf(&(ctr.line), 0, "%s %s", "Location:", ZSTR_VAL(url));
 	ctr.response_code = 0;
 	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) == SUCCESS) {
+		response->header_sent = 1;
 		efree(ctr.line);
 		return 1;
 	}
@@ -126,24 +127,26 @@ int yaf_response_http_send(yaf_response_object *response) /* {{{ */ {
 	zend_string *header_name;
 	sapi_header_line ctr = {0};
 
-	if (response->code) {
-		SG(sapi_headers).http_response_code = response->code;
+	if (response->header_sent == 0) {
+		if (response->code) {
+			SG(sapi_headers).http_response_code = response->code;
+		}
+		ZEND_HASH_FOREACH_KEY_VAL(&response->header, num_key, header_name, entry) {
+			if (header_name) {
+				ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
+			} else {
+				ctr.line_len = spprintf(&(ctr.line), 0, ""ZEND_ULONG_FMT": %s", num_key, Z_STRVAL_P(entry));
+			}
+
+			ctr.response_code = 0;
+			if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) != SUCCESS) {
+				efree(ctr.line);
+				return 0;
+			}
+		} ZEND_HASH_FOREACH_END();
+		efree(ctr.line);
+		response->header_sent = 1;
 	}
-
-    ZEND_HASH_FOREACH_KEY_VAL(&response->header, num_key, header_name, entry) {
-        if (header_name) {
-			ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
-		} else {
-			ctr.line_len = spprintf(&(ctr.line), 0, ""ZEND_ULONG_FMT": %s", num_key, Z_STRVAL_P(entry));
-		}
-
-		ctr.response_code = 0;
-		if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) != SUCCESS) {
-			efree(ctr.line);
-			return 0;
-		}
-	} ZEND_HASH_FOREACH_END();
-	efree(ctr.line);
 
 	ZEND_HASH_FOREACH_VAL(&response->body, entry) {
 		zend_string *str = zval_get_string(entry);

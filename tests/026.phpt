@@ -15,7 +15,8 @@ echo $response;
 --EXPECTF--
 Yaf_Response_Http Object
 (
-    [response_code] => 0
+    [response_code:protected] => 0
+    [header_sent:protected] => 
     [header:protected] => Array
         (
         )

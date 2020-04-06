@@ -30,14 +30,14 @@ Yaf_Router Object
 
             [simple] => Yaf_Route_Simple Object
                 (
-                    [controller:protected] => c
                     [module:protected] => m
+                    [controller:protected] => c
                     [action:protected] => a
                 )
 
             [super] => Yaf_Route_Supervar Object
                 (
-                    [_var_name:protected] => r
+                    [varname:protected] => r
                 )
 
         )
@@ -53,21 +53,21 @@ Array
 
     [simple] => Yaf_Route_Simple Object
         (
-            [controller:protected] => c
             [module:protected] => m
+            [controller:protected] => c
             [action:protected] => a
         )
 
     [super] => Yaf_Route_Supervar Object
         (
-            [_var_name:protected] => r
+            [varname:protected] => r
         )
 
 )
 Yaf_Route_Simple Object
 (
-    [controller:protected] => c
     [module:protected] => m
+    [controller:protected] => c
     [action:protected] => a
 )
 NULL

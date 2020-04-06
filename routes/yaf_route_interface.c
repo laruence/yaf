@@ -37,99 +37,91 @@
 
 zend_class_entry *yaf_route_ce;
 
-yaf_route_t * yaf_route_instance(yaf_route_t *this_ptr, HashTable *config) /* {{{ */ {
-	zval *match, *def, *map, *verify, *reverse, *pzval;
-	yaf_route_t *instance = NULL;
+int yaf_route_instance(yaf_route_t *route, HashTable *config) /* {{{ */ {
+	zval *pzval;
 
-	if (!config) {
-		return NULL;
+	if (UNEXPECTED(config == NULL)) {
+		return 0;
 	}
 
-	if ((pzval = zend_hash_str_find(config, ZEND_STRL("type"))) == NULL ||
-		IS_STRING != Z_TYPE_P(pzval)) {
-		return NULL;
+	if (UNEXPECTED((pzval = zend_hash_str_find(config, ZEND_STRL("type"))) == NULL || IS_STRING != Z_TYPE_P(pzval))) {
+		return 0;
 	}
 
 	if (zend_string_equals_literal_ci(Z_STR_P(pzval), "rewrite")) {
-		if ((match = zend_hash_str_find(config, ZEND_STRL("match"))) == NULL ||
-			Z_TYPE_P(match) != IS_STRING) {
-			return NULL;
-		}
-		if ((def = zend_hash_str_find(config, ZEND_STRL("route"))) == NULL ||
-			Z_TYPE_P(def) != IS_ARRAY) {
-			return NULL;
+		zval *match, *router, *verify;
+		if (UNEXPECTED((match = zend_hash_str_find(config, ZEND_STRL("match"))) == NULL || Z_TYPE_P(match) != IS_STRING)) {
+			return 0;
 		}
 
-		if ((verify = zend_hash_str_find(config, ZEND_STRL("verify"))) == NULL ||
-			Z_TYPE_P(verify) != IS_ARRAY) {
+		if (UNEXPECTED((router = zend_hash_str_find(config, ZEND_STRL("route"))) == NULL || Z_TYPE_P(router) != IS_ARRAY)) {
+			return 0;
+		}
+
+		if (((verify = zend_hash_str_find(config, ZEND_STRL("verify"))) == NULL || Z_TYPE_P(verify) != IS_ARRAY)) {
 			verify = NULL;
 		}
 
-        instance = yaf_route_rewrite_instance(this_ptr, match, def, verify);
+        yaf_route_rewrite_instance(route, Z_STR_P(match), router, verify);
 	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "regex")) {
-		if ((match = zend_hash_str_find(config, ZEND_STRL("match"))) == NULL ||
-			Z_TYPE_P(match) != IS_STRING) {
-			return NULL;
+		zval *match, *router, *verify, *map, *reverse;
+		if (UNEXPECTED((match = zend_hash_str_find(config, ZEND_STRL("match"))) == NULL || Z_TYPE_P(match) != IS_STRING)) {
+			return 0;
 		}
-		if ((def = zend_hash_str_find(config, ZEND_STRL("route"))) == NULL ||
-			Z_TYPE_P(def) != IS_ARRAY) {
-			return NULL;
+
+		if (UNEXPECTED((router = zend_hash_str_find(config, ZEND_STRL("route"))) == NULL || Z_TYPE_P(router) != IS_ARRAY)) {
+			return 0;
 		}
-		if ((map = zend_hash_str_find(config, ZEND_STRL("map"))) == NULL ||
-			Z_TYPE_P(map) != IS_ARRAY) {
+
+		if (((map = zend_hash_str_find(config, ZEND_STRL("map"))) == NULL || Z_TYPE_P(map) != IS_ARRAY)) {
 			map = NULL;
 		}
 
-		if ((verify = zend_hash_str_find(config, ZEND_STRL("verify"))) == NULL ||
-			Z_TYPE_P(verify) != IS_ARRAY) {
+		if ((verify = zend_hash_str_find(config, ZEND_STRL("verify"))) == NULL || Z_TYPE_P(verify) != IS_ARRAY) {
 			verify = NULL;
 		}
 
-		if ((reverse = zend_hash_str_find(config, ZEND_STRL("reverse"))) == NULL ||
-			Z_TYPE_P(reverse) != IS_STRING) {
+		if ((reverse = zend_hash_str_find(config, ZEND_STRL("reverse"))) == NULL || Z_TYPE_P(reverse) != IS_STRING) {
 			reverse = NULL;
 		}
 
-		instance = yaf_route_regex_instance(this_ptr, match, def, map, verify, reverse);
+		yaf_route_regex_instance(route, Z_STR_P(match), router, map, verify, reverse? Z_STR_P(reverse) : NULL);
 	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "map")) {
 		zend_string *delimiter = NULL;
-		zend_bool controller_prefer = 0;
+		zend_bool ctl_prefer = 0;
 		
 		if ((pzval = zend_hash_str_find(config, ZEND_STRL("controllerPrefer"))) != NULL) {
-			controller_prefer = zend_is_true(pzval);
+			ctl_prefer = zend_is_true(pzval);
 		}
 
-		if ((pzval = zend_hash_str_find(config, ZEND_STRL("delimiter"))) != NULL
-			&& Z_TYPE_P(pzval) == IS_STRING) {
+		if ((pzval = zend_hash_str_find(config, ZEND_STRL("delimiter"))) != NULL && Z_TYPE_P(pzval) == IS_STRING) {
 			delimiter = Z_STR_P(pzval);
 		}
 
-		instance = yaf_route_map_instance(this_ptr, controller_prefer, delimiter);
+		yaf_route_map_instance(route, ctl_prefer, delimiter);
 	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "simple")) {
-		if ((match = zend_hash_str_find(config, ZEND_STRL("module"))) == NULL ||
-			Z_TYPE_P(match) != IS_STRING) {
-			return NULL;
+		zval *m, *c, *a;
+
+		if (UNEXPECTED((m = zend_hash_str_find(config, ZEND_STRL("module"))) == NULL || Z_TYPE_P(m) != IS_STRING)) {
+			return 0;
 		}
-		if ((def = zend_hash_str_find(config, ZEND_STRL("controller"))) == NULL ||
-			Z_TYPE_P(def) != IS_STRING) {
-			return NULL;
+		if (UNEXPECTED((c = zend_hash_str_find(config, ZEND_STRL("controller"))) == NULL || Z_TYPE_P(c) != IS_STRING)) {
+			return 0;
 		}
-		if ((map = zend_hash_str_find(config, ZEND_STRL("action"))) == NULL ||
-			Z_TYPE_P(map) != IS_STRING) {
-			return NULL;
+		if (UNEXPECTED((a = zend_hash_str_find(config, ZEND_STRL("action"))) == NULL || Z_TYPE_P(a) != IS_STRING)) {
+			return 0;
 		}
 
-		instance = yaf_route_simple_instance(this_ptr, match, def, map);
+		yaf_route_simple_instance(route, Z_STR_P(a), Z_STR_P(c), Z_STR_P(a));
 	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "supervar")) {
-		if ((match = zend_hash_str_find(config, ZEND_STRL("varname"))) == NULL ||
-			Z_TYPE_P(match) != IS_STRING) {
-			return NULL;
+		zval *varname;
+		if (UNEXPECTED((varname = zend_hash_str_find(config, ZEND_STRL("varname"))) == NULL || Z_TYPE_P(varname) != IS_STRING)) {
+			return 0;
 		}
-
-		instance = yaf_route_supervar_instance(this_ptr, match);
+		yaf_route_supervar_instance(route, Z_STR_P(varname));
 	}
 
-	return instance;
+	return 1;
 }
 /* }}} */
 

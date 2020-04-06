@@ -204,6 +204,7 @@
     <file name="093.phpt" role="test" />
     <file name="094.phpt" role="test" />
     <file name="095.phpt" role="test" />
+    <file name="096.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

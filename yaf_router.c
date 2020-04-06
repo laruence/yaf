@@ -140,7 +140,7 @@ int yaf_router_route(yaf_router_object *router, yaf_request_t *request) /* {{{ *
 		} else {
 			zval ret;
 			zend_call_method_with_1_params(route, Z_OBJCE_P(route), NULL, "route", &ret, request);
-			if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG && !Z_LVAL(ret))) {
+			if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
 				zval_ptr_dtor(&ret);
 				continue;
 			}
@@ -174,19 +174,16 @@ int yaf_router_add_config(yaf_router_object *router, zend_array *configs) /* {{{
 		if (Z_TYPE_P(entry) != IS_ARRAY) {
 			continue;
 		}
-		ZVAL_UNDEF(&rv);
-		yaf_route_instance(&rv, Z_ARRVAL_P(entry));
-		if (key) {
-			if (Z_TYPE(rv) != IS_OBJECT) {
+		if (UNEXPECTED(!yaf_route_instance(&rv, Z_ARRVAL_P(entry)))) {
+			if (key) {
 				php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", ZSTR_VAL(key));
-				continue;
+			} else {
+				php_error_docref(NULL, E_WARNING, "Unable to initialize route at index '"ZEND_ULONG_FMT"'", idx);
 			}
+			continue;
+		} else if (key) {
 			zend_hash_update(&router->routes, key, &rv);
 		} else {
-			if (Z_TYPE(rv) !=  IS_OBJECT) {
-				php_error_docref(NULL, E_WARNING, "Unable to initialize route at index '"ZEND_ULONG_FMT"'", idx);
-				continue;
-			}
 			zend_hash_index_update(&router->routes, idx, &rv);
 		}
 	} ZEND_HASH_FOREACH_END();
