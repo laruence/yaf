@@ -30,6 +30,9 @@ echo "Config3 readonly:";
 var_dump($config3->readonly());
 
 foreach($config3 as $key => $val) {
+}
+
+foreach($config3 as $key => $val) {
 	print_r($key);
 	print_r("=>");
 	print_r($val);
