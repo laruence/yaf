@@ -58,6 +58,14 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_ME(c, m, a, f)              {m, PHP_MN(c), a, (unsigned)(sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 
+#if PHP_VERSION_ID < 70400
+#define YAF_WRITE_HANDLER       void
+#define YAF_WHANDLER_RET(zv)    return
+#else
+#define YAF_WRITE_HANDLER       zval *
+#define YAF_WHANDLER_RET(zv)    return zv
+#endif
+
 #define yaf_application_t  zval
 #define yaf_view_t         zval
 #define yaf_controller_t   zval

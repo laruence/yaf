@@ -103,25 +103,25 @@ static zval *yaf_response_read_property(zval *zobj, zval *name, int type, void *
 }
 /* }}} */
 
-static void yaf_response_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_response_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	member = Z_STR_P(name);
 	
 	if (zend_string_equals_literal(member, "response_code")) {
 		if (Z_TYPE_P(value) != IS_LONG) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		response->code = Z_LVAL_P(value);
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
-	return;
+	YAF_WHANDLER_RET(value);
 }
 /* }}} */
 

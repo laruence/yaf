@@ -106,18 +106,20 @@ static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, voi
 }
 /* }}} */
 
-static void yaf_view_simple_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	member = Z_STR_P(name);
 
 	zend_hash_update(&view->tpl_vars, member, value);
 	Z_TRY_ADDREF_P(value);
+
+	YAF_WHANDLER_RET(value);
 }
 /* }}} */
 
@@ -361,6 +363,7 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 
 int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval *ret) /* {{{ */ {
 	zend_array symbol_table;
+	zend_string *tpl_dup = NULL;
 	yaf_view_simple_object *v = Z_YAFVIEWSIMPLEOBJ_P(view);
 
 	yaf_view_build_symtable(&symbol_table, &v->tpl_vars, vars);
@@ -375,17 +378,21 @@ int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval 
 					ZSTR_VAL(yaf_view_simple_ce->name));
 			return 0;
 		} else {
-			tpl = strpprintf(0, "%s%c%s", ZSTR_VAL(tpl_dir), DEFAULT_SLASH, ZSTR_VAL(tpl));
+			tpl = tpl_dup = strpprintf(0, "%s%c%s", ZSTR_VAL(tpl_dir), DEFAULT_SLASH, ZSTR_VAL(tpl));
 		}
 	}
 
 	if (UNEXPECTED(yaf_view_render_tpl(view, &symbol_table, tpl, ret) == 0)) {
-		zend_string_release(tpl);
+		if (tpl_dup) {
+			zend_string_release(tpl_dup);
+		}
 		zend_hash_destroy(&symbol_table);
 		return 0;
 	}
 
-	zend_string_release(tpl);
+	if (tpl_dup) {
+		zend_string_release(tpl_dup);
+	}
 	zend_hash_destroy(&symbol_table);
 
 	return 1;

@@ -289,70 +289,72 @@ static zval *yaf_application_read_property(zval *zobj, zval *name, int type, voi
 }
 /* }}} */
 
-static void yaf_application_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 	
 	member = Z_STR_P(name);
 	
 	if (zend_string_equals_literal(member, "directory")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		if (app->directory) {
 			zend_string_release(app->directory);
 		}
 		app->directory = zend_string_copy(Z_STR_P(value));
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "bootstrap")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		if (app->bootstrap) {
 			zend_string_release(app->bootstrap);
 		}
 		app->bootstrap = zend_string_copy(Z_STR_P(value));
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "library")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		if (app->library) {
 			zend_string_release(app->library);
 		}
 		app->library = zend_string_copy(Z_STR_P(value));
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "view_ext")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		if (app->view_ext) {
 			zend_string_release(app->view_ext);
 		}
 		app->view_ext = zend_string_copy(Z_STR_P(value));
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "ext")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		if (app->ext) {
 			zend_string_release(app->ext);
 		}
 		app->ext = zend_string_copy(Z_STR_P(value));
-		return;
+		YAF_WHANDLER_RET(value);
 	}
+
+	YAF_WHANDLER_RET(value);
 }
 /* }}} */
 
@@ -600,9 +602,6 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 		zend_object_std_dtor(object);
 		return;
 	}
-
-	Z_DELREF(YAF_G(app));
-	ZVAL_UNDEF(&YAF_G(app));
 
 	zend_string_release(app->env);
 	if (Z_TYPE(app->config) != IS_OBJECT) {

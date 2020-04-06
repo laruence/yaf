@@ -55,7 +55,7 @@ zend_function_entry yaf_functions[] = {
 void yaf_iterator_dtor(zend_object_iterator *iter) /* {{{ */ {
 	zval_ptr_dtor(&iter->data);
 	zval_ptr_dtor(&((yaf_iterator*)iter)->current);
-	zend_iterator_dtor(iter);
+	/* zend_iterator_dtor(iter); */
 }
 /* }}} */
 

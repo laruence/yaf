@@ -540,60 +540,66 @@ int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri,
 }
 /* }}} */
 
-static void yaf_request_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_request_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	member = Z_STR_P(name);
 
 	if (zend_string_equals_literal(member, "method")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING || Z_STRLEN_P(value) == 0)) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		zend_string_release(request->method);
 		request->method = zend_string_copy(Z_STR_P(value));
-		return;
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "module")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING || Z_STRLEN_P(value) == 0)) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
-		return yaf_request_set_module(request, Z_STR_P(value));
+		yaf_request_set_module(request, Z_STR_P(value));
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "controller")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING || Z_STRLEN_P(value) == 0)) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
-		return yaf_request_set_controller(request, Z_STR_P(value));
+		yaf_request_set_controller(request, Z_STR_P(value));
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "action")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING || Z_STRLEN_P(value) == 0)) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
-		return yaf_request_set_action(request, Z_STR_P(value));
+		yaf_request_set_action(request, Z_STR_P(value));
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "uri")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING)) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
-		return yaf_request_set_uri(request, Z_STR_P(value));
+		yaf_request_set_uri(request, Z_STR_P(value));
+		YAF_WHANDLER_RET(value);
 	}
 
 	if (zend_string_equals_literal(member, "base_uri")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING)) {
-			return;
+			YAF_WHANDLER_RET(value);
 		}
 		yaf_request_set_base_uri(request, Z_STR_P(value), NULL);
-		return;
+		YAF_WHANDLER_RET(value);
 	}
+
+	YAF_WHANDLER_RET(value);
 }
 /* }}} */
 
