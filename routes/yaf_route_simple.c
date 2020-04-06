@@ -72,6 +72,7 @@ static zend_object *yaf_route_simple_new(zend_class_entry *ce) /* {{{ */ {
 	zend_object_std_init(&simple->std, ce);
 
 	simple->std.handlers = &yaf_route_simple_obj_handlers;
+	simple->m = simple->c = simple->a = NULL;
 
 	return &simple->std;
 }

@@ -104,7 +104,7 @@ static zend_object *yaf_config_new(zend_class_entry *ce) /* {{{ */ {
 static void yaf_config_object_free(zend_object *object) /* {{{ */ {
 	yaf_config_object *conf = php_yaf_config_fetch_object(object);
 	if (conf->config) {
-		if (GC_DELREF(conf->config) == 0) {
+		if (!(GC_FLAGS(conf->config) & IS_ARRAY_IMMUTABLE) && (GC_DELREF(conf->config) == 0)) {
 			GC_REMOVE_FROM_BUFFER(conf->config);
 			zend_array_destroy(conf->config);
 		}

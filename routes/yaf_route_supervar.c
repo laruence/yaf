@@ -65,6 +65,8 @@ static zend_object *yaf_route_supervar_new(zend_class_entry *ce) /* {{{ */ {
 
 	supervar->std.handlers = &yaf_route_supervar_obj_handlers;
 
+	supervar->varname = NULL;
+
 	return &supervar->std;
 }
 /* }}} */

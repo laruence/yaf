@@ -97,6 +97,7 @@ static HashTable *yaf_route_regex_get_debug_info(zval *object, int *is_tmp) /* {
 static zend_object *yaf_route_regex_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_route_regex_object *regex = emalloc(sizeof(yaf_route_regex_object));
 
+	memset((char*)regex + sizeof(zend_object), 0, sizeof(yaf_route_regex_object) - sizeof(zend_object));
 	zend_object_std_init(&regex->std, ce);
 
 	regex->std.handlers = &yaf_route_regex_obj_handlers;
@@ -117,21 +118,21 @@ static void yaf_route_regex_object_free(zend_object *object) /* {{{ */ {
 	}
 
 	if (regex->router) {
-		if (GC_DELREF(regex->router) == 0) {
+		if (!(GC_FLAGS(regex->router) & IS_ARRAY_IMMUTABLE) && GC_DELREF(regex->router) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->router);
 			zend_array_destroy(regex->router);
 		}
 	}
 
 	if (regex->map) {
-		if (GC_DELREF(regex->map) == 0) {
+		if (!(GC_FLAGS(regex->map) & IS_ARRAY_IMMUTABLE) && GC_DELREF(regex->map) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->map);
 			zend_array_destroy(regex->map);
 		}
 	}
 
 	if (regex->verify) {
-		if (GC_DELREF(regex->verify) == 0) {
+		if (!(GC_FLAGS(regex->verify) & IS_ARRAY_IMMUTABLE) && GC_DELREF(regex->verify) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->verify);
 			zend_array_destroy(regex->verify);
 		}
@@ -146,21 +147,27 @@ static void yaf_route_regex_init(yaf_route_regex_object *regex, zend_string *mat
 
 	if (router) {
 		regex->router = Z_ARRVAL_P(router);
-		GC_ADDREF(regex->router);
+		if (!(GC_FLAGS(regex->router) & IS_ARRAY_IMMUTABLE)) {
+			GC_ADDREF(regex->router);
+		}
 	} else {
 		regex->router = NULL;
 	}
 
 	if (map) {
 		regex->map = Z_ARRVAL_P(map);
-		GC_ADDREF(regex->map);
+		if (!(GC_FLAGS(regex->map) & IS_ARRAY_IMMUTABLE)) {
+			GC_ADDREF(regex->map);
+		}
 	} else {
 		regex->map = NULL;
 	}
 
 	if (verify) {
 		regex->verify = Z_ARRVAL_P(verify);
-		GC_ADDREF(regex->verify);
+		if (!(GC_FLAGS(regex->verify) & IS_ARRAY_IMMUTABLE)) {
+			GC_ADDREF(regex->verify);
+		}
 	} else {
 		regex->verify = NULL;
 	}

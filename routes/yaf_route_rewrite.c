@@ -81,8 +81,9 @@ static HashTable *yaf_route_rewrite_get_debug_info(zval *object, int *is_tmp) /*
 static zend_object *yaf_route_rewrite_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_route_rewrite_object *rewrite = emalloc(sizeof(yaf_route_rewrite_object));
 
-	zend_object_std_init(&rewrite->std, ce);
+	memset((char*)rewrite + sizeof(zend_object), 0, sizeof(yaf_route_rewrite_object) - sizeof(zend_object));
 
+	zend_object_std_init(&rewrite->std, ce);
 	rewrite->std.handlers = &yaf_route_rewrite_obj_handlers;
 
 	return &rewrite->std;
@@ -97,14 +98,14 @@ static void yaf_route_rewrite_object_free(zend_object *object) /* {{{ */ {
 	}
 
 	if (rewrite->router) {
-		if (GC_DELREF(rewrite->router) == 0) {
+		if (!(GC_FLAGS(rewrite->router) & IS_ARRAY_IMMUTABLE) && (GC_DELREF(rewrite->router) == 0)) {
 			GC_REMOVE_FROM_BUFFER(rewrite->router);
 			zend_array_destroy(rewrite->router);
 		}
 	}
 
 	if (rewrite->verify) {
-		if (GC_DELREF(rewrite->verify) == 0) {
+		if (!(GC_FLAGS(rewrite->verify) & IS_ARRAY_IMMUTABLE) && (GC_DELREF(rewrite->verify) == 0)) {
 			GC_REMOVE_FROM_BUFFER(rewrite->verify);
 			zend_array_destroy(rewrite->verify);
 		}
@@ -119,14 +120,18 @@ static void yaf_route_rewrite_init(yaf_route_rewrite_object *rewrite, zend_strin
 
 	if (router) {
 		rewrite->router = Z_ARRVAL_P(router);
-		GC_ADDREF(rewrite->router);
+		if (!(GC_FLAGS(rewrite->router) & IS_ARRAY_IMMUTABLE)) {
+			GC_ADDREF(rewrite->router);
+		}
 	} else {
 		rewrite->router = NULL;
 	}
 
 	if (verify) {
 		rewrite->verify = Z_ARRVAL_P(verify);
-		GC_ADDREF(rewrite->verify);
+		if (!(GC_FLAGS(rewrite->verify) & IS_ARRAY_IMMUTABLE)) {
+			GC_ADDREF(rewrite->verify);
+		}
 	} else {
 		rewrite->verify = NULL;
 	}

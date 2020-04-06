@@ -71,6 +71,7 @@ static zend_object *yaf_route_map_new(zend_class_entry *ce) /* {{{ */ {
 	zend_object_std_init(&map->std, ce);
 
 	map->std.handlers = &yaf_route_map_obj_handlers;
+	map->delim = NULL;
 
 	return &map->std;
 }
