@@ -16,7 +16,8 @@ env:
 
 #Compile
 before_script:
+    - sudo apt-get install -y valgrind
     - ./travis/compile.sh
 
 # Run PHPs run-tests.php
-script: TEST_PHP_ARGS="--show-diff" make test
+script: TEST_PHP_ARGS="-m --show-diff" make test
