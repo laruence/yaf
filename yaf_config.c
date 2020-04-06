@@ -161,13 +161,15 @@ void yaf_config_instance(yaf_config_t *this_ptr, zval *config, zend_string *sect
 		if (strncasecmp(Z_STRVAL_P(config) + Z_STRLEN_P(config) - 4, ".ini", 4) == 0) {
 			conf = yaf_config_new(yaf_config_ini_ce);
 			ZVAL_OBJ(this_ptr, conf);
-			return yaf_config_ini_init(php_yaf_config_fetch_object(conf), config, section);
+			yaf_config_ini_init(php_yaf_config_fetch_object(conf), config, section);
+			return;
 		}
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a path to *.ini configuration file as parameter");
 	} else if (Z_TYPE_P(config) == IS_ARRAY) {
 		conf = yaf_config_new(yaf_config_simple_ce);
 		ZVAL_OBJ(this_ptr, conf);
-		return yaf_config_simple_init(php_yaf_config_fetch_object(conf), config, 1);
+		yaf_config_simple_init(php_yaf_config_fetch_object(conf), config, 1);
+		return;
 	} else {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a string or an array as parameter");
 	}

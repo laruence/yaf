@@ -90,50 +90,52 @@ static inline HashTable* yaf_application_get_module_nams() /* {{{ */ {
 /* }}} */
 
 static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
-	zval rv, rt;
+	zval rv;
+	HashTable *ht;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
 
 	*is_temp = 1;
-	array_init(&rt);
+	ALLOC_HASHTABLE(ht);
+	zend_hash_init(ht, 16, NULL, ZVAL_PTR_DTOR, 0);
 
 	ZVAL_STR_COPY(&rv, app->directory);
-	zend_hash_str_add(Z_ARRVAL(rt), "directory", sizeof("directory") - 1, &rv);
+	zend_hash_str_add(ht, "directory", sizeof("directory") - 1, &rv);
 
 	if (app->library) {
 		ZVAL_STR_COPY(&rv, app->library);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "library", sizeof("library") - 1, &rv);
+	zend_hash_str_add(ht, "library", sizeof("library") - 1, &rv);
 
 	if (app->bootstrap) {
 		ZVAL_STR_COPY(&rv, app->bootstrap);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "bootstrap", sizeof("bootstrap") - 1, &rv);
+	zend_hash_str_add(ht, "bootstrap", sizeof("bootstrap") - 1, &rv);
 
 	ZVAL_STR_COPY(&rv, app->ext);
-	zend_hash_str_add(Z_ARRVAL(rt), "ext", sizeof("ext") - 1, &rv);
+	zend_hash_str_add(ht, "ext", sizeof("ext") - 1, &rv);
 
 	ZVAL_STR_COPY(&rv, app->view_ext);
-	zend_hash_str_add(Z_ARRVAL(rt), "view_ext", sizeof("view_ext") - 1, &rv);
+	zend_hash_str_add(ht, "view_ext", sizeof("view_ext") - 1, &rv);
 
 	ZVAL_STR_COPY(&rv, app->env);
-	zend_hash_str_add(Z_ARRVAL(rt), "environ:protected", sizeof("environ:protected") - 1, &rv);
+	zend_hash_str_add(ht, "environ:protected", sizeof("environ:protected") - 1, &rv);
 
 	ZVAL_BOOL(&rv, app->running);
-	zend_hash_str_add(Z_ARRVAL(rt), "running:protected", sizeof("running:protected") - 1, &rv);
+	zend_hash_str_add(ht, "running:protected", sizeof("running:protected") - 1, &rv);
 
 	if (app->err_msg) {
 		ZVAL_STR_COPY(&rv, app->err_msg);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "err_msg:protected", sizeof("err_msg:protected") - 1, &rv);
+	zend_hash_str_add(ht, "err_msg:protected", sizeof("err_msg:protected") - 1, &rv);
 
 	ZVAL_BOOL(&rv, app->err_no);
-	zend_hash_str_add(Z_ARRVAL(rt), "err_no:protected", sizeof("err_no:protected") - 1, &rv);
+	zend_hash_str_add(ht, "err_no:protected", sizeof("err_no:protected") - 1, &rv);
 
 	if (Z_TYPE(app->config) == IS_OBJECT) {
 		ZVAL_OBJ(&rv, Z_OBJ(app->config));
@@ -141,7 +143,7 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "config:protected", sizeof("config:protected") - 1, &rv);
+	zend_hash_str_add(ht, "config:protected", sizeof("config:protected") - 1, &rv);
 
 	if (Z_TYPE(app->dispatcher) == IS_OBJECT) {
 		ZVAL_OBJ(&rv, Z_OBJ(app->dispatcher));
@@ -149,10 +151,10 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "dispatcher:protected", sizeof("dispatcher:protected") - 1, &rv);
+	zend_hash_str_add(ht, "dispatcher:protected", sizeof("dispatcher:protected") - 1, &rv);
 
 	ZVAL_ARR(&rv, zend_array_dup(&app->modules));
-	zend_hash_str_add(Z_ARRVAL(rt), "modules:protected", sizeof("modules:protected") - 1, &rv);
+	zend_hash_str_add(ht, "modules:protected", sizeof("modules:protected") - 1, &rv);
 	
 	if (app->default_route) {
 		ZVAL_ARR(&rv, app->default_route);
@@ -160,9 +162,9 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(Z_ARRVAL(rt), "default_route:protected", sizeof("default_route:protected") - 1, &rv);
+	zend_hash_str_add(ht, "default_route:protected", sizeof("default_route:protected") - 1, &rv);
 
-	return Z_ARRVAL(rt);
+	return ht;
 }
 /* }}} */
 
