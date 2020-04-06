@@ -108,9 +108,9 @@ build_script:
         $runner = 'c:\build-cache\php-sdk-' + $env:BIN_SDK_VER + '\phpsdk' + '-' + $env:VC + '-' + $env:ARCH + '.bat'
         $task = $here + '\task.bat'
         & $runner -t $task
-        #
-        #after_build:
-        #ps: |
+
+after_build:
+    ps: |
         $ts_part = ''
         if ('0' -eq $env:TS) { $ts_part = '-nts' }
         $arch_part = ''
