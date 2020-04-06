@@ -21,5 +21,5 @@ before_script:
 
 # Run PHPs run-tests.php
 script:
-    - TEST_PHP_ARGS="-m --show-diff" make test
+    - TEST_PHP_ARGS="-m --show-diff" make test TESTS=tests/007.phpt
     - find tests -name "*.mem" | xargs -n1 cat
