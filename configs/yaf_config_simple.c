@@ -70,7 +70,11 @@ static int yaf_config_simple_update(yaf_config_object *conf, zend_string *name, 
 	if (UNEXPECTED(conf->config == NULL)) {
 		return 0;
 	}
-	return zend_hash_update(conf->config, name, val) != NULL;
+	if (zend_hash_update(conf->config, name, val) != NULL) {
+		Z_TRY_ADDREF_P(val);
+		return 1;
+	}
+	return 0;
 }
 /* }}} */
 
@@ -106,8 +110,7 @@ PHP_METHOD(yaf_config_simple, set) {
 	if (conf->readonly) {
 		RETURN_FALSE;
 	} else {
-		yaf_config_simple_update(conf, name, val);
-		RETURN_TRUE;
+		RETURN_BOOL(yaf_config_simple_update(conf, name, val));
 	}
 }
 /* }}} */
