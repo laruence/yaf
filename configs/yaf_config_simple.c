@@ -51,7 +51,14 @@ ZEND_END_ARG_INFO()
 
 void yaf_config_simple_init(yaf_config_object *conf, zval *val, int readonly) /* {{{ */ {
 	if (Z_TYPE_P(val) == IS_ARRAY) {
-		conf->config = zend_array_dup(Z_ARRVAL_P(val));
+		if (readonly) {
+			conf->config = Z_ARRVAL_P(val);
+			if (!(GC_FLAGS(conf->config) & IS_ARRAY_IMMUTABLE)) {
+				GC_ADDREF(conf->config);
+			}
+		} else {
+			conf->config = zend_array_dup(Z_ARRVAL_P(val));
+		}
 		conf->readonly = readonly;
 		return;
 	}

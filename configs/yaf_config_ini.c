@@ -366,7 +366,10 @@ void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *s
 	conf->readonly = 1;
 
 	if (Z_TYPE_P(filename) == IS_ARRAY) {
-		conf->config = zend_array_dup(Z_ARRVAL_P(filename));
+		conf->config = Z_ARRVAL_P(filename);
+		if (!(GC_FLAGS(conf->config) & IS_ARRAY_IMMUTABLE)) {
+			GC_ADDREF(conf->config);
+		}
 	} else if (Z_TYPE_P(filename) == IS_STRING) {
 		zval configs;
 		zend_stat_t sb;
