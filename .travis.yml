@@ -20,4 +20,6 @@ before_script:
     - ./travis/compile.sh
 
 # Run PHPs run-tests.php
-script: TEST_PHP_ARGS="-m --show-diff" make test
+script:
+    - TEST_PHP_ARGS="-m --show-diff" make test
+    - find tests -name "*.mem" | xargs -n1 cat
