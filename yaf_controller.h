@@ -23,6 +23,7 @@
 extern zend_class_entry *yaf_controller_ce;
 
 typedef struct {
+	int             auto_render;
 	zend_string    *module;
 	zend_string    *name;
 	zend_string    *script_path;
@@ -46,7 +47,10 @@ static inline yaf_controller_object *php_yaf_controller_fetch_object(zend_object
 int yaf_controller_render(yaf_controller_t *ctl, zend_string *action, zval *vars, zval *ret);
 void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args);
 void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *module);
-int yaf_controller_auto_render(yaf_controller_t *controller, int dispatch_render);
+
+static inline int yaf_controller_auto_render(yaf_controller_object *ctl, int dispatch_render) {
+	return ctl->auto_render == -1? dispatch_render : ctl->auto_render;
+}
 
 YAF_STARTUP_FUNCTION(controller);
 #endif

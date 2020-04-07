@@ -315,20 +315,6 @@ int yaf_loader_is_local_namespace(yaf_loader_object *loader, char *class_name, i
 }
 /* }}} */
 
-void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path, zend_string *global_path) /* {{{ */ {
-	if (library_path && global_path) {
-		loader->library = zend_string_copy(library_path);
-		loader->glibrary = zend_string_copy(global_path);
-	} else if (library_path) {
-		loader->library = zend_string_copy(library_path);
-		loader->glibrary = zend_string_copy(library_path);
-	} else if (global_path) {
-		loader->library = zend_string_copy(library_path);
-		loader->glibrary = zend_string_copy(global_path);
-	}
-}
-/* }}} */
-
 yaf_loader_t *yaf_loader_instance(zend_string *library_path, zend_string *global_path) /* {{{ */ {
 	yaf_loader_object *loader;
 	yaf_loader_t *instance = &YAF_G(loader);

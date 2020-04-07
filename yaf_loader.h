@@ -47,8 +47,20 @@ int yaf_loader_load(yaf_loader_t *loader, char *file_name, size_t name_len, char
 int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
 int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string *prefix);
-void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path, zend_string *global_path);
 yaf_loader_t *yaf_loader_instance(zend_string *library_path, zend_string *global_path);
+
+static inline void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path, zend_string *global_path) {
+	if (EXPECTED(library_path && global_path)) {
+		loader->library = zend_string_copy(library_path);
+		loader->glibrary = zend_string_copy(global_path);
+	} else if (library_path) {
+		loader->library = zend_string_copy(library_path);
+		loader->glibrary = zend_string_copy(library_path);
+	} else if (global_path) {
+		loader->library = zend_string_copy(library_path);
+		loader->glibrary = zend_string_copy(global_path);
+	}
+}
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);
 

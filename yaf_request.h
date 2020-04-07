@@ -62,14 +62,26 @@ void yaf_request_clean_params(yaf_request_object *request);
 zend_string *yaf_request_get_language(yaf_request_object *request);
 
 void yaf_request_set_mvc(yaf_request_object *request, zend_string *module, zend_string *controller, zend_string *action, zend_array *params);
-int yaf_request_is_routed(yaf_request_object *request);
-int yaf_request_is_dispatched(yaf_request_object *request);
-void yaf_request_set_dispatched(yaf_request_object *request, int flag);
-void yaf_request_set_routed(yaf_request_object *request, int flag);
 int yaf_request_set_params_single(yaf_request_object *instance, zend_string *key, zval *value);
 int yaf_request_set_params_multi(yaf_request_object *instance, zval *values);
 const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len);
 const char *yaf_request_get_request_method(void);
+
+static inline int yaf_request_is_routed(yaf_request_object *request) {
+	return request->routed;
+}
+
+static inline int yaf_request_is_dispatched(yaf_request_object *request) {
+	return request->dispatched;
+}
+
+static inline void yaf_request_set_routed(yaf_request_object *request, int flag) {
+	request->routed = flag? 1 : 0;
+}
+
+static inline void yaf_request_set_dispatched(yaf_request_object *request, int flag) {
+	request->dispatched = flag? 1 : 0;
+}
 
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\

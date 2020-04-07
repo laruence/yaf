@@ -454,7 +454,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				return yaf_dispatcher_handle(dispatcher);
 			}
 
-			if (EXPECTED((view_dir = yaf_view_get_tpl_dir(&dispatcher->view, &dispatcher->request)) == NULL)) {
+			yaf_view_get_tpl_dir(view_dir, &dispatcher->view, &dispatcher->request);
+			if (EXPECTED(view_dir == NULL)) {
 				/* view template directory for application, please notice that view engine's directory has high priority */
 				if (is_def_module) {
 					view_dir = strpprintf(0, "%s%c%s", ZSTR_VAL(app->directory), DEFAULT_SLASH, "views");
@@ -554,7 +555,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				return 0;
 			}
 
-			if (yaf_controller_auto_render(&controller, dispatcher->auto_render)) {
+			if (yaf_controller_auto_render(ctl, dispatcher->auto_render)) {
 				zval res;
 				if ((yaf_controller_render(&controller, origin_action, NULL, dispatcher->instantly_flush? NULL : &res))) {
 					if (!dispatcher->instantly_flush) {
@@ -674,7 +675,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 
 	request = Z_YAFREQUESTOBJ(dispatcher->request);
 	/* route request */
-	if (!yaf_request_is_routed(request)) {
+	if (EXPECTED(!yaf_request_is_routed(request))) {
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESTARTUP);
 		YAF_EXCEPTION_HANDLE(dispatcher);
 		if (!yaf_dispatcher_route(dispatcher)) {

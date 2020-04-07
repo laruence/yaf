@@ -682,7 +682,7 @@ zval *yaf_request_query_str(unsigned type, const char *name, size_t len) /* {{{ 
 		return NULL;
 	}
 
-	if (name == NULL) {
+	if (UNEXPECTED(name == NULL)) {
 		return container;
 	}
 
@@ -697,31 +697,11 @@ zval *yaf_request_query(unsigned type, zend_string *name) /* {{{ */ {
 		return NULL;
 	}
 
-	if (UNEXPECTED(!name)) {
+	if (UNEXPECTED(name == NULL)) {
 		return container;
 	}
 
 	return zend_hash_find(Z_ARRVAL_P(container), name);
-}
-/* }}} */
-
-int yaf_request_is_routed(yaf_request_object *request) /* {{{ */{
-	return request->routed;
-}
-/* }}} */
-
-int yaf_request_is_dispatched(yaf_request_object *request) /* {{{ */ {
-	return request->dispatched;
-}
-/* }}} */
-
-void yaf_request_set_dispatched(yaf_request_object *request, int flag) /* {{{ */ {
-	request->dispatched = flag;
-}
-/* }}} */
-
-void yaf_request_set_routed(yaf_request_object *request, int flag) /* {{{ */ {
-	request->routed = flag;
 }
 /* }}} */
 

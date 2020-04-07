@@ -35,22 +35,18 @@ void yaf_view_instance(yaf_view_t *view, zend_string *tpl_dir, zval *options) /*
 }
 /* }}} */
 
-zend_string *yaf_view_get_tpl_dir(yaf_view_t *view, yaf_request_t *request) /* {{{ */ {
-	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
-		return yaf_view_simple_get_tpl_dir(view, request);
-	} else {
-		zval ret;
-		zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "getscriptpath", &ret, request);
-		if (Z_TYPE(ret) != IS_STRING) {
-			zval_ptr_dtor(&ret);
-			return NULL;
-		}
-		return Z_STR(ret);
+zend_string *yaf_view_get_tpl_dir_ex(yaf_view_t *view, yaf_request_t *request) /* {{{ */ {
+	zval ret;
+	zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "getscriptpath", &ret, request);
+	if (Z_TYPE(ret) != IS_STRING) {
+		zval_ptr_dtor(&ret);
+		return NULL;
 	}
+	return Z_STR(ret);
 }
 /* }}} */
 
-void yaf_view_set_tpl_dir(yaf_view_t *view, zend_string *tpl) /* {{{ */ {
+void yaf_view_set_tpl_dir_ex(yaf_view_t *view, zend_string *tpl) /* {{{ */ {
 	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
 		yaf_view_simple_set_tpl_dir(view, tpl);
 	} else {

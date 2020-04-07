@@ -67,7 +67,7 @@ ZEND_END_ARG_INFO();
 static HashTable *yaf_view_simple_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(object);
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(object);
 
 	*is_temp = 1;
 	ALLOC_HASHTABLE(ht);
@@ -90,7 +90,7 @@ static HashTable *yaf_view_simple_get_debug_info(zval *object, int *is_temp) /* 
 static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zval *var;
 	zend_string *member;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(zobj);
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
@@ -108,7 +108,7 @@ static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, voi
 
 static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(zobj);
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
@@ -124,7 +124,7 @@ static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, 
 /* }}} */
 
 static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_view_simple_object *view = emalloc(sizeof(yaf_view_simple_object));
+	yaf_view_object *view = emalloc(sizeof(yaf_view_object));
 
 	zend_object_std_init(&view->std, ce);
 	view->std.handlers = &yaf_view_simple_obj_handlers;
@@ -136,8 +136,8 @@ static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
 }
 /* }}} */
 
-static void yaf_view_simple_object_free(zend_object *object) /* {{{ */ {
-	yaf_view_simple_object *view = (yaf_view_simple_object*)object;
+static void yaf_view_object_free(zend_object *object) /* {{{ */ {
+	yaf_view_object *view = (yaf_view_object*)object;
 
 	if (view->tpl_dir) {
 		zend_string_release(view->tpl_dir);
@@ -148,7 +148,7 @@ static void yaf_view_simple_object_free(zend_object *object) /* {{{ */ {
 }
 /* }}} */
 
-int yaf_view_simple_init(yaf_view_simple_object *view, zend_string *tpl_dir, zend_array *options) /* {{{ */ {
+int yaf_view_simple_init(yaf_view_object *view, zend_string *tpl_dir, zend_array *options) /* {{{ */ {
 	if (!IS_ABSOLUTE_PATH(ZSTR_VAL(tpl_dir), ZSTR_LEN(tpl_dir))) {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects an absolute path for templates directory");
 		return 0;
@@ -162,21 +162,6 @@ int yaf_view_simple_init(yaf_view_simple_object *view, zend_string *tpl_dir, zen
 void yaf_view_simple_instance(yaf_view_t *view, zend_string *tpl_dir) /* {{{ */ {
 	zend_object *v = yaf_view_simple_new(yaf_view_simple_ce);
 	ZVAL_OBJ(view, v);
-}
-/* }}} */
-
-void yaf_view_simple_set_tpl_dir(yaf_view_t *view, zend_string *tpl_dir) /* {{{ */ {
-	yaf_view_simple_object *v = Z_YAFVIEWSIMPLEOBJ_P(view);
-	if (v->tpl_dir) {
-		zend_string_release(v->tpl_dir);
-	}
-	v->tpl_dir = zend_string_copy(tpl_dir);
-}
-/* }}} */
-
-zend_string *yaf_view_simple_get_tpl_dir(yaf_view_t *view, yaf_request_t *request) /* {{{ */ {
-	yaf_view_simple_object *v = Z_YAFVIEWSIMPLEOBJ_P(view);
-	return v->tpl_dir;
 }
 /* }}} */
 
@@ -364,7 +349,7 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval *ret) /* {{{ */ {
 	zend_array symbol_table;
 	zend_string *tpl_dup = NULL;
-	yaf_view_simple_object *v = Z_YAFVIEWSIMPLEOBJ_P(view);
+	yaf_view_object *v = Z_YAFVIEWOBJ_P(view);
 
 	yaf_view_build_symtable(&symbol_table, &v->tpl_vars, vars);
 
@@ -416,7 +401,7 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 		efree(eval_desc);
 
 		if (op_array) {
-			yaf_view_build_symtable(&symbol_table, &(Z_YAFVIEWSIMPLEOBJ_P(view))->tpl_vars, vars);
+			yaf_view_build_symtable(&symbol_table, &(Z_YAFVIEWOBJ_P(view))->tpl_vars, vars);
 			yaf_view_exec_tpl(view, op_array, &symbol_table, ret);
 			destroy_op_array(op_array);
 			efree(op_array);
@@ -429,18 +414,18 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 }
 /* }}} */
 
-static void yaf_view_simple_assign_single(yaf_view_simple_object *view, zend_string *name, zval *value) /* {{{ */ {
+static void yaf_view_simple_assign_single(yaf_view_object *view, zend_string *name, zval *value) /* {{{ */ {
 	zend_hash_update(&view->tpl_vars, name, value);
 	Z_TRY_ADDREF_P(value);
 }
 /* }}} */
 
-static void yaf_view_simple_assign_multi(yaf_view_simple_object *view, zval *value) /* {{{ */ {
+static void yaf_view_simple_assign_multi(yaf_view_object *view, zval *value) /* {{{ */ {
 	zend_hash_copy(&view->tpl_vars, Z_ARRVAL_P(value), (copy_ctor_func_t) zval_add_ref);
 }
 /* }}} */
 
-static void yaf_view_simple_clear_assign(yaf_view_simple_object *view, zend_string *name) /* {{{ */ {
+static void yaf_view_simple_clear_assign(yaf_view_object *view, zend_string *name) /* {{{ */ {
 	if (name) {
 		zend_hash_del(&view->tpl_vars, name);
 	} else {
@@ -459,7 +444,7 @@ PHP_METHOD(yaf_view_simple, __construct) {
 		return;
 	}
 
-	yaf_view_simple_init(Z_YAFVIEWSIMPLEOBJ_P(getThis()), tpl_dir, options? Z_ARRVAL_P(options) : NULL);
+	yaf_view_simple_init(Z_YAFVIEWOBJ_P(getThis()), tpl_dir, options? Z_ARRVAL_P(options) : NULL);
 }
 /* }}} */
 
@@ -467,7 +452,7 @@ PHP_METHOD(yaf_view_simple, __construct) {
 */
 PHP_METHOD(yaf_view_simple, setScriptPath) {
 	zend_string *tpl_dir;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(getThis());
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &tpl_dir) == FAILURE) {
 		return;
@@ -489,7 +474,7 @@ PHP_METHOD(yaf_view_simple, setScriptPath) {
 */
 PHP_METHOD(yaf_view_simple, getScriptPath) {
 	yaf_request_t *request = NULL;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(getThis());
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|O!", &request, yaf_request_ce) == FAILURE) {
 		return;
@@ -506,7 +491,7 @@ PHP_METHOD(yaf_view_simple, getScriptPath) {
 /** {{{ proto public Yaf_View_Simple::assign(mixed $value, mixed $value = null)
 */
 PHP_METHOD(yaf_view_simple, assign) {
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(getThis());
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
 	if (ZEND_NUM_ARGS() == 1) {
 		zval *value;
@@ -536,7 +521,7 @@ PHP_METHOD(yaf_view_simple, assign) {
 PHP_METHOD(yaf_view_simple, assignRef) {
 	zend_string *name;
 	zval *value;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(getThis());
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
 		return;
@@ -552,7 +537,7 @@ PHP_METHOD(yaf_view_simple, assignRef) {
 */
 PHP_METHOD(yaf_view_simple, get) {
 	zend_string *name = NULL;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(getThis());
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S!", &name) == FAILURE) {
 		return;
@@ -633,7 +618,7 @@ PHP_METHOD(yaf_view_simple, display) {
 */
 PHP_METHOD(yaf_view_simple, clear) {
 	zend_string *name = NULL;
-	yaf_view_simple_object *view = Z_YAFVIEWSIMPLEOBJ_P(getThis());
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S!", &name) == FAILURE) {
 		return;
@@ -679,7 +664,7 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	zend_class_implements(yaf_view_simple_ce, 1, yaf_view_interface_ce);
 
 	memcpy(&yaf_view_simple_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_view_simple_obj_handlers.free_obj = yaf_view_simple_object_free;
+	yaf_view_simple_obj_handlers.free_obj = yaf_view_object_free;
 	yaf_view_simple_obj_handlers.get_debug_info = yaf_view_simple_get_debug_info;
 	yaf_view_simple_obj_handlers.read_property = yaf_view_simple_read_property;
 	yaf_view_simple_obj_handlers.write_property = yaf_view_simple_write_property;

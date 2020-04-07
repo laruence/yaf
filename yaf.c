@@ -163,6 +163,7 @@ PHP_INI_END();
 */
 PHP_GINIT_FUNCTION(yaf)
 {
+
 	memset(yaf_globals, 0, sizeof(*yaf_globals));
 }
 /* }}} */
