@@ -51,10 +51,10 @@ Yaf_Request_Simple Object
     [module] => index
     [controller] => dummy
     [action] => index
-    [uri] => 
-    [base_uri] => 
-    [dispatched] => 
-    [routed] => 1
+    [uri:protected] => 
+    [base_uri:protected] => 
+    [dispatched:protected] => 
+    [routed:protected] => 1
     [language:protected] => 
     [params:protected] => Array
         (

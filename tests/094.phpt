@@ -50,17 +50,29 @@ string(5) "index"
 
 Testing uri:
 string(0) ""
+
+Warning: main(): Modification of Yaf_Request internal property 'uri' is not allowed in %s094.php on line %d
 string(0) ""
-string(5) "inDex"
+
+Warning: main(): Modification of Yaf_Request internal property 'uri' is not allowed in %s094.php on line %d
+string(0) ""
 
 Testing base_uri:
 NULL
+
+Warning: main(): Modification of Yaf_Request internal property 'base_uri' is not allowed in %s094.php on line %d
 NULL
-string(5) "inDex"
+
+Warning: main(): Modification of Yaf_Request internal property 'base_uri' is not allowed in %s094.php on line %d
+NULL
 
 Testing language:
 NULL
+
+Warning: main(): Modification of Yaf_Request internal property 'language' is not allowed in %s094.php on line %d
 NULL
+
+Warning: main(): Modification of Yaf_Request internal property 'language' is not allowed in %s094.php on line %d
 NULL
 
 Testing 123:
@@ -73,7 +85,7 @@ NULL
 NULL
 NULL
 
-object(Yaf_Request_Simple)#%d (10) {
+object(Yaf_Request_Simple)#1 (10) {
   ["method"]=>
   string(5) "inDex"
   ["module"]=>
@@ -82,13 +94,13 @@ object(Yaf_Request_Simple)#%d (10) {
   string(5) "Index"
   ["action"]=>
   string(5) "index"
-  ["uri"]=>
-  string(5) "inDex"
-  ["base_uri"]=>
-  string(5) "inDex"
-  ["dispatched"]=>
+  ["uri:protected"]=>
+  string(0) ""
+  ["base_uri:protected"]=>
+  NULL
+  ["dispatched:protected"]=>
   bool(false)
-  ["routed"]=>
+  ["routed:protected"]=>
   bool(false)
   ["language:protected"]=>
   string(0) ""
@@ -96,4 +108,3 @@ object(Yaf_Request_Simple)#%d (10) {
   array(0) {
   }
 }
-

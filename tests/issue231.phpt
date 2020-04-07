@@ -24,10 +24,10 @@ Yaf_Request_Http Object
     [module] => 
     [controller] => 
     [action] => 
-    [uri] => %syaf%ctests
-    [base_uri] => 
-    [dispatched] => 
-    [routed] => 
+    [uri:protected] => %syaf%ctests
+    [base_uri:protected] => 
+    [dispatched:protected] => 
+    [routed:protected] => 
     [language:protected] => 
     [params:protected] => Array
         (
@@ -40,10 +40,10 @@ Yaf_Request_Http Object
     [module] => 
     [controller] => 
     [action] => 
-    [uri] => %syaf%ctests
-    [base_uri] => %syaf
-    [dispatched] => 
-    [routed] => 
+    [uri:protected] => %syaf%ctests
+    [base_uri:protected] => %syaf
+    [dispatched:protected] => 
+    [routed:protected] => 
     [language:protected] => 
     [params:protected] => Array
         (

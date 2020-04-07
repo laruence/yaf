@@ -89,6 +89,8 @@ static zval *yaf_response_read_property(zval *zobj, zval *name, int type, void *
 	}
 	
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
+		php_error_docref(NULL, E_WARNING,
+				"Indirect modification of Yaf_Response internal property '%s' is not allowed", Z_STRVAL_P(name));
 		return &EG(error_zval);
 	}
 
@@ -99,7 +101,7 @@ static zval *yaf_response_read_property(zval *zobj, zval *name, int type, void *
 		return rv;
 	}
 
-	return &EG(uninitialized_zval);
+	return std_object_handlers.read_property(zobj, name, type, cache_slot, rv);
 }
 /* }}} */
 
@@ -121,7 +123,15 @@ static YAF_WRITE_HANDLER yaf_response_write_property(zval *zobj, zval *name, zva
 		YAF_WHANDLER_RET(value);
 	}
 
-	YAF_WHANDLER_RET(value);
+	if (zend_string_equals_literal(member, "body") ||
+		zend_string_equals_literal(member, "header") ||
+		zend_string_equals_literal(member, "header_sent")) {
+		php_error_docref(NULL, E_WARNING,
+				"Modification of Yaf_Reponse internal property '%s' is not allowed", Z_STRVAL_P(name));
+		YAF_WHANDLER_RET(value);
+	}
+
+	return std_object_handlers.write_property(zobj, name, value, cache_slot);
 }
 /* }}} */
 
@@ -130,6 +140,9 @@ static zend_object *yaf_response_new(zend_class_entry *ce) /* {{{ */ {
 	
 	zend_object_std_init(&response->std, ce);
 	response->std.handlers = &yaf_response_obj_handlers;
+	if (ce->default_properties_count) {
+		object_properties_init(&response->std, ce);
+	}
 
 	zend_hash_init(&response->body, 8, NULL, ZVAL_PTR_DTOR, 0);
 	zend_hash_init(&response->header, 8, NULL, ZVAL_PTR_DTOR, 0);

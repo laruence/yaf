@@ -66,43 +66,42 @@ void yaf_view_set_tpl_dir(yaf_view_t *view, zend_string *tpl) /* {{{ */ {
 }
 /* }}} */
 
-void yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval *ret) /* {{{ */ {
+int yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval *ret) /* {{{ */ {
 	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
 		yaf_view_simple_render(view, script, var_array, ret);
+		return 1;
 	} else {
 		zval arg;
 		
 		ZVAL_STR_COPY(&arg, script);
-		if (var_array) {
-			zend_call_method_with_2_params(view, Z_OBJCE_P(view), NULL, "render", ret, &arg, var_array);
+		if (ret) {
+			if (var_array == NULL) {
+				zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "render", ret, &arg);
+			} else {
+				zend_call_method_with_2_params(view, Z_OBJCE_P(view), NULL, "render", ret, &arg, var_array);
+			}
+			zval_ptr_dtor(&arg);
+			if (UNEXPECTED(Z_TYPE_P(ret) != IS_STRING || EG(exception))) {
+				zval_ptr_dtor(ret);
+				return 0;
+			}
 		} else {
-			zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "render", ret, &arg);
+			zval rt;
+			if (var_array == NULL) {
+				zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "display", &rt, &arg);
+			} else {
+				zend_call_method_with_2_params(view, Z_OBJCE_P(view), NULL, "display", &rt, &arg, var_array);
+			}
+			zval_ptr_dtor(&arg);
+			if (UNEXPECTED(Z_TYPE(rt) == IS_FALSE || EG(exception))) {
+				zval_ptr_dtor(&rt);
+				return 0;
+			}
+			zval_ptr_dtor(&rt);
 		}
-		zval_ptr_dtor(&arg);
 	}
-}
-/* }}} */
 
-int yaf_view_display(yaf_view_t *view, zend_string *script, zval *var_array) /* {{{ */ {
-	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
-		return yaf_view_simple_render(view, script, var_array, NULL);
-	} else {
-		int result;
-		zval arg, ret;
-		
-		ZVAL_STR_COPY(&arg, script);
-		if (var_array) {
-			zend_call_method_with_2_params(view, Z_OBJCE_P(view), NULL, "display", &ret, &arg, var_array);
-		} else {
-			zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "display", &ret, &arg);
-		}
-		zval_ptr_dtor(&arg);
-		
-		result = zend_is_true(&ret);
-		zval_ptr_dtor(&ret);
-
-		return result;
-	}
+	return 1;
 }
 /* }}} */
 

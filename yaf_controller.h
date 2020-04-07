@@ -29,9 +29,32 @@
 #define YAF_CONTROLLER_PROPERTY_NAME_RENDER     "yafAutoRender"
 
 extern zend_class_entry *yaf_controller_ce;
-int yaf_controller_construct(yaf_controller_t *self, yaf_request_t *request, yaf_response_t *response, yaf_view_t *view, zval *args);
-zend_string * yaf_controller_render(zval *instance, char *action_name, int len, zval *var_array);
-int yaf_controller_display(zval *instance, char *action_name, int len, zval *var_array);
+
+typedef struct {
+	zend_string    *module;
+	zend_string    *name;
+	zend_string    *script_path;
+	zend_array     *invoke_args;
+	yaf_request_t  *request;
+	yaf_response_t *response;
+	yaf_view_t     *view;
+	struct {
+		yaf_controller_t ctl;
+		zend_string     *name;
+	} ctl;
+	zend_object    std;
+} yaf_controller_object;
+
+#define Z_YAFCTLOBJ(zv)    (php_yaf_controller_fetch_object(Z_OBJ(zv)))
+#define Z_YAFCTLOBJ_P(zv)  Z_YAFCTLOBJ(*zv)
+static inline yaf_controller_object *php_yaf_controller_fetch_object(zend_object *obj) {
+	return (yaf_controller_object *)((char*)(obj) - XtOffsetOf(yaf_controller_object, std));
+}
+
+int yaf_controller_render(yaf_controller_t *ctl, zend_string *action, zval *vars, zval *ret);
+void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args);
+void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *module);
+int yaf_controller_auto_render(yaf_controller_t *controller, int dispatch_render);
 
 YAF_STARTUP_FUNCTION(controller);
 #endif

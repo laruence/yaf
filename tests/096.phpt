@@ -38,10 +38,10 @@ Yaf_Request_Http Object
     [module] => 
     [controller] => 
     [action] => 
-    [uri] => /foo/dummy
-    [base_uri] => 
-    [dispatched] => 
-    [routed] => 
+    [uri:protected] => /foo/dummy
+    [base_uri:protected] => 
+    [dispatched:protected] => 
+    [routed:protected] => 
     [language:protected] => 
     [params:protected] => Array
         (

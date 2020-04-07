@@ -50,7 +50,6 @@ typedef struct {
 static inline yaf_request_object *php_yaf_request_fetch_object(zend_object *obj) {
 	return (yaf_request_object *)((char*)(obj) - XtOffsetOf(yaf_request_object, std));
 }
-/* }}} */
 
 void yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
 int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri, zend_string *request_uri);

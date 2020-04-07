@@ -28,10 +28,10 @@ Yaf_Request_Http Object
     [module] => 
     [controller] => controller
     [action] => action
-    [uri] => /prefix/controller/action/name/laruence/age/28
-    [base_uri] => /prefix
-    [dispatched] => 
-    [routed] => 
+    [uri:protected] => /prefix/controller/action/name/laruence/age/28
+    [base_uri:protected] => /prefix
+    [dispatched:protected] => 
+    [routed:protected] => 
     [language:protected] => 
     [params:protected] => Array
         (

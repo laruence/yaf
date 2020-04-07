@@ -97,6 +97,9 @@ static zend_object *yaf_request_new(zend_class_entry *ce) /* {{{ */ {
 
 	memset(req, 0, XtOffsetOf(yaf_request_object, std));
 	zend_object_std_init(&req->std, ce);
+	if (ce->default_properties_count) {
+		object_properties_init(&req->std, ce);
+	}
 	req->std.handlers = &yaf_request_obj_handlers;
 
 	return &req->std;
@@ -169,20 +172,20 @@ static HashTable *yaf_request_get_debug_info(zval *object, int *is_temp) /* {{{ 
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "uri", sizeof("uri") - 1, &rv);
+	zend_hash_str_add(ht, "uri:protected", sizeof("uri:protected") - 1, &rv);
 
 	if (request->base_uri) {
 		ZVAL_STR_COPY(&rv, request->base_uri);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "base_uri", sizeof("base_uri") - 1, &rv);
+	zend_hash_str_add(ht, "base_uri:protected", sizeof("base_uri:protected") - 1, &rv);
 
 	ZVAL_BOOL(&rv, request->dispatched);
-	zend_hash_str_add(ht, "dispatched", sizeof("dispatched") - 1, &rv);
+	zend_hash_str_add(ht, "dispatched:protected", sizeof("dispatched:protected") - 1, &rv);
 
 	ZVAL_BOOL(&rv, request->routed);
-	zend_hash_str_add(ht, "routed", sizeof("routed") - 1, &rv);
+	zend_hash_str_add(ht, "routed:protected", sizeof("routed:protected") - 1, &rv);
 
 	if (request->language) {
 		ZVAL_STR_COPY(&rv, request->language);
@@ -302,6 +305,8 @@ static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **
 	}
 
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
+		php_error_docref(NULL, E_WARNING,
+				"Indirect modification of Yaf_Reqeust internal property '%s' is not allowed", Z_STRVAL_P(name));
 		return &EG(error_zval);
 	}
 
@@ -583,23 +588,18 @@ static YAF_WRITE_HANDLER yaf_request_write_property(zval *zobj, zval *name, zval
 		YAF_WHANDLER_RET(value);
 	}
 
-	if (zend_string_equals_literal(member, "uri")) {
-		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING)) {
-			YAF_WHANDLER_RET(value);
-		}
-		yaf_request_set_uri(request, Z_STR_P(value));
+	if (zend_string_equals_literal(member, "uri") ||
+		zend_string_equals_literal(member, "base_uri") ||
+		zend_string_equals_literal(member, "dispatched") ||
+		zend_string_equals_literal(member, "language") ||
+		zend_string_equals_literal(member, "routed") ||
+		zend_string_equals_literal(member, "params")) {
+		php_error_docref(NULL, E_WARNING,
+				"Modification of Yaf_Request internal property '%s' is not allowed", Z_STRVAL_P(name));
 		YAF_WHANDLER_RET(value);
 	}
 
-	if (zend_string_equals_literal(member, "base_uri")) {
-		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING)) {
-			YAF_WHANDLER_RET(value);
-		}
-		yaf_request_set_base_uri(request, Z_STR_P(value), NULL);
-		YAF_WHANDLER_RET(value);
-	}
-
-	YAF_WHANDLER_RET(value);
+	return std_object_handlers.write_property(zobj, name, value, cache_slot);
 }
 /* }}} */
 
