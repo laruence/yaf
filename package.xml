@@ -26,6 +26,7 @@
   - Added Yaf_Request::cleanParams()
   - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
   - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
+  - Yaf_Route_* now routes valid Module/Controller/action name directly
  </notes>
  <contents> 
   <dir name="/"> 
@@ -206,6 +207,7 @@
     <file name="094.phpt" role="test" />
     <file name="095.phpt" role="test" />
     <file name="096.phpt" role="test" />
+    <file name="097.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

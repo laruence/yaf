@@ -53,7 +53,7 @@ Array
 )
 string(3) "act"
 NULL
-string(1) "m"
+string(1) "M"
 string(3) "yaf"
 Array
 (
@@ -61,5 +61,5 @@ Array
     [name] => value
 )
 string(3) "act"
-string(5) "index"
+string(5) "Index"
 NULL

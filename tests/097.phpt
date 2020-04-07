@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Route_Static with arbitrary urls
+Check for Yaf_Route_Supervar with arbitrary urls
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
@@ -23,9 +23,10 @@ $config = array(
 
 $app = new Yaf_Application($config);
 
-$route = Yaf_Dispatcher::getInstance()->getRouter();
+$route = new Yaf_Route_Supervar("var");
 
 foreach ($url as $u) {
+   $_GET["var"] = $u;
    $req = new Yaf_Request_Http($u);
    $route->route($req);
    echo $u, " : ",  "m=>", $req->getModuleName(), " c=>", $req->getControllerName(), " a=>",  $req->getActionName();
@@ -45,6 +46,7 @@ $url = array(
 );
 
 foreach ($url as $u) {
+   $_GET["var"] = $u;
    $req = new Yaf_Request_Http($u);
    $route->route($req);
    echo $u, " : ",  "m=>", $req->getModuleName(), " c=>", $req->getControllerName(), " a=>",  $req->getActionName();

@@ -118,11 +118,17 @@ int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 		return 0;
 	}
 
-	yaf_request_set_mvc(request,
-			(module && Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STR_P(module)))?
-			Z_STR_P(module) : NULL,
-			(controller && Z_TYPE_P(controller) == IS_STRING)? Z_STR_P(controller) : NULL,
-			(action && Z_TYPE_P(action) == IS_STRING)? Z_STR_P(action) : NULL, NULL);
+	if (module && Z_TYPE_P(module) == IS_STRING && yaf_application_is_module_name(Z_STR_P(module))) {
+		yaf_request_set_module(request, Z_STR_P(module));
+	}
+
+	if (controller && Z_TYPE_P(controller) == IS_STRING) {
+		yaf_request_set_controller(request, Z_STR_P(controller));
+	}
+
+	if (action && Z_TYPE_P(action) == IS_STRING) {
+		yaf_request_set_action(request, Z_STR_P(action));
+	}
 
 	return 1;
 }

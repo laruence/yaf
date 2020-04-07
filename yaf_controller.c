@@ -720,7 +720,7 @@ PHP_METHOD(yaf_controller, forward) {
 				php_error_docref(NULL, E_WARNING, "Expect a string action name");
 				RETURN_FALSE;
 			}
-			yaf_request_set_mvc(request, NULL, NULL, Z_STR_P(module), NULL);
+			yaf_request_set_action(request, Z_STR_P(module));
 			break;
 		case 2:
 			if (Z_TYPE_P(controller) ==  IS_STRING) {

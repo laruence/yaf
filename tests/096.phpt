@@ -13,7 +13,9 @@ class myRoute implements Yaf_Route_Interface {
 	public function route($request) {
 		global $switch;
 		if ($switch) {
-			print_r($request);
+			$request->setModuleName("moDule");
+			$request->setControllerName("index");
+			$request->action = "ActioN";
 		}
 		return $switch;
 	}
@@ -24,24 +26,28 @@ class myRoute implements Yaf_Route_Interface {
 
 $router->addRoute("custom", new myRoute);
 
-$router->route(new Yaf_Request_Http("/foo/dummy"));
+$request = new Yaf_Request_Http("/foo/dummy");
+$router->route($request);
+print_r($request);
 var_dump($router->getCurrentRoute());
 
 $switch = false;
-$router->route(new Yaf_Request_Http("/foo/dummy"));
+$request = new Yaf_Request_Http("/foo/dummy");
+$router->route($request);
+print_r($request);
 var_dump($router->getCurrentRoute());
 ?>
 --EXPECT--
 Yaf_Request_Http Object
 (
     [method] => CLI
-    [module] => 
-    [controller] => 
-    [action] => 
+    [module] => Module
+    [controller] => Index
+    [action] => action
     [uri:protected] => /foo/dummy
     [base_uri:protected] => 
     [dispatched:protected] => 
-    [routed:protected] => 
+    [routed:protected] => 1
     [language:protected] => 
     [params:protected] => Array
         (
@@ -49,4 +55,20 @@ Yaf_Request_Http Object
 
 )
 string(6) "custom"
+Yaf_Request_Http Object
+(
+    [method] => CLI
+    [module] => 
+    [controller] => Foo
+    [action] => dummy
+    [uri:protected] => /foo/dummy
+    [base_uri:protected] => 
+    [dispatched:protected] => 
+    [routed:protected] => 1
+    [language:protected] => 
+    [params:protected] => Array
+        (
+        )
+
+)
 string(8) "_default"

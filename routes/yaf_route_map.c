@@ -107,6 +107,16 @@ void yaf_route_map_instance(yaf_route_t *route, zend_bool ctl_prefer, zend_strin
 }
 /* }}} */
 
+static inline void yaf_route_map_append(smart_str *str, const char *seg, unsigned int len) /* {{{ */ {
+	unsigned int i;
+
+	smart_str_appendc(str, toupper(*seg));
+	for (i = 1; i < len; i++) {
+		smart_str_appendc(str, tolower(seg[i]));
+	}
+}
+/* }}} */
+
 int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	const char *req_uri, *query_str, *pos;
 	size_t req_uri_len, query_str_len;
@@ -121,17 +131,17 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 		req_uri_len = ZSTR_LEN(request->uri);
 	}
 
-	if (map->delim) {
-		if ((query_str = strstr(req_uri, ZSTR_VAL(map->delim))) && *(query_str - 1) == '/') {
+	if (UNEXPECTED(map->delim)) {
+		if ((query_str = strstr(req_uri, ZSTR_VAL(map->delim))) && *(query_str - 1) == YAF_ROUTER_URL_DELIMIETER) {
 			const char *rest = query_str + ZSTR_LEN(map->delim);
 
 			while (*rest == YAF_ROUTER_URL_DELIMIETER) {
 				rest++;
 			}
 			if (*rest != '\0') {
-				query_str = rest;
 				query_str_len = req_uri_len - (rest - req_uri);
-				req_uri_len = req_uri_len - query_str_len;
+				req_uri_len = query_str - req_uri;
+				query_str = rest;
 			} else {
 				req_uri_len = query_str - req_uri;
 				query_str = NULL;
@@ -146,7 +156,7 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	while ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len))) {
 		size_t seg_len = pos++ - req_uri;
 		if (seg_len) {
-			smart_str_appendl(&route_result, req_uri, seg_len);
+			yaf_route_map_append(&route_result, req_uri, seg_len);
 			smart_str_appendc(&route_result, '_');
 		}
 		req_uri_len -= pos - req_uri;
@@ -154,7 +164,7 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	}
 
 	if (req_uri_len) {
-		smart_str_appendl(&route_result, req_uri, req_uri_len);
+		yaf_route_map_append(&route_result, req_uri, req_uri_len);
 		smart_str_appendc(&route_result, '_');
 	}
 
@@ -162,11 +172,15 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 		ZSTR_LEN(route_result.s)--;
 		ZSTR_VAL(route_result.s)[ZSTR_LEN(route_result.s)] = '\0';
 		if (map->ctl_prefer) {
-			yaf_request_set_mvc(request, NULL, route_result.s, NULL, NULL);
+			/* avoding double realloc */
+			if (UNEXPECTED(request->controller)) {
+				zend_string_release(request->controller);
+			}
+			request->controller = route_result.s;
 		} else {
-			yaf_request_set_mvc(request, NULL, NULL, route_result.s, NULL);
+			yaf_request_set_action(request, route_result.s);
+			smart_str_free(&route_result);
 		}
-		smart_str_free(&route_result);
 	}
 
 	if (query_str) {

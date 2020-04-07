@@ -183,47 +183,16 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_object *dispatcher,
 	zend_string *p;
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
-	if (!request->module) {
+	if (request->module == NULL) {
 		request->module = zend_string_copy(app->default_module);
-	} else {
-		p = zend_string_init(ZSTR_VAL(request->module), ZSTR_LEN(request->module), 0);
-		ZSTR_VAL(p)[0] = toupper(ZSTR_VAL(p)[0]);
-		zend_str_tolower(ZSTR_VAL(p) + 1, ZSTR_LEN(p) - 1);
-		zend_string_release(request->module);
-		request->module = p;
 	}
 
-	if (!request->controller) {
+	if (request->controller == NULL) {
 		request->controller = zend_string_copy(app->default_controller);
-	} else {
-		char *q;
-		p = zend_string_init(ZSTR_VAL(request->controller), ZSTR_LEN(request->controller), 0);
-		zend_str_tolower(ZSTR_VAL(p), ZSTR_LEN(p));
-		/**
-		 * Upper controller name
-		 * eg: Index_sub -> Index_Sub
-		 */
-		q = ZSTR_VAL(p);
-		*q = toupper(*q);
-		while (*q != '\0') {
-			if (*q == '_' || *q == '\\') {
-			   	if (*(q + 1) != '\0') {
-					*(q + 1) = toupper(*(q+1));
-					q++;
-				}
-			}
-			q++;
-		}
-		zend_string_release(request->controller);
-		request->controller = p;
 	}
 
-	if (!request->action) {
+	if (request->action == NULL) {
 		request->action = zend_string_copy(app->default_action);
-	} else {
-		p = zend_string_tolower(request->action);
-		zend_string_release(request->action);
-		request->action = p;
 	}
 }
 /* }}} */

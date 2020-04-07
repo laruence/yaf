@@ -40,19 +40,19 @@ void yaf_request_simple_init(yaf_request_object *request, zend_string *module, z
 
 	if (module || controller || action) {
 		if (module) {
-			request->module = zend_string_copy(module);
+			yaf_request_set_module(request, module);
 		} else {
 			request->module = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_MODULE), 0);
 		}
 
 		if (controller) {
-			request->controller = zend_string_copy(controller);
+			yaf_request_set_controller(request, controller);
 		} else {
 			request->controller = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_CONTROLLER), 0);
 		}
 
 		if (action) {
-			request->action = zend_string_copy(action);
+			yaf_request_set_action(request, action);
 		} else {
 			request->action = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_ACTION), 0);
 		}

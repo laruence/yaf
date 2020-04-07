@@ -391,30 +391,6 @@ static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **
 }
 /* }}} */
 
-static inline void yaf_request_set_module(yaf_request_object *request, zend_string *module) /* {{{ */ {
-	if (request->module) {
-		zend_string_release(request->module);
-	}
-	request->module = yaf_canonical_name(1, module);
-}
-/* }}} */
-
-static inline void yaf_request_set_controller(yaf_request_object *request, zend_string *controller) /* {{{ */ {
-	if (request->controller) {
-		zend_string_release(request->controller);
-	}
-	request->controller = yaf_canonical_name(1, controller);
-}
-/* }}} */
-
-static inline void yaf_request_set_action(yaf_request_object *request, zend_string *action) /* {{{ */ {
-	if (request->action) {
-		zend_string_release(request->action);
-	}
-	request->action = yaf_canonical_name(0, action);
-}
-/* }}} */
-
 static inline void yaf_request_set_uri(yaf_request_object *request, zend_string *uri) /* {{{ */ {
 	if (request->uri) {
 		zend_string_release(request->uri);
@@ -614,22 +590,13 @@ void yaf_request_instance(yaf_request_t *this_ptr, zend_string *request_uri) /* 
 
 void yaf_request_set_mvc(yaf_request_object *request, zend_string *module, zend_string *controller, zend_string *action, zend_array *params) /* {{{ */ {
 	if (module) {
-		if (request->module) {
-			zend_string_release(request->module);
-		}
-		request->module = zend_string_copy(module);
+		yaf_request_set_module(request, module);
 	}
 	if (controller) {
-		if (request->controller) {
-			zend_string_release(request->controller);
-		}
-		request->controller = zend_string_copy(controller);
+		yaf_request_set_controller(request, controller);
 	}
 	if (action) {
-		if (request->action) {
-			zend_string_release(request->action);
-		}
-		request->action = zend_string_tolower(action);
+		yaf_request_set_action(request, action);
 	}
 	if (params) {
 		zend_hash_copy(&request->params, params, (copy_ctor_func_t) zval_add_ref);

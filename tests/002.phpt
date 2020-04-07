@@ -48,8 +48,8 @@ var_dump($request->getParams());
 Yaf_Request_Simple Object
 (
     [method] => CLI
-    [module] => index
-    [controller] => dummy
+    [module] => Index
+    [controller] => Dummy
     [action] => index
     [uri:protected] => 
     [base_uri:protected] => 

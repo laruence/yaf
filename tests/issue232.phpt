@@ -20,5 +20,5 @@ var_dump($request->getActionName());
 ?>
 --EXPECTF--
 NULL
-string(5) "index"
+string(5) "Index"
 NULL

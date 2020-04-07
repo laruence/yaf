@@ -26,7 +26,7 @@ Yaf_Request_Http Object
 (
     [method] => CLI
     [module] => 
-    [controller] => controller
+    [controller] => Controller
     [action] => action
     [uri:protected] => /prefix/controller/action/name/laruence/age/28
     [base_uri:protected] => /prefix

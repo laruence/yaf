@@ -139,6 +139,8 @@ int yaf_router_route(yaf_router_object *router, yaf_request_t *request) /* {{{ *
 			}
 		} else {
 			zval ret;
+			zend_string *t;
+			yaf_request_object *req = Z_YAFREQUESTOBJ_P(request);
 			zend_call_method_with_1_params(route, Z_OBJCE_P(route), NULL, "route", &ret, request);
 			if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
 				zval_ptr_dtor(&ret);

@@ -83,6 +83,27 @@ static inline void yaf_request_set_dispatched(yaf_request_object *request, int f
 	request->dispatched = flag? 1 : 0;
 }
 
+static inline void yaf_request_set_module(yaf_request_object *request, zend_string *module) {
+	if (request->module) {
+		zend_string_release(request->module);
+	}
+	request->module = yaf_canonical_name(1, module);
+}
+
+static inline void yaf_request_set_controller(yaf_request_object *request, zend_string *controller) {
+	if (request->controller) {
+		zend_string_release(request->controller);
+	}
+	request->controller = yaf_canonical_name(1, controller);
+}
+
+static inline void yaf_request_set_action(yaf_request_object *request, zend_string *action) {
+	if (request->action) {
+		zend_string_release(request->action);
+	}
+	request->action = yaf_canonical_name(0, action);
+}
+
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\
 	zend_string *method = Z_YAFREQUESTOBJ_P(getThis())->method; \
