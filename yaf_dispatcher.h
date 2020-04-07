@@ -20,8 +20,6 @@
 #define YAF_ERROR_CONTROLLER                    "Error"
 #define YAF_ERROR_ACTION                        "error"
 
-#define YAF_DISPATCHER_PROPERTY_NAME_PLUGINS    "_plugins"
-
 #define YAF_PLUGIN_HOOK_ROUTESTARTUP            "routerstartup"
 #define YAF_PLUGIN_HOOK_ROUTESHUTDOWN           "routershutdown"
 #define YAF_PLUGIN_HOOK_LOOPSTARTUP             "dispatchloopstartup"
@@ -29,9 +27,6 @@
 #define YAF_PLUGIN_HOOK_POSTDISPATCH            "postdispatch"
 #define YAF_PLUGIN_HOOK_LOOPSHUTDOWN            "dispatchloopshutdown"
 #define YAF_PLUGIN_HOOK_PRERESPONSE             "preresponse"
-
-#define YAF_DISPATCHER_CHECK_MODULE	1
-#define YAF_DISPATCHER_CHECK_NONE	0
 
 #define YAF_PLUGIN_HANDLE(dispatcher, ev) \
 	do { \

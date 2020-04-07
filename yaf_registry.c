@@ -123,12 +123,6 @@ PHP_METHOD(yaf_registry, __construct) {
 }
 /* }}} */
 
-/** {{{ proto private Yaf_Registry::__clone(void)
-*/
-PHP_METHOD(yaf_registry, __clone) {
-}
-/* }}} */
-
 /** {{{ proto public static Yaf_Registry::get($name)
 */
 PHP_METHOD(yaf_registry, get) {
@@ -210,7 +204,6 @@ PHP_METHOD(yaf_registry, getInstance) {
 */
 zend_function_entry yaf_registry_methods[] = {
 	PHP_ME(yaf_registry, __construct, 	NULL, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_registry, __clone, 		NULL, ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_registry, get, yaf_registry_get_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_registry, has, yaf_registry_has_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_registry, set, yaf_registry_set_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
