@@ -301,7 +301,7 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		lc_name = zend_string_alloc(ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("Action") - 1, 0);
 		if (EXPECTED(YAF_G(name_suffix))) {
 			char *p = ZSTR_VAL(lc_name);
-			zend_str_tolower_copy(p, ZSTR_VAL(action), ZSTR_LEN(action));
+			memcpy(p, ZSTR_VAL(action), ZSTR_LEN(action));
 			p += ZSTR_LEN(action);
 			if (UNEXPECTED(YAF_G(name_separator_len))) {
 				zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
@@ -316,7 +316,7 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 				zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
 				p += YAF_G(name_separator_len);
 			}
-			zend_str_tolower_copy(p, ZSTR_VAL(action), ZSTR_LEN(action) + 1);
+			memcpy(p, ZSTR_VAL(action), ZSTR_LEN(action) + 1);
 		}
 
 		if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
