@@ -47,18 +47,14 @@ zend_string *yaf_view_get_tpl_dir_ex(yaf_view_t *view, yaf_request_t *request) /
 /* }}} */
 
 void yaf_view_set_tpl_dir_ex(yaf_view_t *view, zend_string *tpl) /* {{{ */ {
-	if (EXPECTED(Z_OBJCE_P(view) == yaf_view_simple_ce)) {
-		yaf_view_simple_set_tpl_dir(view, tpl);
-	} else {
-		zval arg, ret;
+	zval arg, ret;
 
-		ZVAL_STR_COPY(&arg, tpl);
-		zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "setscriptpath", &ret, &arg);
-		if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
-			/* error handle? */
-		}
-		zval_dtor(&arg);
+	ZVAL_STR_COPY(&arg, tpl);
+	zend_call_method_with_1_params(view, Z_OBJCE_P(view), NULL, "setscriptpath", &ret, &arg);
+	if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
+		/* error handle? */
 	}
+	zval_dtor(&arg);
 }
 /* }}} */
 
