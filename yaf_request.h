@@ -74,6 +74,9 @@ const char *yaf_request_get_request_method(void);
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\
 	zend_string *method = Z_YAFREQUESTOBJ_P(getThis())->method; \
+	if (zend_parse_parameters_none() == FAILURE) { \
+		return; \
+	} \
 	if (zend_string_equals_literal_ci(method, #x)) { \
 		RETURN_TRUE; \
 	} \

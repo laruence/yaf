@@ -237,6 +237,9 @@ void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {
 /** {{{ proto public Yaf_Router::__construct(void)
  */
 PHP_METHOD(yaf_router, __construct) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	yaf_router_init(Z_YAFROUTEROBJ_P(getThis()));
 }
 /* }}} */
@@ -331,6 +334,10 @@ PHP_METHOD(yaf_router, getRoute) {
  */
 PHP_METHOD(yaf_router, getRoutes) {
 	yaf_router_object *router = Z_YAFROUTEROBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	RETURN_ARR(zend_array_dup(&router->routes));
 }
 /* }}} */
@@ -352,6 +359,11 @@ PHP_METHOD(yaf_router, isModuleName) {
  */
 PHP_METHOD(yaf_router, getCurrentRoute) {
 	yaf_router_object *router = Z_YAFROUTEROBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	RETURN_ZVAL(&router->current, 1, 0);
 }
 /* }}} */

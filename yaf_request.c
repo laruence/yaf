@@ -825,6 +825,10 @@ PHP_METHOD(yaf_request, getModuleName) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 	zend_string *module = yaf_request_get_module(request);
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	if (UNEXPECTED(module == NULL)) {
 		RETURN_NULL();
 	}
@@ -839,6 +843,10 @@ PHP_METHOD(yaf_request, getControllerName) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 	zend_string *controller = yaf_request_get_controller(request);
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	if (UNEXPECTED(controller == NULL)) {
 		RETURN_NULL();
 	}
@@ -852,6 +860,10 @@ PHP_METHOD(yaf_request, getControllerName) {
 PHP_METHOD(yaf_request, getActionName) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 	zend_string *action = yaf_request_get_action(request);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	if (UNEXPECTED(action == NULL)) {
 		RETURN_NULL();
@@ -979,6 +991,10 @@ PHP_METHOD(yaf_request, getException) {
 */
 PHP_METHOD(yaf_request, getParams) {
 	zend_array *params = &Z_YAFREQUESTOBJ_P(getThis())->params;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	RETURN_ARR(zend_array_dup(params));
 }
 /* }}} */
@@ -987,6 +1003,10 @@ PHP_METHOD(yaf_request, getParams) {
 */
 PHP_METHOD(yaf_request, cleanParams) {
 	zend_array *params = &Z_YAFREQUESTOBJ_P(getThis())->params;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	zend_hash_clean(params);
 	RETURN_ZVAL(getThis(), 1, 0);
@@ -999,6 +1019,10 @@ PHP_METHOD(yaf_request, getLanguage) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 	zend_string *language = yaf_request_get_language(request);
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	if (UNEXPECTED(language == NULL)) {
 		RETURN_NULL();
 	}
@@ -1010,6 +1034,9 @@ PHP_METHOD(yaf_request, getLanguage) {
 /** {{{ proto public Yaf_Request_Abstract::getMethod(void)
 */
 PHP_METHOD(yaf_request, getMethod) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	RETURN_STR(yaf_request_get_method(Z_YAFREQUESTOBJ_P(getThis())));
 }
 /* }}} */
@@ -1017,6 +1044,9 @@ PHP_METHOD(yaf_request, getMethod) {
 /** {{{ proto public Yaf_Request_Abstract::isDispatched(void)
 */
 PHP_METHOD(yaf_request, isDispatched) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	RETURN_BOOL(Z_YAFREQUESTOBJ_P(getThis())->dispatched);
 }
 /* }}} */
@@ -1063,6 +1093,10 @@ PHP_METHOD(yaf_request, getBaseUri) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 	zend_string *base_uri = yaf_request_get_base_uri(request);
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	if (UNEXPECTED(base_uri == NULL)) {
 		RETURN_EMPTY_STRING();
 	}
@@ -1076,6 +1110,10 @@ PHP_METHOD(yaf_request, getBaseUri) {
 PHP_METHOD(yaf_request, getRequestUri) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 	zend_string *uri = yaf_request_get_uri(request);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 
 	if (UNEXPECTED(uri == NULL)) {
 		RETURN_EMPTY_STRING();
@@ -1104,6 +1142,9 @@ PHP_METHOD(yaf_request, setRequestUri) {
 /** {{{ proto public Yaf_Request_Abstract::isRouted(void)
 */
 PHP_METHOD(yaf_request, isRouted) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	RETURN_BOOL(yaf_request_is_routed(Z_YAFREQUESTOBJ_P(getThis())));
 }
 /* }}} */
