@@ -170,11 +170,13 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 			default:
 				return YAF_CLASS_NAME_NORMAL;
 		}
-		if (YAF_G(name_separator)) {
+		if (UNEXPECTED(YAF_G(name_separator_len))) {
 			if (len > YAF_G(name_separator_len) &&
 				memcmp(name - YAF_G(name_separator_len), YAF_G(name_separator), YAF_G(name_separator_len)) == 0) {
 				return suspense_type;
 			}
+		} else {
+			return suspense_type;
 		}
 	} else {
 		switch (*name) {
@@ -214,11 +216,13 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 			default:
 				return YAF_CLASS_NAME_NORMAL;
 		}
-		if (YAF_G(name_separator)) {
+		if (UNEXPECTED(YAF_G(name_separator_len))) {
 			if (len > YAF_G(name_separator_len) &&
 				memcmp(name, YAF_G(name_separator), YAF_G(name_separator_len)) == 0) {
 				return suspense_type;
 			}
+		} else {
+			return suspense_type;
 		}
 	}
 
@@ -704,6 +708,10 @@ PHP_METHOD(yaf_loader, autoload) {
 
 		directory_len = snprintf(directory, sizeof(directory), "%s%c", ZSTR_VAL(app->directory), DEFAULT_SLASH);
 		switch (class_type) {
+			case YAF_CLASS_NAME_CONTROLLER:
+				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_CONTROLLER_DIRECTORY_NAME);
+				fname_len = sanitized_len - (sizeof(YAF_LOADER_CONTROLLER) - 1) - YAF_G(name_separator_len);
+				break;
 			case YAF_CLASS_NAME_MODEL:
 				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_MODEL_DIRECTORY_NAME);
 				fname_len = sanitized_len - (sizeof(YAF_LOADER_MODEL) - 1) - YAF_G(name_separator_len);
@@ -711,10 +719,6 @@ PHP_METHOD(yaf_loader, autoload) {
 			case YAF_CLASS_NAME_PLUGIN:
 				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_PLUGIN_DIRECTORY_NAME);
 				fname_len = sanitized_len - (sizeof(YAF_LOADER_PLUGIN) - 1) - YAF_G(name_separator_len);
-				break;
-			case YAF_CLASS_NAME_CONTROLLER:
-				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_CONTROLLER_DIRECTORY_NAME);
-				fname_len = sanitized_len - (sizeof(YAF_LOADER_CONTROLLER) - 1) - YAF_G(name_separator_len);
 				break;
 			default:
 				ZEND_ASSERT(0);
