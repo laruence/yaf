@@ -622,9 +622,10 @@ int yaf_dispatcher_route(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 
 yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_request_object *request;
-	unsigned nesting = YAF_G(forward_limit);
+	unsigned int nesting = YAF_G(forward_limit);
+	zend_bool catch_exception = YAF_G(catch_exception);
 
-	if (Z_TYPE(dispatcher->response) != IS_OBJECT) {
+	if (EXPECTED(Z_TYPE(dispatcher->response) != IS_OBJECT)) {
 		yaf_response_instance(&dispatcher->response, sapi_module.name);
 	} else {
 		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
@@ -656,7 +657,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSTARTUP);
 	YAF_EXCEPTION_HANDLE(dispatcher);
 
-	if (!yaf_dispatcher_init_view(dispatcher, NULL, NULL)) {
+	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		return NULL;
 	}
 
@@ -675,7 +676,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
 	YAF_EXCEPTION_HANDLE(dispatcher);
 
-	if (0 == nesting && !yaf_request_is_dispatched(request)) {
+	if (UNEXPECTED(0 == nesting && !yaf_request_is_dispatched(request))) {
 		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The max dispatch nesting %ld was reached", YAF_G(forward_limit));
 		YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 		return NULL;

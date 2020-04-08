@@ -39,22 +39,16 @@
 
 #define YAF_CORRESPOND_ERROR(x) (x>>9L)
 
-#define YAF_EXCEPTION_HANDLE(dispatcher) \
-	if (EG(exception)) { \
-		if (YAF_G(catch_exception) && \
-			instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
+#define YAF_EXCEPTION_HANDLE_EX(dispatcher, ret) \
+	if (UNEXPECTED(EG(exception))) { \
+		if (catch_exception) { \
 			yaf_dispatcher_exception_handler(dispatcher); \
 		} \
-		return NULL; \
+		ret \
 	}
 
-#define YAF_EXCEPTION_HANDLE_NORET(dispatcher) \
-	if (EG(exception)) { \
-		if (YAF_G(catch_exception) && \
-			instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
-			yaf_dispatcher_exception_handler(dispatcher); \
-		} \
-	}
+#define YAF_EXCEPTION_HANDLE(dispatcher)       YAF_EXCEPTION_HANDLE_EX(dispatcher, return NULL;)
+#define YAF_EXCEPTION_HANDLE_NORET(dispatcher) YAF_EXCEPTION_HANDLE_EX(dispatcher, );
 
 #define YAF_EXCEPTION_ERASE_EXCEPTION() \
 	do { \
