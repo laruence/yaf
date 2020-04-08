@@ -52,6 +52,12 @@ static inline int yaf_controller_auto_render(yaf_controller_object *ctl, int dis
 	return ctl->auto_render == -1? dispatch_render : ctl->auto_render;
 }
 
+static inline int yaf_controller_execute(zend_array *ftable, yaf_controller_t *ctl, zend_string *m, int count, zval *args, zval *ret) {
+	zval method;
+	ZVAL_STR(&method, m);
+	return call_user_function_ex(ftable, ctl, &method, ret, count, args, 1, NULL) == SUCCESS;
+}
+
 YAF_STARTUP_FUNCTION(controller);
 #endif
 /*

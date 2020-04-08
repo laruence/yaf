@@ -425,7 +425,7 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 		return 0;
 	}
 
-	if (*(Z_STRVAL_P(pzval) + Z_STRLEN_P(pzval) - 1) == DEFAULT_SLASH) {
+	if (UNEXPECTED(*(Z_STRVAL_P(pzval) + Z_STRLEN_P(pzval) - 1) == DEFAULT_SLASH)) {
 		app->directory = zend_string_init(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval) - 1, 0);
 	} else {
 		app->directory = zend_string_copy(Z_STR_P(pzval));

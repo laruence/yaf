@@ -443,20 +443,17 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 			func_name = strpprintf(0, "%s%s", ZSTR_VAL(request->action), "action");
 			/* @TODO: Magic __call supports? */
 			if ((fptr = (zend_function*)zend_hash_find_ptr(&((ce)->function_table), func_name)) != NULL) {
-				unsigned count = 0;
+				unsigned int count = 0;
 				zval *call_args;
+
 				if (UNEXPECTED(fptr->common.num_args)) {
-					zval method_name;
-
 					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
-					ZVAL_STR(&method_name, func_name);
-					call_user_function_ex(&(ce)->function_table, &controller, &method_name, &ret, count, call_args, 1, NULL);
-					efree(call_args);
-				} else {
-					zend_call_method(&controller, ce, NULL, ZSTR_VAL(func_name), ZSTR_LEN(func_name), &ret, 0, NULL, NULL);
 				}
-
+				yaf_controller_execute(&(ce)->function_table, &controller, func_name, count, call_args, &ret);
 				zend_string_release(func_name);
+				if (UNEXPECTED(count)) {
+					efree(call_args);
+				}
 
 				if (Z_ISUNDEF(ret)) {
 					zend_string_release(origin_action);
@@ -472,13 +469,12 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				}
 				zval_ptr_dtor(&ret);
 			} else if ((ce = yaf_dispatcher_get_action(app->directory, &controller, request)) &&
-					(fptr = zend_hash_str_find_ptr(&(ce->function_table), ZEND_STRL(YAF_ACTION_EXECUTOR_NAME)))) {
+					(zend_string_release(func_name), func_name = zend_string_init(ZEND_STRL(YAF_ACTION_EXECUTOR_NAME), 0)) &&
+					(fptr = zend_hash_find_ptr(&(ce->function_table), func_name))) {
+				unsigned int count = 0;
 				zval *call_args;
 				yaf_action_t action;
 				yaf_controller_object *act;
-				unsigned count = 0;
-
-				zend_string_release(func_name);
 
 				object_init_ex(&action, ce);
 				act = Z_YAFCTLOBJ(action);
@@ -493,15 +489,12 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				ctl = act;
 
 				if (UNEXPECTED(fptr->common.num_args)) {
-					zval method_name;
-
-					yaf_dispatcher_get_call_parameters(request, fptr, &call_args, &count);
-					ZVAL_STRINGL(&method_name, YAF_ACTION_EXECUTOR_NAME, sizeof(YAF_ACTION_EXECUTOR_NAME) - 1);
-					call_user_function_ex(&(ce)->function_table, &action, &method_name, &ret, count, call_args, 1, NULL);
-					zval_ptr_dtor(&method_name);
+					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
+				}
+				yaf_controller_execute(&(ce)->function_table, &action, func_name, count, call_args, &ret);
+				zend_string_release(func_name);
+				if (UNEXPECTED(count)) {
 					efree(call_args);
-				} else {
-					zend_call_method_with_0_params(&action, ce, NULL, "execute", &ret);
 				}
 
 				if (Z_ISUNDEF(ret)) {
@@ -608,7 +601,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	}
 
 	yaf_request_clean_params(request);
-	yaf_response_send(response);
+	yaf_response_response(&dispatcher->response);
 
 	EG(opline_before_exception) = opline;
 	YAF_EXCEPTION_ERASE_EXCEPTION();
@@ -689,10 +682,8 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 	}
 
 	if (!dispatcher->return_response) {
-		zval ret;
-		zend_call_method_with_0_params(&dispatcher->response, Z_OBJCE(dispatcher->response), NULL, "response", &ret);
-		/* it must return bool */
-		/* zval_ptr_dtor(&ret); */
+		yaf_response_response(&dispatcher->response);
+
 		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
 	}
 

@@ -261,7 +261,7 @@ zval* yaf_response_get_body_str(yaf_response_object *response, char *name, size_
 }
 /* }}} */
 
-int yaf_response_send(yaf_response_object *response) /* {{{ */ {
+static int yaf_response_send(yaf_response_object *response) /* {{{ */ {
 	zval *val;
 
 	ZEND_HASH_FOREACH_VAL(&response->body, val) {
@@ -272,6 +272,23 @@ int yaf_response_send(yaf_response_object *response) /* {{{ */ {
 	} ZEND_HASH_FOREACH_END();
 
 	return 1;
+}
+/* }}} */
+
+int yaf_response_response(yaf_response_t *response) /* {{{ */ {
+	zend_class_entry *ce = Z_OBJCE_P(response);
+	if (EXPECTED(ce == yaf_response_http_ce)) {
+		return yaf_response_http_send(Z_YAFRESPONSEOBJ_P(response));
+	} else if (ce == yaf_response_cli_ce) {
+		return yaf_response_send(Z_YAFRESPONSEOBJ_P(response));
+	} else {
+		zval ret;
+		zend_call_method_with_0_params(response, ce, NULL, "response", &ret);
+		zval_ptr_dtor(&ret);
+		if (UNEXPECTED(EG(exception))) {
+			return 0;
+		}
+	}
 }
 /* }}} */
 
@@ -434,6 +451,9 @@ PHP_METHOD(yaf_response, getBody) {
 /** {{{ proto public Yaf_Response_Abstract::response(void)
  */
 PHP_METHOD(yaf_response, response) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	RETURN_BOOL(yaf_response_send(Z_YAFRESPONSEOBJ_P(getThis())));
 }
 /* }}} */

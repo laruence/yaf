@@ -183,7 +183,7 @@ PHP_METHOD(yaf_response_http, setHeader) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Response_Http::setAllHeaders(void)
+/** {{{ proto public Yaf_Response_Http::setAllHeaders(array $headers)
 */
 PHP_METHOD(yaf_response_http, setAllHeaders) {
   zval *headers;
@@ -231,6 +231,9 @@ PHP_METHOD(yaf_response_http, getHeader) {
 /** {{{ proto public Yaf_Response_Http::clearHeaders(void)
 */
 PHP_METHOD(yaf_response_http, clearHeaders) {
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
 	if (yaf_response_clear_header(Z_YAFRESPONSEOBJ_P(getThis()), NULL)) {
 		RETURN_ZVAL(getThis(), 1, 0);
 	}
@@ -259,6 +262,9 @@ PHP_METHOD(yaf_response_http, setRedirect) {
 /** {{{ proto public Yaf_Response_Http::response(void)
  */
 PHP_METHOD(yaf_response_http, response) {
+  if (zend_parse_parameters_none() == FAILURE) {
+	  return;
+  }
   RETURN_BOOL(yaf_response_http_send(Z_YAFRESPONSEOBJ_P(getThis())));
 }
 /* }}} */
