@@ -371,7 +371,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
 	yaf_request_set_dispatched(Z_YAFREQUESTOBJ(dispatcher->request), 1);
-	if (!app->directory) {
+	if (UNEXPECTED(!app->directory)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED,
 				"%s requires %s(which set the application.directory) to be initialized first",
 				ZSTR_VAL(yaf_dispatcher_ce->name), ZSTR_VAL(yaf_application_ce->name));
@@ -381,6 +381,10 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 		zend_class_entry *ce;
 		yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
 
+		ZEND_ASSERT(request->module && yaf_application_is_module_name((request->module)));
+		ZEND_ASSERT(request->ctronller);
+		ZEND_ASSERT(request->action);
+/*
 		if (UNEXPECTED(request->module == NULL)) {
 			yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "Unexcepted a empty module name");
 			return 0;
@@ -393,7 +397,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 			yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "Unexcepted a empty controller name");
 			return 0;
 		}
-
+*/
 		if (zend_string_equals(app->default_module, request->module)) {
 			is_def_module = 1;
 		}
@@ -629,11 +633,6 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 		yaf_response_instance(&dispatcher->response, sapi_module.name);
 	} else {
 		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
-	}
-
-	if (UNEXPECTED(IS_OBJECT != Z_TYPE(dispatcher->request))) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance", ZSTR_VAL(yaf_request_ce->name));
-		return NULL;
 	}
 
 	request = Z_YAFREQUESTOBJ(dispatcher->request);
