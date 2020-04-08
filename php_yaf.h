@@ -143,6 +143,8 @@ static inline int yaf_slip_equal(const char *s, const char *p, unsigned char l) 
 	return (l == 0 || *s == *p);
 }
 zend_string *yaf_canonical_name(int type, zend_string *name);
+zend_string *yaf_build_camel_name(const char *str, size_t len);
+zend_string *yaf_build_lower_name(const char *str, size_t len);
 
 #endif
 

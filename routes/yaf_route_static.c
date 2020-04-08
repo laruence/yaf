@@ -146,21 +146,21 @@ int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, s
 		if (UNEXPECTED(request->module)) {
 			zend_string_release(request->module);
 		}
-		request->module = yaf_route_build_camel_name(module, module_len);
+		request->module = yaf_build_camel_name(module, module_len);
 	}
 
 	if (controller) {
 		if (UNEXPECTED(request->controller)) {
 			zend_string_release(request->controller);
 		}
-		request->controller = yaf_route_build_camel_name(controller, controller_len);
+		request->controller = yaf_build_camel_name(controller, controller_len);
 	}
 
 	if (action) {
 		if (UNEXPECTED(request->action)) {
 			zend_string_release(request->action);
 		}
-		request->action = yaf_route_build_lower_name(action, action_len);
+		request->action = yaf_build_lower_name(action, action_len);
 	}
 
 	if (rest) {

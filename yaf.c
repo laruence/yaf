@@ -108,8 +108,36 @@ zend_object_iterator_funcs yaf_iterator_funcs = /* {{{ */ {
 };
 /* }}} */
 
+zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
+	unsigned int i;
+	zend_string *name = zend_string_alloc(len, 0);
+	unsigned char *p = ZSTR_VAL(name);
+
+	*p++ = toupper(*str);
+	for (i = 1; i < len; i++) {
+		*p++ = tolower(str[i]);
+	}
+	*p = '\0';
+
+	return name;
+}
+/* }}} */
+
+zend_string *yaf_build_lower_name(const char *str, size_t len) /* {{{ */ {
+	unsigned int i;
+	zend_string *name = zend_string_alloc(len, 0);
+	unsigned char *p = ZSTR_VAL(name);
+
+	for (i = 0; i < len; i++) {
+		*p++ = tolower(str[i]);
+	}
+	*p = '\0';
+
+	return name;
+}
+/* }}} */
+
 zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ {
-	zend_string *canocical;
 	const char *p = ZSTR_VAL(name);
 	const char *e = ZSTR_VAL(name) + ZSTR_LEN(name);
 
@@ -125,10 +153,7 @@ zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ {
 		}
 		return zend_string_copy(name);
 sanitize:
-		canocical = zend_string_init(ZSTR_VAL(name), ZSTR_LEN(name), 0);
-		zend_str_tolower(ZSTR_VAL(canocical), ZSTR_LEN(canocical));
-		*ZSTR_VAL(canocical) = toupper(*ZSTR_VAL(canocical));
-		return canocical;
+		return yaf_build_camel_name(ZSTR_VAL(name), ZSTR_LEN(name));
 	} else {
 		return zend_string_tolower(name);
 	}

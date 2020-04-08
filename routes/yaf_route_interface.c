@@ -37,35 +37,6 @@
 
 zend_class_entry *yaf_route_ce;
 
-zend_string *yaf_route_build_camel_name(const char *str, size_t len) /* {{{ */ {
-	unsigned int i;
-	zend_string *name = zend_string_alloc(len, 0);
-	unsigned char *p = ZSTR_VAL(name);
-
-	*p++ = toupper(*str);
-	for (i = 1; i < len; i++) {
-		*p++ = tolower(str[i]);
-	}
-	*p = '\0';
-
-	return name;
-}
-/* }}} */
-
-zend_string *yaf_route_build_lower_name(const char *str, size_t len) /* {{{ */ {
-	unsigned int i;
-	zend_string *name = zend_string_alloc(len, 0);
-	unsigned char *p = ZSTR_VAL(name);
-
-	for (i = 0; i < len; i++) {
-		*p++ = tolower(str[i]);
-	}
-	*p = '\0';
-
-	return name;
-}
-/* }}} */
-
 int yaf_route_instance(yaf_route_t *route, HashTable *config) /* {{{ */ {
 	zval *pzval;
 

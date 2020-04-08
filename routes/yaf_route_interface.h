@@ -21,12 +21,6 @@
 #define YAF_ROUTE_ASSEMBLE_ACTION_FORMAT ":a"
 #define YAF_ROUTE_ASSEMBLE_CONTROLLER_FORMAT ":c"
 
-#define YAF_ROUTE_PROPETY_NAME_MATCH  	"_route"
-#define YAF_ROUTE_PROPETY_NAME_ROUTE  	"_default"
-#define YAF_ROUTE_PROPETY_NAME_MAP	 	"_maps"
-#define YAF_ROUTE_PROPETY_NAME_VERIFY 	"_verify"
-#define YAF_ROUTE_PROPETY_NAME_REVERSE 	"_reverse"
-
 YAF_BEGIN_ARG_INFO_EX(yaf_route_route_arginfo, 0, 0, 1)
 	YAF_ARG_INFO(0, request)
 YAF_END_ARG_INFO()
@@ -39,9 +33,6 @@ YAF_END_ARG_INFO()
 extern zend_class_entry *yaf_route_ce;
 
 int yaf_route_instance(yaf_route_t *route, HashTable *config);
-
-zend_string *yaf_route_build_camel_name(const char *str, size_t len);
-zend_string *yaf_route_build_lower_name(const char *str, size_t len);
 
 YAF_STARTUP_FUNCTION(route);
 
