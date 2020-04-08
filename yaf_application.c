@@ -809,9 +809,11 @@ PHP_METHOD(yaf_application, environ) {
 /** {{{ proto public Yaf_Application::bootstrap(void)
 */
 PHP_METHOD(yaf_application, bootstrap) {
-	unsigned  retval = 1;
+	zval bootstrap;
+	zend_string *func;
 	zend_class_entry  *ce;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
+	yaf_dispatcher_t *dispatcher = &app->dispatcher;
 
 	if (!(ce = zend_hash_str_find_ptr(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1))) {
 		zend_string *bootstrap_path;
@@ -821,47 +823,45 @@ PHP_METHOD(yaf_application, bootstrap) {
 			bootstrap_path = strpprintf(0, "%s%c%s.%s",
 					ZSTR_VAL(app->directory), DEFAULT_SLASH, YAF_DEFAULT_BOOTSTRAP, app->ext?ZSTR_VAL(app->ext) : YAF_DEFAULT_EXT);
 		}
-		if (!yaf_loader_import(ZSTR_VAL(bootstrap_path), ZSTR_LEN(bootstrap_path))) {
+		if (UNEXPECTED(!yaf_loader_import(ZSTR_VAL(bootstrap_path), ZSTR_LEN(bootstrap_path)))) {
+			zend_string_release(bootstrap_path);
 			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", ZSTR_VAL(bootstrap_path));
-			retval = 0;
+			RETURN_FALSE;
 		} else if (UNEXPECTED((ce = zend_hash_str_find_ptr(EG(class_table),
 						YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1)) == NULL)) {
+			zend_string_release(bootstrap_path);
 			php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, ZSTR_VAL(bootstrap_path));
-			retval = 0;
-		} else if (UNEXPECTED(!instanceof_function(ce, yaf_bootstrap_ce))) {
-			php_error_docref(NULL, E_WARNING,
-					"Expect a %s instance, %s give", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
-			retval = 0;
+			RETURN_FALSE;
 		}
 		zend_string_release(bootstrap_path);
 	}
 
-	if (UNEXPECTED(!retval)) {
+	if (UNEXPECTED(!instanceof_function(ce, yaf_bootstrap_ce))) {
+		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance, %s given", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
 		RETURN_FALSE;
-	} else {
-		zend_string *func;
-		zval bootstrap;
-		yaf_dispatcher_t *dispatcher = &app->dispatcher;
-
-		object_init_ex(&bootstrap, ce);
-
-		ZEND_HASH_FOREACH_STR_KEY(&(ce->function_table), func) {
-			zval ret, method;
-			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
-			if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
-				continue;
-			}
-			ZVAL_STR(&method, func);
-			call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
-			/** an uncaught exception threw in function call */
-			if (UNEXPECTED(EG(exception))) {
-				zval_ptr_dtor(&bootstrap);
-				RETURN_FALSE;
-			}
-			zval_ptr_dtor(&ret);
-		} ZEND_HASH_FOREACH_END();
-		zval_ptr_dtor(&bootstrap);
 	}
+
+	object_init_ex(&bootstrap, ce);
+	if (UNEXPECTED(EG(exception))) {
+		zval_ptr_dtor(&bootstrap);
+		RETURN_FALSE;
+	}
+	ZEND_HASH_FOREACH_STR_KEY(&(ce->function_table), func) {
+		zval ret, method;
+		/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
+		if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
+			continue;
+		}
+		ZVAL_STR(&method, func);
+		call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
+		/** an uncaught exception threw in function call */
+		if (UNEXPECTED(EG(exception))) {
+			zval_ptr_dtor(&bootstrap);
+			RETURN_FALSE;
+		}
+		zval_ptr_dtor(&ret);
+	} ZEND_HASH_FOREACH_END();
+	zval_ptr_dtor(&bootstrap);
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
