@@ -1,5 +1,5 @@
 --TEST--
-Check for segfault while use closure as error handler
+Check for Yaf_Bootstrap protected method
 --SKIPIF--
 <?php
 if (!extension_loaded("yaf")) print "skip";
@@ -20,20 +20,14 @@ $config = array(
 );
 
 class Bootstrap extends Yaf_Bootstrap_Abstract {
-    public function _initErrorHandler(Yaf_Dispatcher $dispatcher) {
-		var_dump($dispatcher->getDefaultModule());
-		var_dump($dispatcher->getDefaultController());
-		$dispatcher->setDefaultAction("dummy");
-		var_dump($dispatcher->getDefaultAction());
-        $dispatcher->setErrorHandler(function($errorCode, $errorMessage, $file, $line) {
-            throw new ErrorException($errorMessage, 0, $errorCode, $file, $line);
-        });
+    protected function _initErrorHandler(Yaf_Dispatcher $dispatcher) {
+		echo "Bad";
     }
 }
 
 class IndexController extends Yaf_Controller_Abstract {
-    public function dummyAction() {
-        echo  $undefined_var;
+    public function indexAction() {
+		echo "Okey";
         return FALSE;
     }
 }
@@ -46,7 +40,5 @@ try {
 }
 ?>
 --EXPECTF--
-string(5) "Index"
-string(5) "Index"
-string(5) "dummy"
-string(33) "Undefined variable: undefined_var"
+Warning: %scannot access protected method Bootstrap::_initErrorHandler() in %s098.php on line %d
+Okey

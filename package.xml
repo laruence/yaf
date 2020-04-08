@@ -22,9 +22,11 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Rmoved all lead underline for fake protected property name(examing by var_dump)
   - Added Yaf_Request::cleanParams()
   - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
+  - Added Yaf_Dispatcher::getDefaultModule(), Yaf_Dispatcher::getDefaultController() and Yaf_Dispatcher::getDefaultAction()
+  - Rmoved all lead underline for fake protected property name(examing by var_dump)
+  - Fixed bug that protected method of Bootstrap get executed
   - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
   - Yaf_Route_* now routes valid Module/Controller/action name directly
  </notes>
@@ -208,6 +210,7 @@
     <file name="095.phpt" role="test" />
     <file name="096.phpt" role="test" />
     <file name="097.phpt" role="test" />
+    <file name="098.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

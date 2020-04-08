@@ -1005,6 +1005,57 @@ PHP_METHOD(yaf_dispatcher, setView) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Dispatcher::getDefaultModule(void)
+*/
+PHP_METHOD(yaf_dispatcher, getDefaultModule) {
+	yaf_application_object *app = yaf_application_instance();
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	if (app->default_module) {
+		RETURN_STR_COPY(app->default_module);
+	} else {
+		RETURN_STRINGL(YAF_ROUTER_DEFAULT_MODULE, sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1);
+	}
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Dispatcher::getDefaultController(void)
+*/
+PHP_METHOD(yaf_dispatcher, getDefaultController) {
+	yaf_application_object *app = yaf_application_instance();
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	if (app->default_controller) {
+		RETURN_STR_COPY(app->default_controller);
+	} else {
+		RETURN_STRINGL(YAF_ROUTER_DEFAULT_CONTROLLER, sizeof(YAF_ROUTER_DEFAULT_CONTROLLER) - 1);
+	}
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Dispatcher::getDefaultAction(void)
+*/
+PHP_METHOD(yaf_dispatcher, getDefaultAction) {
+	yaf_application_object *app = yaf_application_instance();
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	if (app->default_action) {
+		RETURN_STR_COPY(app->default_action);
+	} else {
+		RETURN_STRINGL(YAF_ROUTER_DEFAULT_ACTION, sizeof(YAF_ROUTER_DEFAULT_ACTION) - 1);
+	}
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Dispatcher::setDefaultModule(string $name)
 */
 PHP_METHOD(yaf_dispatcher, setDefaultModule) {
@@ -1097,27 +1148,30 @@ PHP_METHOD(yaf_dispatcher, __clone) {
 /** {{{ yaf_dispatcher_methods
 */
 zend_function_entry yaf_dispatcher_methods[] = {
-	PHP_ME(yaf_dispatcher, __construct, 			NULL, 					ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-	PHP_ME(yaf_dispatcher, enableView,			yaf_dispatcher_void_arginfo,  		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, disableView,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, initView,			yaf_dispatcher_initview_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setView,				yaf_dispatcher_setview_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setRequest,			yaf_dispatcher_setrequest_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getApplication,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getRouter,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getRequest,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setErrorHandler,			yaf_dispatcher_seterrhdler_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultModule,		yaf_dispatcher_setmodule_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultController, 		yaf_dispatcher_setctrl_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultAction,		yaf_dispatcher_setaction_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, returnResponse,			yaf_dispatcher_returnresp_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, autoRender,			yaf_dispatcher_autorender_arginfo,	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, flushInstantly,			yaf_dispatcher_flush_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getInstance,			yaf_dispatcher_void_arginfo, 		ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(yaf_dispatcher, dispatch,			yaf_dispatcher_dispatch_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, throwException,			yaf_dispatcher_throwex_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, catchException,			yaf_dispatcher_catchex_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, registerPlugin,			yaf_dispatcher_regplugin_arginfo, 	ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, __construct,          NULL, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+	PHP_ME(yaf_dispatcher, enableView,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, disableView,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, initView,             yaf_dispatcher_initview_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setView,              yaf_dispatcher_setview_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setRequest,           yaf_dispatcher_setrequest_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getApplication,       yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getRouter,            yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getRequest,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getDefaultModule,     yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getDefaultController, yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getDefaultAction,     yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setErrorHandler,      yaf_dispatcher_seterrhdler_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultModule,     yaf_dispatcher_setmodule_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultController, yaf_dispatcher_setctrl_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultAction,     yaf_dispatcher_setaction_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, returnResponse,       yaf_dispatcher_returnresp_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, autoRender,           yaf_dispatcher_autorender_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, flushInstantly,       yaf_dispatcher_flush_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getInstance,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(yaf_dispatcher, dispatch,             yaf_dispatcher_dispatch_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, throwException,       yaf_dispatcher_throwex_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, catchException,       yaf_dispatcher_catchex_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, registerPlugin,       yaf_dispatcher_regplugin_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

@@ -701,7 +701,7 @@ zval *yaf_request_get_param(yaf_request_object *request, zend_string *key) /* {{
 const char *yaf_request_get_request_method(void) /* {{{ */ {
 	if (SG(request_info).request_method) {
 		return SG(request_info).request_method;
-	} else if (strncasecmp(sapi_module.name, "cli", 3) == 0) {
+	} else if (yaf_slip_equal(sapi_module.name, "cli", 4)) {
 		return "CLI";
 	} else {
 		return "UNKNOW";

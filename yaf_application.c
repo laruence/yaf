@@ -846,16 +846,19 @@ PHP_METHOD(yaf_application, bootstrap) {
 		object_init_ex(&bootstrap, ce);
 
 		ZEND_HASH_FOREACH_STR_KEY(&(ce->function_table), func) {
+			zval ret, method;
 			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
 			if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
 				continue;
 			}
-			zend_call_method(&bootstrap, ce, NULL, ZSTR_VAL(func), ZSTR_LEN(func), NULL, 1, dispatcher, NULL);
+			ZVAL_STR(&method, func);
+			call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
 			/** an uncaught exception threw in function call */
 			if (UNEXPECTED(EG(exception))) {
 				zval_ptr_dtor(&bootstrap);
 				RETURN_FALSE;
 			}
+			zval_ptr_dtor(&ret);
 		} ZEND_HASH_FOREACH_END();
 		zval_ptr_dtor(&bootstrap);
 	}
