@@ -382,7 +382,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 		yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
 
 		ZEND_ASSERT(request->module && yaf_application_is_module_name((request->module)));
-		ZEND_ASSERT(request->ctronller);
+		ZEND_ASSERT(request->controller);
 		ZEND_ASSERT(request->action);
 /*
 		if (UNEXPECTED(request->module == NULL)) {
