@@ -406,17 +406,12 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	zval *pzval, *psval;
 
 	conf = Z_YAFCONFIGOBJ(app->config)->config;
-	if (UNEXPECTED((config = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL)) {
+	if (UNEXPECTED((config = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(config) != IS_ARRAY) {
 		/* For back compatibilty */
-		if ((config = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) {
+		if (((config = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(config) != IS_ARRAY) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configure");
 			return 0;
 		}
-	}
-
-	if (UNEXPECTED(Z_TYPE_P(config) != IS_ARRAY)) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configure");
-		return 0;
 	}
 
 	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("directory"))) == NULL ||
@@ -431,6 +426,7 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 		app->directory = zend_string_copy(Z_STR_P(pzval));
 	}
 
+	/* following options are optional */
 	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("ext"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_STRING)) {
 		app->ext = zend_string_copy(Z_STR_P(pzval));
