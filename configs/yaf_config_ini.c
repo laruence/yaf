@@ -65,23 +65,26 @@ static inline void yaf_deep_copy_section(zval *dst, zval *src) /* {{{ */ {
 	ZEND_HASH_FOREACH_KEY_VAL(ht, idx, key, pzval) {
 		if (key) {
 			if (Z_TYPE_P(pzval) == IS_ARRAY &&
-				(dstpzval = zend_hash_find(Z_ARRVAL_P(dst), key)) != NULL && Z_TYPE_P(dstpzval) == IS_ARRAY) {
-				SEPARATE_ARRAY(dstpzval);
-				yaf_deep_copy_section(dstpzval, pzval);
+				(dstpzval = zend_hash_find(Z_ARRVAL_P(dst), key)) != NULL &&
+				Z_TYPE_P(dstpzval) == IS_ARRAY) {
+				array_init(&value);
+				yaf_deep_copy_section(&value, dstpzval);
+				yaf_deep_copy_section(&value, pzval);
 			} else {
 				ZVAL_COPY(&value, pzval);
-				zend_hash_update(Z_ARRVAL_P(dst), key, &value);
 			}
+			zend_hash_update(Z_ARRVAL_P(dst), key, &value);
 		} else {
 			if (Z_TYPE_P(pzval) == IS_ARRAY &&
 				(dstpzval = zend_hash_index_find(Z_ARRVAL_P(dst), idx)) != NULL &&
 				Z_TYPE_P(dstpzval) == IS_ARRAY) {
-				SEPARATE_ARRAY(dstpzval);
-				yaf_deep_copy_section(dstpzval, pzval);
+				array_init(&value);
+				yaf_deep_copy_section(&value, dstpzval);
+				yaf_deep_copy_section(&value, pzval);
 			} else {
 				ZVAL_COPY(&value, pzval);
-				zend_hash_index_update(Z_ARRVAL_P(dst), idx, &value);
 			}
+			zend_hash_index_update(Z_ARRVAL_P(dst), idx, &value);
 		}
 	} ZEND_HASH_FOREACH_END();
 }
