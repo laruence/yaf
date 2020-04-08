@@ -310,7 +310,7 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 			memcpy(p, "action", sizeof("action"));
 		} else {
 			char *p = ZSTR_VAL(lc_name);
-			memcpy(p, "action", sizeof("action"));
+			memcpy(p, "action", sizeof("action") - 1);
 			p += sizeof("action") - 1;
 			if (UNEXPECTED(YAF_G(name_separator_len))) {
 				zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
