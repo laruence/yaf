@@ -46,7 +46,7 @@ extern zend_class_entry *yaf_application_ce;
 int yaf_application_is_module_name(zend_string *name);
 int yaf_application_is_module_name_str(const char *name, size_t len);
 
-static inline yaf_application_object *yaf_application_instance() {
+static zend_always_inline yaf_application_object *yaf_application_instance() {
 	if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
 		return Z_YAFAPPOBJ(YAF_G(app));
 	}

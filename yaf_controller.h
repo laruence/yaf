@@ -40,7 +40,7 @@ typedef struct {
 
 #define Z_YAFCTLOBJ(zv)    (php_yaf_controller_fetch_object(Z_OBJ(zv)))
 #define Z_YAFCTLOBJ_P(zv)  Z_YAFCTLOBJ(*zv)
-static inline yaf_controller_object *php_yaf_controller_fetch_object(zend_object *obj) {
+static zend_always_inline yaf_controller_object *php_yaf_controller_fetch_object(zend_object *obj) {
 	return (yaf_controller_object *)((char*)(obj) - XtOffsetOf(yaf_controller_object, std));
 }
 
@@ -48,11 +48,11 @@ int yaf_controller_render(yaf_controller_t *ctl, zend_string *action, zval *vars
 void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args);
 void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *module);
 
-static inline int yaf_controller_auto_render(yaf_controller_object *ctl, int dispatch_render) {
+static zend_always_inline int yaf_controller_auto_render(yaf_controller_object *ctl, int dispatch_render) {
 	return ctl->auto_render == -1? dispatch_render : ctl->auto_render;
 }
 
-static inline int yaf_controller_execute(zend_array *ftable, yaf_controller_t *ctl, zend_string *m, int count, zval *args, zval *ret) {
+static zend_always_inline int yaf_controller_execute(zend_array *ftable, yaf_controller_t *ctl, zend_string *m, int count, zval *args, zval *ret) {
 	zval method;
 	ZVAL_STR(&method, m);
 	return call_user_function_ex(ftable, ctl, &method, ret, count, args, 1, NULL) == SUCCESS;

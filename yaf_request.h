@@ -47,7 +47,7 @@ typedef struct {
 #define Z_YAFREQUESTOBJ(zv)    (php_yaf_request_fetch_object(Z_OBJ(zv)))
 #define Z_YAFREQUESTOBJ_P(zv)  Z_YAFREQUESTOBJ(*zv)
 
-static inline yaf_request_object *php_yaf_request_fetch_object(zend_object *obj) {
+static zend_always_inline yaf_request_object *php_yaf_request_fetch_object(zend_object *obj) {
 	return (yaf_request_object *)((char*)(obj) - XtOffsetOf(yaf_request_object, std));
 }
 
@@ -67,37 +67,37 @@ int yaf_request_set_params_multi(yaf_request_object *instance, zval *values);
 const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len);
 const char *yaf_request_get_request_method(void);
 
-static inline int yaf_request_is_routed(yaf_request_object *request) {
+static zend_always_inline int yaf_request_is_routed(yaf_request_object *request) {
 	return request->routed;
 }
 
-static inline int yaf_request_is_dispatched(yaf_request_object *request) {
+static zend_always_inline int yaf_request_is_dispatched(yaf_request_object *request) {
 	return request->dispatched;
 }
 
-static inline void yaf_request_set_routed(yaf_request_object *request, int flag) {
+static zend_always_inline void yaf_request_set_routed(yaf_request_object *request, int flag) {
 	request->routed = flag? 1 : 0;
 }
 
-static inline void yaf_request_set_dispatched(yaf_request_object *request, int flag) {
+static zend_always_inline void yaf_request_set_dispatched(yaf_request_object *request, int flag) {
 	request->dispatched = flag? 1 : 0;
 }
 
-static inline void yaf_request_set_module(yaf_request_object *request, zend_string *module) {
+static zend_always_inline void yaf_request_set_module(yaf_request_object *request, zend_string *module) {
 	if (request->module) {
 		zend_string_release(request->module);
 	}
 	request->module = yaf_canonical_name(1, module);
 }
 
-static inline void yaf_request_set_controller(yaf_request_object *request, zend_string *controller) {
+static zend_always_inline void yaf_request_set_controller(yaf_request_object *request, zend_string *controller) {
 	if (request->controller) {
 		zend_string_release(request->controller);
 	}
 	request->controller = yaf_canonical_name(1, controller);
 }
 
-static inline void yaf_request_set_action(yaf_request_object *request, zend_string *action) {
+static zend_always_inline void yaf_request_set_action(yaf_request_object *request, zend_string *action) {
 	if (request->action) {
 		zend_string_release(request->action);
 	}

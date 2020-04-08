@@ -49,7 +49,7 @@ int yaf_register_autoloader(yaf_loader_t *loader);
 int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string *prefix);
 yaf_loader_t *yaf_loader_instance(zend_string *library_path, zend_string *global_path);
 
-static inline void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path, zend_string *global_path) {
+static zend_always_inline void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path, zend_string *global_path) {
 	if (EXPECTED(library_path && global_path)) {
 		loader->library = zend_string_copy(library_path);
 		loader->glibrary = zend_string_copy(global_path);

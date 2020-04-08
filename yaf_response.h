@@ -39,7 +39,7 @@ typedef struct {
 #define Z_YAFRESPONSEOBJ(zv)    (php_yaf_response_fetch_object(Z_OBJ(zv)))
 #define Z_YAFRESPONSEOBJ_P(zv)  Z_YAFRESPONSEOBJ(*zv)
 
-static inline yaf_response_object *php_yaf_response_fetch_object(zend_object *obj) {
+static zend_always_inline yaf_response_object *php_yaf_response_fetch_object(zend_object *obj) {
 	return (yaf_response_object *)((char*)(obj) - XtOffsetOf(yaf_response_object, std));
 }
 

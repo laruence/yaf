@@ -30,7 +30,7 @@ typedef struct {
 
 #define Z_YAFCONFIGOBJ(zv)    (php_yaf_config_fetch_object(Z_OBJ(zv)))
 #define Z_YAFCONFIGOBJ_P(zv)  Z_YAFCONFIGOBJ(*zv)
-static inline yaf_config_object *php_yaf_config_fetch_object(zend_object *obj) {
+static zend_always_inline yaf_config_object *php_yaf_config_fetch_object(zend_object *obj) {
 	return (yaf_config_object *)((char*)(obj) - XtOffsetOf(yaf_config_object, std));
 }
 

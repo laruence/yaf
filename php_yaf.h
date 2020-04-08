@@ -131,7 +131,7 @@ extern zend_object_iterator_funcs yaf_iterator_funcs;
 		l-=sizeof(uint##s##_t),a+=sizeof(uint##s##_t),b+=sizeof(uint##s##_t); \
 	}\
 } while (0)
-static inline int yaf_slip_equal(const char *s, const char *p, unsigned char l) {
+static zend_always_inline int yaf_slip_equal(const char *s, const char *p, unsigned char l) {
 	ZEND_ASSERT(l < 16);
 #if SIZEOF_ZEND_LONG == 8
 	YSCMP(s, p, l, 64);
