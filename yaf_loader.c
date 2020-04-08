@@ -399,7 +399,7 @@ int yaf_loader_load(yaf_loader_t *loader, char *filename, size_t fname_len, char
 	char *position = directory + directory_len;
 	yaf_application_object *app = yaf_application_instance();
 
-	if (app) {
+	if (UNEXPECTED(app && app->ext)) {
 		ext = ZSTR_VAL(app->ext);
 		ext_len = ZSTR_LEN(app->ext);
 	} else {
@@ -410,10 +410,6 @@ int yaf_loader_load(yaf_loader_t *loader, char *filename, size_t fname_len, char
 	if (directory_len == 0) {
 		if (EXPECTED(loader)) {
 			zend_string *library_dir;
-
-			if (UNEXPECTED(loader == NULL)) {
-				loader = &YAF_G(loader);
-			}
 
 			if (yaf_loader_is_local_namespace(Z_YAFLOADEROBJ_P(loader), filename, fname_len)) {
 				library_dir = Z_YAFLOADEROBJ_P(loader)->library;

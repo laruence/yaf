@@ -24,7 +24,7 @@ Yaf_Application Object
     [environ:protected] => product
     [running:protected] => 
     [err_msg:protected] => 
-    [err_no:protected] => 
+    [err_no:protected] => 0
     [config:protected] => Yaf_Config_Ini Object
         (
 %A

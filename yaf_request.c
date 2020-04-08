@@ -428,9 +428,9 @@ int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri,
 				char *ext;
 				size_t ext_len;
 				zval *script_name, *phpself_name, *orig_name;
+				yaf_application_object *app;
 
-				if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
-					yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
+				if (UNEXPECTED((app = yaf_application_instance()) && app->ext)) {
 					ext = ZSTR_VAL(app->ext);
 					ext_len = ZSTR_LEN(app->ext);
 				} else {

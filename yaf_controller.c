@@ -381,7 +381,7 @@ static int yaf_controller_render_ex(yaf_controller_object *ctl, zend_string *act
 		return 0;
 	}
 
-	if (EXPECTED(app = yaf_application_instance())) {
+	if (UNEXPECTED(app = yaf_application_instance()) && app->view_ext) {
 		view_ext = ZSTR_VAL(app->view_ext);
 	} else {
 		view_ext = YAF_DEFAULT_VIEW_EXT;

@@ -61,13 +61,13 @@ string(%d) "%s"
 string(5) "inDex"
 
 Testing ext:
-string(3) "php"
-string(3) "php"
+NULL
+NULL
 string(5) "inDex"
 
 Testing view_ext:
-string(5) "phtml"
-string(5) "phtml"
+NULL
+NULL
 string(5) "inDex"
 
 Testing err_no:
@@ -118,7 +118,7 @@ object(Yaf_Application)#1 (13) {
   ["err_msg:protected"]=>
   NULL
   ["err_no:protected"]=>
-  bool(false)
+  int(0)
   ["config:protected"]=>
   object(Yaf_Config_Simple)#%d (%d) {
 %A
