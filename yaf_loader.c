@@ -140,7 +140,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				}
 				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
 				name += len;
-				if (memcmp(name, YAF_LOADER_CONTROLLER, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
+				if (!yaf_slip_equal(name, YAF_LOADER_CONTROLLER, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				suspense_type = YAF_CLASS_NAME_CONTROLLER;
@@ -151,7 +151,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				}
 				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
 				name += len;
-				if (memcmp(name, YAF_LOADER_PLUGIN, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
+				if (!yaf_slip_equal(name, YAF_LOADER_PLUGIN, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				suspense_type = YAF_CLASS_NAME_PLUGIN;
@@ -162,7 +162,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				}
 				len -= sizeof(YAF_LOADER_MODEL) - 1;
 				name += len;
-				if (memcmp(name, YAF_LOADER_MODEL, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
+				if (!yaf_slip_equal(name, YAF_LOADER_MODEL, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				suspense_type = YAF_CLASS_NAME_MODEL;
@@ -182,7 +182,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				if (len < sizeof(YAF_LOADER_CONTROLLER) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				if (memcmp(name + 1, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
+				if (!yaf_slip_equal(name + 1, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				suspense_type = YAF_CLASS_NAME_CONTROLLER;
@@ -193,7 +193,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				if (len < sizeof(YAF_LOADER_PLUGIN) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				if (memcmp(name + 1, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
+				if (!yaf_slip_equal(name + 1, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				suspense_type = YAF_CLASS_NAME_PLUGIN;
@@ -204,7 +204,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				if (len < sizeof(YAF_LOADER_MODEL) - 1) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
-				if (memcmp(name + 1, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
+				if (!yaf_slip_equal(name + 1, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				suspense_type = YAF_CLASS_NAME_MODEL;
@@ -684,7 +684,7 @@ PHP_METHOD(yaf_loader, autoload) {
 	}
 
 	if (UNEXPECTED(ZSTR_LEN(class_name) >= sizeof(YAF_LOADER_RESERVERD) - 1 &&
-		memcmp(ZSTR_VAL(class_name), YAF_LOADER_RESERVERD, sizeof(YAF_LOADER_RESERVERD) - 1) == 0)) {
+		yaf_slip_equal(ZSTR_VAL(class_name), YAF_LOADER_RESERVERD, sizeof(YAF_LOADER_RESERVERD) - 1))) {
 		php_error_docref(NULL, E_WARNING, "You should not use '%s' as class name prefix", YAF_LOADER_RESERVERD);
 	}
 

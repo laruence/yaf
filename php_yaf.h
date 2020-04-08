@@ -125,6 +125,23 @@ typedef struct {
 extern ZEND_DECLARE_MODULE_GLOBALS(yaf);
 extern zend_object_iterator_funcs yaf_iterator_funcs;
 
+#define YSCMP(a, b, l, s)  do { \
+	if (l>sizeof(uint##s##_t)) { \
+		if (*(uint##s##_t*)a != *(uint##s##_t*)b) return 0; \
+		l-=sizeof(uint##s##_t),a+=sizeof(uint##s##_t),b+=sizeof(uint##s##_t); \
+	}\
+} while (0)
+static inline int yaf_slip_equal(const char *s, const char *p, unsigned char l) {
+	ZEND_ASSERT(l < 16);
+#if SIZEOF_ZEND_LONG == 8
+	YSCMP(s, p, l, 64);
+#else
+	YSCMP(s, p, l, 32); YSCMP(s, p, l, 32);
+#endif
+	YSCMP(s, p, l, 32);
+   	YSCMP(s, p, l, 16);
+	return (l == 0 || *s == *p);
+}
 zend_string *yaf_canonical_name(int type, zend_string *name);
 
 #endif

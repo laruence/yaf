@@ -640,7 +640,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 	if (EXPECTED(!yaf_request_is_routed(request))) {
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESTARTUP);
 		YAF_EXCEPTION_HANDLE(dispatcher);
-		if (!yaf_dispatcher_route(dispatcher)) {
+		if (UNEXPECTED(!yaf_dispatcher_route(dispatcher))) {
 			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 			return NULL;

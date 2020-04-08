@@ -352,7 +352,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 		}
 	} else if (value) {
 		zval *active_arr;
-		if (Z_TYPE(YAF_G(active_ini_file_section)) != IS_UNDEF) {
+		if (EXPECTED(Z_TYPE(YAF_G(active_ini_file_section)) != IS_UNDEF)) {
 			active_arr = &YAF_G(active_ini_file_section);
 		} else {
 			active_arr = arr;
