@@ -32,7 +32,9 @@ PHP
 
 $app = new Yaf_Application($config);
 $req = new Yaf_Request_Simple();
-$req->setControllerName('Index');
+$req->setControllerName('Foo_Bar');
+var_dump($req->getControllerName());
+$req->setControllerName('index');
 $req->setActionName('func');
 $req->setParam(array('b' => 'the second param'));
 $app->getDispatcher()->dispatch($req);
@@ -46,6 +48,7 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECT--
+string(7) "Foo_Bar"
 NULL
 NULL
 string(15) "the first param"

@@ -181,7 +181,14 @@ zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
 
 	*p++ = toupper(*str);
 	for (i = 1; i < len; i++) {
-		*p++ = tolower(str[i]);
+		unsigned char ch = str[i];
+		if (ch != '_') {
+			*p++ = tolower(ch);
+		} else {
+			*p++ = ch;
+			i++;
+			*p++ = toupper(str[i]);
+		}
 	}
 	*p = '\0';
 
