@@ -806,8 +806,8 @@ PHP_METHOD(yaf_controller, display) {
 */
 zend_function_entry yaf_controller_methods[] = {
 	PHP_ME(yaf_controller, __construct,	yaf_controller_ctor_arginfo,    ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_controller, render,	    yaf_controller_render_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, display,	    yaf_controller_display_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_controller, render,	    yaf_controller_render_arginfo, 	ZEND_ACC_PROTECTED)
+	PHP_ME(yaf_controller, display,	    yaf_controller_display_arginfo, ZEND_ACC_PROTECTED)
 	PHP_ME(yaf_controller, getRequest,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_controller, getResponse,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_controller, getView, 	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
