@@ -53,7 +53,14 @@ static zend_always_inline int yaf_controller_auto_render(yaf_controller_object *
 }
 
 static zend_always_inline int yaf_controller_execute(yaf_controller_t *ctl, zend_function* func, int count, zval *args, zval *ret) {
-	return yaf_call_user_method(Z_OBJ_P(ctl), func, ret, count, args, ((zval*)-1));
+#if PHP_VERSION_ID < 70100
+	zend_class_entry *old_scope = EG(scope);
+	EG(scope) = Z_OBJCE_P(ctl);
+#endif
+	yaf_call_user_method(Z_OBJ_P(ctl), func, ret, count, args, ((zval*)-1));
+#if PHP_VERSION_ID < 70100
+	EG(scope) = old_scope;
+#endif
 }
 
 YAF_STARTUP_FUNCTION(controller);
