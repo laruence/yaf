@@ -14,6 +14,9 @@ startup();
 $config = array(
 	"application" => array(
 		"directory" => APPLICATION_PATH,
+        "view" => array(
+ 	        "ext" => "html",
+        ),
     ),
 );
 
@@ -25,7 +28,7 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "okey");
+file_put_contents(APPLICATION_PATH . "/views/index/index.html", "okey");
 
 $app = new Yaf_Application($config);
 $response = $app->getDispatcher()->returnResponse(true)->dispatch(new Yaf_Request_Simple("CLI", "Index","Index","index"));
