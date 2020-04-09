@@ -571,6 +571,10 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	action = zend_string_init(ZEND_STRL(YAF_ERROR_ACTION), 0);
 
 	yaf_request_set_mvc(request, NULL, controller, action, NULL);
+	if (UNEXPECTED(request->module == NULL)) {
+		/* must threw in routerStartup hook ?*/
+		yaf_dispatcher_fix_default(dispatcher, request);
+	}
 
 	zend_string_release(controller);
 	zend_string_release(action);
