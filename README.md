@@ -158,6 +158,9 @@ The view script for default controller and default action is in the application/
 
 ## Alternative
 You can generate the example above by using Yaf Code Generator:  https://github.com/laruence/php-yaf/tree/master/tools/cg
+```
+./yaf_cg -d output_directory [-a application_name] [--namespace]
+```
 
 ## More
 More info could be found at Yaf Manual: http://www.php.net/manual/en/book.yaf.php
