@@ -33,9 +33,9 @@ typedef struct {
 	zend_string     *view_ext;
 	zend_string     *base_uri;
 	zend_array      *default_route;
-	zend_string     *err_msg;
 	unsigned int     err_no;
     zend_bool        running;
+	zend_string     *err_msg;
 } yaf_application_object;
 
 #define Z_YAFAPPOBJ(zv)     ((yaf_application_object*)(Z_OBJ(zv)))
