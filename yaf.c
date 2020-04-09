@@ -334,6 +334,7 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 */
 PHP_RINIT_FUNCTION(yaf)
 {
+	YAF_G(in_exception) = 0;
 	YAF_G(throw_exception) = 1;
 	YAF_G(catch_exception) = 0;
 

@@ -584,17 +584,19 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 		/* failover to uncaught exception */
 		zend_string_release(exception_str);
 		EG(exception) = Z_OBJ(exception);
+		YAF_G(in_exception) = 0;
 		return;
 	}
 	yaf_request_set_dispatched(request, 0);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		yaf_request_clean_params(request);
+		YAF_G(in_exception) = 0;
 		return;
 	}
 
 	if (!yaf_dispatcher_handle(dispatcher)) {
-		if (EG(exception) &&
+		if (UNEXPECTED(EG(exception)) &&
 			instanceof_function(EG(exception)->ce,
 				yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)])) {
 			zend_string_release(request->module);
@@ -609,6 +611,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	yaf_response_response(&dispatcher->response);
 
 	EG(opline_before_exception) = opline;
+	YAF_G(in_exception) = 0;
 	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
