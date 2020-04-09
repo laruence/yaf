@@ -28,5 +28,12 @@ Yaf_Loader Object
 (
     [library:protected] => /tmp
     [global_library:protected] => /php/global/dir
+    [namespace:protected] => Array
+        (
+            [0] => Foo
+            [1] => Bar
+            [2] => Dummy
+        )
+
 )
 bool(true)

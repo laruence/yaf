@@ -362,7 +362,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 }
 /* }}} */
 
-void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *section_name) /* {{{ */ {
+int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *section_name) /* {{{ */ {
 	conf->readonly = 1;
 
 	if (Z_TYPE_P(filename) == IS_ARRAY) {
@@ -370,6 +370,7 @@ void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *s
 		if (!(GC_FLAGS(conf->config) & IS_ARRAY_IMMUTABLE)) {
 			GC_ADDREF(conf->config);
 		}
+		return 1;
 	} else if (Z_TYPE_P(filename) == IS_STRING) {
 		zval configs;
 		zend_stat_t sb;
@@ -402,16 +403,16 @@ void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *s
 							|| Z_TYPE(configs) != IS_ARRAY) {
 						zval_ptr_dtor(&configs);
 						yaf_trigger_error(E_ERROR, "Parsing ini file '%s' failed", ini_file);
-						return;
+						return 0;
 					}
 				}
 			} else {
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
-				return;
+				return 0;
 			}
 		} else {
 			yaf_trigger_error(E_ERROR, "Unable to find config file '%s'", ini_file);
-			return;
+			return 0;
 		}
 
 		if (section_name && ZSTR_LEN(section_name)) {
@@ -419,7 +420,7 @@ void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *s
 			if ((section = zend_symtable_find(Z_ARRVAL(configs), section_name)) == NULL) {
 				zval_ptr_dtor(&configs);
 				yaf_trigger_error(E_ERROR, "There is no section '%s' in '%s'", ZSTR_VAL(section_name), ini_file);
-				return;
+				return 0;
 			}
 			ZVAL_COPY_VALUE(&garbage, &configs);
 			ZVAL_COPY(&configs, section);
@@ -428,10 +429,12 @@ void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *s
 
 		conf->config = Z_ARRVAL(configs);
 		conf->filename = zend_string_copy(Z_STR_P(filename));
-		return;
+		return 1;
 	} else {
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Invalid parameters provided, must be path of ini file");
 	}
+
+	return 0;
 }
 /* }}} */
 

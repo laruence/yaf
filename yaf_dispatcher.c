@@ -253,7 +253,7 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_reques
 	}
 
 	if ((ce = (zend_class_entry*)zend_hash_find_ptr(EG(class_table), lc_name)) == NULL) {
-		if (!yaf_loader_load(NULL, ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
+		if (!yaf_loader_load(Z_YAFLOADEROBJ(YAF_G(loader)), ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
 					"Failed opening controller script %s: %s", directory, strerror(errno));
 			zend_string_release(lc_name);

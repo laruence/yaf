@@ -35,7 +35,11 @@ typedef struct {
 	zend_object std;
 	zend_string *library;
 	zend_string *glibrary;
-	zend_array   namespaces;
+	zend_array  *namespaces;
+	zend_bool    use_spl_autoload;
+	zend_bool    lowcase_path;
+	zend_bool    name_suffix;
+	zend_bool    name_separator;
 } yaf_loader_object;
 
 #define Z_YAFLOADEROBJ(zv)    ((yaf_loader_object*)(Z_OBJ(zv)))
@@ -43,12 +47,13 @@ typedef struct {
 
 extern zend_class_entry *yaf_loader_ce;
 
-int yaf_loader_load(yaf_loader_t *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
-int yaf_loader_import(const char* path, uint32_t path_len);
+yaf_loader_t *yaf_loader_instance(zend_string *library_path);
+void yaf_loader_reset(yaf_loader_object *loader);
+int yaf_loader_load(yaf_loader_object *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
+int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string *prefix);
 void yaf_loader_set_global_library_path(yaf_loader_object *loader, zend_string *library_path);
-yaf_loader_t *yaf_loader_instance(zend_string *library_path);
 
 static zend_always_inline void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path) {
 	if (UNEXPECTED(loader->library)) {

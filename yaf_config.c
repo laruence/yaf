@@ -160,7 +160,10 @@ void yaf_config_instance(yaf_config_t *this_ptr, zval *config, zend_string *sect
 		if (strncasecmp(Z_STRVAL_P(config) + Z_STRLEN_P(config) - 4, ".ini", 4) == 0) {
 			conf = yaf_config_new(yaf_config_ini_ce);
 			ZVAL_OBJ(this_ptr, conf);
-			yaf_config_ini_init(php_yaf_config_fetch_object(conf), config, section);
+			if (UNEXPECTED(!yaf_config_ini_init(php_yaf_config_fetch_object(conf), config, section))) {
+				zval_ptr_dtor(this_ptr);
+				ZVAL_UNDEF(this_ptr);
+			}
 			return;
 		}
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expects a path to *.ini configuration file as parameter");

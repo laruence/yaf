@@ -587,6 +587,8 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 			zend_string_release(str);
 			zend_string_release(val);
 		} ZEND_HASH_FOREACH_END();
+
+		yaf_loader_reset(Z_YAFLOADEROBJ(YAF_G(loader)));
 	}
 
 	return 1;

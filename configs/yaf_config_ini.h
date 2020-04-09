@@ -23,7 +23,7 @@
 
 extern zend_class_entry *yaf_config_ini_ce;
 
-void yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *section);
+int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *section);
 
 YAF_STARTUP_FUNCTION(config_ini);
 
