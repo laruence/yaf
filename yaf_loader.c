@@ -296,7 +296,7 @@ void yaf_loader_set_global_library_path(yaf_loader_object *loader, zend_string *
 }
 /* }}} */
 
-static zend_array *yaf_loader_get_namespaces(yaf_loader_object *loader) {
+static zend_array *yaf_loader_get_namespaces(yaf_loader_object *loader) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	zend_string *name;
@@ -313,6 +313,7 @@ static zend_array *yaf_loader_get_namespaces(yaf_loader_object *loader) {
 
 	return ht;
 }
+/* }}} */
 
 static HashTable *yaf_loader_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
 	zval rv;
@@ -361,6 +362,7 @@ static int yaf_loader_is_local_namespace(yaf_loader_object *loader, char *class_
 /* }}} */
 
 void yaf_loader_reset(yaf_loader_object *loader) /* {{{ */ {
+	/* for back-compatibility of change of YAF_G after loader in initialized only */
 	loader->name_suffix = YAF_G(name_suffix);
 	loader->use_spl_autoload = YAF_G(use_spl_autoload);
 	loader->lowcase_path = YAF_G(lowcase_path) ? 1 : 0;
