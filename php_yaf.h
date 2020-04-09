@@ -145,6 +145,7 @@ static zend_always_inline int yaf_slip_equal(const char *s, const char *p, unsig
 zend_string *yaf_canonical_name(int type, zend_string *name);
 zend_string *yaf_build_camel_name(const char *str, size_t len);
 zend_string *yaf_build_lower_name(const char *str, size_t len);
+int yaf_call_user_method(zend_object *obj, zend_function *fbc, zval *ret, int num_args, zval *args, zval *arg2);
 
 #endif
 

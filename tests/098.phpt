@@ -40,5 +40,5 @@ try {
 }
 ?>
 --EXPECTF--
-Warning: %scannot access protected method Bootstrap::_initErrorHandler() in %s098.php on line %d
+Warning: %scannot call protected method Bootstrap::_initErrorHandler() in %s098.php on line %d
 Okey

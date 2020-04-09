@@ -32,10 +32,11 @@
 	do { \
 		yaf_dispatcher_object *_d = (dispatcher); \
 		if (zend_hash_num_elements(&_d->plugins)) { \
-			zval *_t;\
+			zval _r, *_t;\
+			zend_function *_f; \
 			ZEND_HASH_FOREACH_VAL(&_d->plugins, _t) { \
-			    if (zend_hash_str_exists(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1)) { \
-			        zend_call_method_with_2_params(_t, Z_OBJCE_P(_t), NULL, (ev), NULL, &_d->request, &_d->response); \
+			    if ((_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1))) { \
+			        yaf_call_user_method(Z_OBJ_P(_t), _f, &_r, 2, &_d->request, &_d->response); \
 				} \
 			} ZEND_HASH_FOREACH_END(); \
 		} \

@@ -450,12 +450,12 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				unsigned int count = 0;
 				zval *call_args;
 
+				zend_string_release(func_name);
 				if (UNEXPECTED(fptr->common.num_args)) {
 					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
 				}
-				yaf_controller_execute(&(ce)->function_table, &controller, func_name, count, call_args, &ret);
-				zend_string_release(func_name);
-				if (UNEXPECTED(count)) {
+				yaf_controller_execute(&controller, fptr, count, call_args, &ret);
+				if (UNEXPECTED(fptr->common.num_args)) {
 					efree(call_args);
 				}
 
@@ -480,6 +480,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				yaf_action_t action;
 				yaf_controller_object *act;
 
+				zend_string_release(func_name);
+
 				object_init_ex(&action, ce);
 				act = Z_YAFCTLOBJ(action);
 
@@ -495,9 +497,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				if (UNEXPECTED(fptr->common.num_args)) {
 					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
 				}
-				yaf_controller_execute(&(ce)->function_table, &action, func_name, count, call_args, &ret);
-				zend_string_release(func_name);
-				if (UNEXPECTED(count)) {
+				yaf_controller_execute(&action, fptr, count, call_args, &ret);
+				if (UNEXPECTED(fptr->common.num_args)) {
 					efree(call_args);
 				}
 

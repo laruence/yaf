@@ -811,6 +811,7 @@ PHP_METHOD(yaf_application, environ) {
 PHP_METHOD(yaf_application, bootstrap) {
 	zval bootstrap;
 	zend_string *func;
+	zend_function *fptr;
 	zend_class_entry  *ce;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 	yaf_dispatcher_t *dispatcher = &app->dispatcher;
@@ -846,20 +847,21 @@ PHP_METHOD(yaf_application, bootstrap) {
 		zval_ptr_dtor(&bootstrap);
 		RETURN_FALSE;
 	}
-	ZEND_HASH_FOREACH_STR_KEY(&(ce->function_table), func) {
-		zval ret, method;
+	ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
+		zval ret;
 		/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
 		if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
 			continue;
 		}
-		ZVAL_STR(&method, func);
-		call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
+		yaf_call_user_method(Z_OBJ(bootstrap), fptr, &ret, 1, dispatcher, NULL);
+		//call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
 		/** an uncaught exception threw in function call */
 		if (UNEXPECTED(EG(exception))) {
 			zval_ptr_dtor(&bootstrap);
 			RETURN_FALSE;
 		}
-		zval_ptr_dtor(&ret);
+		/* Must always return bool? */
+		/* zval_ptr_dtor(&ret); */
 	} ZEND_HASH_FOREACH_END();
 	zval_ptr_dtor(&bootstrap);
 

@@ -108,6 +108,72 @@ zend_object_iterator_funcs yaf_iterator_funcs = /* {{{ */ {
 };
 /* }}} */
 
+int yaf_call_user_method(zend_object *obj, zend_function* fbc, zval *ret, int num_arg, zval *a1, zval *a2) /* {{{ */ {
+	uint32_t call_info;
+	zend_execute_data *call;
+
+	if (UNEXPECTED(fbc->common.fn_flags & (ZEND_ACC_PROTECTED|ZEND_ACC_PRIVATE))) {
+		php_error_docref(NULL, E_WARNING, "cannot call %s method %s::%s()", 
+				(fbc->common.fn_flags & (ZEND_ACC_PRIVATE|ZEND_ACC_PROTECTED)) == ZEND_ACC_PROTECTED?
+				"protected" : "private", ZSTR_VAL(obj->ce->name), ZSTR_VAL(fbc->common.function_name));
+		return 0;
+	}
+
+#if PHP_VERSION_ID < 70400
+	call_info = ZEND_CALL_TOP_FUNCTION;
+	call = zend_vm_stack_push_call_frame(call_info, fbc, num_arg, NULL, obj);
+#else
+	call_info = ZEND_CALL_TOP_FUNCTION | ZEND_CALL_HAS_THIS;
+	call = zend_vm_stack_push_call_frame(call_info, fbc, num_arg, obj);
+#endif
+	call->symbol_table = NULL;
+
+	if (num_arg) {
+		if (UNEXPECTED(a2 == ((zval*)-1))) {
+			unsigned int i;
+			for (i = 0; i < num_arg; i++) {
+				ZVAL_COPY(ZEND_CALL_ARG(call, i+1), &a1[i]);
+			}
+		} else if (num_arg == 2) {
+			ZVAL_COPY(ZEND_CALL_ARG(call, 1), a1);
+			ZVAL_COPY(ZEND_CALL_ARG(call, 2), a2);
+		} else if (num_arg == 1) {
+			ZVAL_COPY(ZEND_CALL_ARG(call, 1), a1);
+		}
+	}
+
+	/* At least we should in calls of Dispatchers */
+	ZEND_ASSERT(EG(current_execute_data));
+
+	if (EXPECTED(fbc->type == ZEND_USER_FUNCTION)) {
+		zend_init_execute_data(call, (zend_op_array*)fbc, ret);
+		/* const zend_op *current_opline_before_exception = EG(opline_before_exception); */
+		zend_execute_ex(call);
+		/* EG(opline_before_exception) = current_opline_before_exception; */
+	} else {
+		ZEND_ASSERT(fbc->type == ZEND_INTERNAL_FUNCTION);
+		call->prev_execute_data = EG(current_execute_data);
+		EG(current_execute_data) = call;
+		if (EXPECTED(zend_execute_internal == NULL)) {
+			fbc->internal_function.handler(call, ret);
+		} else {
+			zend_execute_internal(call, ret);
+		}
+		EG(current_execute_data) = call->prev_execute_data;
+		zend_vm_stack_free_args(call);
+	}
+
+	zend_vm_stack_free_call_frame(call);
+	if (UNEXPECTED(EG(exception))) {
+		/* We should return directly to user codes */
+		ZVAL_UNDEF(ret);
+		return 0;
+	}
+
+	return 1;
+}
+/* }}} */
+
 zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
 	unsigned int i;
 	zend_string *name = zend_string_alloc(len, 0);

@@ -472,6 +472,7 @@ int yaf_controller_render(yaf_controller_t *controller, zend_string *action, zva
 /* }}} */
 
 void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args) /* {{{ */ {
+	zend_function *fptr;
 	zend_class_entry *ce = ctl->std.ce;
 
 	ctl->request = req;
@@ -485,10 +486,10 @@ void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_res
 	}
 */
 	if (!instanceof_function(ce, yaf_action_ce) &&
-		zend_hash_str_exists(&(ce->function_table), ZEND_STRL("init"))) {
-		zval obj;
-		ZVAL_OBJ(&obj, &ctl->std);
-		zend_call_method_with_0_params(&obj, ce, NULL, "init", NULL);
+		(fptr = (zend_function*)zend_hash_str_find_ptr(&(ce->function_table), ZEND_STRL("init")))) {
+		zval ret;
+		yaf_call_user_method(&ctl->std, fptr, &ret, 0, NULL, NULL);
+		zval_ptr_dtor(&ret);
 	}
 }
 /* }}} */

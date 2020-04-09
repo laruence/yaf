@@ -52,10 +52,8 @@ static zend_always_inline int yaf_controller_auto_render(yaf_controller_object *
 	return ctl->auto_render == -1? dispatch_render : ctl->auto_render;
 }
 
-static zend_always_inline int yaf_controller_execute(zend_array *ftable, yaf_controller_t *ctl, zend_string *m, int count, zval *args, zval *ret) {
-	zval method;
-	ZVAL_STR(&method, m);
-	return call_user_function_ex(ftable, ctl, &method, ret, count, args, 1, NULL) == SUCCESS;
+static zend_always_inline int yaf_controller_execute(yaf_controller_t *ctl, zend_function* func, int count, zval *args, zval *ret) {
+	return yaf_call_user_method(Z_OBJ_P(ctl), func, ret, count, args, ((zval*)-1));
 }
 
 YAF_STARTUP_FUNCTION(controller);
