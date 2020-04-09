@@ -135,7 +135,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 	if (suffix) {
 		switch (name[len - 1]) {
 			case 'r':
-				if (len < sizeof(YAF_LOADER_CONTROLLER) - 1) {
+				if (len < sizeof(YAF_LOADER_CONTROLLER)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
@@ -146,7 +146,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				suspense_type = YAF_CLASS_NAME_CONTROLLER;
 				break;
 			case 'n':
-				if (len < sizeof(YAF_LOADER_PLUGIN) - 1) {
+				if (len < sizeof(YAF_LOADER_PLUGIN)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
@@ -157,7 +157,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				suspense_type = YAF_CLASS_NAME_PLUGIN;
 				break;
 			case 'l':
-				if (len < sizeof(YAF_LOADER_MODEL) - 1) {
+				if (len < sizeof(YAF_LOADER_MODEL)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				len -= sizeof(YAF_LOADER_MODEL) - 1;
@@ -181,7 +181,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 	} else {
 		switch (*name) {
 			case 'C':
-				if (len < sizeof(YAF_LOADER_CONTROLLER) - 1) {
+				if (len < sizeof(YAF_LOADER_CONTROLLER)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				if (!yaf_slip_equal(name + 1, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
@@ -192,7 +192,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
 				break;
 			case 'P':
-				if (len < sizeof(YAF_LOADER_PLUGIN) - 1) {
+				if (len < sizeof(YAF_LOADER_PLUGIN)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				if (!yaf_slip_equal(name + 1, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
@@ -203,7 +203,7 @@ static int yaf_loader_identify_category(zend_string *class_name, zend_bool suffi
 				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
 				break;
 			case 'M':
-				if (len < sizeof(YAF_LOADER_MODEL) - 1) {
+				if (len < sizeof(YAF_LOADER_MODEL)) {
 					return YAF_CLASS_NAME_NORMAL;
 				}
 				if (!yaf_slip_equal(name + 1, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
