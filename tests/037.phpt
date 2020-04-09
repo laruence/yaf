@@ -37,7 +37,7 @@ Warning: Yaf_Loader::import(): Yaf_Loader need to be initialize first in %s037.p
 bool(false)
 bool(false)
 
-Warning: Yaf_Loader::autoload(): Failed opening script /Dummy.php: No such file or directory in %s037.php on line %d
+Warning: Yaf_Loader::autoload(): Failed opening script %cDummy.php: No such file or directory in %s037.php on line %d
 bool(true)
 
 Warning: Yaf_Loader::import(): open_basedir restriction in effect. File(%sDummy.php) is not within the allowed path(s): (%sfoo) in %s037.php on line %d
