@@ -60,11 +60,10 @@ function generateSkeleton($conf) {
 	$skeletons = getTemplates(__DIR__ . "/templates/");
 	processTemplates($skeletons, $conf);
 	processOutput($conf["directory"], $skeletons);
-	return;
 }
 
 function processTemplates(&$skeletons, $conf) {
-	foreach ($skeletons as $k => $v) {
+	foreach ($skeletons as $k => &$v) {
 		if (is_array($v)) {
 			processTemplates($v, $conf);
 		} else if (substr($k, -7) != "ini.tpl") {
@@ -91,6 +90,7 @@ function processTemplates(&$skeletons, $conf) {
 						"Yaf_Plugin_Abstract",
 						"Yaf_Request_Abstract",
 						"Yaf_Response_Abstract",
+						"Yaf_Registry",
 					),
 					array(
 						"\\Yaf\\Application",
@@ -100,6 +100,7 @@ function processTemplates(&$skeletons, $conf) {
 						"\\Yaf\\Plugin_Abstract",
 						"\\Yaf\\Request_Abstract",
 						"\\Yaf\\Response_Abstract",
+						"\\Yaf\\Registry",
 					),
 					$v);
 			}

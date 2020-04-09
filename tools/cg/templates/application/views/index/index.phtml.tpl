@@ -1,6 +1,6 @@
 <html>
 <head>
-<title><?=$header></title>
+<title><?=$header?></title>
 </head>
 <body>
 <?php
