@@ -594,7 +594,6 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	yaf_request_set_dispatched(request, 0);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
-		yaf_request_clean_params(request);
 		YAF_G(in_exception) = 0;
 		return;
 	}
@@ -611,7 +610,6 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 		}
 	}
 
-	yaf_request_clean_params(request);
 	yaf_response_response(&dispatcher->response);
 
 	EG(opline_before_exception) = opline;

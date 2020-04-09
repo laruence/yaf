@@ -698,6 +698,12 @@ zval *yaf_request_get_param(yaf_request_object *request, zend_string *key) /* {{
 }
 /* }}} */
 
+zval *yaf_request_get_param_str(yaf_request_object *request, const char *key, size_t len) /* {{{ */ {
+	zend_array *params = &(request->params);
+	return zend_hash_str_find(params, key, len);
+}
+/* }}} */
+
 const char *yaf_request_get_request_method(void) /* {{{ */ {
 	if (SG(request_info).request_method) {
 		return SG(request_info).request_method;
@@ -926,11 +932,18 @@ PHP_METHOD(yaf_request, getParam) {
 /** {{{ proto public Yaf_Request_Abstract::getException(void)
 */
 PHP_METHOD(yaf_request, getException) {
-	/*
-	zval *exception = &Z_YAFREQUESTOBJ_P(getThis())->exception;
+	zval *exception;
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 
-	RETURN_ZVAL(exception, 1, 0);
-	*/
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	if ((exception = yaf_request_get_param_str(request, ZEND_STRL("exception")))) {
+		RETURN_ZVAL(exception, 1, 0);
+	}
+
+	RETURN_NULL();
 }
 /* }}} */
 

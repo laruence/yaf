@@ -26,8 +26,8 @@ $config = array(
 file_put_contents(APPLICATION_PATH . "/controllers/Error.php", <<<PHP
 <?php
    class ErrorController extends Yaf_Controller_Abstract {
-         public function errorAction(\$exception) {
-            \$this->_view->msg = \$exception->getMessage();
+         public function errorAction() {
+            \$this->_view->msg = \$this->getRequest()->getException()->getMessage();
          }
    }
 PHP
