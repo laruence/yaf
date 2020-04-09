@@ -362,6 +362,8 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 
 	if (*YAF_G(global_library)) {
 		loader->glibrary = zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0);
+	} else {
+		loader->glibrary = NULL;
 	}
 
 	return &YAF_G(loader);
