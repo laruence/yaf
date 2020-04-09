@@ -19,8 +19,8 @@
 
 typedef struct {
     zend_object      std;
-	zend_array       modules;
     zval             config;
+	zend_array      *modules;
     yaf_dispatcher_t dispatcher;
 	zend_string     *env;
 	zend_string     *default_module;
