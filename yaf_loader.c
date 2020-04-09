@@ -274,8 +274,12 @@ static inline char* yaf_loader_sanitize_name(char *name, size_t len) /* {{{ */ {
 static void yaf_loader_obj_free(zend_object *object) /* {{{ */ {
 	yaf_loader_object *loader = (yaf_loader_object*)object;
 
-	zend_string_release(loader->library);
-	zend_string_release(loader->glibrary);
+	if (loader->library) {
+		zend_string_release(loader->library);
+	}
+	if (loader->glibrary) {
+		zend_string_release(loader->glibrary);
+	}
 	zend_hash_destroy(&loader->namespaces);
 
 	zend_object_std_dtor(object);
@@ -636,11 +640,14 @@ PHP_METHOD(yaf_loader, import) {
 
 		if (!IS_ABSOLUTE_PATH(ZSTR_VAL(file), ZSTR_LEN(file))) {
 			loader = &YAF_G(loader);
-			if (Z_TYPE_P(loader) != IS_OBJECT) {
+			if (UNEXPECTED(Z_TYPE_P(loader) != IS_OBJECT)) {
 				php_error_docref(NULL, E_WARNING, "%s need to be initialize first", ZSTR_VAL(yaf_loader_ce->name));
 				RETURN_FALSE;
+			} else if (UNEXPECTED(Z_YAFLOADEROBJ_P(loader)->library == NULL)) {
+				php_error_docref(NULL, E_WARNING, "%s library path is not set", ZSTR_VAL(yaf_loader_ce->name));
+				RETURN_FALSE;
 			} else {
-				zend_string *library = Z_YAFLOADEROBJ_P(getThis())->library;
+				zend_string *library = Z_YAFLOADEROBJ_P(loader)->library;
 				file = strpprintf(0, "%s%c%s", ZSTR_VAL(library), DEFAULT_SLASH, ZSTR_VAL(file));
 				need_free = 1;
 			}
@@ -762,6 +769,9 @@ PHP_METHOD(yaf_loader, getInstance) {
 	}
 
 	if (yaf_loader_instance(library, global)) {
+		if (library || global) {
+			yaf_loader_set_library_path(Z_YAFLOADEROBJ(YAF_G(loader)), library, global);
+		}
 		RETURN_ZVAL(&YAF_G(loader), 1, 0);
 	}
 
