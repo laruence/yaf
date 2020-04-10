@@ -56,15 +56,20 @@ ZEND_END_ARG_INFO()
 /* }}} */
 
 zval *yaf_response_get_header(yaf_response_object *response, zend_string *name) /* {{{ */ {
-	return zend_hash_find(&response->header, name);
+	if (response->header) {
+		return zend_hash_find(response->header, name);
+	}
+	return NULL;
 }
 /* }}} */
 
 int yaf_response_clear_header(yaf_response_object *response, zend_string *name) /* {{{ */ {
-	if (name) {
-		zend_hash_del(&response->header, name);
-	} else {
-		zend_hash_clean(&response->header);
+	if (response->header) {
+		if (name) {
+			zend_hash_del(response->header, name);
+		} else {
+			zend_hash_clean(response->header);
+		}
 	}
 	return 1;
 }
@@ -77,10 +82,15 @@ int yaf_response_alter_header(yaf_response_object *response, zend_string *name, 
 		return 1;
 	}
 
-	if ((pzval = zend_hash_find(&response->header, name)) == NULL) {
+	if (!response->header) {
+		ALLOC_HASHTABLE(response->header);
+		zend_hash_init(response->header, 8, NULL, ZVAL_PTR_DTOR, 0);
+	}
+
+	if ((pzval = zend_hash_find(response->header, name)) == NULL) {
 		zval rv;
 		ZVAL_STR_COPY(&rv, value);
-		zend_hash_update(&response->header, name, &rv);
+		zend_hash_update(response->header, name, &rv);
 		return 1;
 	}
 
@@ -112,7 +122,7 @@ int yaf_response_set_redirect(yaf_response_object *response, zend_string *url) /
 	ctr.line_len = spprintf(&(ctr.line), 0, "%s %s", "Location:", ZSTR_VAL(url));
 	ctr.response_code = 0;
 	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) == SUCCESS) {
-		response->header_sent = 1;
+		response->flags = YAF_RESPONSE_HEADER_SENT;
 		efree(ctr.line);
 		return 1;
 	}
@@ -125,34 +135,38 @@ int yaf_response_http_send(yaf_response_object *response) /* {{{ */ {
 	zval *entry;
 	zend_ulong num_key;
 	zend_string *header_name;
-	sapi_header_line ctr = {0};
 
-	if (response->header_sent == 0) {
+	if (!(response->flags & YAF_RESPONSE_HEADER_SENT)) {
 		if (response->code) {
 			SG(sapi_headers).http_response_code = response->code;
 		}
-		ZEND_HASH_FOREACH_KEY_VAL(&response->header, num_key, header_name, entry) {
-			if (header_name) {
-				ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
-			} else {
-				ctr.line_len = spprintf(&(ctr.line), 0, ""ZEND_ULONG_FMT": %s", num_key, Z_STRVAL_P(entry));
-			}
+		if (response->header) {
+			sapi_header_line ctr = {0};
+			ZEND_HASH_FOREACH_KEY_VAL(response->header, num_key, header_name, entry) {
+				if (header_name) {
+					ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
+				} else {
+					ctr.line_len = spprintf(&(ctr.line), 0, ""ZEND_ULONG_FMT": %s", num_key, Z_STRVAL_P(entry));
+				}
 
-			ctr.response_code = 0;
-			if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) != SUCCESS) {
-				efree(ctr.line);
-				return 0;
-			}
-		} ZEND_HASH_FOREACH_END();
-		efree(ctr.line);
-		response->header_sent = 1;
+				ctr.response_code = 0;
+				if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) != SUCCESS) {
+					efree(ctr.line);
+					return 0;
+				}
+			} ZEND_HASH_FOREACH_END();
+			efree(ctr.line);
+			response->flags |= YAF_RESPONSE_HEADER_SENT;
+		}
 	}
 
-	ZEND_HASH_FOREACH_VAL(&response->body, entry) {
-		zend_string *str = zval_get_string(entry);
-		php_write(ZSTR_VAL(str), ZSTR_LEN(str));
-		zend_string_release(str);
-	} ZEND_HASH_FOREACH_END();
+	if (response->body) {
+		ZEND_HASH_FOREACH_VAL(response->body, entry) {
+			zend_string *str = zval_get_string(entry);
+			php_write(ZSTR_VAL(str), ZSTR_LEN(str));
+			zend_string_release(str);
+		} ZEND_HASH_FOREACH_END();
+	}
 
 	return 1;
 }
@@ -217,8 +231,16 @@ PHP_METHOD(yaf_response_http, getHeader) {
 	}
 
 	if (name == NULL) {
-		ZVAL_ARR(return_value, &response->header);
-		Z_ADDREF_P(return_value);
+		if (response->header) {
+			GC_ADDREF(response->header);
+			RETURN_ARR(response->header);
+		}
+#if PHP_VERSION_ID < 70400
+		array_init(return_value);
+		return;
+#else
+		RETURN_EMPTY_ARRAY();
+#endif
 	} else {
 		if ((header = yaf_response_get_header(Z_YAFRESPONSEOBJ_P(getThis()), name))) {
 			RETURN_ZVAL(header, 1, 0);
