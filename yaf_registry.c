@@ -49,29 +49,38 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_registry_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_registry_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+static HashTable *yaf_registry_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_registry_object *registry = Z_YAFREGISTRYOBJ_P(object);
 
-	*is_temp = 1;
-	
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 8, NULL, ZVAL_PTR_DTOR, 0);
+	if (!registry->properties) {
+		ALLOC_HASHTABLE(registry->properties);
+		zend_hash_init(registry->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(registry->properties);
+	}
+
+	ht = registry->properties;
 
 	ZVAL_ARR(&rv, zend_array_dup(&registry->entries));
-	zend_hash_str_add(ht, "entries:protected", sizeof("entries:protected") - 1, &rv);
+	zend_hash_str_update(ht, "entries:protected", sizeof("entries:protected") - 1, &rv);
 
 	return ht;
 }
 /* }}} */
 
 static void yaf_registry_object_free(zend_object *object) /* {{{ */ {
-	yaf_registry_object *registry = (yaf_registry_object*)object;
+	yaf_registry_object *registry = php_yaf_registry_fetch_object(object);
 
 	ZEND_ASSERT(Z_OBJ(YAF_G(registry)) == object);
 
 	zend_hash_destroy(&registry->entries);
+	if (registry->properties) {
+		if (GC_DELREF(registry->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(registry->properties);
+			zend_array_destroy(registry->properties);
+		}
+	}
 
 	zend_object_std_dtor(object);
 }
@@ -82,12 +91,13 @@ yaf_registry_object *yaf_registry_instance() /* {{{ */ {
 
 	if (UNEXPECTED(Z_TYPE(YAF_G(registry)) != IS_OBJECT)) {
 
-		registry = emalloc(sizeof(yaf_registry_object));
+		registry = emalloc(sizeof(yaf_registry_object) + zend_object_properties_size(yaf_registry_ce));
 
 		zend_object_std_init(&registry->std, yaf_registry_ce);
 		registry->std.handlers = &yaf_registry_obj_handlers;
 
 		zend_hash_init(&registry->entries, 8, NULL, ZVAL_PTR_DTOR, 0);
+		registry->properties = NULL;
 
 		ZVAL_OBJ(&YAF_G(registry), &registry->std);
 	}
@@ -225,9 +235,11 @@ YAF_STARTUP_FUNCTION(registry) {
 	yaf_registry_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_registry_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	yaf_registry_obj_handlers.offset = XtOffsetOf(yaf_registry_object, std);
 	yaf_registry_obj_handlers.clone_obj = NULL;
+	yaf_registry_obj_handlers.get_gc = NULL;
 	yaf_registry_obj_handlers.free_obj = yaf_registry_object_free;
-	yaf_registry_obj_handlers.get_debug_info = yaf_registry_get_debug_info;
+	yaf_registry_obj_handlers.get_properties = yaf_registry_get_properties;
 
 	return SUCCESS;
 }
