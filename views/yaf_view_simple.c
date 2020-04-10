@@ -64,24 +64,27 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO();
 /* }}} */
 
-static HashTable *yaf_view_simple_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+static HashTable *yaf_view_simple_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_view_object *view = Z_YAFVIEWOBJ_P(object);
 
-	*is_temp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 2, NULL, ZVAL_PTR_DTOR, 0);
+	if (!view->properties) {
+		ALLOC_HASHTABLE(view->properties);
+		zend_hash_init(view->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(view->properties);
+	}
 
+	ht = view->properties;
 	if (view->tpl_dir) {
 		ZVAL_STR_COPY(&rv, view->tpl_dir);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "tpl_dir:protected", sizeof("tpl_dir:protected") - 1, &rv);
+	zend_hash_str_update(ht, "tpl_dir:protected", sizeof("tpl_dir:protected") - 1, &rv);
 
 	ZVAL_ARR(&rv, zend_array_dup(&view->tpl_vars));
-	zend_hash_str_add(ht, "tpl_vars:protected", sizeof("tpl_vars:protected") - 1, &rv);
+	zend_hash_str_update(ht, "tpl_vars:protected", sizeof("tpl_vars:protected") - 1, &rv);
 
 	return ht;
 }
@@ -131,6 +134,7 @@ static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
 
 	view->tpl_dir = NULL;
 	zend_hash_init(&view->tpl_vars, 8, NULL, ZVAL_PTR_DTOR, 0);
+	view->properties = NULL;
 
 	return &view->std;
 }
@@ -143,6 +147,12 @@ static void yaf_view_object_free(zend_object *object) /* {{{ */ {
 		zend_string_release(view->tpl_dir);
 	}
 	zend_hash_destroy(&view->tpl_vars);
+	if (view->properties) {
+		if (GC_DELREF(view->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(view->properties);
+			zend_array_destroy(view->properties);
+		}
+	}
 
 	zend_object_std_dtor(object);
 }
@@ -665,10 +675,11 @@ YAF_STARTUP_FUNCTION(view_simple) {
 
 	memcpy(&yaf_view_simple_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_view_simple_obj_handlers.free_obj = yaf_view_object_free;
-	yaf_view_simple_obj_handlers.get_debug_info = yaf_view_simple_get_debug_info;
+	yaf_view_simple_obj_handlers.get_properties = yaf_view_simple_get_properties;
 	yaf_view_simple_obj_handlers.read_property = yaf_view_simple_read_property;
 	yaf_view_simple_obj_handlers.write_property = yaf_view_simple_write_property;
 	yaf_view_simple_obj_handlers.clone_obj = NULL;
+	yaf_view_simple_obj_handlers.get_gc = NULL;
 
 
 	return SUCCESS;

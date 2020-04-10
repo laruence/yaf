@@ -21,9 +21,10 @@ extern zend_class_entry *yaf_view_interface_ce;
 extern zend_class_entry *yaf_view_simple_ce;
 
 typedef struct {
-	zend_object std;
+	zend_object  std;
 	zend_string *tpl_dir;
-	zend_array  tpl_vars;
+	zend_array   tpl_vars;
+	zend_array  *properties;
 } yaf_view_object;
 
 #define Z_YAFVIEWOBJ(zv)    ((yaf_view_object*)Z_OBJ(zv))
