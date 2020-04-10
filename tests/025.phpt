@@ -35,5 +35,9 @@ Yaf_Loader Object
             [2] => Dummy
         )
 
+    [use_spl_autoload:protected] => 
+    [lowercase_path:protected] => 
+    [is_name_suffix:protected] => 1
+    [has_name_seperator:protected] => 
 )
 bool(true)

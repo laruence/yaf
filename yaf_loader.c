@@ -352,6 +352,18 @@ static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
 		zend_hash_str_update(ht, "namespace:protected", sizeof("namespace:protected") - 1, &rv);
 	}
 
+	ZVAL_BOOL(&rv, yaf_loader_use_spl_autoload(loader));
+	zend_hash_str_update(ht, "use_spl_autoload:protected", sizeof("use_spl_autoload:protected") - 1, &rv);
+
+	ZVAL_BOOL(&rv, yaf_loader_is_lowcase_path(loader));
+	zend_hash_str_update(ht, "lowercase_path:protected", sizeof("lowercase_path:protected") - 1, &rv);
+
+	ZVAL_BOOL(&rv, yaf_loader_is_name_suffix(loader));
+	zend_hash_str_update(ht, "is_name_suffix:protected", sizeof("is_name_suffix:protected") - 1, &rv);
+
+	ZVAL_BOOL(&rv, yaf_loader_has_name_separator(loader));
+	zend_hash_str_update(ht, "has_name_seperator:protected", sizeof("has_name_seperator:protected") - 1, &rv);
+
 	return ht;
 }
 /* }}} */
