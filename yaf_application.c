@@ -86,6 +86,7 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	if (!app->properties) {
 		ALLOC_HASHTABLE(app->properties);
 		zend_hash_init(app->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(app->properties);
 	}
 
 	ht = app->properties;
@@ -145,7 +146,7 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 
 	if (Z_TYPE(app->dispatcher) == IS_OBJECT) {
 		ZVAL_OBJ(&rv, Z_OBJ(app->dispatcher));
-		Z_ADDREF(rv);
+		GC_ADDREF(Z_OBJ(app->dispatcher));
 	} else {
 		ZVAL_NULL(&rv);
 	}
@@ -554,6 +555,7 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 
 			ALLOC_HASHTABLE(app->modules);
 			zend_hash_init(app->modules, 8, NULL, ZVAL_PTR_DTOR, 0);
+			HT_ALLOW_COW_VIOLATION(app->modules);
 
 			modules = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 			seg = php_strtok_r(modules, ",", &ptrptr);
@@ -600,9 +602,9 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
 
+	memset(app, 0, XtOffsetOf(yaf_application_object, std));
 	app->std.handlers = &yaf_application_obj_handlers;
 	zend_object_std_init(&app->std, ce);
-	memset(((char*)app), 0, XtOffsetOf(yaf_application_object, std));
 
 	return &app->std;
 }
@@ -611,7 +613,7 @@ static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 static void yaf_application_free(zend_object *object) /* {{{ */ {
 	yaf_application_object *app = yaf_application_instance();
 
-	if ((app != (yaf_application_object*)object) || !app->env) {
+	if ((app != php_yaf_application_fetch_object(object)) || !app->env) {
 		zend_object_std_dtor(object);
 		return;
 	}

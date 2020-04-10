@@ -61,6 +61,9 @@ extern zend_module_entry yaf_module_entry;
 #if PHP_VERSION_ID < 70400
 #define YAF_WRITE_HANDLER       void
 #define YAF_WHANDLER_RET(zv)    return
+#ifndef HT_ALLOW_COW_VIOLATION
+#define HT_ALLOW_COW_VIOLATION
+#endif
 #else
 #define YAF_WRITE_HANDLER       zval *
 #define YAF_WHANDLER_RET(zv)    return zv

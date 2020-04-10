@@ -61,6 +61,7 @@ static HashTable *yaf_response_get_properties(zval *object) /* {{{ */ {
 	if (!response->properties) {
 		ALLOC_HASHTABLE(response->properties);
 		zend_hash_init(response->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(response->properties);
 	}
 
 	ht = response->properties;
@@ -210,6 +211,7 @@ int yaf_response_alter_body(yaf_response_object *response, zend_string *name, ze
 	if (!response->body) {
 		ALLOC_HASHTABLE(response->body);
 		zend_hash_init(response->body, 8, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(response->body);
 	}
 
 	if (!name) {

@@ -314,6 +314,7 @@ static zend_array *yaf_loader_get_namespaces(yaf_loader_object *loader) /* {{{ *
 
 	ALLOC_HASHTABLE(ht);
 	zend_hash_init(ht, zend_hash_num_elements(loader->namespaces), NULL, ZVAL_PTR_DTOR, 0);
+	HT_ALLOW_COW_VIOLATION(loader->namespaces);
 
 	ZEND_HASH_FOREACH_STR_KEY(loader->namespaces, name) {
 		ZVAL_STR_COPY(&rv, name);
@@ -332,6 +333,7 @@ static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
 	if (!loader->properties) {
 		ALLOC_HASHTABLE(loader->properties);
 		zend_hash_init(loader->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(loader->properties);;
 	}
 
 	ht = loader->properties;
@@ -550,6 +552,7 @@ int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string 
 	if (UNEXPECTED(!loader->namespaces)) {
 		ALLOC_HASHTABLE(loader->namespaces);
 		zend_hash_init(loader->namespaces, 8, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(loader->namespaces);
 	}
 
 	sanitized_prefix = php_trim(prefix, NULL, 0, 3);

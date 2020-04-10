@@ -157,6 +157,7 @@ static HashTable *yaf_request_get_properties(zval *object) /* {{{ */ {
 	if (!request->properties) {
 		ALLOC_HASHTABLE(request->properties);
 		zend_hash_init(request->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(request->properties);
 	}
 
 	ht = request->properties;
@@ -626,6 +627,7 @@ void yaf_request_set_mvc(yaf_request_object *request, zend_string *module, zend_
 		if (!request->params) {
 			ALLOC_HASHTABLE(request->params);
 			zend_hash_init(request->params, zend_hash_num_elements(params), NULL, ZVAL_PTR_DTOR, 0);
+			HT_ALLOW_COW_VIOLATION(request->params);
 		}
 		zend_hash_copy(request->params, params, (copy_ctor_func_t) zval_add_ref);
 	}
@@ -714,6 +716,7 @@ int yaf_request_set_params_single(yaf_request_object *request, zend_string *key,
 	if (!request->params) {
 		ALLOC_HASHTABLE(request->params);
 		zend_hash_init(request->params, 8, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(request->params);
 	}
 	if ((zend_hash_update(request->params, key, value)) != NULL) {
 		Z_TRY_ADDREF_P(value);
