@@ -167,7 +167,7 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 			while (op < end) {
 				if (op->op1.num == idx) {
 					if (op->opcode == ZEND_RECV_INIT) {
-#if PHP_VERSION_ID < 70400
+#if PHP_VERSION_ID < 70300
 						arg = RT_CONSTANT(&fptr->op_array, op->op2);
 #else
 						arg = RT_CONSTANT(op, op->op2);
