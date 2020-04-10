@@ -173,7 +173,7 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 						arg = RT_CONSTANT(op, op->op2);
 #endif
 						/* Constant evaluation? */
-						if (Z_TYPE_P(arg) < IS_ARRAY) {
+						if (Z_TYPE_P(arg) < IS_OBJECT) {
 							ZVAL_COPY_VALUE(&((*params)[current]), arg);
 						} else {
 							return;
