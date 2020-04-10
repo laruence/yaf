@@ -34,7 +34,7 @@
 #define YAF_LOADER_USE_SPL        (1<<0)
 #define YAF_LOADER_LOWERCASE      (1<<1)
 #define YAF_LOADER_NAMESUFFIX     (1<<2)
-#define YAF_LOADER_NAMESPARATOR   (1<<3)
+#define YAF_LOADER_NAMESEPARATOR  (1<<3)
 
 typedef struct {
 	zend_uchar   flags;
@@ -82,7 +82,7 @@ static zend_always_inline zend_bool yaf_loader_is_name_suffix(yaf_loader_object 
 }
 
 static zend_always_inline zend_bool yaf_loader_has_name_separator(yaf_loader_object *loader) {
-	return loader->flags & YAF_LOADER_NAMESPARATOR;
+	return loader->flags & YAF_LOADER_NAMESEPARATOR;
 }
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);

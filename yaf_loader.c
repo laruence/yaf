@@ -380,7 +380,7 @@ void yaf_loader_reset(yaf_loader_object *loader) /* {{{ */ {
 	loader->flags = YAF_G(use_spl_autoload)? YAF_LOADER_USE_SPL : 0;
 	loader->flags |= YAF_G(name_suffix) ? YAF_LOADER_NAMESUFFIX : 0;
 	loader->flags |= YAF_G(lowcase_path) ? YAF_LOADER_LOWERCASE : 0;
-	loader->flags |= YAF_G(name_separator_len) ? YAF_LOADER_NAMESPARATOR : 0;
+	loader->flags |= YAF_G(name_separator_len) ? YAF_LOADER_NAMESEPARATOR : 0;
 }
 /* }}} */
 
@@ -399,7 +399,7 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 	loader->flags = YAF_G(use_spl_autoload)? YAF_LOADER_USE_SPL : 0;
 	loader->flags |= YAF_G(name_suffix) ? YAF_LOADER_NAMESUFFIX : 0;
 	loader->flags |= YAF_G(lowcase_path) ? YAF_LOADER_LOWERCASE : 0;
-	loader->flags |= YAF_G(name_separator_len) ? YAF_LOADER_NAMESPARATOR : 0;
+	loader->flags |= YAF_G(name_separator_len) ? YAF_LOADER_NAMESEPARATOR : 0;
 
 	if (library_path) {
 		loader->library = zend_string_copy(library_path);
@@ -811,7 +811,7 @@ PHP_METHOD(yaf_loader, autoload) {
 				ZEND_ASSERT(0);
 				break;
 		}
-		if (UNEXPECTED(!yaf_loader_is_name_suffix(loader))) {
+		if (UNEXPECTED(yaf_loader_has_name_separator(loader))) {
 			fname_len -= YAF_G(name_separator_len);
 		}
 		if (EXPECTED(yaf_loader_is_name_suffix(loader))) {
