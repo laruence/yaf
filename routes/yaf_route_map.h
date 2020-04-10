@@ -17,10 +17,13 @@
 #ifndef YAF_ROUTER_MAP_H
 #define YAF_ROUTER_MAP_H
 
+#define YAF_ROUTE_MAP_CTL_PREFER  (1<<0)
+
 typedef struct {
 	zend_object  std;
 	zend_string *delim;
-	zend_bool    ctl_prefer;
+	zend_array  *properties;
+	zend_uchar   flags;
 } yaf_route_map_object;
 
 #define Z_YAFROUTEMAPOBJ(zv)    ((yaf_route_map_object*)(Z_OBJ(zv)))

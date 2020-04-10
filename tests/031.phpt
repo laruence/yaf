@@ -22,6 +22,7 @@ $config = array(
 
 $app = new Yaf_Application($config);
 print_r($app->getDispatcher()->getRouter()->getRoutes());
+var_export($app->getDispatcher()->getRouter()->getRoutes());
 ?>
 --EXPECTF--
 Array
@@ -32,4 +33,11 @@ Array
             [delimiter:protected] => ##
         )
 
+)
+array (
+  '_default' => 
+  Yaf_Route_Map::__set_state(array(
+     'ctl_prefer:protected' => true,
+     'delimiter:protected' => '##',
+  )),
 )

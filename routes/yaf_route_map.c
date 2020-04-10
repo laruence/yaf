@@ -42,26 +42,30 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_map_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_map_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+static HashTable *yaf_route_map_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(object);
 
-	*is_tmp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 2, NULL, ZVAL_PTR_DTOR, 0);
+	if (!map->properties) {
+		ALLOC_HASHTABLE(map->properties);
+		zend_hash_init(map->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(map->properties);
 
-	ZVAL_BOOL(&rv, map->ctl_prefer);
-	zend_hash_str_add(ht, "ctl_prefer:protected", sizeof("ctl_prefer:protected") - 1, &rv);
+		ht = map->properties;
 
-	if (map->delim) {
-		ZVAL_STR_COPY(&rv, map->delim);
-	} else {
-		ZVAL_NULL(&rv);
+		ZVAL_BOOL(&rv, map->flags & YAF_ROUTE_MAP_CTL_PREFER);
+		zend_hash_str_add(ht, "ctl_prefer:protected", sizeof("ctl_prefer:protected") - 1, &rv);
+
+		if (map->delim) {
+			ZVAL_STR_COPY(&rv, map->delim);
+		} else {
+			ZVAL_NULL(&rv);
+		}
+		zend_hash_str_add(ht, "delimiter:protected", sizeof("delimiter:protected") - 1, &rv);
 	}
-	zend_hash_str_add(ht, "delimiter:protected", sizeof("delimiter:protected") - 1, &rv);
 
-	return ht;
+	return map->properties;
 }
 /* }}} */
 
@@ -72,6 +76,7 @@ static zend_object *yaf_route_map_new(zend_class_entry *ce) /* {{{ */ {
 
 	map->std.handlers = &yaf_route_map_obj_handlers;
 	map->delim = NULL;
+	map->properties = NULL;
 
 	return &map->std;
 }
@@ -84,12 +89,19 @@ static void yaf_route_map_object_free(zend_object *object) /* {{{ */ {
 		zend_string_release(map->delim);
 	}
 
+	if (map->properties) {
+		if (GC_DELREF(map->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(map->properties);
+			zend_array_destroy(map->properties);
+		}
+	}
+
 	zend_object_std_dtor(&map->std);
 }
 /* }}} */
 
 void yaf_route_map_init(yaf_route_map_object *map, zend_bool ctl_prefer, zend_string *delim) /* {{{ */{
-	map->ctl_prefer = ctl_prefer;
+	map->flags = ctl_prefer? YAF_ROUTE_MAP_CTL_PREFER : 0;
 	if (delim && ZSTR_LEN(delim)) {
 		map->delim = zend_string_copy(delim);
 	} else {
@@ -171,7 +183,7 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	if (route_result.s) {
 		ZSTR_LEN(route_result.s)--;
 		ZSTR_VAL(route_result.s)[ZSTR_LEN(route_result.s)] = '\0';
-		if (map->ctl_prefer) {
+		if (map->flags & YAF_ROUTE_MAP_CTL_PREFER) {
 			/* avoding double realloc */
 			if (UNEXPECTED(request->controller)) {
 				zend_string_release(request->controller);
@@ -214,7 +226,7 @@ zend_string * yaf_route_map_assemble(yaf_route_t *route, zval *info, zval *query
 	smart_str uri = {0};
 	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(route);
 
-	if (map->ctl_prefer) {
+	if (map->flags & YAF_ROUTE_MAP_CTL_PREFER) {
 		if ((zv = zend_hash_str_find(Z_ARRVAL_P(info), ZEND_STRL(YAF_ROUTE_ASSEMBLE_ACTION_FORMAT))) && Z_TYPE_P(zv) == IS_STRING) {
 			pname = estrndup(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
 		} else {
@@ -338,7 +350,8 @@ YAF_STARTUP_FUNCTION(route_map) {
 	memcpy(&yaf_route_map_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_route_map_obj_handlers.free_obj = yaf_route_map_object_free;
 	yaf_route_map_obj_handlers.clone_obj = NULL;
-	yaf_route_map_obj_handlers.get_debug_info = yaf_route_map_get_debug_info;
+	yaf_route_map_obj_handlers.get_gc = NULL;
+	yaf_route_map_obj_handlers.get_properties = yaf_route_map_get_properties;
 
 
 	return SUCCESS;
