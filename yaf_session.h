@@ -17,14 +17,21 @@
 #ifndef YAF_SESSION_H
 #define YAF_SESSION_H
 
+#define YAF_SESSION_STARTED  (1<<0)
+
 typedef struct {
-	zend_object std;
+	zend_uchar  flags;
 	zend_array *session;
-	zend_bool started;
+	zend_array *properties;
+	zend_object std;
 } yaf_session_object;
 
-#define Z_YAFSESSIONOBJ(zv)   ((yaf_session_object*)(Z_OBJ(zv)))
+#define Z_YAFSESSIONOBJ(zv)   (php_yaf_session_fetch_object(Z_OBJ(zv)))
 #define Z_YAFSESSIONOBJ_P(zv) Z_YAFSESSIONOBJ(*zv)
+
+static zend_always_inline yaf_session_object *php_yaf_session_fetch_object(zend_object *obj) {
+	return (yaf_session_object *)((char*)(obj) - XtOffsetOf(yaf_session_object, std));
+}
 
 extern zend_class_entry *yaf_session_ce;
 

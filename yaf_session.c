@@ -57,26 +57,28 @@ ZEND_END_ARG_INFO()
 /* }}} */
 
 static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
-	if (session->started) {
+	if (session->flags & YAF_SESSION_STARTED) {
 		return;
 	}
 	php_session_start();
-	session->started = 1;
+	session->flags |= YAF_SESSION_STARTED;
 }
 /* }}} */
 
-static HashTable *yaf_session_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+static HashTable *yaf_session_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
 
-	*is_tmp = 1;
+	if (!sess->properties) {
+		ALLOC_HASHTABLE(sess->properties);
+		zend_hash_init(sess->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(sess->properties);
+	}
 
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 2, NULL, ZVAL_PTR_DTOR, 0);
-
-	ZVAL_BOOL(&rv, sess->started);
-	zend_hash_str_add(ht, "started:protected", sizeof("started:protected") - 1, &rv);
+	ht = sess->properties;
+	ZVAL_BOOL(&rv, sess->flags & YAF_SESSION_STARTED);
+	zend_hash_str_update(ht, "started:protected", sizeof("started:protected") - 1, &rv);
 
 	if (sess->session) {
 		ZVAL_ARR(&rv, sess->session);
@@ -84,9 +86,23 @@ static HashTable *yaf_session_get_debug_info(zval *object, int *is_tmp) /* {{{ *
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "session:protected", sizeof("session:protected") - 1, &rv);
+	zend_hash_str_update(ht, "session:protected", sizeof("session:protected") - 1, &rv);
 
 	return ht;
+}
+/* }}} */
+
+static void yaf_session_object_free(zend_object *object) /* {{{ */ {
+	yaf_session_object *sess = php_yaf_session_fetch_object(object);
+
+	if (sess->properties) {
+		if (GC_DELREF(sess->properties)) {
+			GC_REMOVE_FROM_BUFFER(sess->properties);
+			zend_array_destroy(sess->properties);
+		}
+	}
+
+	zend_object_std_dtor(object);
 }
 /* }}} */
 
@@ -124,13 +140,12 @@ static yaf_session_t *yaf_session_instance() /* {{{ */ {
 		return instance;
 	}
 
-	sess = emalloc(sizeof(yaf_session_object));
+	sess = emalloc(sizeof(yaf_session_object) + zend_object_properties_size(yaf_session_ce));
 	zend_object_std_init(&sess->std, yaf_session_ce);
 	sess->std.handlers = &yaf_session_obj_handlers;
 
 	ZVAL_OBJ(&YAF_G(session), &sess->std);
 
-	sess->started = 0;
 	yaf_session_start(sess);
 
 	if ((pzval = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SESSION"))) == NULL ||
@@ -141,6 +156,9 @@ static yaf_session_t *yaf_session_instance() /* {{{ */ {
 	}
 	
 	sess->session = Z_ARRVAL_P(Z_REFVAL_P(pzval));
+	sess->flags = 0;
+	sess->properties = NULL;
+
 	return &YAF_G(session);
 }
 /* }}} */
@@ -329,8 +347,11 @@ YAF_STARTUP_FUNCTION(session) {
 	yaf_session_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_session_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	yaf_session_obj_handlers.offset = XtOffsetOf(yaf_session_object, std);
+	yaf_session_obj_handlers.free_obj = yaf_session_object_free;
 	yaf_session_obj_handlers.clone_obj = NULL;
-	yaf_session_obj_handlers.get_debug_info = yaf_session_get_debug_info;
+	yaf_session_obj_handlers.get_gc = NULL;
+	yaf_session_obj_handlers.get_properties = yaf_session_get_properties;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 	zend_class_implements(yaf_session_ce, 3, zend_ce_iterator, zend_ce_arrayaccess, spl_ce_Countable);
