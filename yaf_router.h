@@ -28,6 +28,7 @@ typedef struct {
 	zend_object  std;
 	zend_array   routes;
 	zval         current;
+	zend_array  *properties;
 } yaf_router_object;
 
 #define Z_YAFROUTEROBJ(zv)    ((yaf_router_object*)(Z_OBJ(zv)))

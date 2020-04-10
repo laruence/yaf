@@ -40,20 +40,22 @@
 zend_class_entry     *yaf_router_ce;
 zend_object_handlers  yaf_router_obj_handlers;
 
-static HashTable *yaf_router_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+static HashTable *yaf_router_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_router_object *router = Z_YAFROUTEROBJ_P(object);
 
-	*is_temp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 2, NULL, ZVAL_PTR_DTOR, 0);
+	if (!router->properties) {
+		ALLOC_HASHTABLE(router->properties);
+		zend_hash_init(router->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+	}
 
+	ht = router->properties;
 	ZVAL_ARR(&rv, zend_array_dup(&router->routes));
-	zend_hash_str_add(ht, "routes:protected", sizeof("routes:protected") - 1, &rv);
+	zend_hash_str_update(ht, "routes:protected", sizeof("routes:protected") - 1, &rv);
 
 	ZVAL_COPY(&rv, &router->current);
-	zend_hash_str_add(ht, "current:protected", sizeof("current:protected") - 1, &rv);
+	zend_hash_str_update(ht, "current:protected", sizeof("current:protected") - 1, &rv);
 
 	return ht;
 }
@@ -67,6 +69,7 @@ static zend_object *yaf_router_new(zend_class_entry *ce) /* {{{ */ {
 
 	zend_hash_init(&router->routes, 8, NULL, ZVAL_PTR_DTOR, 0);
 	ZVAL_NULL(&router->current);
+	router->properties = NULL;
 
 	return &router->std;
 }
@@ -76,6 +79,12 @@ static void yaf_router_object_free(zend_object *object) /* {{{ */ {
 	yaf_router_object *router = (yaf_router_object*)object;
 
 	zend_hash_destroy(&router->routes);
+	if (router->properties) {
+		if (GC_DELREF(router->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(router->properties);
+			zend_array_destroy(router->properties);
+		}
+	}
 	zend_object_std_dtor(object);
 }
 /* }}} */
@@ -398,8 +407,9 @@ YAF_STARTUP_FUNCTION(router) {
 
 	memcpy(&yaf_router_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_router_obj_handlers.clone_obj = NULL;
+	yaf_router_obj_handlers.get_gc = NULL;
 	yaf_router_obj_handlers.free_obj = yaf_router_object_free;
-	yaf_router_obj_handlers.get_debug_info = yaf_router_get_debug_info;
+	yaf_router_obj_handlers.get_properties = yaf_router_get_properties;
 
 	YAF_STARTUP(route);
 	YAF_STARTUP(route_static);
