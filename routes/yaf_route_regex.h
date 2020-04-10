@@ -24,6 +24,7 @@ typedef struct {
 	zend_array  *map;
 	zend_array  *verify;
 	zend_string *reverse;
+	zend_array  *properties;
 } yaf_route_regex_object;
 
 #define Z_YAFROUTEREGEXOBJ(zv)    ((yaf_route_regex_object*)(Z_OBJ(zv)))

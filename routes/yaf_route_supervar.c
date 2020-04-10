@@ -42,19 +42,20 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_supervar_construct_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_supervar_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+static HashTable *yaf_route_supervar_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_supervar_object *super = Z_YAFROUTESUPEROBJ_P(object);
 
-	*is_tmp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 2, NULL, ZVAL_PTR_DTOR, 0);
+	if (!super->properties) {
+		ALLOC_HASHTABLE(super->properties);
+		zend_hash_init(super->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
 
-	ZVAL_STR_COPY(&rv, super->varname);
-	zend_hash_str_add(ht, "varname:protected", sizeof("varname:protected") - 1, &rv);
+		ZVAL_STR_COPY(&rv, super->varname);
+		zend_hash_str_add(super->properties, "varname:protected", sizeof("varname:protected") - 1, &rv);
+	}
 
-	return ht;
+	return super->properties;
 }
 /* }}} */
 
@@ -66,6 +67,7 @@ static zend_object *yaf_route_supervar_new(zend_class_entry *ce) /* {{{ */ {
 	supervar->std.handlers = &yaf_route_supervar_obj_handlers;
 
 	supervar->varname = NULL;
+	supervar->properties = NULL;
 
 	return &supervar->std;
 }
@@ -75,6 +77,13 @@ static void yaf_route_supervar_object_free(zend_object *object) /* {{{ */ {
 	yaf_route_supervar_object *supervar = (yaf_route_supervar_object*)object;
 
 	zend_string_release(supervar->varname);
+
+	if (supervar->properties) {
+		if (GC_DELREF(supervar->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(supervar->properties);
+			zend_array_destroy(supervar->properties);
+		}
+	}
 
 	zend_object_std_dtor(&supervar->std);
 }
@@ -237,7 +246,8 @@ YAF_STARTUP_FUNCTION(route_supervar) {
 	memcpy(&yaf_route_supervar_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_route_supervar_obj_handlers.free_obj = yaf_route_supervar_object_free;
 	yaf_route_supervar_obj_handlers.clone_obj = NULL;
-	yaf_route_supervar_obj_handlers.get_debug_info = yaf_route_supervar_get_debug_info;
+	yaf_route_supervar_obj_handlers.get_gc = NULL;
+	yaf_route_supervar_obj_handlers.get_properties = yaf_route_supervar_get_properties;
 
 
 	return SUCCESS;

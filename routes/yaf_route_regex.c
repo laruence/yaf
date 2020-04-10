@@ -51,56 +51,63 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_regex_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_regex_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+static HashTable *yaf_route_regex_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_regex_object *regex = Z_YAFROUTEREGEXOBJ_P(object);
 
-	*is_tmp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 8, NULL, ZVAL_PTR_DTOR, 0);
+	if (!regex->properties) {
+		ALLOC_HASHTABLE(regex->properties);
+		zend_hash_init(regex->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
 
-	ZVAL_STR_COPY(&rv, regex->match);
-	zend_hash_str_add(ht, "match:protected", sizeof("match:protected") - 1, &rv);
+		ht = regex->properties;
+		ZVAL_STR_COPY(&rv, regex->match);
+		zend_hash_str_add(ht, "match:protected", sizeof("match:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, regex->router);
-	GC_ADDREF(regex->router);
-	zend_hash_str_add(ht, "route:protected", sizeof("route:protected") - 1, &rv);
+		ZVAL_ARR(&rv, regex->router);
+		GC_ADDREF(regex->router);
+		zend_hash_str_add(ht, "route:protected", sizeof("route:protected") - 1, &rv);
 
-	if (regex->map) {
-		ZVAL_ARR(&rv, regex->map);
-		GC_ADDREF(regex->map);
-	} else {
-		ZVAL_NULL(&rv);
+		if (regex->map) {
+			ZVAL_ARR(&rv, regex->map);
+			GC_ADDREF(regex->map);
+		} else {
+			ZVAL_NULL(&rv);
+		}
+		zend_hash_str_add(ht, "map:protected", sizeof("map:protected") - 1, &rv);
+
+		if (regex->verify) {
+			ZVAL_ARR(&rv, regex->verify);
+			GC_ADDREF(regex->verify);
+		} else {
+			ZVAL_NULL(&rv);
+		}
+		zend_hash_str_add(ht, "verify:protected", sizeof("verify:protected") - 1, &rv);
+
+		if (regex->reverse) {
+			ZVAL_STR_COPY(&rv, regex->reverse);
+		} else {
+			ZVAL_NULL(&rv);
+		}
+		zend_hash_str_add(ht, "reverse:protected", sizeof("reverse:protected") - 1, &rv);
 	}
-	zend_hash_str_add(ht, "map:protected", sizeof("map:protected") - 1, &rv);
 
-	if (regex->verify) {
-		ZVAL_ARR(&rv, regex->verify);
-		GC_ADDREF(regex->verify);
-	} else {
-		ZVAL_NULL(&rv);
-	}
-	zend_hash_str_add(ht, "verify:protected", sizeof("verify:protected") - 1, &rv);
-
-	if (regex->reverse) {
-		ZVAL_STR_COPY(&rv, regex->reverse);
-	} else {
-		ZVAL_NULL(&rv);
-	}
-	zend_hash_str_add(ht, "reverse:protected", sizeof("reverse:protected") - 1, &rv);
-
-	return ht;
+	return regex->properties;
 }
 /* }}} */
 
 static zend_object *yaf_route_regex_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_route_regex_object *regex = emalloc(sizeof(yaf_route_regex_object));
 
-	memset((char*)regex + sizeof(zend_object), 0, sizeof(yaf_route_regex_object) - sizeof(zend_object));
 	zend_object_std_init(&regex->std, ce);
 
 	regex->std.handlers = &yaf_route_regex_obj_handlers;
+
+	regex->match = NULL;
+	regex->router = NULL;
+	regex->router = NULL;
+	regex->verify = NULL;
+	regex->properties = NULL;
 
 	return &regex->std;
 }
@@ -135,6 +142,13 @@ static void yaf_route_regex_object_free(zend_object *object) /* {{{ */ {
 		if (!(GC_FLAGS(regex->verify) & IS_ARRAY_IMMUTABLE) && GC_DELREF(regex->verify) == 0) {
 			GC_REMOVE_FROM_BUFFER(regex->verify);
 			zend_array_destroy(regex->verify);
+		}
+	}
+
+	if (regex->properties) {
+		if (GC_DELREF(regex->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(regex->properties);
+			zend_array_destroy(regex->properties);
 		}
 	}
 
@@ -460,8 +474,9 @@ YAF_STARTUP_FUNCTION(route_regex) {
 
 	memcpy(&yaf_route_regex_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_route_regex_obj_handlers.free_obj = yaf_route_regex_object_free;
+	yaf_route_regex_obj_handlers.get_gc = NULL;
 	yaf_route_regex_obj_handlers.clone_obj = NULL;
-	yaf_route_regex_obj_handlers.get_debug_info = yaf_route_regex_get_debug_info;
+	yaf_route_regex_obj_handlers.get_properties = yaf_route_regex_get_properties;
 
 	return SUCCESS;
 }

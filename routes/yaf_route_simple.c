@@ -44,25 +44,27 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_simple_construct_arginfo, 0, 0, 3)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_simple_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+static HashTable *yaf_route_simple_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_simple_object *simple = Z_YAFROUTESIMPLEOBJ_P(object);
 
-	*is_tmp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 4, NULL, ZVAL_PTR_DTOR, 0);
+	if (!simple->properties) {
+		ALLOC_HASHTABLE(simple->properties);
+		zend_hash_init(simple->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
 
-	ZVAL_STR_COPY(&rv, simple->m);
-	zend_hash_str_add(ht, "module:protected", sizeof("module:protected") - 1, &rv);
+		ht = simple->properties;
+		ZVAL_STR_COPY(&rv, simple->m);
+		zend_hash_str_add(ht, "module:protected", sizeof("module:protected") - 1, &rv);
 
-	ZVAL_STR_COPY(&rv, simple->c);
-	zend_hash_str_add(ht, "controller:protected", sizeof("controller:protected") - 1, &rv);
+		ZVAL_STR_COPY(&rv, simple->c);
+		zend_hash_str_add(ht, "controller:protected", sizeof("controller:protected") - 1, &rv);
 
-	ZVAL_STR_COPY(&rv, simple->a);
-	zend_hash_str_add(ht, "action:protected", sizeof("action:protected") - 1, &rv);
+		ZVAL_STR_COPY(&rv, simple->a);
+		zend_hash_str_add(ht, "action:protected", sizeof("action:protected") - 1, &rv);
+	}
 
-	return ht;
+	return simple->properties;
 }
 /* }}} */
 
@@ -73,6 +75,7 @@ static zend_object *yaf_route_simple_new(zend_class_entry *ce) /* {{{ */ {
 
 	simple->std.handlers = &yaf_route_simple_obj_handlers;
 	simple->m = simple->c = simple->a = NULL;
+	simple->properties = NULL;
 
 	return &simple->std;
 }
@@ -84,6 +87,13 @@ static void yaf_route_simple_object_free(zend_object *object) /* {{{ */ {
 	zend_string_release(simple->m);
 	zend_string_release(simple->c);
 	zend_string_release(simple->a);
+
+	if (simple->properties) {
+		if (GC_DELREF(simple->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(simple->properties);
+			zend_array_destroy(simple->properties);
+		}
+	}
 
 	zend_object_std_dtor(&simple->std);
 }
@@ -266,7 +276,8 @@ YAF_STARTUP_FUNCTION(route_simple) {
 	memcpy(&yaf_route_simple_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_route_simple_obj_handlers.free_obj = yaf_route_simple_object_free;
 	yaf_route_simple_obj_handlers.clone_obj = NULL;
-	yaf_route_simple_obj_handlers.get_debug_info = yaf_route_simple_get_debug_info;
+	yaf_route_simple_obj_handlers.get_gc = NULL;
+	yaf_route_simple_obj_handlers.get_properties = yaf_route_simple_get_properties;
 
 	return SUCCESS;
 }

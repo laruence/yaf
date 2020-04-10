@@ -20,6 +20,7 @@
 typedef struct {
 	zend_object  std;
 	zend_string *varname;
+	zend_array  *properties;
 } yaf_route_supervar_object;
 
 #define Z_YAFROUTESUPEROBJ(zv)    ((yaf_route_supervar_object*)(Z_OBJ(zv)))

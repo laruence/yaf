@@ -22,6 +22,7 @@ typedef struct {
 	zend_string *m;
 	zend_string *c;
 	zend_string *a;
+	zend_array  *properties;
 } yaf_route_simple_object;
 
 #define Z_YAFROUTESIMPLEOBJ(zv)    ((yaf_route_simple_object*)(Z_OBJ(zv)))

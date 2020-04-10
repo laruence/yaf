@@ -50,41 +50,46 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_rewrite_get_debug_info(zval *object, int *is_tmp) /* {{{ */ {
+static HashTable *yaf_route_rewrite_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_rewrite_object *rewrite = Z_YAFROUTEREWRITEOBJ_P(object);
 
-	*is_tmp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 4, NULL, ZVAL_PTR_DTOR, 0);
+	if (!rewrite->properties) {
+		ALLOC_HASHTABLE(rewrite->properties);
+		zend_hash_init(rewrite->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
 
-	ZVAL_STR_COPY(&rv, rewrite->match);
-	zend_hash_str_add(ht, "match:protected", sizeof("match:protected") - 1, &rv);
+		ht = rewrite->properties;
+		ZVAL_STR_COPY(&rv, rewrite->match);
+		zend_hash_str_add(ht, "match:protected", sizeof("match:protected") - 1, &rv);
 
-	ZVAL_ARR(&rv, rewrite->router);
-	Z_TRY_ADDREF(rv);
-	zend_hash_str_add(ht, "route:protected", sizeof("route:protected") - 1, &rv);
-
-	if (rewrite->verify) {
-		ZVAL_ARR(&rv, rewrite->verify);
+		ZVAL_ARR(&rv, rewrite->router);
 		Z_TRY_ADDREF(rv);
-	} else {
-		ZVAL_NULL(&rv);
-	}
-	zend_hash_str_add(ht, "verify:protected", sizeof("verify:protected") - 1, &rv);
+		zend_hash_str_add(ht, "route:protected", sizeof("route:protected") - 1, &rv);
 
-	return ht;
+		if (rewrite->verify) {
+			ZVAL_ARR(&rv, rewrite->verify);
+			Z_TRY_ADDREF(rv);
+		} else {
+			ZVAL_NULL(&rv);
+		}
+		zend_hash_str_add(ht, "verify:protected", sizeof("verify:protected") - 1, &rv);
+	}
+
+	return rewrite->properties;
 }
 /* }}} */
 
 static zend_object *yaf_route_rewrite_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_route_rewrite_object *rewrite = emalloc(sizeof(yaf_route_rewrite_object));
 
-	memset((char*)rewrite + sizeof(zend_object), 0, sizeof(yaf_route_rewrite_object) - sizeof(zend_object));
-
 	zend_object_std_init(&rewrite->std, ce);
 	rewrite->std.handlers = &yaf_route_rewrite_obj_handlers;
+
+	rewrite->match = NULL;
+	rewrite->router = NULL;
+	rewrite->verify = NULL;
+	rewrite->properties = NULL;
 
 	return &rewrite->std;
 }
@@ -108,6 +113,13 @@ static void yaf_route_rewrite_object_free(zend_object *object) /* {{{ */ {
 		if ((GC_DELREF(rewrite->verify) == 0)) {
 			GC_REMOVE_FROM_BUFFER(rewrite->verify);
 			zend_array_destroy(rewrite->verify);
+		}
+	}
+
+	if (rewrite->properties) {
+		if ((GC_DELREF(rewrite->properties) == 0)) {
+			GC_REMOVE_FROM_BUFFER(rewrite->properties);
+			zend_array_destroy(rewrite->properties);
 		}
 	}
 
@@ -487,7 +499,8 @@ YAF_STARTUP_FUNCTION(route_rewrite) {
 	memcpy(&yaf_route_rewrite_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_route_rewrite_obj_handlers.free_obj = yaf_route_rewrite_object_free;
 	yaf_route_rewrite_obj_handlers.clone_obj = NULL;
-	yaf_route_rewrite_obj_handlers.get_debug_info = yaf_route_rewrite_get_debug_info;
+	yaf_route_rewrite_obj_handlers.get_gc = NULL;
+	yaf_route_rewrite_obj_handlers.get_properties = yaf_route_rewrite_get_properties;
 
 	return SUCCESS;
 }

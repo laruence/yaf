@@ -22,6 +22,7 @@ typedef struct {
 	zend_string *match;
 	zend_array  *router;
 	zend_array  *verify;
+	zend_array  *properties;
 } yaf_route_rewrite_object;
 
 #define Z_YAFROUTEREWRITEOBJ(zv)    ((yaf_route_rewrite_object*)(Z_OBJ(zv)))
