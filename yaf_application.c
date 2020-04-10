@@ -162,7 +162,7 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 		} else {
 			ZVAL_STRINGL(&t, YAF_ROUTER_DEFAULT_MODULE, sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1);
 		}
-		zend_hash_next_index_insert_new(Z_ARRVAL(rv), &t);
+		zend_hash_index_update(Z_ARRVAL(rv), 0, &t);
 	}
 	zend_hash_str_update(ht, "modules:protected", sizeof("modules:protected") - 1, &rv);
 	
@@ -598,11 +598,11 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 /* }}} */
 
 static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_application_object *app = emalloc(sizeof(yaf_application_object));
+	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
 
 	app->std.handlers = &yaf_application_obj_handlers;
 	zend_object_std_init(&app->std, ce);
-	memset(((char*)app) + sizeof(zend_object), 0, sizeof(yaf_application_object) - sizeof(zend_object));
+	memset(((char*)app), 0, XtOffsetOf(yaf_application_object, std));
 
 	return &app->std;
 }
@@ -1004,6 +1004,7 @@ YAF_STARTUP_FUNCTION(application) {
 	yaf_application_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_application_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	yaf_application_obj_handlers.offset = XtOffsetOf(yaf_application_object, std);
 	yaf_application_obj_handlers.clone_obj = NULL;
 	yaf_application_obj_handlers.get_gc = NULL;
 	yaf_application_obj_handlers.free_obj = yaf_application_free;

@@ -18,7 +18,6 @@
 #define PHP_YAF_APPLICATION_H
 
 typedef struct {
-    zend_object      std;
     zend_uchar       flags;
 	zend_string     *default_module;
 	zend_string     *default_controller;
@@ -37,10 +36,15 @@ typedef struct {
 	unsigned int     err_no;
 	zend_string     *err_msg;
 	zend_array      *properties;
+    zend_object      std;
 } yaf_application_object;
 
-#define Z_YAFAPPOBJ(zv)     ((yaf_application_object*)(Z_OBJ(zv)))
+#define Z_YAFAPPOBJ(zv)     ((php_yaf_application_fetch_object)(Z_OBJ(zv)))
 #define Z_YAFAPPOBJ_P(zv)   Z_YAFAPPOBJ(*(zv))
+
+static zend_always_inline yaf_application_object *php_yaf_application_fetch_object(zend_object *obj) {
+	return (yaf_application_object *)((char*)(obj) - XtOffsetOf(yaf_application_object, std));
+}
 
 #define YAF_APP_RUNNING     (1<<0)
 
