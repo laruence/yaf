@@ -404,15 +404,11 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 		return instance;
 	}
 
-	loader = emalloc(sizeof(yaf_loader_object));
+	loader = emalloc(sizeof(yaf_loader_object) + zend_object_properties_size(yaf_loader_ce));
 	zend_object_std_init(&loader->std, yaf_loader_ce);
 	loader->std.handlers = &yaf_loader_obj_handlers;
 
-	loader->flags = YAF_G(use_spl_autoload)? YAF_LOADER_USE_SPL : 0;
-	loader->flags |= YAF_G(name_suffix) ? YAF_LOADER_NAMESUFFIX : 0;
-	loader->flags |= YAF_G(lowcase_path) ? YAF_LOADER_LOWERCASE : 0;
-	loader->flags |= YAF_G(name_separator_len) ? YAF_LOADER_NAMESEPARATOR : 0;
-
+	yaf_loader_reset(loader);
 	if (library_path) {
 		loader->library = zend_string_copy(library_path);
 	} else {
