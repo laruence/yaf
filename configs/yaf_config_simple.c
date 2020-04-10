@@ -59,7 +59,7 @@ void yaf_config_simple_init(yaf_config_object *conf, zval *val, int readonly) /*
 		} else {
 			conf->config = zend_array_dup(Z_ARRVAL_P(val));
 		}
-		conf->readonly = readonly;
+		conf->flags = readonly? YAF_CONFIG_READONLY : 0;
 		return;
 	}
 	yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Invalid parameters provided, must be an array");
@@ -107,7 +107,7 @@ PHP_METHOD(yaf_config_simple, set) {
 		return;
 	}
 
-	if (conf->readonly) {
+	if (conf->flags & YAF_CONFIG_READONLY) {
 		RETURN_FALSE;
 	} else {
 		RETURN_BOOL(yaf_config_simple_update(conf, name, val));
@@ -120,7 +120,7 @@ PHP_METHOD(yaf_config_simple, set) {
 PHP_METHOD(yaf_config_simple, readonly) {
 	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(getThis());
 
-	RETURN_BOOL(conf->readonly);
+	RETURN_BOOL(conf->flags & YAF_CONFIG_READONLY);
 }
 /* }}} */
 
@@ -134,7 +134,7 @@ PHP_METHOD(yaf_config_simple, offsetUnset) {
 		return;
 	}
 
-	if (conf->readonly) {
+	if (conf->flags & YAF_CONFIG_READONLY) {
 		php_error_docref(NULL, E_WARNING, "config is readonly");
 	}
 

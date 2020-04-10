@@ -61,26 +61,29 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_config_isset_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_config_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+static HashTable *yaf_config_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(object);;
 
-	*is_temp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 4, NULL, ZVAL_PTR_DTOR, 0);
+	if (!conf->properties) {
+		ALLOC_HASHTABLE(conf->properties);
+		zend_hash_init(conf->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(conf->properties);
+	}
 
-	ZVAL_BOOL(&rv, conf->readonly);
-	zend_hash_str_add(ht, "readonly:protected", sizeof("readonly:protected") - 1, &rv);
+	ht = conf->properties;
+	ZVAL_BOOL(&rv, conf->flags & YAF_CONFIG_READONLY);
+	zend_hash_str_update(ht, "readonly:protected", sizeof("readonly:protected") - 1, &rv);
 
 	if (conf->config) {
 		ZVAL_ARR(&rv, zend_array_dup(conf->config));
 	}
-	zend_hash_str_add(ht, "config:protected", sizeof("config:protected") - 1, &rv);
+	zend_hash_str_update(ht, "config:protected", sizeof("config:protected") - 1, &rv);
 
 	if (conf->filename) {
 		ZVAL_STR_COPY(&rv, conf->filename);
-		zend_hash_str_add(ht, "filename:protected", sizeof("filename:protected") - 1, &rv);
+		zend_hash_str_update(ht, "filename:protected", sizeof("filename:protected") - 1, &rv);
 	}
 
 	return ht;
@@ -90,11 +93,9 @@ static HashTable *yaf_config_get_debug_info(zval *object, int *is_temp) /* {{{ *
 static zend_object *yaf_config_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_config_object *conf = emalloc(sizeof(yaf_config_object) + zend_object_properties_size(ce));
 
+	memset(conf, 0, XtOffsetOf(yaf_config_object, std));
 	zend_object_std_init(&conf->std, ce);
 	conf->std.handlers = &yaf_config_obj_handlers;
-	conf->filename = NULL;
-	conf->config = NULL;
-	conf->readonly = 0;
 	
 	return &conf->std;
 }
@@ -110,6 +111,12 @@ static void yaf_config_object_free(zend_object *object) /* {{{ */ {
 	}
 	if (conf->filename) {
 		zend_string_release(conf->filename);
+	}
+	if (conf->properties) {
+		if (GC_DELREF(conf->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(conf->properties);
+			zend_array_destroy(conf->properties);
+		}
 	}
 	zend_object_std_dtor(object);
 }
@@ -197,7 +204,7 @@ PHP_METHOD(yaf_config, get) {
 			RETURN_NULL();
 		}
 		if (Z_TYPE_P(val) == IS_ARRAY) {
-			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->readonly));
+			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->flags & YAF_CONFIG_READONLY));
 		} else {
 			RETURN_ZVAL(val, 1, 0);
 		}
@@ -293,7 +300,7 @@ PHP_METHOD(yaf_config, current) {
 			RETURN_FALSE;
 		}
 		if (Z_TYPE_P(val) == IS_ARRAY) {
-			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->readonly));
+			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->flags & YAF_CONFIG_READONLY));
 		} else {
 			RETURN_ZVAL(val, 1, 0);
 		}
@@ -381,7 +388,7 @@ zend_function_entry yaf_config_methods[] = {
 	PHP_ME(yaf_config, __isset, yaf_config_isset_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config, __get, get, yaf_config_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config, offsetGet, get, yaf_config_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config,      offsetExists, __isset, yaf_config_isset_arginfo, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config, offsetExists, __isset, yaf_config_isset_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ABSTRACT_ME(yaf_config, offsetSet, yaf_config_set_arginfo)
 	PHP_ABSTRACT_ME(yaf_config, set, yaf_config_set_arginfo)
 	PHP_ABSTRACT_ME(yaf_config, readonly, yaf_config_void_arginfo)
@@ -405,7 +412,8 @@ YAF_STARTUP_FUNCTION(config) {
 	yaf_config_obj_handlers.offset = XtOffsetOf(yaf_config_object, std);
 	yaf_config_obj_handlers.free_obj = yaf_config_object_free;
 	yaf_config_obj_handlers.clone_obj = NULL;
-	yaf_config_obj_handlers.get_debug_info = yaf_config_get_debug_info;
+	yaf_config_obj_handlers.get_gc = NULL;
+	yaf_config_obj_handlers.get_properties = yaf_config_get_properties;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 	zend_class_implements(yaf_config_ce, 3, zend_ce_iterator, zend_ce_arrayaccess, spl_ce_Countable);

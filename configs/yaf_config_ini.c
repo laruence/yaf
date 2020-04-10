@@ -363,7 +363,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 /* }}} */
 
 int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *section_name) /* {{{ */ {
-	conf->readonly = 1;
+	conf->flags |= YAF_CONFIG_READONLY;
 
 	if (Z_TYPE_P(filename) == IS_ARRAY) {
 		conf->config = Z_ARRVAL_P(filename);
@@ -447,7 +447,7 @@ PHP_METHOD(yaf_config_ini, __construct) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|S!", &filename, &section) == FAILURE) {
 		/* for back compatibilty */
-		conf->readonly = 1;
+		conf->flags = YAF_CONFIG_READONLY;
 		return;
 	}
 
@@ -473,7 +473,7 @@ PHP_METHOD(yaf_config_ini, get) {
 			RETURN_NULL();
 		}
 		if (Z_TYPE_P(val) == IS_ARRAY) {
-			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->readonly));
+			RETURN_OBJ(yaf_config_format_child(Z_OBJCE_P(getThis()), val, conf->flags & YAF_CONFIG_READONLY));
 		} else {
 			RETURN_ZVAL(val, 1, 0);
 		}

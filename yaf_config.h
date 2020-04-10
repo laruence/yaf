@@ -21,10 +21,13 @@
 #define YAF_CONFIG_PROPERT_NAME          "_config"
 #define YAF_CONFIG_PROPERT_NAME_READONLY "_readonly"
 
+#define YAF_CONFIG_READONLY  (1<<0)
+
 typedef struct {
+	zend_uchar   flags;
 	zend_array  *config;
 	zend_string *filename;
-	zend_bool    readonly;
+	zend_array  *properties;
 	zend_object  std;
 } yaf_config_object;
 
