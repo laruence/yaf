@@ -693,18 +693,13 @@ PHP_METHOD(yaf_application, __construct) {
 
 	yaf_config_instance(&app->config, config, section);
 	if (UNEXPECTED(Z_TYPE(app->config) != IS_OBJECT)) {
-		zend_string_release(section);
-		zval_ptr_dtor(&app->config);
 		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
-		return;
+		goto dtor;
 	}
 
 	loader = yaf_loader_instance(NULL);
 	if (!yaf_application_parse_option(app)) {
-		zend_string_release(section);
-		zval_ptr_dtor(&app->config);
-		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Parsing application config failed");
-		return;
+		goto dtor;
 	}
 
 	app->env = section /* initialized flag */;
@@ -721,6 +716,12 @@ PHP_METHOD(yaf_application, __construct) {
 
 	yaf_request_instance(&Z_YAFDISPATCHEROBJ(app->dispatcher)->request, app->base_uri);
 
+	return;
+dtor:
+	zend_string_release(section);
+	zval_ptr_dtor(&app->config);
+	GC_DELREF(Z_OBJ(YAF_G(app)));
+	ZVAL_UNDEF(&YAF_G(app));
 }
 /* }}} */
 
@@ -731,7 +732,7 @@ PHP_METHOD(yaf_application, run) {
 	yaf_response_t *response;
 
 	if (UNEXPECTED(app->flags & YAF_APP_RUNNING)) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "application has been running");
+		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Application is already started");
 		RETURN_FALSE;
 	}
 
