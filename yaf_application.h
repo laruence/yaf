@@ -19,10 +19,7 @@
 
 typedef struct {
     zend_object      std;
-    zval             config;
-	zend_array      *modules;
-    yaf_dispatcher_t dispatcher;
-	zend_string     *env;
+    zend_uchar       flags;
 	zend_string     *default_module;
 	zend_string     *default_controller;
 	zend_string     *default_action;
@@ -33,13 +30,19 @@ typedef struct {
 	zend_string     *view_ext;
 	zend_string     *base_uri;
 	zend_array      *default_route;
+	zend_array      *modules;
+    yaf_dispatcher_t dispatcher;
+    yaf_config_t     config;
+	zend_string     *env;
 	unsigned int     err_no;
-    zend_bool        running;
 	zend_string     *err_msg;
+	zend_array      *properties;
 } yaf_application_object;
 
 #define Z_YAFAPPOBJ(zv)     ((yaf_application_object*)(Z_OBJ(zv)))
 #define Z_YAFAPPOBJ_P(zv)   Z_YAFAPPOBJ(*(zv))
+
+#define YAF_APP_RUNNING     (1<<0)
 
 extern zend_class_entry *yaf_application_ce;
 

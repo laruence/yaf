@@ -78,68 +78,70 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_application_setappdir_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
 
-	*is_temp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 16, NULL, ZVAL_PTR_DTOR, 0);
+	if (!app->properties) {
+		ALLOC_HASHTABLE(app->properties);
+		zend_hash_init(app->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
+	}
 
+	ht = app->properties;
 	ZVAL_STR_COPY(&rv, app->directory);
-	zend_hash_str_add(ht, "directory", sizeof("directory") - 1, &rv);
+	zend_hash_str_update(ht, "directory", sizeof("directory") - 1, &rv);
 
 	if (app->library) {
 		ZVAL_STR_COPY(&rv, app->library);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "library", sizeof("library") - 1, &rv);
+	zend_hash_str_update(ht, "library", sizeof("library") - 1, &rv);
 
 	if (app->bootstrap) {
 		ZVAL_STR_COPY(&rv, app->bootstrap);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "bootstrap", sizeof("bootstrap") - 1, &rv);
+	zend_hash_str_update(ht, "bootstrap", sizeof("bootstrap") - 1, &rv);
 
 	if (app->ext) {
 		ZVAL_STR_COPY(&rv, app->ext);
 	} else {
 		ZVAL_STRINGL(&rv, YAF_DEFAULT_EXT, sizeof(YAF_DEFAULT_EXT) - 1);
 	}
-	zend_hash_str_add(ht, "ext", sizeof("ext") - 1, &rv);
+	zend_hash_str_update(ht, "ext", sizeof("ext") - 1, &rv);
 
 	if (app->view_ext) {
 		ZVAL_STR_COPY(&rv, app->view_ext);
 	} else {
 		ZVAL_STRINGL(&rv, YAF_DEFAULT_VIEW_EXT, sizeof(YAF_DEFAULT_VIEW_EXT) - 1);
 	}
-	zend_hash_str_add(ht, "view_ext", sizeof("view_ext") - 1, &rv);
+	zend_hash_str_update(ht, "view_ext", sizeof("view_ext") - 1, &rv);
 
 	ZVAL_STR_COPY(&rv, app->env);
-	zend_hash_str_add(ht, "environ:protected", sizeof("environ:protected") - 1, &rv);
+	zend_hash_str_update(ht, "environ:protected", sizeof("environ:protected") - 1, &rv);
 
-	ZVAL_BOOL(&rv, app->running);
-	zend_hash_str_add(ht, "running:protected", sizeof("running:protected") - 1, &rv);
+	ZVAL_BOOL(&rv, app->flags & YAF_APP_RUNNING);
+	zend_hash_str_update(ht, "running:protected", sizeof("running:protected") - 1, &rv);
 
 	if (app->err_msg) {
 		ZVAL_STR_COPY(&rv, app->err_msg);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "err_msg:protected", sizeof("err_msg:protected") - 1, &rv);
+	zend_hash_str_update(ht, "err_msg:protected", sizeof("err_msg:protected") - 1, &rv);
 
 	ZVAL_LONG(&rv, app->err_no);
-	zend_hash_str_add(ht, "err_no:protected", sizeof("err_no:protected") - 1, &rv);
+	zend_hash_str_update(ht, "err_no:protected", sizeof("err_no:protected") - 1, &rv);
 	if (Z_TYPE(app->config) == IS_OBJECT) {
 		ZVAL_OBJ(&rv, Z_OBJ(app->config));
 		Z_ADDREF(rv);
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "config:protected", sizeof("config:protected") - 1, &rv);
+	zend_hash_str_update(ht, "config:protected", sizeof("config:protected") - 1, &rv);
 
 	if (Z_TYPE(app->dispatcher) == IS_OBJECT) {
 		ZVAL_OBJ(&rv, Z_OBJ(app->dispatcher));
@@ -147,7 +149,7 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "dispatcher:protected", sizeof("dispatcher:protected") - 1, &rv);
+	zend_hash_str_update(ht, "dispatcher:protected", sizeof("dispatcher:protected") - 1, &rv);
 
 	if (app->modules) {
 		ZVAL_ARR(&rv, app->modules);
@@ -162,14 +164,14 @@ static HashTable *yaf_application_get_debug_info(zval *object, int *is_temp) /* 
 		}
 		zend_hash_next_index_insert_new(Z_ARRVAL(rv), &t);
 	}
-	zend_hash_str_add(ht, "modules:protected", sizeof("modules:protected") - 1, &rv);
+	zend_hash_str_update(ht, "modules:protected", sizeof("modules:protected") - 1, &rv);
 	
 	if (app->default_route) {
 		ZVAL_ARR(&rv, zend_array_dup(app->default_route));
 	} else {
 		ZVAL_NULL(&rv);
 	}
-	zend_hash_str_add(ht, "default_route:protected", sizeof("default_route:protected") - 1, &rv);
+	zend_hash_str_update(ht, "default_route:protected", sizeof("default_route:protected") - 1, &rv);
 
 	return ht;
 }
@@ -617,10 +619,8 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 	zend_string_release(app->env);
 
 	OBJ_RELEASE(Z_OBJ(app->config));
-	if (app->modules) {
-		zend_array_destroy(app->modules);
-	}
 	OBJ_RELEASE(Z_OBJ(app->dispatcher));
+
 	zend_string_release(app->default_module);
 	zend_string_release(app->default_controller);
 	zend_string_release(app->default_action);
@@ -644,6 +644,18 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 	if (app->err_msg) {
 		zend_string_release(app->err_msg);
 	}
+	if (app->modules) {
+		if (GC_DELREF(app->modules) == 0) {
+			GC_REMOVE_FROM_BUFFER(app->modules);
+			zend_array_destroy(app->modules);
+		}
+	}
+	if (app->properties) {
+		if (GC_DELREF(app->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(app->properties);
+			zend_array_destroy(app->properties);
+		}
+	}
 
 	zend_object_std_dtor(object);
 }
@@ -662,7 +674,7 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
+		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
 		return;
 	}
 
@@ -681,16 +693,16 @@ PHP_METHOD(yaf_application, __construct) {
 	if (UNEXPECTED(Z_TYPE(app->config) != IS_OBJECT)) {
 		zend_string_release(section);
 		zval_ptr_dtor(&app->config);
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
-		RETURN_FALSE;
+		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
+		return;
 	}
 
 	loader = yaf_loader_instance(NULL);
 	if (!yaf_application_parse_option(app)) {
 		zend_string_release(section);
 		zval_ptr_dtor(&app->config);
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Parsing application config failed");
-		RETURN_FALSE;
+		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Parsing application config failed");
+		return;
 	}
 
 	app->env = section /* initialized flag */;
@@ -716,17 +728,18 @@ PHP_METHOD(yaf_application, run) {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 	yaf_response_t *response;
 
-	if (app->running) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "An application instance already run");
+	if (UNEXPECTED(app->flags & YAF_APP_RUNNING)) {
+		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "application has been running");
 		RETURN_FALSE;
 	}
 
-	app->running = 1;
-
+	app->flags |= YAF_APP_RUNNING;
 	if ((response = yaf_dispatcher_dispatch(Z_YAFDISPATCHEROBJ(app->dispatcher))) == NULL) {
+		app->flags &= ~YAF_APP_RUNNING;
 		RETURN_FALSE;
 	}
 
+	app->flags &= ~YAF_APP_RUNNING;
 	RETURN_ZVAL(response, 1, 0);
 }
 /* }}} */
@@ -992,8 +1005,9 @@ YAF_STARTUP_FUNCTION(application) {
 
 	memcpy(&yaf_application_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_application_obj_handlers.clone_obj = NULL;
+	yaf_application_obj_handlers.get_gc = NULL;
 	yaf_application_obj_handlers.free_obj = yaf_application_free;
-	yaf_application_obj_handlers.get_debug_info = yaf_application_get_debug_info;
+	yaf_application_obj_handlers.get_properties = yaf_application_get_properties;
 	yaf_application_obj_handlers.read_property = yaf_application_read_property;
 	yaf_application_obj_handlers.write_property = yaf_application_write_property;
 

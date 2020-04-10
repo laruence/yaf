@@ -1239,6 +1239,7 @@ YAF_STARTUP_FUNCTION(request){
 	yaf_request_obj_handlers.read_property = yaf_request_read_property;
 	yaf_request_obj_handlers.write_property = yaf_request_write_property;
 	yaf_request_obj_handlers.clone_obj = NULL;
+	yaf_request_obj_handlers.get_gc = NULL;
 
 	YAF_STARTUP(request_http);
 	YAF_STARTUP(request_simple);
