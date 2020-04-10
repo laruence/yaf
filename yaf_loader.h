@@ -31,19 +31,26 @@
 #define YAF_SPL_AUTOLOAD_REGISTER_NAME     "spl_autoload_register"
 #define YAF_AUTOLOAD_FUNC_NAME             "autoload"
 
+#define YAF_LOADER_USE_SPL        (1<<0)
+#define YAF_LOADER_LOWERCASE      (1<<1)
+#define YAF_LOADER_NAMESUFFIX     (1<<2)
+#define YAF_LOADER_NAMESPARATOR   (1<<3)
+
 typedef struct {
-	zend_object std;
+	zend_uchar   flags;
 	zend_string *library;
 	zend_string *glibrary;
 	zend_array  *namespaces;
-	zend_bool    use_spl_autoload;
-	zend_bool    lowcase_path;
-	zend_bool    name_suffix;
-	zend_bool    name_separator;
+	zend_array  *properties;
+	zend_object std;
 } yaf_loader_object;
 
-#define Z_YAFLOADEROBJ(zv)    ((yaf_loader_object*)(Z_OBJ(zv)))
+#define Z_YAFLOADEROBJ(zv)    (php_yaf_loader_fetch_object(Z_OBJ(zv)))
 #define Z_YAFLOADEROBJ_P(zv)  Z_YAFLOADEROBJ(*zv)
+
+static zend_always_inline yaf_loader_object *php_yaf_loader_fetch_object(zend_object *obj) {
+	return (yaf_loader_object *)((char*)(obj) - XtOffsetOf(yaf_loader_object, std));
+}
 
 extern zend_class_entry *yaf_loader_ce;
 
@@ -60,6 +67,22 @@ static zend_always_inline void yaf_loader_set_library_path(yaf_loader_object *lo
 		zend_string_release(loader->library);
 	}
 	loader->library = zend_string_copy(library_path);
+}
+
+static zend_always_inline zend_bool yaf_loader_use_spl_autoload(yaf_loader_object *loader) {
+	return loader->flags & YAF_LOADER_USE_SPL;
+}
+
+static zend_always_inline zend_bool yaf_loader_is_lowcase_path(yaf_loader_object *loader) {
+	return loader->flags & YAF_LOADER_LOWERCASE;
+}
+
+static zend_always_inline zend_bool yaf_loader_is_name_suffix(yaf_loader_object *loader) {
+	return loader->flags & YAF_LOADER_NAMESUFFIX;
+}
+
+static zend_always_inline zend_bool yaf_loader_has_name_separator(yaf_loader_object *loader) {
+	return loader->flags & YAF_LOADER_NAMESPARATOR;
 }
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);

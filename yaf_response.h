@@ -24,6 +24,8 @@
 #define YAF_RESPONSE_PREPEND 1
 #define YAF_RESPONSE_APPEND  2
 
+#define YAF_RESPONSE_HEADER_SENT  (1<<0)
+
 extern zend_class_entry *yaf_response_ce;
 extern zend_class_entry *yaf_response_http_ce;
 extern zend_class_entry *yaf_response_cli_ce;
@@ -39,8 +41,6 @@ typedef struct {
 
 #define Z_YAFRESPONSEOBJ(zv)    (php_yaf_response_fetch_object(Z_OBJ(zv)))
 #define Z_YAFRESPONSEOBJ_P(zv)  Z_YAFRESPONSEOBJ(*zv)
-
-#define YAF_RESPONSE_HEADER_SENT  (1<<0)
 
 static zend_always_inline yaf_response_object *php_yaf_response_fetch_object(zend_object *obj) {
 	return (yaf_response_object *)((char*)(obj) - XtOffsetOf(yaf_response_object, std));
