@@ -31,18 +31,21 @@
 extern zend_class_entry *yaf_request_ce;
 
 typedef struct {
-	zend_bool   routed;
-	zend_bool   dispatched;
+	zend_uchar  flags;
 	zend_string *method;
-	zend_array  params;
-	zend_string *language;
-	zend_string *base_uri;
-	zend_string *uri;
 	zend_string *module;
 	zend_string *controller;
 	zend_string *action;
+	zend_string *base_uri;
+	zend_string *uri;
+	zend_string *language;
+	zend_array  *params;
+	zend_array  *properties;
 	zend_object std;
 } yaf_request_object;
+
+#define YAF_REQUEST_ROUTED     (1<<0)
+#define YAF_REQUEST_DISPATCHED (1<<1)
 
 #define Z_YAFREQUESTOBJ(zv)    (php_yaf_request_fetch_object(Z_OBJ(zv)))
 #define Z_YAFREQUESTOBJ_P(zv)  Z_YAFREQUESTOBJ(*zv)
@@ -64,23 +67,32 @@ zend_string *yaf_request_get_language(yaf_request_object *request);
 void yaf_request_set_mvc(yaf_request_object *request, zend_string *module, zend_string *controller, zend_string *action, zend_array *params);
 int yaf_request_set_params_single(yaf_request_object *instance, zend_string *key, zval *value);
 int yaf_request_set_params_multi(yaf_request_object *instance, zval *values);
+int yaf_request_del_param(yaf_request_object *request, zend_string *key);
 const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len);
 const char *yaf_request_get_request_method(void);
 
 static zend_always_inline int yaf_request_is_routed(yaf_request_object *request) {
-	return request->routed;
+	return request->flags & YAF_REQUEST_ROUTED;
 }
 
 static zend_always_inline int yaf_request_is_dispatched(yaf_request_object *request) {
-	return request->dispatched;
+	return request->flags & YAF_REQUEST_DISPATCHED;
 }
 
 static zend_always_inline void yaf_request_set_routed(yaf_request_object *request, int flag) {
-	request->routed = flag? 1 : 0;
+	if (flag) {
+		request->flags |= YAF_REQUEST_ROUTED;
+	} else {
+		request->flags &= ~YAF_REQUEST_ROUTED;
+	}
 }
 
 static zend_always_inline void yaf_request_set_dispatched(yaf_request_object *request, int flag) {
-	request->dispatched = flag? 1 : 0;
+	if (flag) {
+		request->flags |= YAF_REQUEST_DISPATCHED;
+	} else {
+		request->flags &= ~YAF_REQUEST_DISPATCHED;
+	}
 }
 
 static zend_always_inline void yaf_request_set_module(yaf_request_object *request, zend_string *module) {

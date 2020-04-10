@@ -22,7 +22,7 @@ $config = array(
 file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
-		public function funcAction(\$a = NULL, \$b = NULL) {
+		public function funcAction(\$a = 0, \$b = 1) {
 			var_dump(\$a, \$b);
 			return FALSE;
 		}
@@ -49,7 +49,7 @@ shutdown();
 ?>
 --EXPECT--
 string(7) "Foo_Bar"
-NULL
-NULL
+int(0)
+string(16) "the second param"
 string(15) "the first param"
-NULL
+int(1)

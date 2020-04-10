@@ -57,7 +57,7 @@ void yaf_request_simple_init(yaf_request_object *request, zend_string *module, z
 			request->action = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_ACTION), 0);
 		}
 
-		request->routed = 1;
+		yaf_request_set_routed(request, 1);
 	} else {
 		zval *argv, *pzval;
 		char *query = NULL;
@@ -82,12 +82,8 @@ void yaf_request_simple_init(yaf_request_object *request, zend_string *module, z
 			request->uri = ZSTR_EMPTY_ALLOC();
 		}
 	}
-		
-	zend_hash_init(&request->params, 8, NULL, ZVAL_PTR_DTOR, 0);
 
-	if (params) {
-		yaf_request_set_params_multi(request, params);
-	}
+	return;
 }
 /* }}} */
 

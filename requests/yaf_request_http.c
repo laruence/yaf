@@ -122,8 +122,6 @@ void yaf_request_http_init(yaf_request_object *req, zend_string *request_uri, ze
 		req->uri = ZSTR_EMPTY_ALLOC();
 	}
 
-	zend_hash_init(&req->params, 8, NULL, ZVAL_PTR_DTOR, 0); 
-
 	return;
 }
 /* }}} */

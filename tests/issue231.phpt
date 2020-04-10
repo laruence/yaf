@@ -15,7 +15,7 @@ SCRIPT_FILENAME=issue231.php
 $request = new Yaf_Request_Http(dirname(__FILE__));
 print_r($request);
 $request = new Yaf_Request_Http(dirname(__FILE__), dirname(dirname(__FILE__)));
-print_r($request);
+var_export($request);
 ?>
 --EXPECTF--
 Yaf_Request_Http Object
@@ -24,7 +24,7 @@ Yaf_Request_Http Object
     [module] => 
     [controller] => 
     [action] => 
-    [uri:protected] => %syaf%ctests
+    [uri:protected] => %stests
     [base_uri:protected] => 
     [dispatched:protected] => 
     [routed:protected] => 
@@ -34,19 +34,17 @@ Yaf_Request_Http Object
         )
 
 )
-Yaf_Request_Http Object
-(
-    [method] => POST
-    [module] => 
-    [controller] => 
-    [action] => 
-    [uri:protected] => %syaf%ctests
-    [base_uri:protected] => %syaf
-    [dispatched:protected] => 
-    [routed:protected] => 
-    [language:protected] => 
-    [params:protected] => Array
-        (
-        )
-
-)
+Yaf_Request_Http::__set_state(array(
+   'method' => 'POST',
+   'module' => NULL,
+   'controller' => NULL,
+   'action' => NULL,
+   'uri:protected' => '%stests',
+   'base_uri:protected' => '%syaf',
+   'dispatched:protected' => false,
+   'routed:protected' => false,
+   'language:protected' => '',
+   'params:protected' => 
+  array (
+  ),
+))

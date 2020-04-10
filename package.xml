@@ -29,6 +29,7 @@
   - Fixed bug that protected method of Bootstrap get executed
   - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
   - Yaf_Route_* now routes valid Module/Controller/action name directly
+  - Yaf_Controller action's arguments will be set even if there are gaps now (see test/issue420.phpt)
  </notes>
  <contents> 
   <dir name="/"> 

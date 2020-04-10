@@ -143,21 +143,49 @@ void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
 
 static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend_function *fptr, zval **params, unsigned *count) /* {{{ */ {
 	zval          *arg;
-	zend_arg_info *arg_info;
 	unsigned       current;
+	zend_arg_info *arg_info;
 	HashTable 	  *params_ht;
 
-	params_ht = &request->params;
+	if (request->params == NULL) {
+		*count = 0;
+		*params = NULL;
+		return;
+	}
 
+	params_ht = request->params;
 	arg_info = fptr->common.arg_info;
 	*params = safe_emalloc(sizeof(zval), fptr->common.num_args, 0);
 	for (current = 0; current < fptr->common.num_args; current++, arg_info++) {
 		if ((arg = zend_hash_find(params_ht, arg_info->name)) != NULL) {
 			ZVAL_COPY_VALUE(&((*params)[current]), arg);
-			(*count)++;
+			++*count;
+		} else if (current >= fptr->common.required_num_args) {
+			unsigned int idx = current + 1;
+			zend_op *op = ((zend_op_array *)fptr)->opcodes;
+			zend_op *end = op + ((zend_op_array *)fptr)->last;
+			while (op < end) {
+				if (op->op1.num == idx) {
+					if (op->opcode == ZEND_RECV_INIT) {
+#if PHP_VERSION_ID < 70400
+						arg = RT_CONSTANT(&fptr->op_array, op->op2);
+#else
+						arg = RT_CONSTANT(op, op->op2);
+#endif
+						ZVAL_COPY_VALUE(&((*params)[current]), arg);
+					} else {
+						ZVAL_NULL(&((*params)[current]));
+					}
+					++*count;
+					break;
+				}
+				++op;
+			}
+			if (UNEXPECTED(op == end)) {
+				return;
+			}
 		} else {
-			/* we should not make parameters gaps */
-			break;
+			return;
 		}
 	}
 }
@@ -583,7 +611,6 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	exception_str = zend_string_init(ZEND_STRL("exception"), 0);
 	if (yaf_request_set_params_single(request, exception_str, &exception)) {
 		zval_ptr_dtor(&exception);
-		zend_string_release(exception_str);
 	} else {
 		/* failover to uncaught exception */
 		zend_string_release(exception_str);
@@ -594,6 +621,9 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	yaf_request_set_dispatched(request, 0);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
+		/* ZEND VM report memleak if we don't remove this */
+		yaf_request_del_param(request, exception_str);
+		zend_string_release(exception_str);
 		YAF_G(in_exception) = 0;
 		return;
 	}
@@ -610,6 +640,8 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 		}
 	}
 
+	yaf_request_del_param(request, exception_str);
+	zend_string_release(exception_str);
 	yaf_response_response(&dispatcher->response);
 
 	EG(opline_before_exception) = opline;
