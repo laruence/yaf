@@ -172,7 +172,12 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 #else
 						arg = RT_CONSTANT(op, op->op2);
 #endif
-						ZVAL_COPY_VALUE(&((*params)[current]), arg);
+						/* Constant evaluation? */
+						if (Z_TYPE_P(arg) < IS_ARRAY) {
+							ZVAL_COPY_VALUE(&((*params)[current]), arg);
+						} else {
+							return;
+						}
 					} else {
 						ZVAL_NULL(&((*params)[current]));
 					}
