@@ -146,6 +146,7 @@ static yaf_session_t *yaf_session_instance() /* {{{ */ {
 
 	ZVAL_OBJ(&YAF_G(session), &sess->std);
 
+	sess->flags = 0;
 	yaf_session_start(sess);
 
 	if ((pzval = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SESSION"))) == NULL ||
@@ -156,7 +157,6 @@ static yaf_session_t *yaf_session_instance() /* {{{ */ {
 	}
 	
 	sess->session = Z_ARRVAL_P(Z_REFVAL_P(pzval));
-	sess->flags = 0;
 	sess->properties = NULL;
 
 	return &YAF_G(session);
