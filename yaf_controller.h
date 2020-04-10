@@ -20,10 +20,13 @@
 #define YAF_CONTROLLER_PROPERTY_NAME_ACTIONS	"actions"
 #define YAF_CONTROLLER_PROPERTY_NAME_RENDER     "yafAutoRender"
 
+#define YAF_CTL_AUTORENDER         (1<<0)
+#define YAF_CTL_AUTORENDER_DEPEND  (1<<1)
+
 extern zend_class_entry *yaf_controller_ce;
 
 typedef struct {
-	int             auto_render;
+	zend_uchar      flags;
 	zend_string    *module;
 	zend_string    *name;
 	zend_string    *script_path;
@@ -35,7 +38,8 @@ typedef struct {
 		yaf_controller_t ctl;
 		zend_string     *name;
 	} ctl;
-	zend_object    std;
+	zend_array     *properties;
+	zend_object     std;
 } yaf_controller_object;
 
 #define Z_YAFCTLOBJ(zv)    (php_yaf_controller_fetch_object(Z_OBJ(zv)))
@@ -48,8 +52,8 @@ int yaf_controller_render(yaf_controller_t *ctl, zend_string *action, zval *vars
 void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args);
 void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *module);
 
-static zend_always_inline int yaf_controller_auto_render(yaf_controller_object *ctl, int dispatch_render) {
-	return ctl->auto_render == -1? dispatch_render : ctl->auto_render;
+static zend_always_inline zend_bool yaf_controller_auto_render(yaf_controller_object *ctl, zend_bool dispatch_render) {
+	return (ctl->flags & YAF_CTL_AUTORENDER_DEPEND)? dispatch_render : (ctl->flags & YAF_CTL_AUTORENDER);
 }
 
 static zend_always_inline int yaf_controller_execute(yaf_controller_t *ctl, zend_function* func, int count, zval *args, zval *ret) {

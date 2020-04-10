@@ -150,19 +150,28 @@ static void yaf_controller_object_free(zend_object *object) /* {{{ */ {
 		zend_string_release(ctl->ctl.name);
 	}
 
+	if (ctl->properties) {
+		if (GC_DELREF(ctl->properties)) {
+			GC_REMOVE_FROM_BUFFER(ctl->properties);
+			zend_array_destroy(ctl->properties);
+		}
+	}
+
 	zend_object_std_dtor(object);
 }
 /* }}} */
 
-static HashTable *yaf_controller_get_debug_info(zval *object, int *is_temp) /* {{{ */ {
+static HashTable *yaf_controller_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(object);
 
-	*is_temp = 1;
-	ALLOC_HASHTABLE(ht);
-	zend_hash_init(ht, 8, NULL, ZVAL_PTR_DTOR, 0);
+	if (!ctl->properties) {
+		ALLOC_HASHTABLE(ctl->properties);
+		zend_hash_init(ctl->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
+	}
 
+	ht = ctl->properties;
 	if (ctl->module) {
 		ZVAL_STR_COPY(&rv, ctl->module);
 	} else {
@@ -252,7 +261,11 @@ static zval *yaf_controller_read_property(zval *zobj, zval *name, int type, void
 	}
 
 	if (strncmp(member, YAF_CONTROLLER_PROPERTY_NAME_RENDER, sizeof(YAF_CONTROLLER_PROPERTY_NAME_RENDER)) == 0) {
-		ZVAL_BOOL(rv, ctl->auto_render);
+		if (!(ctl->flags & YAF_CTL_AUTORENDER_DEPEND)) {
+			ZVAL_BOOL(rv, (ctl->flags & YAF_CTL_AUTORENDER));
+		} else {
+			ZVAL_NULL(rv);
+		}
 		return rv;
 	}
 
@@ -321,7 +334,8 @@ static YAF_WRITE_HANDLER yaf_controller_write_property(zval *zobj, zval *name, z
 	}
 
 	if (strncmp(member, YAF_CONTROLLER_PROPERTY_NAME_RENDER, sizeof(YAF_CONTROLLER_PROPERTY_NAME_RENDER)) == 0) {
-		ctl->auto_render = zend_is_true(value);
+		ctl->flags &= ~YAF_CTL_AUTORENDER_DEPEND;
+		ctl->flags |= zend_is_true(value)? YAF_CTL_AUTORENDER : 0;
 		YAF_WHANDLER_RET(value);
 	}
 
@@ -338,19 +352,21 @@ static YAF_WRITE_HANDLER yaf_controller_write_property(zval *zobj, zval *name, z
 }
 /* }}} */
 
-static int yaf_controller_determine_auto_render(zend_class_entry *ce, zend_object *obj) /* {{{ */ {
+static yaf_controller_determine_auto_render(yaf_controller_object *ctl, zend_class_entry *ce, zend_object *obj) /* {{{ */ {
 	zval *render;
 	zval *offset = zend_hash_str_find(&ce->properties_info, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER));
 	if (EXPECTED(offset == NULL)) {
-		return -1;
+		ctl->flags = (zend_uchar)YAF_CTL_AUTORENDER_DEPEND;
+		return ;
 	}
 
 	render = &obj->properties_table[((zend_property_info*)Z_PTR_P(offset))->offset];
 	if (Z_TYPE_P(render) == IS_NULL) {
-		return -1;
+		ctl->flags = (zend_uchar)YAF_CTL_AUTORENDER_DEPEND;
+		return;
 	}
 
-	return Z_TYPE_P(render) == IS_TRUE || (Z_TYPE_P(render) == IS_LONG && Z_LVAL_P(render));
+	ctl->flags = (Z_TYPE_P(render) == IS_TRUE || (Z_TYPE_P(render) == IS_LONG && Z_LVAL_P(render)))? YAF_CTL_AUTORENDER : 0;
 }
 /* }}} */
 
@@ -361,11 +377,12 @@ static zend_object *yaf_controller_new(zend_class_entry *ce) /* {{{ */ {
 	zend_object_std_init(&ctl->std, ce);
 	if (ce->default_properties_count) {
 		object_properties_init(&ctl->std, ce);
-		ctl->auto_render = yaf_controller_determine_auto_render(ce, &ctl->std);
+		yaf_controller_determine_auto_render(ctl, ce, &ctl->std);
 	} else {
-		ctl->auto_render = -1;
+		ctl->flags = (zend_uchar)YAF_CTL_AUTORENDER_DEPEND;
 	}
 	ctl->std.handlers = &yaf_controller_obj_handlers;
+	ctl->properties = NULL;
 
 	return &ctl->std;
 }
@@ -838,12 +855,13 @@ YAF_STARTUP_FUNCTION(controller) {
 
 	memcpy(&yaf_controller_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_controller_obj_handlers.offset = XtOffsetOf(yaf_controller_object, std);
+	yaf_controller_obj_handlers.clone_obj = NULL;
+	yaf_controller_obj_handlers.get_gc = NULL;
 	yaf_controller_obj_handlers.free_obj = yaf_controller_object_free;
-	yaf_controller_obj_handlers.get_debug_info = yaf_controller_get_debug_info;
+	yaf_controller_obj_handlers.get_properties = yaf_controller_get_properties;
 	yaf_controller_obj_handlers.read_property = yaf_controller_read_property;
 	yaf_controller_obj_handlers.get_property_ptr_ptr = yaf_controller_get_property;
 	yaf_controller_obj_handlers.write_property = yaf_controller_write_property;
-	yaf_controller_obj_handlers.clone_obj = NULL;
 
 	return SUCCESS;
 }
