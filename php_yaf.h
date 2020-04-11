@@ -58,11 +58,11 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_WRITE_HANDLER       void
 #define YAF_WHANDLER_RET(zv)    return
 #ifndef HT_ALLOW_COW_VIOLATION
-#define HT_ALLOW_COW_VIOLATION
-#if PHP_VERSION_ID < 70300
-#define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
-#define GC_DELREF(gc)           (--GC_REFCOUNT(gc))
+# define HT_ALLOW_COW_VIOLATION
 #endif
+#if PHP_VERSION_ID < 70300
+# define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
+# define GC_DELREF(gc)           (--GC_REFCOUNT(gc))
 #endif
 #else
 #define YAF_WRITE_HANDLER       zval *
