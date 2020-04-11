@@ -32,6 +32,45 @@ Yaf_Application Object
 
     [dispatcher:protected] => Yaf_Dispatcher Object
         (
+            [auto_render:protected] => 1
+            [instant_flush:protected] => 
+            [return_response:protected] => 
+            [request:protected] => Yaf_Request_Http Object
+                (
+                    [method] => CLI
+                    [module] => 
+                    [controller] => 
+                    [action] => 
+                    [uri:protected] => 
+                    [base_uri:protected] => 
+                    [dispatched:protected] => 
+                    [routed:protected] => 
+                    [language:protected] => 
+                    [params:protected] => Array
+                        (
+                        )
+
+                )
+
+            [response:protected] => 
+            [router:protected] => Yaf_Router Object
+                (
+                    [routes:protected] => Array
+                        (
+                            [_default] => Yaf_Route_Static Object
+                                (
+                                )
+
+                        )
+
+                    [current:protected] => 
+                )
+
+            [view:protected] => 
+            [plugins:protected] => Array
+                (
+                )
+
         )
 
     [modules:protected] => Array

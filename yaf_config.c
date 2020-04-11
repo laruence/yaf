@@ -61,6 +61,16 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_config_isset_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+static HashTable *yaf_config_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
+	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(object);;
+
+	*table = NULL;
+	*n = 0;
+
+	return conf->config;
+}
+/* }}} */
+
 static HashTable *yaf_config_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
@@ -412,7 +422,7 @@ YAF_STARTUP_FUNCTION(config) {
 	yaf_config_obj_handlers.offset = XtOffsetOf(yaf_config_object, std);
 	yaf_config_obj_handlers.free_obj = yaf_config_object_free;
 	yaf_config_obj_handlers.clone_obj = NULL;
-	yaf_config_obj_handlers.get_gc = NULL;
+	yaf_config_obj_handlers.get_gc = yaf_config_get_gc;
 	yaf_config_obj_handlers.get_properties = yaf_config_get_properties;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200

@@ -78,6 +78,80 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_application_setappdir_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
+	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
+
+	memset(app, 0, XtOffsetOf(yaf_application_object, std));
+	app->std.handlers = &yaf_application_obj_handlers;
+	zend_object_std_init(&app->std, ce);
+
+	return &app->std;
+}
+/* }}} */
+
+static void yaf_application_free(zend_object *object) /* {{{ */ {
+	yaf_application_object *app = yaf_application_instance();
+
+	if ((app != php_yaf_application_fetch_object(object)) || !app->env) {
+		zend_object_std_dtor(object);
+		return;
+	}
+
+	zend_string_release(app->env);
+
+	OBJ_RELEASE(Z_OBJ(app->config));
+	OBJ_RELEASE(Z_OBJ(app->dispatcher));
+
+	zend_string_release(app->default_module);
+	zend_string_release(app->default_controller);
+	zend_string_release(app->default_action);
+	if (app->library) {
+		zend_string_release(app->library);
+	}
+	zend_string_release(app->directory);
+
+	if (app->ext) {
+		zend_string_release(app->ext);
+	}
+	if (app->bootstrap) {
+		zend_string_release(app->bootstrap);
+	}
+	if (app->view_ext) {
+		zend_string_release(app->view_ext);
+	}
+	if (app->base_uri) {
+		zend_string_release(app->base_uri);
+	}
+	if (app->err_msg) {
+		zend_string_release(app->err_msg);
+	}
+	if (app->modules) {
+		if (GC_DELREF(app->modules) == 0) {
+			GC_REMOVE_FROM_BUFFER(app->modules);
+			zend_array_destroy(app->modules);
+		}
+	}
+	if (app->properties) {
+		if (GC_DELREF(app->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(app->properties);
+			zend_array_destroy(app->properties);
+		}
+	}
+
+	zend_object_std_dtor(object);
+}
+/* }}} */
+
+static HashTable *yaf_application_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
+	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
+
+	*table = &app->dispatcher;
+	*n = 2;
+
+	return NULL;
+}
+/* }}} */
+
 static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
@@ -599,70 +673,6 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 }
 /* }}} */
 
-static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
-
-	memset(app, 0, XtOffsetOf(yaf_application_object, std));
-	app->std.handlers = &yaf_application_obj_handlers;
-	zend_object_std_init(&app->std, ce);
-
-	return &app->std;
-}
-/* }}} */
-
-static void yaf_application_free(zend_object *object) /* {{{ */ {
-	yaf_application_object *app = yaf_application_instance();
-
-	if ((app != php_yaf_application_fetch_object(object)) || !app->env) {
-		zend_object_std_dtor(object);
-		return;
-	}
-
-	zend_string_release(app->env);
-
-	OBJ_RELEASE(Z_OBJ(app->config));
-	OBJ_RELEASE(Z_OBJ(app->dispatcher));
-
-	zend_string_release(app->default_module);
-	zend_string_release(app->default_controller);
-	zend_string_release(app->default_action);
-	if (app->library) {
-		zend_string_release(app->library);
-	}
-	zend_string_release(app->directory);
-
-	if (app->ext) {
-		zend_string_release(app->ext);
-	}
-	if (app->bootstrap) {
-		zend_string_release(app->bootstrap);
-	}
-	if (app->view_ext) {
-		zend_string_release(app->view_ext);
-	}
-	if (app->base_uri) {
-		zend_string_release(app->base_uri);
-	}
-	if (app->err_msg) {
-		zend_string_release(app->err_msg);
-	}
-	if (app->modules) {
-		if (GC_DELREF(app->modules) == 0) {
-			GC_REMOVE_FROM_BUFFER(app->modules);
-			zend_array_destroy(app->modules);
-		}
-	}
-	if (app->properties) {
-		if (GC_DELREF(app->properties) == 0) {
-			GC_REMOVE_FROM_BUFFER(app->properties);
-			zend_array_destroy(app->properties);
-		}
-	}
-
-	zend_object_std_dtor(object);
-}
-/* }}} */
-
 /** {{{ proto Yaf_Application::__construct(mixed $config, string $environ = YAF_G(environ_name))
 */
 PHP_METHOD(yaf_application, __construct) {
@@ -990,6 +1000,7 @@ zend_function_entry yaf_application_methods[] = {
 	PHP_ME(yaf_application, getLastErrorNo,      yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, getLastErrorMsg,     yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, clearLastError,      yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_application, getInstance, app, yaf_application_app_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
@@ -1009,7 +1020,7 @@ YAF_STARTUP_FUNCTION(application) {
 	memcpy(&yaf_application_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_application_obj_handlers.offset = XtOffsetOf(yaf_application_object, std);
 	yaf_application_obj_handlers.clone_obj = NULL;
-	yaf_application_obj_handlers.get_gc = NULL;
+	yaf_application_obj_handlers.get_gc = yaf_application_get_gc;
 	yaf_application_obj_handlers.free_obj = yaf_application_free;
 	yaf_application_obj_handlers.get_properties = yaf_application_get_properties;
 	yaf_application_obj_handlers.read_property = yaf_application_read_property;

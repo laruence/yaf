@@ -149,6 +149,17 @@ static void yaf_request_object_free(zend_object *object) /* {{{ */ {
 }
 /* }}} */
 
+static HashTable *yaf_request_get_gc(zval *object, zval **table, int *n) /* {{{ */
+{
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(object);
+
+	*table = NULL;
+	*n = 0;
+
+	return request->params;
+}
+/* }}} */
+
 static HashTable *yaf_request_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
@@ -1241,8 +1252,8 @@ YAF_STARTUP_FUNCTION(request){
 	yaf_request_obj_handlers.get_properties = yaf_request_get_properties;;
 	yaf_request_obj_handlers.read_property = yaf_request_read_property;
 	yaf_request_obj_handlers.write_property = yaf_request_write_property;
+	yaf_request_obj_handlers.get_gc = yaf_request_get_gc;
 	yaf_request_obj_handlers.clone_obj = NULL;
-	yaf_request_obj_handlers.get_gc = NULL;
 
 	YAF_STARTUP(request_http);
 	YAF_STARTUP(request_simple);

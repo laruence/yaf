@@ -28,13 +28,37 @@
 #define YAF_PLUGIN_HOOK_LOOPSHUTDOWN            "dispatchloopshutdown"
 #define YAF_PLUGIN_HOOK_PRERESPONSE             "preresponse"
 
+extern zend_class_entry *yaf_dispatcher_ce;
+
+#define YAF_DISPATCHER_AUTO_RENDER       (1<<0)
+#define YAF_DISPATCHER_INSTANT_FLUSH     (1<<1)
+#define YAF_DISPATCHER_RETURN_RESPONSE   (1<<2)
+
+typedef struct {
+	zend_uchar         flags;
+	yaf_request_t      request;
+	yaf_response_t     response;
+	yaf_router_t       router;
+	yaf_view_t         view;
+	zend_array        *plugins;
+	zend_array        *properties;
+	zend_object        std;
+} yaf_dispatcher_object;
+
+#define Z_YAFDISPATCHEROBJ(zv)   (php_yaf_dispatcher_fetch_object(Z_OBJ(zv)))
+#define Z_YAFDISPATCHEROBJ_P(zv) Z_YAFDISPATCHEROBJ(*zv)
+
+static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object(zend_object *obj) {
+	return (yaf_dispatcher_object *)((char*)(obj) - XtOffsetOf(yaf_dispatcher_object, std));
+}
+
 #define YAF_PLUGIN_HANDLE(dispatcher, ev) \
 	do { \
 		yaf_dispatcher_object *_d = (dispatcher); \
-		if (zend_hash_num_elements(&_d->plugins)) { \
+		if (_d->plugins) { \
 			zval _r, *_t;\
 			zend_function *_f; \
-			ZEND_HASH_FOREACH_VAL(&_d->plugins, _t) { \
+			ZEND_HASH_FOREACH_VAL(_d->plugins, _t) { \
 			    if ((_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1))) { \
 			        yaf_call_user_method(Z_OBJ_P(_t), _f, &_r, 2, &_d->request, &_d->response); \
 				} \
@@ -42,22 +66,6 @@
 		} \
 	} while(0)
 
-extern zend_class_entry *yaf_dispatcher_ce;
-
-typedef struct {
-	zend_object        std;
-	zend_array         plugins;
-	yaf_request_t      request;
-	yaf_response_t     response;
-	yaf_router_t       router;
-	yaf_view_t         view;
-	zend_bool          auto_render;
-	zend_bool          instantly_flush;
-	zend_bool          return_response;
-} yaf_dispatcher_object;
-
-#define Z_YAFDISPATCHEROBJ(zv)   ((yaf_dispatcher_object*)(Z_OBJ(zv)))
-#define Z_YAFDISPATCHEROBJ_P(zv) Z_YAFDISPATCHEROBJ(*zv)
 
 void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr);
 yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher);

@@ -25,6 +25,7 @@
   - Added Yaf_Request::cleanParams()
   - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
   - Added Yaf_Dispatcher::getDefaultModule(), Yaf_Dispatcher::getDefaultController() and Yaf_Dispatcher::getDefaultAction()
+  - Added Yaf_Application::getInstance(), which is alias of Yaf_Application:app()
   - Rmoved all lead underline for fake protected property name(examing by var_dump)
   - Fixed bug that protected method of Bootstrap get executed
   - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
@@ -214,6 +215,7 @@
     <file name="098.phpt" role="test" />
     <file name="099.phpt" role="test" />
     <file name="100.phpt" role="test" />
+    <file name="101.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

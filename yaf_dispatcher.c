@@ -105,39 +105,110 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setaction_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static void yaf_dispatcher_obj_free(zend_object *object) /* {{{ */ {
-	yaf_dispatcher_object *dispatcher = (yaf_dispatcher_object*)object;
-
-	zval_ptr_dtor(&dispatcher->request);
-	zval_ptr_dtor(&dispatcher->response);
-	zval_ptr_dtor(&dispatcher->router);
-	zval_ptr_dtor(&dispatcher->view);
-	zend_hash_destroy(&dispatcher->plugins);
-
-	zend_object_std_dtor(object);
-}
-/* }}} */
-
 void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 	yaf_dispatcher_object *dispatcher;
 
 	if (IS_OBJECT != Z_TYPE(app->dispatcher)) {
-		dispatcher = emalloc(sizeof(yaf_dispatcher_object));
+		dispatcher = emalloc(sizeof(yaf_dispatcher_object) + zend_object_properties_size(yaf_dispatcher_ce));
 		zend_object_std_init(&dispatcher->std, yaf_dispatcher_ce);
 		dispatcher->std.handlers = &yaf_dispatcher_obj_handlers;
 
-		zend_hash_init(&dispatcher->plugins, 8, NULL, ZVAL_PTR_DTOR, 0);
-		memset(&dispatcher->request, 0, sizeof(yaf_dispatcher_object) - sizeof(zend_object) - sizeof(zend_array));
-
 		yaf_router_instance(&dispatcher->router);
-		dispatcher->auto_render = 1;
+
+		ZVAL_NULL(&dispatcher->request);
+		ZVAL_NULL(&dispatcher->response);
+		ZVAL_NULL(&dispatcher->view);
+		dispatcher->flags = YAF_DISPATCHER_AUTO_RENDER;
+		dispatcher->plugins = NULL;
+		dispatcher->properties = NULL;
 
 		ZVAL_OBJ(&app->dispatcher, &dispatcher->std);
 		return;
 	}
 
 	ZVAL_COPY(this_ptr, &app->dispatcher);
+}
+/* }}} */
+
+static void yaf_dispatcher_obj_free(zend_object *object) /* {{{ */ {
+	yaf_dispatcher_object *dispatcher = php_yaf_dispatcher_fetch_object(object);
+
+	zval_ptr_dtor(&dispatcher->request);
+	zval_ptr_dtor(&dispatcher->response);
+	zval_ptr_dtor(&dispatcher->router);
+	zval_ptr_dtor(&dispatcher->view);
+
+	if (dispatcher->plugins) {
+		if (GC_DELREF(dispatcher->plugins) == 0) {
+			GC_REMOVE_FROM_BUFFER(dispatcher->plugins);
+			zend_array_destroy(dispatcher->plugins);
+		}
+	}
+
+	if (dispatcher->properties) {
+		if (GC_DELREF(dispatcher->properties) == 0) {
+			GC_REMOVE_FROM_BUFFER(dispatcher->properties);
+			zend_array_destroy(dispatcher->properties);
+		}
+	}
+
+	zend_object_std_dtor(object);
+}
+/* }}} */
+
+static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(object);
+
+	if (!dispatcher->properties) {
+		ALLOC_HASHTABLE(dispatcher->properties);
+		zend_hash_init(dispatcher->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(dispatcher->properties);
+	}
+
+	ht = dispatcher->properties;
+
+	ZVAL_BOOL(&rv, dispatcher->flags & YAF_DISPATCHER_AUTO_RENDER);
+	zend_hash_str_update(ht, "auto_render:protected", sizeof("auto_render:protected") - 1, &rv);
+	ZVAL_BOOL(&rv, dispatcher->flags & YAF_DISPATCHER_INSTANT_FLUSH);
+	zend_hash_str_update(ht, "instant_flush:protected", sizeof("instant_flush:protected") - 1, &rv);
+	ZVAL_BOOL(&rv, dispatcher->flags & YAF_DISPATCHER_RETURN_RESPONSE);
+	zend_hash_str_update(ht, "return_response:protected", sizeof("return_response:protected") - 1, &rv);
+
+	ZVAL_COPY(&rv, &dispatcher->request);
+	zend_hash_str_update(ht, "request:protected", sizeof("request:protected") - 1, &rv);
+	ZVAL_COPY(&rv, &dispatcher->response);
+	zend_hash_str_update(ht, "response:protected", sizeof("response:protected") - 1, &rv);
+	ZVAL_COPY(&rv, &dispatcher->router);
+	zend_hash_str_update(ht, "router:protected", sizeof("router:protected") - 1, &rv);
+	ZVAL_COPY(&rv, &dispatcher->view);
+	zend_hash_str_update(ht, "view:protected", sizeof("view:protected") - 1, &rv);
+
+	if (dispatcher->plugins) {
+		ZVAL_ARR(&rv, dispatcher->plugins);
+		GC_ADDREF(dispatcher->plugins);
+	} else {
+#if PHP_VERSION_ID < 70400
+		array_init(&rv);
+#else
+		ZVAL_EMPTY_ARRAY(&rv);
+#endif
+	}
+	zend_hash_str_update(ht, "plugins:protected", sizeof("plugins:protected") - 1, &rv);
+
+	return ht;
+}
+/* }}} */
+
+static HashTable *yaf_dispatcher_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
+	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(object);
+
+	*table = &dispatcher->request;
+	*n = 4;
+
+	return dispatcher->plugins;
 }
 /* }}} */
 
@@ -555,10 +626,11 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				return 0;
 			}
 
-			if (yaf_controller_auto_render(ctl, dispatcher->auto_render)) {
+			if (yaf_controller_auto_render(ctl, dispatcher->flags & YAF_DISPATCHER_AUTO_RENDER)) {
 				zval res;
-				if ((yaf_controller_render(&controller, origin_action, NULL, dispatcher->instantly_flush? NULL : &res))) {
-					if (!dispatcher->instantly_flush) {
+				zend_bool flush_instantly = dispatcher->flags & YAF_DISPATCHER_INSTANT_FLUSH;
+				if ((yaf_controller_render(&controller, origin_action, NULL, flush_instantly? NULL : &res))) {
+					if (!flush_instantly) {
 						ZEND_ASSERT(Z_TYPE(res) == IS_STRING);
 						yaf_response_alter_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL, Z_STR(res), YAF_RESPONSE_APPEND );
 						zend_string_release(Z_STR(res));
@@ -724,7 +796,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 		return NULL;
 	}
 
-	if (!dispatcher->return_response) {
+	if (!(dispatcher->flags & YAF_DISPATCHER_RETURN_RESPONSE)) {
 		yaf_response_response(&dispatcher->response);
 
 		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
@@ -788,7 +860,7 @@ PHP_METHOD(yaf_dispatcher, disableView) {
 		return;
 	}
 
-	dispatcher->auto_render = 0;
+	dispatcher->flags &= ~YAF_DISPATCHER_AUTO_RENDER;
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -803,7 +875,7 @@ PHP_METHOD(yaf_dispatcher, enableView) {
 		return;
 	}
 
-	dispatcher->auto_render = 1;
+	dispatcher->flags |= YAF_DISPATCHER_AUTO_RENDER;
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -820,10 +892,14 @@ PHP_METHOD(yaf_dispatcher, returnResponse) {
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		dispatcher->return_response = return_response;
+		if (return_response) {
+			dispatcher->flags |= YAF_DISPATCHER_RETURN_RESPONSE;
+		} else {
+			dispatcher->flags &= ~YAF_DISPATCHER_RETURN_RESPONSE;
+		}
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(dispatcher->return_response);
+		RETURN_BOOL(dispatcher->flags & YAF_DISPATCHER_RETURN_RESPONSE);
 	}
 }
 /* }}} */
@@ -839,10 +915,15 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		dispatcher->instantly_flush = instantly_flush? 1 : 0;
+		if (instantly_flush) {
+			dispatcher->flags |= YAF_DISPATCHER_INSTANT_FLUSH;
+		} else {
+			dispatcher->flags &= ~YAF_DISPATCHER_INSTANT_FLUSH;
+		}
+
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(dispatcher->instantly_flush);
+		RETURN_BOOL(dispatcher->flags & YAF_DISPATCHER_INSTANT_FLUSH);
 	}
 }
 /* }}} */
@@ -864,8 +945,12 @@ PHP_METHOD(yaf_dispatcher, registerPlugin) {
 	}
 
 
+	if (!dispatcher->plugins) {
+		ALLOC_HASHTABLE(dispatcher->plugins);
+		zend_hash_init(dispatcher->plugins, 8, NULL, ZVAL_PTR_DTOR, 0);
+	}
 	Z_ADDREF_P(plugin);
-	zend_hash_next_index_insert(&dispatcher->plugins, plugin);
+	zend_hash_next_index_insert(dispatcher->plugins, plugin);
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -895,10 +980,6 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 PHP_METHOD(yaf_dispatcher, getInstance) {
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
-	}
-
-	if (!yaf_application_instance()) {
-		RETURN_NULL();
 	}
 
 	yaf_dispatcher_instance(return_value);
@@ -1003,10 +1084,15 @@ PHP_METHOD(yaf_dispatcher, autoRender) {
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		dispatcher->auto_render = flag? 1 : 0;
+		if (flag) {
+			dispatcher->flags |= YAF_DISPATCHER_AUTO_RENDER;
+		} else {
+			dispatcher->flags &= ~YAF_DISPATCHER_AUTO_RENDER;
+		}
+
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(dispatcher->auto_render);
+		RETURN_BOOL(dispatcher->flags & YAF_DISPATCHER_AUTO_RENDER);
 	}
 }
 /* }}} */
@@ -1232,8 +1318,11 @@ YAF_STARTUP_FUNCTION(dispatcher) {
 	yaf_dispatcher_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_dispatcher_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_dispatcher_obj_handlers.clone_obj = NULL;
+	yaf_dispatcher_obj_handlers.offset = XtOffsetOf(yaf_dispatcher_object, std);
 	yaf_dispatcher_obj_handlers.free_obj = yaf_dispatcher_obj_free;
+	yaf_dispatcher_obj_handlers.clone_obj = NULL;
+	yaf_dispatcher_obj_handlers.get_gc = yaf_dispatcher_get_gc;
+	yaf_dispatcher_obj_handlers.get_properties = yaf_dispatcher_get_properties;
 
 	return SUCCESS;
 }

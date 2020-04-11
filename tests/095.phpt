@@ -125,6 +125,7 @@ object(Yaf_Application)#1 (13) {
   }
   ["dispatcher:protected"]=>
   object(Yaf_Dispatcher)#%d (%d) {
+%A
   }
   ["modules:protected"]=>
   array(1) {
