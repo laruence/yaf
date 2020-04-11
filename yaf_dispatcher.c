@@ -629,8 +629,8 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 			if (yaf_controller_auto_render(ctl, YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_AUTO_RENDER)) {
 				zval res;
 				zend_bool flush_instantly = YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_INSTANT_FLUSH;
-				if ((yaf_controller_render(&controller, origin_action, NULL, flush_instantly? NULL : &res))) {
-					if (!flush_instantly) {
+				if (EXPECTED(yaf_controller_render(&controller, origin_action, NULL, flush_instantly? NULL : &res))) {
+					if (UNEXPECTED(!flush_instantly)) {
 						ZEND_ASSERT(Z_TYPE(res) == IS_STRING);
 						yaf_response_alter_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL, Z_STR(res), YAF_RESPONSE_APPEND );
 						zend_string_release(Z_STR(res));

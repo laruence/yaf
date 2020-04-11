@@ -338,13 +338,13 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 
 			yaf_config_ini_strip_section_name(&p, &l, 2);
 		}
-		if (UNEXPECTED(empty_section)) {
+		if (EXPECTED(!empty_section)) {
+			zend_symtable_str_update(Z_ARRVAL_P(arr), p, l, &YAF_G(active_ini_file_section));
+		} else {
 			if (l && (parent = zend_symtable_str_find(Z_ARRVAL_P(arr), p, l)) && Z_TYPE_P(parent) == IS_ARRAY) {
 				yaf_deep_copy_section(&YAF_G(active_ini_file_section), parent);
 			}
 			zend_symtable_str_update(Z_ARRVAL_P(arr), "", 0, &YAF_G(active_ini_file_section));
-		} else {
-			zend_symtable_str_update(Z_ARRVAL_P(arr), p, l, &YAF_G(active_ini_file_section));
 		}
 		if (YAF_G(ini_wanted_section) && Z_STRLEN_P(YAF_G(ini_wanted_section)) == l
 				&& !strncasecmp(Z_STRVAL_P(YAF_G(ini_wanted_section)), p, l)) {

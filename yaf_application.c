@@ -870,35 +870,34 @@ PHP_METHOD(yaf_application, bootstrap) {
 		zend_string_release(bootstrap_path);
 	}
 
-	if (UNEXPECTED(!instanceof_function(ce, yaf_bootstrap_ce))) {
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance, %s given", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
-		RETURN_FALSE;
-	}
-
-	object_init_ex(&bootstrap, ce);
-	if (UNEXPECTED(EG(exception))) {
-		zval_ptr_dtor(&bootstrap);
-		RETURN_FALSE;
-	}
-	ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
-		zval ret;
-		/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
-		if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
-			continue;
-		}
-		yaf_call_user_method(Z_OBJ(bootstrap), fptr, &ret, 1, dispatcher, NULL);
-		//call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
-		/** an uncaught exception threw in function call */
+	if (EXPECTED(instanceof_function(ce, yaf_bootstrap_ce))) {
+		object_init_ex(&bootstrap, ce);
 		if (UNEXPECTED(EG(exception))) {
 			zval_ptr_dtor(&bootstrap);
 			RETURN_FALSE;
 		}
-		/* Must always return bool? */
-		/* zval_ptr_dtor(&ret); */
-	} ZEND_HASH_FOREACH_END();
-	zval_ptr_dtor(&bootstrap);
+		ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
+			zval ret;
+			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
+			if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
+				continue;
+			}
+			yaf_call_user_method(Z_OBJ(bootstrap), fptr, &ret, 1, dispatcher, NULL);
+			//call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
+			/** an uncaught exception threw in function call */
+			if (UNEXPECTED(EG(exception))) {
+				zval_ptr_dtor(&bootstrap);
+				RETURN_FALSE;
+			}
+			/* Must always return bool? */
+			/* zval_ptr_dtor(&ret); */
+		} ZEND_HASH_FOREACH_END();
+		zval_ptr_dtor(&bootstrap);
 
-	RETURN_ZVAL(getThis(), 1, 0);
+		RETURN_ZVAL(getThis(), 1, 0);
+	}
+	yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance, %s given", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
+	RETURN_FALSE;
 }
 /* }}} */
 
