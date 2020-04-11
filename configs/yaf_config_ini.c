@@ -122,18 +122,14 @@ static zval* yaf_config_ini_get(yaf_config_object *conf, zend_string *name) /* {
 /* }}} */
 
 static zval* yaf_config_ini_parse_nesting_key(HashTable *target, char **key, size_t *key_len, char *delim) /* {{{ */ {
-	zval *val;
+	zval *val, rv;
 	char *seg = *key;
 	size_t len = *key_len;
 	int nesting = 0;
 
+	ZVAL_NULL(&rv);
 	do {
-		if (++nesting > 64) {
-			php_error(E_WARNING, "Nesting too deep? key name contains more than 64 '.'");
-			return NULL;
-		}
 		if (!(val = zend_symtable_str_find(target, seg, delim - seg))) {
-			zval rv = {{0}};
 			val = zend_symtable_str_update(target, seg, delim - seg, &rv);
 		}
 
@@ -152,7 +148,10 @@ static zval* yaf_config_ini_parse_nesting_key(HashTable *target, char **key, siz
 			return val;
 		}
 		target = Z_ARRVAL_P(val);
-	} while (1);
+	} while (++nesting < 64);
+
+	php_error(E_WARNING, "Nesting too deep? key name contains more than 64 '.'");
+	return NULL;
 }
 /* }}} */
 
