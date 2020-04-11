@@ -33,9 +33,11 @@ extern zend_class_entry *yaf_dispatcher_ce;
 #define YAF_DISPATCHER_AUTO_RENDER       (1<<0)
 #define YAF_DISPATCHER_INSTANT_FLUSH     (1<<1)
 #define YAF_DISPATCHER_RETURN_RESPONSE   (1<<2)
+#define YAF_DISPATCHER_IN_EXCEPTION      (1<<7)
+
+#define YAF_DISPATCHER_FLAGS(d)   YAF_VAR_FLAGS((d)->request)
 
 typedef struct {
-	zend_uchar         flags;
 	yaf_request_t      request;
 	yaf_response_t     response;
 	yaf_router_t       router;

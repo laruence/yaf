@@ -17,22 +17,24 @@
 #ifndef PHP_YAF_APPLICATION_H
 #define PHP_YAF_APPLICATION_H
 
+#define YAF_APP_RUNNING     (1<<0)
+#define YAF_APP_FLAGS(a)    YAF_VAR_FLAGS(a->dispatcher)
+
 typedef struct {
-    zend_uchar       flags;
+	zend_string     *library;
+	zend_string     *directory;
+	zend_string     *bootstrap;
+	zend_string     *base_uri;
+	zend_array      *default_route;
 	zend_string     *default_module;
 	zend_string     *default_controller;
 	zend_string     *default_action;
-	zend_string     *library;
-	zend_string     *directory;
-	zend_string     *ext;
-	zend_string     *bootstrap;
-	zend_string     *view_ext;
-	zend_string     *base_uri;
-	zend_array      *default_route;
-	zend_array      *modules;
     yaf_dispatcher_t dispatcher;
     yaf_config_t     config;
+	zend_string     *ext;
+	zend_string     *view_ext;
 	zend_string     *env;
+	zend_array      *modules;
 	unsigned int     err_no;
 	zend_string     *err_msg;
 	zend_array      *properties;
@@ -45,8 +47,6 @@ typedef struct {
 static zend_always_inline yaf_application_object *php_yaf_application_fetch_object(zend_object *obj) {
 	return (yaf_application_object *)((char*)(obj) - XtOffsetOf(yaf_application_object, std));
 }
-
-#define YAF_APP_RUNNING     (1<<0)
 
 extern zend_class_entry *yaf_application_ce;
 

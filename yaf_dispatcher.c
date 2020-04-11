@@ -119,7 +119,7 @@ void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
 		ZVAL_NULL(&dispatcher->request);
 		ZVAL_NULL(&dispatcher->response);
 		ZVAL_NULL(&dispatcher->view);
-		dispatcher->flags = YAF_DISPATCHER_AUTO_RENDER;
+		YAF_DISPATCHER_FLAGS(dispatcher) = YAF_DISPATCHER_AUTO_RENDER;
 		dispatcher->plugins = NULL;
 		dispatcher->properties = NULL;
 
@@ -170,11 +170,11 @@ static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
 
 	ht = dispatcher->properties;
 
-	ZVAL_BOOL(&rv, dispatcher->flags & YAF_DISPATCHER_AUTO_RENDER);
+	ZVAL_BOOL(&rv, YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_AUTO_RENDER);
 	zend_hash_str_update(ht, "auto_render:protected", sizeof("auto_render:protected") - 1, &rv);
-	ZVAL_BOOL(&rv, dispatcher->flags & YAF_DISPATCHER_INSTANT_FLUSH);
+	ZVAL_BOOL(&rv, YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_INSTANT_FLUSH);
 	zend_hash_str_update(ht, "instant_flush:protected", sizeof("instant_flush:protected") - 1, &rv);
-	ZVAL_BOOL(&rv, dispatcher->flags & YAF_DISPATCHER_RETURN_RESPONSE);
+	ZVAL_BOOL(&rv, YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE);
 	zend_hash_str_update(ht, "return_response:protected", sizeof("return_response:protected") - 1, &rv);
 
 	ZVAL_COPY(&rv, &dispatcher->request);
@@ -626,9 +626,9 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				return 0;
 			}
 
-			if (yaf_controller_auto_render(ctl, dispatcher->flags & YAF_DISPATCHER_AUTO_RENDER)) {
+			if (yaf_controller_auto_render(ctl, YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_AUTO_RENDER)) {
 				zval res;
-				zend_bool flush_instantly = dispatcher->flags & YAF_DISPATCHER_INSTANT_FLUSH;
+				zend_bool flush_instantly = YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_INSTANT_FLUSH;
 				if ((yaf_controller_render(&controller, origin_action, NULL, flush_instantly? NULL : &res))) {
 					if (!flush_instantly) {
 						ZEND_ASSERT(Z_TYPE(res) == IS_STRING);
@@ -659,11 +659,11 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
 	yaf_response_object *response = Z_YAFRESPONSEOBJ(dispatcher->response);
 
-	if (YAF_G(in_exception) || !EG(exception)) {
+	if ((YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_IN_EXCEPTION)|| !EG(exception)) {
 		return;
 	}
 
-	YAF_G(in_exception) = 1;
+	YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_IN_EXCEPTION;
 
 	ZVAL_OBJ(&exception, EG(exception));
 	EG(exception) = NULL;
@@ -692,16 +692,15 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 		/* failover to uncaught exception */
 		zend_string_release(exception_str);
 		EG(exception) = Z_OBJ(exception);
-		YAF_G(in_exception) = 0;
+		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
 		return;
 	}
 	yaf_request_set_dispatched(request, 0);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
-		/* ZEND VM report memleak if we don't remove this */
 		yaf_request_del_param(request, exception_str);
 		zend_string_release(exception_str);
-		YAF_G(in_exception) = 0;
+		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
 		return;
 	}
 
@@ -722,7 +721,7 @@ void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ 
 	yaf_response_response(&dispatcher->response);
 
 	EG(opline_before_exception) = opline;
-	YAF_G(in_exception) = 0;
+	YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
 	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
@@ -796,7 +795,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 		return NULL;
 	}
 
-	if (!(dispatcher->flags & YAF_DISPATCHER_RETURN_RESPONSE)) {
+	if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
 		yaf_response_response(&dispatcher->response);
 
 		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
@@ -860,7 +859,7 @@ PHP_METHOD(yaf_dispatcher, disableView) {
 		return;
 	}
 
-	dispatcher->flags &= ~YAF_DISPATCHER_AUTO_RENDER;
+	YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_AUTO_RENDER;
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -875,7 +874,7 @@ PHP_METHOD(yaf_dispatcher, enableView) {
 		return;
 	}
 
-	dispatcher->flags |= YAF_DISPATCHER_AUTO_RENDER;
+	YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_AUTO_RENDER;
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -893,13 +892,13 @@ PHP_METHOD(yaf_dispatcher, returnResponse) {
 
 	if (ZEND_NUM_ARGS()) {
 		if (return_response) {
-			dispatcher->flags |= YAF_DISPATCHER_RETURN_RESPONSE;
+			YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_RETURN_RESPONSE;
 		} else {
-			dispatcher->flags &= ~YAF_DISPATCHER_RETURN_RESPONSE;
+			YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_RETURN_RESPONSE;
 		}
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(dispatcher->flags & YAF_DISPATCHER_RETURN_RESPONSE);
+		RETURN_BOOL(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE);
 	}
 }
 /* }}} */
@@ -916,14 +915,14 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 
 	if (ZEND_NUM_ARGS()) {
 		if (instantly_flush) {
-			dispatcher->flags |= YAF_DISPATCHER_INSTANT_FLUSH;
+			YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_INSTANT_FLUSH;
 		} else {
-			dispatcher->flags &= ~YAF_DISPATCHER_INSTANT_FLUSH;
+			YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_INSTANT_FLUSH;
 		}
 
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(dispatcher->flags & YAF_DISPATCHER_INSTANT_FLUSH);
+		RETURN_BOOL(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_INSTANT_FLUSH);
 	}
 }
 /* }}} */
@@ -1085,14 +1084,14 @@ PHP_METHOD(yaf_dispatcher, autoRender) {
 
 	if (ZEND_NUM_ARGS()) {
 		if (flag) {
-			dispatcher->flags |= YAF_DISPATCHER_AUTO_RENDER;
+			YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_AUTO_RENDER;
 		} else {
-			dispatcher->flags &= ~YAF_DISPATCHER_AUTO_RENDER;
+			YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_AUTO_RENDER;
 		}
 
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(dispatcher->flags & YAF_DISPATCHER_AUTO_RENDER);
+		RETURN_BOOL(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_AUTO_RENDER);
 	}
 }
 /* }}} */

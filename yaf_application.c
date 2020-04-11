@@ -198,7 +198,7 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	ZVAL_STR_COPY(&rv, app->env);
 	zend_hash_str_update(ht, "environ:protected", sizeof("environ:protected") - 1, &rv);
 
-	ZVAL_BOOL(&rv, app->flags & YAF_APP_RUNNING);
+	ZVAL_BOOL(&rv, YAF_APP_FLAGS(app) & YAF_APP_RUNNING);
 	zend_hash_str_update(ht, "running:protected", sizeof("running:protected") - 1, &rv);
 
 	if (app->err_msg) {
@@ -741,18 +741,18 @@ PHP_METHOD(yaf_application, run) {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 	yaf_response_t *response;
 
-	if (UNEXPECTED(app->flags & YAF_APP_RUNNING)) {
+	if (UNEXPECTED(YAF_APP_FLAGS(app) & YAF_APP_RUNNING)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Application is already started");
 		RETURN_FALSE;
 	}
 
-	app->flags |= YAF_APP_RUNNING;
+	YAF_APP_FLAGS(app) |= YAF_APP_RUNNING;
 	if ((response = yaf_dispatcher_dispatch(Z_YAFDISPATCHEROBJ(app->dispatcher))) == NULL) {
-		app->flags &= ~YAF_APP_RUNNING;
+		YAF_APP_FLAGS(app) &= ~YAF_APP_RUNNING;
 		RETURN_FALSE;
 	}
 
-	app->flags &= ~YAF_APP_RUNNING;
+	YAF_APP_FLAGS(app) &= ~YAF_APP_RUNNING;
 	RETURN_ZVAL(response, 1, 0);
 }
 /* }}} */

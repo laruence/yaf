@@ -46,23 +46,23 @@ extern zend_module_entry yaf_module_entry;
 
 #define PHP_YAF_VERSION 					"3.1.4-dev"
 
-#ifndef GC_ADDREF
-#define GC_ADDREF(gc)   (++GC_REFCOUNT(gc))
-#define GC_DELREF(gc)   (--GC_REFCOUNT(gc))
-#endif
-
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
 #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_SHUTDOWN_FUNCTION(module)  	ZEND_MSHUTDOWN_FUNCTION(yaf_##module)
 #define YAF_SHUTDOWN(module)	 	    ZEND_MODULE_SHUTDOWN_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
 #define YAF_ME(c, m, a, f)              {m, PHP_MN(c), a, (unsigned)(sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
+#define YAF_VAR_FLAGS(v)                ((v).u2.next)
 
 #if PHP_VERSION_ID < 70400
 #define YAF_WRITE_HANDLER       void
 #define YAF_WHANDLER_RET(zv)    return
 #ifndef HT_ALLOW_COW_VIOLATION
 #define HT_ALLOW_COW_VIOLATION
+#if PHP_VERSION_ID < 70300
+#define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
+#define GC_DELREF(gc)           (--GC_REFCOUNT(gc))
+#endif
 #endif
 #else
 #define YAF_WRITE_HANDLER       zval *
@@ -102,7 +102,6 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
     zend_bool         lowcase_path;
     zend_bool         use_spl_autoload;
     zend_bool         use_namespace;
-    zend_bool         in_exception;
 	zend_bool         throw_exception;
 	zend_bool         catch_exception;
     unsigned int      forward_limit;
