@@ -475,12 +475,7 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
 	yaf_request_set_dispatched(Z_YAFREQUESTOBJ(dispatcher->request), 1);
-	if (UNEXPECTED(!app->directory)) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED,
-				"%s requires %s(which set the application.directory) to be initialized first",
-				ZSTR_VAL(yaf_dispatcher_ce->name), ZSTR_VAL(yaf_application_ce->name));
-		return 0;
-	} else {
+	if (EXPECTED(app->directory)) {
 		int is_def_module = 0;
 		zend_class_entry *ce;
 		yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
@@ -551,19 +546,18 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 			func_name = strpprintf(0, "%s%s", ZSTR_VAL(request->action), "action");
 			/* @TODO: Magic __call supports? */
 			if ((fptr = (zend_function*)zend_hash_find_ptr(&((ce)->function_table), func_name)) != NULL) {
-				unsigned int count = 0;
-				zval *call_args;
-
 				zend_string_release(func_name);
-				if (UNEXPECTED(fptr->common.num_args)) {
+				if (EXPECTED(fptr->common.num_args == 0)) {
+					yaf_controller_execute(&controller, fptr, 0, NULL, &ret);
+				} else {
+					zval *call_args;
+					unsigned int count = 0;
 					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
-				}
-				yaf_controller_execute(&controller, fptr, count, call_args, &ret);
-				if (UNEXPECTED(fptr->common.num_args)) {
+					yaf_controller_execute(&controller, fptr, count, call_args, &ret);
 					efree(call_args);
 				}
 
-				if (Z_ISUNDEF(ret)) {
+				if (UNEXPECTED(Z_ISUNDEF(ret))) {
 					zend_string_release(origin_action);
 					zval_ptr_dtor(&controller);
 					return 0;
@@ -579,8 +573,6 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 			} else if ((ce = yaf_dispatcher_get_action(app->directory, &controller, request)) &&
 					(zend_string_release(func_name), func_name = zend_string_init(ZEND_STRL(YAF_ACTION_EXECUTOR_NAME), 0)) &&
 					(fptr = zend_hash_find_ptr(&(ce->function_table), func_name))) {
-				unsigned int count = 0;
-				zval *call_args;
 				yaf_action_t action;
 				yaf_controller_object *act;
 
@@ -598,15 +590,17 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 				ZVAL_COPY_VALUE(&controller, &action);
 				ctl = act;
 
-				if (UNEXPECTED(fptr->common.num_args)) {
+				if (EXPECTED(fptr->common.num_args == 0)) {
+					yaf_controller_execute(&action, fptr, 0, NULL, &ret);
+				} else {
+					zval *call_args;
+					unsigned int count = 0;
 					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
-				}
-				yaf_controller_execute(&action, fptr, count, call_args, &ret);
-				if (UNEXPECTED(fptr->common.num_args)) {
+					yaf_controller_execute(&action, fptr, count, call_args, &ret);
 					efree(call_args);
 				}
 
-				if (Z_ISUNDEF(ret)) {
+				if (UNEXPECTED(Z_ISUNDEF(ret))) {
 					zend_string_release(origin_action);
 					zval_ptr_dtor(&action);
 					return 0;
@@ -646,8 +640,11 @@ int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 			zval_ptr_dtor(&controller);
 			return 1;
 		}
+	} else {
+		yaf_trigger_error(YAF_ERR_STARTUP_FAILED,
+				"%s requires %s(which set the application.directory) to be initialized first",
+				ZSTR_VAL(yaf_dispatcher_ce->name), ZSTR_VAL(yaf_application_ce->name));
 	}
-
 	return 0;
 }
 /* }}} */
