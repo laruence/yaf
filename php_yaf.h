@@ -129,6 +129,11 @@ typedef struct {
 extern ZEND_DECLARE_MODULE_GLOBALS(yaf);
 extern zend_object_iterator_funcs yaf_iterator_funcs;
 
+zend_string *yaf_canonical_name(int type, zend_string *name);
+zend_string *yaf_build_camel_name(const char *str, size_t len);
+zend_string *yaf_build_lower_name(const char *str, size_t len);
+int yaf_call_user_method(zend_object *obj, zend_function *fbc, zval *ret, int num_args, zval *args, zval *arg2);
+
 #define YSCMP(a, b, l, s)  do { \
 	if (l>sizeof(uint##s##_t)) { \
 		if (*(uint##s##_t*)a != *(uint##s##_t*)b) return 0; \
@@ -146,31 +151,22 @@ static zend_always_inline int yaf_slip_equal(const char *s, const char *p, unsig
    	YSCMP(s, p, l, 16);
 	return (l == 0 || *s == *p);
 }
-zend_string *yaf_canonical_name(int type, zend_string *name);
-zend_string *yaf_build_camel_name(const char *str, size_t len);
-zend_string *yaf_build_lower_name(const char *str, size_t len);
-int yaf_call_user_method(zend_object *obj, zend_function *fbc, zval *ret, int num_args, zval *args, zval *arg2);
 
 static zend_always_inline unsigned int yaf_get_forward_limit() {
 	return YAF_VAR_FLAGS(YAF_G(loader));
 }
-
 static zend_always_inline zend_bool yaf_is_use_namespace() {
 	return YAF_FLAGS() & YAF_USE_NAMESPACE;
 }
-
 static zend_always_inline zend_bool yaf_is_action_prefer() {
 	return YAF_FLAGS() & YAF_ACTION_PREFER;
 }
-
 static zend_always_inline zend_bool yaf_is_name_suffix() {
 	return YAF_FLAGS() & YAF_NAME_SUFFIX;
 }
-
 static zend_always_inline zend_bool yaf_is_throw_exception() {
 	return YAF_FLAGS() & YAF_THROW_EXCEPTION;
 }
-
 static zend_always_inline zend_bool yaf_is_catch_exception() {
 	return YAF_FLAGS() & YAF_CATCH_EXCEPTION;
 }
