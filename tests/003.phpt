@@ -31,16 +31,16 @@ try {
 ?>
 --EXPECTF--
 array(5) {
-  ["Baidu"]=>
-  NULL
-  ["Sina"]=>
-  NULL
-  ["Wb"]=>
-  NULL
-  ["Inf"]=>
-  NULL
-  ["123"]=>
-  NULL
+  [0]=>
+  string(5) "Baidu"
+  [1]=>
+  string(4) "Sina"
+  [2]=>
+  string(2) "Wb"
+  [3]=>
+  string(3) "Inf"
+  [4]=>
+  string(3) "123"
 }
 bool(true)
 bool(true)

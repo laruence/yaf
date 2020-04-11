@@ -16,6 +16,8 @@ $config = new Yaf_Config_Ini($file);
 $config->longtime = 23424234324;
 var_dump($config->readonly());
 
+var_dump($config["base.application.directory"]);
+
 foreach($config as $key => $value) {
 	print_r($key);
 }
@@ -31,7 +33,8 @@ var_dump(count($sick));
 --EXPECTF--
 Yaf_Config_Ini Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [base] => Array
                 (
@@ -318,11 +321,12 @@ Yaf_Config_Ini Object
 
         )
 
-    [_readonly:protected] => 1
+    [filename:protected] => %s
 )
 Yaf_Config_Ini Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [application] => Array
                 (
@@ -390,13 +394,14 @@ Yaf_Config_Ini Object
             [value] => 2
         )
 
-    [_readonly:protected] => 1
+    [filename:protected] => %s
 )
 
-Warning: Yaf_Config_Ini::__set(): Yaf_Config_Ini is readonly in %s010.php on line %d
+Warning: Yaf_Config_Ini::__set(): config is readonly in %s010.php on line %d
 bool(true)
+string(%d) "%sapplcation"
 baseextraproductnocatchenvtestbool(false)
 NULL
 
-Warning: Yaf_Config_Ini::__set(): Yaf_Config_Ini is readonly in %s010.php on line %d
+Warning: Yaf_Config_Ini::__set(): config is readonly in %s010.php on line %d
 int(0)

@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Application
+Check for Yaf_Application::get/setAppDirectory
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--

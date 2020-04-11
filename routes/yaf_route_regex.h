@@ -17,9 +17,23 @@
 #ifndef YAF_ROUTER_REGEX_H
 #define YAF_ROUTER_REGEX_H
 
+typedef struct {
+	zend_object  std;
+	zend_string *match;
+	zend_array  *router;
+	zend_array  *map;
+	zend_array  *verify;
+	zend_string *reverse;
+	zend_array  *properties;
+} yaf_route_regex_object;
+
+#define Z_YAFROUTEREGEXOBJ(zv)    ((yaf_route_regex_object*)(Z_OBJ(zv)))
+#define Z_YAFROUTEREGEXOBJ_P(zv)  Z_YAFROUTEREGEXOBJ(*zv)
+
 extern zend_class_entry *yaf_route_regex_ce;
 
-yaf_route_t *yaf_route_regex_instance(yaf_route_t *this_ptr, zval *route, zval *def, zval *map, zval *verify, zval *reverse);
+void yaf_route_regex_instance(yaf_route_t *route, zend_string *match, zval *router, zval *map, zval *verify, zend_string *reverse);
+int yaf_route_regex_route(yaf_route_t *route, yaf_request_t *req);
 
 YAF_STARTUP_FUNCTION(route_regex);
 

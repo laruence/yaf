@@ -7,137 +7,147 @@
  * @modifier Laruence(laruence@baidu.com)
  */
 
-if ($argc < 2) {
-	die(<<<USAGE
-Yaf Code Generetor Version 1.0.0
-Usage:
-{$argv[0]} ApplicationName [ApplicationPath]
+$options = getOpt("a:d:nh", array("namespace", "directory:", "app", "help"));
 
-USAGE
+if (empty($options) || isset($options["h"]) || isset($options["help"])) {
+    die(<<<HELP
+Usage: yaf_cg [-a ApplicationName] [-d ApplicationPath] [-n]
+
+POSIX options:  GNU long options:    Meaning:
+      -a          --app              Applicaton Name, default yaf_skeleton
+      -d          --directory        Output directory, default ./ApplicationName
+      -n          --namespace        Using Namespace Style
+      -h          --help             Print Usage
+
+HELP
 );
 }
 
-$app_name = $argv[1];
-
-if (empty($argv[2])) {
-	$app_path = dirname(__FILE__) . "/output/{$app_name}";
+if (!isset($options["a"]) && !isset($options["app"])) {
+	$appname = "yaf_skeleton";
 } else {
-	$app_path = rtrim($argv[2], '/\\');
+	$appname = isset($options["a"])? strval($options["a"]) : strval($options["app"]);
 }
 
-$author 	= trim(`whoami`);
-$hostname 	= trim(`hostname`);
+if (!isset($options["d"]) && !isset($options["directory"])) {
+	$directory = __DIR__ . "/yaf_skeleton";
+} else {
+	$directory = isset($options["d"])? strval($options["d"]) : strval($options["directory"]);
+}
+
+if (!isset($options["n"]) && !isset($options["namespace"])) {
+	$use_namespace = 0;
+} else {
+	$use_namespace = 1;
+}
+
+echo "Outputing", $use_namespace? " Namspaced" : "", " Yaf Skeleton to {$directory}\n";
+
+$author = trim(`whoami`);
+$hostname = trim(`hostname`);
 
 $conf= array (
-    'AUTHOR' 	=> $author,//开发人员
-    'APP_NAME' 	=> $app_name,//app名字,请确保这也是一个合法的文件夹名
- 	'DEV_PC' 	=> $author . '@' . $hostname ,//开发机,用于生产makefile自动部署
+    'author'     => $author,        //开发人员
+    'app_name'   => $appname,       //app名字,请确保这也是一个合法的文件夹名
+	'directory'  => $directory,     //输出的目标地址
+	'namespace'  => $use_namespace, //是否启用命名空间申明方式，比如Yaf_Appliation会变成Yaf\Application
+    'dev_pc'     => $author . '@' . $hostname ,//开发机,用于生产makefile自动部署
 );
 
+generateSkeleton($conf);
 
-if($argc >= 4 && $argv[3] == 'n'){
-define('INPUT_DIR', dirname(__FILE__).'/templatesNamespace');
-}else{
-define('INPUT_DIR', dirname(__FILE__).'/templates');
-}
-$strOutputRoot = $app_path;
-
-if(file_exists($strOutputRoot)) {
-    rename($strOutputRoot, $strOutputRoot.date('Ymd-His', time()));
+function generateSkeleton($conf) {
+	$skeletons = getTemplates(__DIR__ . "/templates/");
+	processTemplates($skeletons, $conf);
+	processOutput($conf["directory"], $skeletons);
 }
 
-$arrTpls = getAllTpls();
-foreach($arrTpls as $strFultTplPath) {
-    $strContent = processTemplates($strFultTplPath);
-    $strRelativeTplPath = substr($strFultTplPath, strlen(INPUT_DIR)+1);
-    $strOutputRelativePath = convertPath($strRelativeTplPath);
-    $strOutputPath = $strOutputRoot.'/'.$strOutputRelativePath;
-    $strOutputDir = dirname($strOutputPath);
-    if(!file_exists($strOutputDir))
-    {
-        mkdir($strOutputDir, 0777, true);
-    }
-    file_put_contents($strOutputPath, $strContent);
-}
+function processTemplates(&$skeletons, $conf) {
+	foreach ($skeletons as $k => &$v) {
+		if (is_array($v)) {
+			processTemplates($v, $conf);
+		} else if (substr($k, -7) != "ini.tpl") {
+			$v = str_replace(
+				array(
+					'{&$AUTHOR&}',
+					'{&$APP_NAME&}',
+					'{&$DEV_PC&}'
+				),
+				array(
+					$conf["author"],
+					$conf["app_name"],
+					$conf["dev_pc"]
+				),
+				$v);
 
-echo "DONE\n";
-
-//获取所有的代码模板文件
-function getAllTpls()
-{
-	$intFirst = 0;
-    $intLast = 1;
-    $arrQueue = array(INPUT_DIR);
-    $arrFiles = array ();
-    while ($intFirst < $intLast)
-    {
-		$strPath = $arrQueue[$intFirst++];
-		if (!is_dir($strPath))
-		{
-			if (file_exists($strPath))
-			{
-			    $arrSep = explode('.', $strPath);
-			    //只取.tpl文件
-			    if($arrSep[count($arrSep) - 1] == 'tpl')
-			    {
-				    array_push($arrFiles, $strPath);
-			    }
+			if ($conf["namespace"]) {
+				$v = str_replace(
+					array(
+						"Yaf_Application",
+						"Yaf_Dispatcher",
+						"Yaf_Controller_Abstract",
+						"Yaf_Bootstrap_Abstract",
+						"Yaf_Plugin_Abstract",
+						"Yaf_Request_Abstract",
+						"Yaf_Response_Abstract",
+						"Yaf_Registry",
+					),
+					array(
+						"\\Yaf\\Application",
+						"\\Yaf\\Dispatcher",
+						"\\Yaf\\Controller_Abstract",
+						"\\Yaf\\Bootstrap_Abstract",
+						"\\Yaf\\Plugin_Abstract",
+						"\\Yaf\\Request_Abstract",
+						"\\Yaf\\Response_Abstract",
+						"\\Yaf\\Registry",
+					),
+					$v);
 			}
+			$skeletons[$k] = $v;
 		}
-        else
-        {
-			$arrPaths = scandir($strPath);
-			if (count($arrPaths) == 0)
-			{
-				continue;
-			}
-            foreach ($arrPaths as $strSubPath)
-            {
-				if ($strSubPath === '.' || $strSubPath === '..')
-				{
-					continue;
-				}
-				$strCurPath = $strPath.'/'.$strSubPath;
-				$arrQueue[$intLast++] = $strCurPath;
-			}
-        }
-    }
-	return $arrFiles;
+	}
 }
 
-//将模板文件名转换成输出的文件名
-function convertPath($strPath)
-{
-    global $conf;
-    //去掉模板后缀
-    $strPath = str_replace('.tpl', '', $strPath);
+function processOutput($directory, $skeletons) {
+	if (!file_exists($directory)) {
+		if (false === mkdir($directory, 0755, true)) {
+			exit("$directory cannot be created");
+		}
+	}
 
-    $arrSep = explode('.', $strPath);
-    $bolIsPhp = false;
-    if($arrSep[count($arrSep) - 1] == 'php')
-    {
-	   $bolIsPhp = true;
-    }
-    //替换文件名中的模板变量
-    $strToFind = '$APP_NAME$';
-    $strToRelace = $bolIsPhp? ucfirst($conf['APP_NAME']) : $conf['APP_NAME'];
-    $strPath = str_replace($strToFind, $strToRelace, $strPath);
-    return $strPath;
+	foreach ($skeletons as $k => $v) {
+		if (is_array($v)) {
+			@mkdir($directory . "/" . $k, 0755, true);
+			processOutput($directory . "/" . $k, $skeletons[$k]);
+		} else {
+			file_put_contents($directory . "/" . substr($k, 0, -4), $v);
+		}
+	}
 }
 
-//以后如果需要，可以用smarty等复杂的模板引擎来处理
-function processTemplates($strTpl)
-{
-    $strContent = file_get_contents($strTpl);
-    $arrSearch = array();
-    $arrReplace = array();
-    global $conf;
-    foreach($conf as $strKey => $strValue)
-    {
-        $arrSearch[] = '{&$'.$strKey.'&}';
-        $arrReplace[] = $strValue;
-    }
-
-    $strResult = str_replace($arrSearch, $arrReplace, $strContent);
-    return $strResult;
+function getTemplates($root, &$templates = NULL) {
+	$dir = opendir($root);
+	if ($dir === false) {
+		exit("Error: {$root} is not exsits\n");
+	}
+	if ($templates === NULL) {
+		$templates = array();
+	}
+	while ($entry = readdir($dir)) {
+		if ($entry[0] == "." || $entry[0] == "..") {
+			continue;
+		}
+		if (!is_dir($root . $entry)) {
+			$templates[$entry] = file_get_contents($root . $entry);
+		} else {
+			$templates[$entry] = array();
+			getTemplates($root . $entry . "/", $templates[$entry]);
+		}
+	}
+	return $templates;
 }
+
+
+echo "Generating done\n";
+?>

@@ -21,9 +21,11 @@
 #define YAF_CONFIG_INI_PARSING_PROCESS 1
 #define YAF_CONFIG_INI_PARSING_END     2
 
+#define YAF_CONFIG_PARSER_FLAG()   YAF_VAR_FLAGS(YAF_G(active_ini_file_section))
+
 extern zend_class_entry *yaf_config_ini_ce;
 
-yaf_config_t *yaf_config_ini_instance(yaf_config_t *this_ptr, zval *filename, zval *section);
+int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *section);
 
 YAF_STARTUP_FUNCTION(config_ini);
 

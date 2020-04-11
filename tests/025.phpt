@@ -26,7 +26,18 @@ var_dump(Yaf_Loader::getInstance()->isLocalName("Bar_Name"));
 --EXPECTF--
 Yaf_Loader Object
 (
-    [_library:protected] => /tmp
-    [_global_library:protected] => /php/global/dir
+    [library:protected] => /tmp
+    [global_library:protected] => /php/global/dir
+    [namespace:protected] => Array
+        (
+            [0] => Foo
+            [1] => Bar
+            [2] => Dummy
+        )
+
+    [use_spl_autoload:protected] => 
+    [lowercase_path:protected] => 
+    [is_name_suffix:protected] => 1
+    [has_name_seperator:protected] => 
 )
 bool(true)

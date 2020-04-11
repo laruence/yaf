@@ -17,21 +17,42 @@
 #ifndef YAF_VIEW_H
 #define YAF_VIEW_H
 
-#define yaf_view_instance yaf_view_simple_instance
-#define yaf_view_ce		  yaf_view_simple_ce
-
-#define YAF_VIEW_PROPERTY_NAME_TPLVARS 	"_tpl_vars"
-#define YAF_VIEW_PROPERTY_NAME_TPLDIR	"_tpl_dir"
-#define YAF_VIEW_PROPERTY_NAME_OPTS 	"_options"
-
 extern zend_class_entry *yaf_view_interface_ce;
 extern zend_class_entry *yaf_view_simple_ce;
 
-yaf_view_t * yaf_view_instance(yaf_view_t * this_ptr, zval *tpl_dir, zval *options);
-int yaf_view_simple_render(yaf_view_t *view, zval *tpl, zval * vars, zval *ret);
-int yaf_view_simple_display(yaf_view_t *view, zval *tpl, zval * vars, zval *ret);
-int yaf_view_simple_assign_multi(yaf_view_t *view, zval *value);
-void yaf_view_simple_clear_assign(yaf_view_t *view, zend_string *name);
+typedef struct {
+	zend_object  std;
+	zend_string *tpl_dir;
+	zend_array   tpl_vars;
+	zend_array  *properties;
+} yaf_view_object;
+
+#define Z_YAFVIEWOBJ(zv)    ((yaf_view_object*)Z_OBJ(zv))
+#define Z_YAFVIEWOBJ_P(zv)  Z_YAFVIEWOBJ(*zv)
+
+void yaf_view_instance(yaf_view_t *view, zend_string *tpl_dir, zval *options);
+int yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval *ret);
+void yaf_view_set_tpl_dir_ex(yaf_view_t *view, zend_string *tpl_dir);
+zend_string *yaf_view_get_tpl_dir_ex(yaf_view_t *view, yaf_request_t *request);
+
+#define yaf_view_set_tpl_dir(v, d) do { \
+	if (EXPECTED(Z_OBJCE_P(v) == yaf_view_simple_ce)) { \
+		if (UNEXPECTED(Z_YAFVIEWOBJ_P(v)->tpl_dir)) { \
+			zend_string_release(Z_YAFVIEWOBJ_P(v)->tpl_dir); \
+		} \
+		Z_YAFVIEWOBJ_P(v)->tpl_dir = zend_string_copy(d); \
+	} else { \
+		yaf_view_set_tpl_dir_ex(v, d); \
+	} \
+} while (0)
+
+#define yaf_view_get_tpl_dir(r, v, q) do { \
+	if (EXPECTED(Z_OBJCE_P(v) == yaf_view_simple_ce)) { \
+		r = Z_YAFVIEWOBJ_P(v)->tpl_dir; \
+	} else { \
+		r = yaf_view_get_tpl_dir_ex(v, q); \
+	} \
+} while (0)
 
 YAF_STARTUP_FUNCTION(view);
 

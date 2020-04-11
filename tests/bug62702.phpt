@@ -51,11 +51,11 @@ var_dump($request->getControllerName());
 ?>
 --EXPECTF--
 NULL
-string(3) "ABC"
+string(3) "Abc"
 string(5) "A_B_C"
 NULL
 NULL
-string(4) "info"
+string(4) "Info"
 NULL
-string(4) "info"
-string(4) "info"
+string(4) "Info"
+string(4) "Info"

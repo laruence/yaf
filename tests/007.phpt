@@ -14,9 +14,9 @@ $config = array(
 	'section2' => "laruence",
 );
 
-$config1 = new Yaf_Config_Simple($config, 'section2');
+$config1 = new Yaf_Config_Simple($config, 1);
 print_r($config1);
-$config2 = new Yaf_Config_Simple($config, 'section1');
+$config2 = new Yaf_Config_Simple($config, 1);
 var_dump($config2->readonly());
 $config2->new = "value";
 var_dump(isset($config->new));
@@ -28,6 +28,9 @@ var_dump(isset($config3["section2"]));
 $config3->new = "value";
 echo "Config3 readonly:";
 var_dump($config3->readonly());
+
+foreach($config3 as $key => $val) {
+}
 
 foreach($config3 as $key => $val) {
 	print_r($key);
@@ -49,7 +52,8 @@ var_dump($sick->total);
 --EXPECTF--
 Yaf_Config_Simple Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [section1] => Array
                 (
@@ -60,7 +64,6 @@ Yaf_Config_Simple Object
             [section2] => laruence
         )
 
-    [_readonly:protected] => 1
 )
 bool(true)
 bool(false)
@@ -68,13 +71,13 @@ Isset config3 section:bool(true)
 Config3 readonly:bool(false)
 section1=>Yaf_Config_Simple Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 
+    [config:protected] => Array
         (
             [name] => value
             [dummy] => foo
         )
 
-    [_readonly:protected] => 
 )
 
 section2=>laruence
@@ -91,6 +94,6 @@ Array
     [new] => value
 )
 bool(false)
-bool(false)
-int(1)
-int(1)
+NULL
+int(0)
+NULL

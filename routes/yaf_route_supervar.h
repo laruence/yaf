@@ -17,11 +17,19 @@
 #ifndef YAF_ROUTER_SUPERVAR_H
 #define YAF_ROUTER_SUPERVAR_H
 
-#define YAF_ROUTE_SUPERVAR_PROPETY_NAME_VAR "_var_name"
+typedef struct {
+	zend_object  std;
+	zend_string *varname;
+	zend_array  *properties;
+} yaf_route_supervar_object;
+
+#define Z_YAFROUTESUPEROBJ(zv)    ((yaf_route_supervar_object*)(Z_OBJ(zv)))
+#define Z_YAFROUTESUPEROBJ_P(zv)  Z_YAFROUTESUPEROBJ(*zv)
 
 extern zend_class_entry *yaf_route_supervar_ce;
 
-yaf_route_t *yaf_route_supervar_instance(yaf_route_t *this_ptr, zval *name);
+void yaf_route_supervar_instance(yaf_route_t *route, zend_string *varname);
+int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *req);
 
 YAF_STARTUP_FUNCTION(route_supervar);
 

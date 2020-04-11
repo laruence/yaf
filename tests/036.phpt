@@ -60,31 +60,31 @@ foreach ($url as $u) {
 ?>
 --EXPECTF--
 / : m=> c=> a=>
-/foo : m=> c=>foo a=>
-/foo/ : m=> c=>foo a=>
-/foo///bar : m=> c=>foo a=>bar
-foo/bar : m=> c=>foo a=>bar
-/foo/bar/ : m=> c=>foo a=>bar
-/foo/bar/dummy : m=> c=>foo a=>bar args=>dummy->,
-/foo///bar/dummy/ : m=> c=>foo a=>bar args=>dummy->,
-foo/bar/dummy/ : m=> c=>foo a=>bar args=>dummy->,
-/my : m=> c=>my a=>
-/my/ : m=> c=>my a=>
-/my/foo : m=> c=>my a=>foo
-/my/foo/ : m=> c=>my a=>foo
-my/foo/bar : m=>my c=>foo a=>bar
-my/foo/bar/ : m=>my c=>foo a=>bar
-/m/index/index : m=> c=>m a=>index args=>index->,
-/my/foo/bar/dummy/1 : m=>my c=>foo a=>bar args=>dummy->1,
-my/foo/bar/dummy/1/a/2///// : m=>my c=>foo a=>bar args=>dummy->1,a->2,
-/my/index/index : m=>my c=>index a=>index
-my/index : m=> c=>my a=>index
-/foo/index : m=> c=>foo a=>index
-index/foo : m=> c=>index a=>foo
+/foo : m=> c=>Foo a=>
+/foo/ : m=> c=>Foo a=>
+/foo///bar : m=> c=>Foo a=>bar
+foo/bar : m=> c=>Foo a=>bar
+/foo/bar/ : m=> c=>Foo a=>bar
+/foo/bar/dummy : m=> c=>Foo a=>bar args=>dummy->,
+/foo///bar/dummy/ : m=> c=>Foo a=>bar args=>dummy->,
+foo/bar/dummy/ : m=> c=>Foo a=>bar args=>dummy->,
+/my : m=> c=>My a=>
+/my/ : m=> c=>My a=>
+/my/foo : m=> c=>My a=>foo
+/my/foo/ : m=> c=>My a=>foo
+my/foo/bar : m=>My c=>Foo a=>bar
+my/foo/bar/ : m=>My c=>Foo a=>bar
+/m/index/index : m=> c=>M a=>index args=>index->,
+/my/foo/bar/dummy/1 : m=>My c=>Foo a=>bar args=>dummy->1,
+my/foo/bar/dummy/1/a/2///// : m=>My c=>Foo a=>bar args=>dummy->1,a->2,
+/my/index/index : m=>My c=>Index a=>index
+my/index : m=> c=>My a=>index
+/foo/index : m=> c=>Foo a=>index
+index/foo : m=> c=>Index a=>foo
 / : m=> c=> a=>
 /foo : m=> c=> a=>foo
 /foo/ : m=> c=> a=>foo
-/my : m=> c=>my a=>
-/my/ : m=> c=>my a=>
-/my/foo : m=> c=>my a=>foo
-/my//foo/ : m=> c=>my a=>foo
+/my : m=> c=>My a=>
+/my/ : m=> c=>My a=>
+/my/foo : m=> c=>My a=>foo
+/my//foo/ : m=> c=>My a=>foo

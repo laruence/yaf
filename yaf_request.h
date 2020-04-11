@@ -17,18 +17,6 @@
 #ifndef YAF_REQUEST_H
 #define YAF_REQUEST_H
 
-#define YAF_REQUEST_PROPERTY_NAME_MODULE     "module"
-#define YAF_REQUEST_PROPERTY_NAME_CONTROLLER "controller"
-#define YAF_REQUEST_PROPERTY_NAME_ACTION     "action"
-#define YAF_REQUEST_PROPERTY_NAME_METHOD     "method"
-#define YAF_REQUEST_PROPERTY_NAME_PARAMS     "params"
-#define YAF_REQUEST_PROPERTY_NAME_URI        "uri"
-#define YAF_REQUEST_PROPERTY_NAME_STATE      "dispatched"
-#define YAF_REQUEST_PROPERTY_NAME_LANG       "language"
-#define YAF_REQUEST_PROPERTY_NAME_ROUTED     "routed"
-#define YAF_REQUEST_PROPERTY_NAME_BASE       "_base_uri"
-#define YAF_REQUEST_PROPERTY_NAME_EXCEPTION  "_exception"
-
 #define YAF_REQUEST_SERVER_URI               "request_uri="
 
 #define YAF_GLOBAL_VARS_TYPE                 unsigned int
@@ -42,30 +30,99 @@
 
 extern zend_class_entry *yaf_request_ce;
 
-yaf_request_t *yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
-int yaf_request_set_base_uri(yaf_request_t *request, zend_string *base_uri, zend_string *request_uri);
+typedef struct {
+	zend_uchar  flags;
+	zend_string *method;
+	zend_string *module;
+	zend_string *controller;
+	zend_string *action;
+	zend_string *base_uri;
+	zend_string *uri;
+	zend_string *language;
+	zend_array  *params;
+	zend_array  *properties;
+	zend_object std;
+} yaf_request_object;
+
+#define YAF_REQUEST_ROUTED     (1<<0)
+#define YAF_REQUEST_DISPATCHED (1<<1)
+
+#define Z_YAFREQUESTOBJ(zv)    (php_yaf_request_fetch_object(Z_OBJ(zv)))
+#define Z_YAFREQUESTOBJ_P(zv)  Z_YAFREQUESTOBJ(*zv)
+
+static zend_always_inline yaf_request_object *php_yaf_request_fetch_object(zend_object *obj) {
+	return (yaf_request_object *)((char*)(obj) - XtOffsetOf(yaf_request_object, std));
+}
+
+void yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);
+int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri, zend_string *request_uri);
 
 zval *yaf_request_query(unsigned type, zend_string *name);
 zval *yaf_request_query_str(unsigned type, const char *name, size_t len);
 
-zval *yaf_request_get_method(yaf_request_t *instance);
-zval *yaf_request_get_param(yaf_request_t *instance, zend_string *key);
-zval *yaf_request_get_language(yaf_request_t *instance, zval *accept_language);
+zval *yaf_request_get_param(yaf_request_object *request, zend_string *key);
+void yaf_request_clean_params(yaf_request_object *request);
+zend_string *yaf_request_get_language(yaf_request_object *request);
 
-int yaf_request_is_routed(yaf_request_t *request);
-int yaf_request_is_dispatched(yaf_request_t *request);
-void yaf_request_set_dispatched(yaf_request_t *request, int flag);
-void yaf_request_set_routed(yaf_request_t *request, int flag);
-int yaf_request_set_params_single(yaf_request_t *instance, zend_string *key, zval *value);
-int yaf_request_set_params_multi(yaf_request_t *instance, zval *values);
+void yaf_request_set_mvc(yaf_request_object *request, zend_string *module, zend_string *controller, zend_string *action, zend_array *params);
+int yaf_request_set_params_single(yaf_request_object *instance, zend_string *key, zval *value);
+int yaf_request_set_params_multi(yaf_request_object *instance, zval *values);
+int yaf_request_del_param(yaf_request_object *request, zend_string *key);
 const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len);
 const char *yaf_request_get_request_method(void);
 
+static zend_always_inline int yaf_request_is_routed(yaf_request_object *request) {
+	return request->flags & YAF_REQUEST_ROUTED;
+}
+
+static zend_always_inline int yaf_request_is_dispatched(yaf_request_object *request) {
+	return request->flags & YAF_REQUEST_DISPATCHED;
+}
+
+static zend_always_inline void yaf_request_set_routed(yaf_request_object *request, int flag) {
+	if (flag) {
+		request->flags |= YAF_REQUEST_ROUTED;
+	} else {
+		request->flags &= ~YAF_REQUEST_ROUTED;
+	}
+}
+
+static zend_always_inline void yaf_request_set_dispatched(yaf_request_object *request, int flag) {
+	if (flag) {
+		request->flags |= YAF_REQUEST_DISPATCHED;
+	} else {
+		request->flags &= ~YAF_REQUEST_DISPATCHED;
+	}
+}
+
+static zend_always_inline void yaf_request_set_module(yaf_request_object *request, zend_string *module) {
+	if (request->module) {
+		zend_string_release(request->module);
+	}
+	request->module = yaf_canonical_name(1, module);
+}
+
+static zend_always_inline void yaf_request_set_controller(yaf_request_object *request, zend_string *controller) {
+	if (request->controller) {
+		zend_string_release(request->controller);
+	}
+	request->controller = yaf_canonical_name(1, controller);
+}
+
+static zend_always_inline void yaf_request_set_action(yaf_request_object *request, zend_string *action) {
+	if (request->action) {
+		zend_string_release(request->action);
+	}
+	request->action = yaf_canonical_name(0, action);
+}
+
 #define YAF_REQUEST_IS_METHOD(x) \
 PHP_METHOD(yaf_request, is##x) {\
-	zval *method = zend_read_property(Z_OBJCE_P(getThis()), \
-			getThis(), ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_METHOD), 0, NULL); \
-	if (zend_string_equals_literal_ci(Z_STR_P(method), #x)) { \
+	zend_string *method = Z_YAFREQUESTOBJ_P(getThis())->method; \
+	if (zend_parse_parameters_none() == FAILURE) { \
+		return; \
+	} \
+	if (zend_string_equals_literal_ci(method, #x)) { \
 		RETURN_TRUE; \
 	} \
 	RETURN_FALSE; \
@@ -94,7 +151,6 @@ PHP_METHOD(ce, get##x) { \
 		RETURN_NULL(); \
 	} \
 }
-
 
 YAF_STARTUP_FUNCTION(request);
 

@@ -17,9 +17,21 @@
 #ifndef YAF_ROUTER_REWRITE_H
 #define YAF_ROUTER_REWRITE_H
 
+typedef struct {
+	zend_object  std;
+	zend_string *match;
+	zend_array  *router;
+	zend_array  *verify;
+	zend_array  *properties;
+} yaf_route_rewrite_object;
+
+#define Z_YAFROUTEREWRITEOBJ(zv)    ((yaf_route_rewrite_object*)(Z_OBJ(zv)))
+#define Z_YAFROUTEREWRITEOBJ_P(zv)  Z_YAFROUTEREWRITEOBJ(*zv)
+
 extern zend_class_entry *yaf_route_rewrite_ce;
 
-yaf_route_t * yaf_route_rewrite_instance(yaf_route_t *this_ptr, zval *match, zval *router, zval *verify);
+void yaf_route_rewrite_instance(yaf_route_t *route, zend_string *match, zval *router, zval *verify);
+int yaf_route_rewrite_route(yaf_route_t *route, yaf_request_t *req);
 
 YAF_STARTUP_FUNCTION(route_rewrite);
 

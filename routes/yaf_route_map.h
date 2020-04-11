@@ -17,12 +17,22 @@
 #ifndef YAF_ROUTER_MAP_H
 #define YAF_ROUTER_MAP_H
 
-#define YAF_ROUTE_MAP_VAR_NAME_DELIMETER    "_delimiter"
-#define YAF_ROUTE_MAP_VAR_NAME_CTL_PREFER   "_ctl_router"
+#define YAF_ROUTE_MAP_CTL_PREFER  (1<<0)
+
+typedef struct {
+	zend_object  std;
+	zend_string *delim;
+	zend_array  *properties;
+	zend_uchar   flags;
+} yaf_route_map_object;
+
+#define Z_YAFROUTEMAPOBJ(zv)    ((yaf_route_map_object*)(Z_OBJ(zv)))
+#define Z_YAFROUTEMAPOBJ_P(zv)  Z_YAFROUTEMAPOBJ(*zv)
 
 extern zend_class_entry *yaf_route_map_ce;
 
-yaf_route_t *yaf_route_map_instance(yaf_route_t *this_ptr, zend_bool controller_prefer, zend_string *delim);
+void yaf_route_map_instance(yaf_route_t *route, zend_bool controller_prefer, zend_string *delim);
+int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req);
 
 YAF_STARTUP_FUNCTION(route_map);
 

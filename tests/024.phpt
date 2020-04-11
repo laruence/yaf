@@ -7,7 +7,7 @@ yaf.library="/php/global/dir"
 yaf.use_namespace=0
 --FILE--
 <?php 
-$loader = Yaf_Loader::getInstance('/foo', '/bar');
+$loader = Yaf_Loader::getInstance('/foo');
 
 var_dump($loader->getLibraryPath());
 var_dump($loader->getLibraryPath(TRUE));
@@ -18,11 +18,12 @@ $config = array(
 );
 
 $app = new Yaf_Application($config);
+$loader = Yaf_Loader::getInstance(NULL, '/bar');
 var_dump($loader->getLibraryPath());
 var_dump($loader->getLibraryPath(TRUE));
 ?>
 --EXPECTF--
 string(4) "/foo"
-string(4) "/bar"
-string(%d) "%slibrary"
 string(15) "/php/global/dir"
+string(%d) "%slibrary"
+string(4) "/bar"

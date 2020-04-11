@@ -18,7 +18,7 @@ var_dump($config->base["routes"]["rewrite"]["route"]["controller"]);
 var_dump($config->get("base.routes.rewrite.route.controller"));
 
 var_dump($config->base->get("routes.rewrite.match"));
-var_dump($config->get("base.routes.rewrite.route.controllers"));
+var_dump($config["base.routes.rewrite.route.controllers"]);
 
 $config = new Yaf_Config_Ini($file, "nocatch");
 var_dump(count($config));

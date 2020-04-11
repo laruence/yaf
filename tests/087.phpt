@@ -43,15 +43,15 @@ foreach ($url as $u) {
 }
 --EXPECT--
 / : m=> c=> a=>
-/foo : m=> c=>foo a=>
-/foo/ : m=> c=>foo a=>
-/foo///bar : m=> c=>foo_bar a=>
-//foo//bar : m=> c=>foo_bar a=>
-/foo/bar/// : m=> c=>foo_bar a=>
-/foo/bar/: : m=> c=>foo_bar_: a=>
-/foo/bar/:/ : m=> c=>foo_bar_: a=>
-/foo///bar/:/name/laruence/age/32 : m=> c=>foo_bar_:_name_laruence_age_32 a=>
-foo/bar/:dummy/value:/age/37 : m=> c=>foo_bar_:dummy_value:_age_37 a=>
+/foo : m=> c=>Foo a=>
+/foo/ : m=> c=>Foo a=>
+/foo///bar : m=> c=>Foo_Bar a=>
+//foo//bar : m=> c=>Foo_Bar a=>
+/foo/bar/// : m=> c=>Foo_Bar a=>
+/foo/bar/: : m=> c=>Foo_Bar_: a=>
+/foo/bar/:/ : m=> c=>Foo_Bar_: a=>
+/foo///bar/:/name/laruence/age/32 : m=> c=>Foo_Bar_:_Name_Laruence_Age_32 a=>
+foo/bar/:dummy/value:/age/37 : m=> c=>Foo_Bar_:dummy_Value:_Age_37 a=>
 / : m=> c=> a=>
 /foo : m=> c=> a=>foo
 /foo/ : m=> c=> a=>foo
@@ -60,5 +60,5 @@ foo/bar/:dummy/value:/age/37 : m=> c=>foo_bar_:dummy_value:_age_37 a=>
 /foo/bar/// : m=> c=> a=>foo_bar
 /foo/bar/: : m=> c=> a=>foo_bar
 /foo/bar/:/ : m=> c=> a=>foo_bar
-/foo///bar/:/name/laruence/age/32 : m=> c=> a=>foo_bar_: args=>name->laruence,age->32,
-foo/bar/:dummy/value:/age/37 : m=> c=> a=>foo_bar_: args=>dummy->value:,age->37,
+/foo///bar/:/name/laruence/age/32 : m=> c=> a=>foo_bar args=>name->laruence,age->32,
+foo/bar/:dummy/value:/age/37 : m=> c=> a=>foo_bar args=>dummy->value:,age->37,

@@ -20,7 +20,11 @@
 #define YAF_ACTION_EXECUTOR_NAME		"execute"
 #define YAF_ACTION_PROPERTY_NAME_CTRL 	"_controller"
 
+#define yaf_action_object yaf_controller_object
+
 extern zend_class_entry * yaf_action_ce;
+
+void yaf_action_init(yaf_action_object *action, yaf_controller_t *ctl, zend_string *name);
 
 YAF_STARTUP_FUNCTION(action);
 #endif

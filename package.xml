@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-04-01</date>
+ <date>2020-04-??</date>
  <time>12:00:00</time>
  <version>
-  <release>3.1.4</release>
-  <api>3.1.4</api>
+  <release>3.2.0</release>
+  <api>3.2.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,9 +22,18 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #469 (treat autocontroller as Controller mistakenly)
-  - Fixed issue #468 (abort if same key assigned to view)
-  - minor optimization to avoding memory allocations
+  - Added Yaf_Request::cleanParams()
+  - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
+  - Added Yaf_Dispatcher::getDefaultModule(), Yaf_Dispatcher::getDefaultController() and Yaf_Dispatcher::getDefaultAction()
+  - Added Yaf_Application::getInstance(), which is alias of Yaf_Application:app()
+  - Added optional $format_name argument to Yaf_Request::setModule/Controller/actionName
+     if it set to false, Yaf will set original input as name,
+     default it true, which means Yaf will format the name(camel/lowercase) before set it to Request
+  - Rmoved all lead underline for fake protected property name(examing by var_dump)
+  - Fixed bug that protected method of Bootstrap get executed
+  - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
+  - Yaf_Route_* now routes valid Module/Controller/action name directly
+  - Yaf_Controller action's arguments will be set even if there are gaps now (see test/issue420.phpt)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -202,6 +211,16 @@
     <file name="091.phpt" role="test" />
     <file name="092.phpt" role="test" />
     <file name="093.phpt" role="test" />
+    <file name="094.phpt" role="test" />
+    <file name="095.phpt" role="test" />
+    <file name="096.phpt" role="test" />
+    <file name="097.phpt" role="test" />
+    <file name="098.phpt" role="test" />
+    <file name="099.phpt" role="test" />
+    <file name="100.phpt" role="test" />
+    <file name="101.phpt" role="test" />
+    <file name="102.phpt" role="test" />
+    <file name="103.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

@@ -19,6 +19,7 @@
 #endif
 
 #include "php.h"
+#include "Zend/zend_smart_str.h" /* for smart_str */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -29,7 +30,6 @@
 #include "yaf_router.h"
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_static.h"
-#include "zend_smart_str.h" /* for smart_str */
 
 zend_class_entry * yaf_route_static_ce;
 
@@ -51,7 +51,7 @@ static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len
 }
 /* }}} */
 
-int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
+int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
 	const char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
 	size_t module_len, controller_len, action_len, rest_len;
 
@@ -135,24 +135,32 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 			controller = module;
 			controller_len = module_len;
 			module = NULL;
-		} else if (controller && UNEXPECTED(YAF_G(action_prefer))) {
+		} else if (controller && UNEXPECTED(yaf_is_action_prefer())) {
 			action = controller;
 			action_len = controller_len;
 			controller = NULL;
 		}
 	}
 
-	if (module != NULL) {
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_MODULE), module, module_len);
+	if (module) {
+		if (UNEXPECTED(request->module)) {
+			zend_string_release(request->module);
+		}
+		request->module = yaf_build_camel_name(module, module_len);
 	}
-	if (controller != NULL) {
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_CONTROLLER), controller, controller_len);
+
+	if (controller) {
+		if (UNEXPECTED(request->controller)) {
+			zend_string_release(request->controller);
+		}
+		request->controller = yaf_build_camel_name(controller, controller_len);
 	}
-	if (action != NULL) {
-		zend_update_property_stringl(yaf_request_ce,
-				request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_ACTION), action, action_len);
+
+	if (action) {
+		if (UNEXPECTED(request->action)) {
+			zend_string_release(request->action);
+		}
+		request->action = yaf_build_lower_name(action, action_len);
 	}
 
 	if (rest) {
@@ -166,19 +174,16 @@ int yaf_route_pathinfo_route(yaf_request_t *request, const char *req_uri, size_t
 }
 /* }}} */
 
-int yaf_route_static_route(yaf_route_t *route, yaf_request_t *request) /* {{{ */ {
-	zval *uri, *base_uri;
+int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	const char *req_uri;
 	size_t req_uri_len;
+	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 
-	uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_URI), 1, NULL);
-	base_uri = zend_read_property(yaf_request_ce, request, ZEND_STRL(YAF_REQUEST_PROPERTY_NAME_BASE), 1, NULL);
-
-	if (Z_STRLEN_P(base_uri)) {
-		req_uri = yaf_request_strip_base_uri(Z_STR_P(uri), Z_STR_P(base_uri), &req_uri_len);
+	if (request->base_uri) {
+		req_uri = yaf_request_strip_base_uri(request->uri, request->base_uri, &req_uri_len);
 	} else {
-		req_uri = Z_STRVAL_P(uri);
-		req_uri_len = Z_STRLEN_P(uri);
+		req_uri = ZSTR_VAL(request->uri);
+		req_uri_len = ZSTR_LEN(request->uri);
 	}
 
 	yaf_route_pathinfo_route(request, req_uri, req_uri_len);
@@ -256,6 +261,13 @@ zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval 
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Router_Static::match(string $uri)
+*/
+PHP_METHOD(yaf_route_static, match) {
+	RETURN_TRUE;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Router_Static::route(Yaf_Request $req)
 */
 PHP_METHOD(yaf_route_static, route) {
@@ -263,16 +275,9 @@ PHP_METHOD(yaf_route_static, route) {
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
 		return;
-	} else {
-		RETURN_BOOL(yaf_route_static_route(getThis(), request));
 	}
-}
-/* }}} */
 
-/** {{{ proto public Yaf_Router_Static::match(string $uri)
-*/
-PHP_METHOD(yaf_route_static, match) {
-	RETURN_TRUE;
+	RETURN_BOOL(yaf_route_static_route(getThis(), request));
 }
 /* }}} */
 
@@ -311,6 +316,8 @@ YAF_STARTUP_FUNCTION(route_static) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Static", "Yaf\\Route_Static", yaf_route_static_methods);
 	yaf_route_static_ce = zend_register_internal_class(&ce);
+	yaf_route_static_ce->ce_flags |= ZEND_ACC_FINAL;
+
 	zend_class_implements(yaf_route_static_ce, 1, yaf_route_ce);
 
 	return SUCCESS;

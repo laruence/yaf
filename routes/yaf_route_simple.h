@@ -17,13 +17,21 @@
 #ifndef YAF_ROUTER_SIMPLE_H
 #define YAF_ROUTER_SIMPLE_H
 
-#define YAF_ROUTE_SIMPLE_VAR_NAME_MODULE		"module"
-#define	YAF_ROUTE_SIMPLE_VAR_NAME_CONTROLLER 	"controller"
-#define YAF_ROUTE_SIMPLE_VAR_NAME_ACTION		"action"
+typedef struct {
+	zend_object  std;
+	zend_string *m;
+	zend_string *c;
+	zend_string *a;
+	zend_array  *properties;
+} yaf_route_simple_object;
+
+#define Z_YAFROUTESIMPLEOBJ(zv)    ((yaf_route_simple_object*)(Z_OBJ(zv)))
+#define Z_YAFROUTESIMPLEOBJ_P(zv)  Z_YAFROUTESIMPLEOBJ(*zv)
 
 extern zend_class_entry *yaf_route_simple_ce;
 
-yaf_route_t *yaf_route_simple_instance(yaf_route_t *this_ptr, zval *module, zval *controller, zval *action);
+void yaf_route_simple_instance(yaf_route_t *route, zend_string *m, zend_string *c, zend_string *a);
+int yaf_route_simple_route(yaf_route_t *route, yaf_request_t *req);
 
 YAF_STARTUP_FUNCTION(route_simple);
 

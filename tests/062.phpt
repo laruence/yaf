@@ -21,7 +21,7 @@ $config = array(
 );
 $app = new Yaf_Application($config);
 
-$view = Yaf_Dispatcher::getInstance()->initView(array());
+$view = Yaf_Dispatcher::getInstance()->initView("");
 var_dump($view->getScriptPath());
 ?>
 --EXPECTF--

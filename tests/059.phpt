@@ -55,11 +55,10 @@ shutdown();
 string(%d) "%sapplication%cviews"
 Yaf_View_Simple Object
 (
-    [_tpl_vars:protected] => Array
+    [tpl_dir:protected] => %s
+    [tpl_vars:protected] => Array
         (
         )
 
-    [_tpl_dir:protected] => 
-    [_options:protected] => 
 )
 dummyfoobar

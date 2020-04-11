@@ -22,7 +22,7 @@ $config = array(
 file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
-		public function funcAction(\$a = NULL, \$b = NULL) {
+		public function funcAction(\$a = 0, \$b = 1) {
 			var_dump(\$a, \$b);
 			return FALSE;
 		}
@@ -32,9 +32,14 @@ PHP
 
 $app = new Yaf_Application($config);
 $req = new Yaf_Request_Simple();
-$req->setControllerName('Index');
+$req->setControllerName('Foo_Bar');
+var_dump($req->getControllerName());
+$req->setControllerName('index');
 $req->setActionName('func');
 $req->setParam(array('b' => 'the second param'));
+$app->getDispatcher()->dispatch($req);
+$req->cleanParams();
+$req->setParam(array('a' => 'the first param'));
 $app->getDispatcher()->dispatch($req);
 ?>
 --CLEAN--
@@ -43,5 +48,8 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECT--
-NULL
-NULL
+string(7) "Foo_Bar"
+int(0)
+string(16) "the second param"
+string(15) "the first param"
+int(1)

@@ -33,28 +33,22 @@
 #define YAF_ERR_CALL_FAILED			519
 #define YAF_ERR_AUTOLOAD_FAILED 	520
 #define YAF_ERR_TYPE_ERROR			521
+#define YAF_ERR_ACCESS_ERROR		522
 
 #define YAF_EXCEPTION_OFFSET(x) (x & YAF_ERR_MASK)
 
 #define YAF_CORRESPOND_ERROR(x) (x>>9L)
 
-#define YAF_EXCEPTION_HANDLE(dispatcher, request, response) \
-	if (EG(exception)) { \
-		if (YAF_G(catch_exception) \
-				 && instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
-			yaf_dispatcher_exception_handler(dispatcher, request, response); \
+#define YAF_EXCEPTION_HANDLE_EX(dispatcher, ret) \
+	if (UNEXPECTED(EG(exception))) { \
+		if (catch_exception) { \
+			yaf_dispatcher_exception_handler(dispatcher); \
 		} \
-		zval_ptr_dtor(response); \
-		return NULL; \
+		ret \
 	}
 
-#define YAF_EXCEPTION_HANDLE_NORET(dispatcher, request, response) \
-	if (EG(exception)) { \
-		if (YAF_G(catch_exception) \
-	   			&& instanceof_function(EG(exception)->ce, zend_exception_get_default())) { \
-			yaf_dispatcher_exception_handler(dispatcher, request, response); \
-		} \
-	}
+#define YAF_EXCEPTION_HANDLE(dispatcher)       YAF_EXCEPTION_HANDLE_EX(dispatcher, return NULL;)
+#define YAF_EXCEPTION_HANDLE_NORET(dispatcher) YAF_EXCEPTION_HANDLE_EX(dispatcher, );
 
 #define YAF_EXCEPTION_ERASE_EXCEPTION() \
 	do { \

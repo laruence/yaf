@@ -22,6 +22,7 @@ $loader->setLibraryPath("/foobar", TRUE);
 $loader->autoload("Foo_Bar");
 $loader->autoload("Bar_Foo");
 
+$loader->autoload("Model");
 $loader->autoload("Bar_Model");
 ?>
 --EXPECTF--
@@ -36,5 +37,7 @@ Warning: Yaf_Loader::autoload(): Failed opening script /bar%cBar%cFoo.php: No su
 Warning: Yaf_Loader::autoload(): Failed opening script /foobar%cFoo%cBar.php: No such file or directory in %s023.php on line %d
 
 Warning: Yaf_Loader::autoload(): Failed opening script %cfoobar%cBar%cFoo.php: No such file or directory in %s023.php on line %d
+
+Warning: Yaf_Loader::autoload(): Failed opening script %cfoobar%cModel.php: No such file or directory in %s023.php on line %d
 
 Warning: Yaf_Loader::autoload(): Couldn't load a MVC class unless an Yaf_Application is initialized in %s023.php on line %d

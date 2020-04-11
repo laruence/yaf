@@ -36,12 +36,43 @@ zend_class_entry *yaf_action_ce;
 
 /* }}} */
 
+void yaf_action_init(yaf_action_object *action, yaf_controller_t *ctl, zend_string *name) /* {{{ */ {
+	ZVAL_COPY(&action->ctl.ctl, ctl);
+	action->ctl.name = action->name;
+	action->name = zend_string_copy(name);
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Action_Abstract::getController(void)
 */
 PHP_METHOD(yaf_action, getController) {
-	yaf_controller_t *controller = zend_read_property(yaf_action_ce,
-			getThis(), ZEND_STRL(YAF_ACTION_PROPERTY_NAME_CTRL), 1, NULL);
-	RETURN_ZVAL(controller, 1, 0);
+	yaf_action_object *act = Z_YAFCTLOBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+	if (Z_TYPE(act->ctl.ctl) == IS_OBJECT) {
+		RETURN_ZVAL(&act->ctl.ctl, 1, 0);
+	}
+
+	RETURN_NULL();
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Action_Abstract::getControllerName(void)
+*/
+PHP_METHOD(yaf_action, getControllerName) {
+	yaf_action_object *act = Z_YAFCTLOBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	if (act->ctl.name) {
+		RETURN_STR_COPY(act->ctl.name);
+	}
+
+	RETURN_NULL();
 }
 /* }}} */
 
@@ -50,6 +81,7 @@ PHP_METHOD(yaf_action, getController) {
 zend_function_entry yaf_action_methods[] = {
 	PHP_ABSTRACT_ME(yaf_action_controller, execute, NULL)
 	PHP_ME(yaf_action, getController, NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_action, getControllerName, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

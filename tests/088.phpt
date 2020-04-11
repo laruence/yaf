@@ -42,10 +42,10 @@ foreach ($url as $u) {
 /foo/bar : m=> c=> a=>
 /foo/// : m=> c=> a=>
 /foo/cont/act : m=> c=> a=>
-/foo/cont/act/ : m=> c=>cont a=>act args=>name->cont,subname->act,
+/foo/cont/act/ : m=> c=>Cont a=>act args=>name->cont,subname->act,
 /foocont/act : m=> c=> a=>
 /foo/cont//act : m=> c=> a=>
-/foo//cont///act// : m=> c=>cont a=>act args=>name->cont,subname->act,
-/foo/cont/act//var/value/ : m=> c=>cont a=>act args=>name->cont,subname->act,var->value,
-/foo/cont/act//var/value/age : m=> c=>cont a=>act args=>name->cont,subname->act,var->value,age->,
-/foo/cont/act//var/value/age/12// : m=> c=>cont a=>act args=>name->cont,subname->act,var->value,age->12,
+/foo//cont///act// : m=> c=>Cont a=>act args=>name->cont,subname->act,
+/foo/cont/act//var/value/ : m=> c=>Cont a=>act args=>name->cont,subname->act,var->value,
+/foo/cont/act//var/value/age : m=> c=>Cont a=>act args=>name->cont,subname->act,var->value,age->,
+/foo/cont/act//var/value/age/12// : m=> c=>Cont a=>act args=>name->cont,subname->act,var->value,age->12,

@@ -47,20 +47,19 @@ var_dump($request->getParams());
 --EXPECTF--
 Yaf_Request_Simple Object
 (
-    [module] => index
-    [controller] => dummy
-    [action] => index
     [method] => CLI
+    [module] => Index
+    [controller] => Dummy
+    [action] => index
+    [uri:protected] => 
+    [base_uri:protected] => 
+    [dispatched:protected] => 
+    [routed:protected] => 1
+    [language:protected] => 
     [params:protected] => Array
         (
         )
 
-    [language:protected] => 
-    [_exception:protected] => 
-    [_base_uri:protected] => 
-    [uri:protected] => 
-    [dispatched:protected] => 
-    [routed:protected] => 1
 )
 bool(true)
 bool(true)
@@ -68,7 +67,7 @@ bool(false)
 bool(false)
 string(8) "Laruence"
 NULL
-string(%d) "Failed opening controller script %scontrollers%cDummy.php: No such file or directory"
+string(%d) "Failed opening controller script %sDummy.php: No such file or directory"
 NULL
 NULL
 NULL

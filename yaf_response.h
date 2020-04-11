@@ -17,9 +17,6 @@
 #ifndef PHP_YAF_RESPONSE_H
 #define PHP_YAF_RESPONSE_H
 
-#define YAF_RESPONSE_PROPERTY_NAME_HEADER			"_header"
-#define YAF_RESPONSE_PROPERTY_NAME_BODY				"_body"
-#define YAF_RESPONSE_PROPERTY_NAME_HEADEREXCEPTION	"_sendheader"
 #define YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY		"content"
 #define YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME  "DEFAULT_BODY"
 
@@ -27,15 +24,33 @@
 #define YAF_RESPONSE_PREPEND 1
 #define YAF_RESPONSE_APPEND  2
 
+#define YAF_RESPONSE_HEADER_SENT  (1<<0)
+
 extern zend_class_entry *yaf_response_ce;
 extern zend_class_entry *yaf_response_http_ce;
 extern zend_class_entry *yaf_response_cli_ce;
 
-yaf_response_t * yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name);
-int yaf_response_alter_body(yaf_response_t *response, zend_string *name, zend_string *body, int flag);
-int yaf_response_send(yaf_response_t *response);
-int yaf_response_set_redirect(yaf_response_t *response, char *url, int len);
-int yaf_response_clear_body(yaf_response_t *response, zend_string *name);
+typedef struct {
+	zend_uchar   flags;
+	unsigned int code;
+	zend_array  *header;
+	zend_array  *body;
+	zend_array  *properties;
+	zend_object  std;
+} yaf_response_object;
+
+#define Z_YAFRESPONSEOBJ(zv)    (php_yaf_response_fetch_object(Z_OBJ(zv)))
+#define Z_YAFRESPONSEOBJ_P(zv)  Z_YAFRESPONSEOBJ(*zv)
+
+static zend_always_inline yaf_response_object *php_yaf_response_fetch_object(zend_object *obj) {
+	return (yaf_response_object *)((char*)(obj) - XtOffsetOf(yaf_response_object, std));
+}
+
+void yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name);
+int yaf_response_alter_body(yaf_response_object *response, zend_string *name, zend_string *body, int flag);
+int yaf_response_response(yaf_response_t *response);
+int yaf_response_set_redirect(yaf_response_object *response, zend_string *url);
+int yaf_response_clear_body(yaf_response_object *response, zend_string *name);
 
 YAF_STARTUP_FUNCTION(response);
 

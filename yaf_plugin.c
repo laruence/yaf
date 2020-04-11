@@ -91,24 +91,24 @@ PHP_METHOD(yaf_plugin, preResponse) {
 /** {{{ yaf_plugin_methods
 */
 zend_function_entry yaf_plugin_methods[] = {
-	PHP_ME(yaf_plugin, routerStartup,  		 plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, routerShutdown,  		 plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopStartup,   plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopShutdown,  plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preDispatch,  		 plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, postDispatch, 		 plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preResponse, 			 plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerStartup,        plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerShutdown,       plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopStartup,  plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopShutdown, plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preDispatch,          plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, postDispatch,         plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preResponse,          plugin_arg, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
 zend_function_entry yaf_plugin_methods_ns[] = {
-	PHP_ME(yaf_plugin, routerStartup,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, routerShutdown,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopStartup,   plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopShutdown,  plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preDispatch,  		 plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, postDispatch, 		 plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preResponse, 			 plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerStartup,        plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerShutdown,       plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopStartup,  plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopShutdown, plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preDispatch,          plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, postDispatch,         plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preResponse,          plugin_arg_ns, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

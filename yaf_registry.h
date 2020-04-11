@@ -17,8 +17,17 @@
 #ifndef YAF_REGISTRY_H
 #define YAF_REGISTRY_H
 
-#define YAF_REGISTRY_PROPERTY_NAME_ENTRYS 	"_entries"
-#define YAF_REGISTRY_PROPERTY_NAME_INSTANCE	"_instance"
+typedef struct {
+	zend_array  entries;
+	zend_array *properties;
+	zend_object std;
+} yaf_registry_object;
+
+#define Z_YAFREGISTRYOBJ(zv)    (php_yaf_registry_fetch_object(Z_OBJ(zv)))
+#define Z_YAFREGISTRYOBJ_P(zv)  Z_YAFREGISTRYOBJ(*zv)
+static zend_always_inline yaf_registry_object *php_yaf_registry_fetch_object(zend_object *obj) {
+	return (yaf_registry_object *)((char*)(obj) - XtOffsetOf(yaf_registry_object, std));
+}
 
 extern zend_class_entry *yaf_registry_ce;
 

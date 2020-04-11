@@ -21,7 +21,8 @@ print_r($router->getRoutes());
 --EXPECTF--
 Yaf_Config_Ini Object
 (
-    [_config:protected] => Array
+    [readonly:protected] => 1
+    [config:protected] => Array
         (
             [regex] => Array
                 (
@@ -70,7 +71,6 @@ Yaf_Config_Ini Object
 
         )
 
-    [_readonly:protected] => 1
 )
 Array
 (
@@ -80,46 +80,46 @@ Array
 
     [regex] => Yaf_Route_Regex Object
         (
-            [_route:protected] => ^/ap/(.*)
-            [_default:protected] => Array
+            [match:protected] => ^/ap/(.*)
+            [route:protected] => Array
                 (
                     [controller] => Index
                     [action] => action
                 )
 
-            [_maps:protected] => Array
+            [map:protected] => Array
                 (
                     [0] => name
                     [1] => name
                     [2] => value
                 )
 
-            [_verify:protected] => 
-            [_reverse:protected] => 
+            [verify:protected] => 
+            [reverse:protected] => 
         )
 
     [simple] => Yaf_Route_Simple Object
         (
+            [module:protected] => a
             [controller:protected] => c
-            [module:protected] => m
             [action:protected] => a
         )
 
     [supervar] => Yaf_Route_Supervar Object
         (
-            [_var_name:protected] => c
+            [varname:protected] => c
         )
 
     [rewrite] => Yaf_Route_Rewrite Object
         (
-            [_route:protected] => /yaf/:name/:value
-            [_default:protected] => Array
+            [match:protected] => /yaf/:name/:value
+            [route:protected] => Array
                 (
                     [controller] => Index
                     [action] => action
                 )
 
-            [_verify:protected] => 
+            [verify:protected] => 
         )
 
 )

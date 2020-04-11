@@ -57,13 +57,13 @@ Array
     [a] => act
 )
 string(3) "act"
-string(3) "ctl"
-string(1) "m"
+string(3) "Ctl"
+string(1) "M"
 string(3) "yaf"
 Array
 (
     [action] => act
 )
 string(3) "act"
-string(5) "index"
+string(5) "Index"
 NULL

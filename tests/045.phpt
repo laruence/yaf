@@ -20,7 +20,11 @@ $config = array(
 );
 
 class Bootstrap extends Yaf_Bootstrap_Abstract {
-    protected function _initErrorHandler(Yaf_Dispatcher $dispatcher) {
+    public function _initErrorHandler(Yaf_Dispatcher $dispatcher) {
+		var_dump($dispatcher->getDefaultModule());
+		var_dump($dispatcher->getDefaultController());
+		$dispatcher->setDefaultAction("dummy");
+		var_dump($dispatcher->getDefaultAction());
         $dispatcher->setErrorHandler(function($errorCode, $errorMessage, $file, $line) {
             throw new ErrorException($errorMessage, 0, $errorCode, $file, $line);
         });
@@ -28,12 +32,11 @@ class Bootstrap extends Yaf_Bootstrap_Abstract {
 }
 
 class IndexController extends Yaf_Controller_Abstract {
-    public function indexAction() {
+    public function dummyAction() {
         echo  $undefined_var;
         return FALSE;
     }
 }
-
 
 $app = new Yaf_Application($config);
 try {
@@ -43,4 +46,7 @@ try {
 }
 ?>
 --EXPECTF--
+string(5) "Index"
+string(5) "Index"
+string(5) "dummy"
 string(33) "Undefined variable: undefined_var"
