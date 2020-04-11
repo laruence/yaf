@@ -249,6 +249,15 @@ static zend_bool yaf_ini_entry_is_true(const zend_string *new_value) /* {{{ */ {
 }
 /* }}} */
 
+PHP_INI_MH(OnUpdateForwardLimit) /* {{{ */ {
+	int limit = atoi(ZSTR_VAL(new_value));
+	if (limit >= 0) {
+		YAF_VAR_FLAGS(YAF_G(loader)) = limit;
+	}
+	return SUCCESS;
+}
+/* }}} */
+
 PHP_INI_MH(OnUpdateUseNamespace) /* {{{ */ {
 	if (yaf_ini_entry_is_true(new_value)) {
 		YAF_FLAGS() |= YAF_USE_NAMESPACE;
@@ -315,8 +324,8 @@ PHP_INI_MH(OnUpdateSeparator) /* {{{ */ {
  */
 PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("yaf.library",       "",  PHP_INI_ALL, OnUpdateString, global_library, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_ENTRY("yaf.forward_limit", "5", PHP_INI_ALL, OnUpdateLongGEZero, forward_limit, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_ENTRY("yaf.environ",       "product", PHP_INI_SYSTEM, OnUpdateString, environ_name, zend_yaf_globals, yaf_globals)
+	PHP_INI_ENTRY("yaf.forward_limit",     "5", PHP_INI_ALL, OnUpdateForwardLimit)
 	PHP_INI_ENTRY("yaf.use_namespace",     "0", PHP_INI_ALL, OnUpdateUseNamespace)
 	PHP_INI_ENTRY("yaf.action_prefer",     "0", PHP_INI_ALL, OnUpdateActionPrefer)
 	PHP_INI_ENTRY("yaf.lowcase_path",      "0", PHP_INI_ALL, OnUpdateLowerCasePath)

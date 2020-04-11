@@ -740,8 +740,8 @@ int yaf_dispatcher_route(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 
 yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_request_object *request;
-	unsigned int nesting = YAF_G(forward_limit);
 	zend_bool catch_exception = yaf_is_catch_exception();
+	unsigned int nesting = yaf_get_forward_limit();
 
 	if (EXPECTED(Z_TYPE(dispatcher->response) != IS_OBJECT)) {
 		yaf_response_instance(&dispatcher->response, sapi_module.name);
@@ -790,7 +790,7 @@ yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{
 	YAF_EXCEPTION_HANDLE(dispatcher);
 
 	if (UNEXPECTED(0 == nesting && !yaf_request_is_dispatched(request))) {
-		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The max dispatch nesting %ld was reached", YAF_G(forward_limit));
+		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The maximum dispatching count %ld is reached", yaf_get_forward_limit());
 		YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 		return NULL;
 	}

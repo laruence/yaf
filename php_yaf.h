@@ -108,7 +108,6 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
     char             *environ_name;
     char             *name_separator;
     size_t            name_separator_len;
-    unsigned int      forward_limit;
 
     /*for ini parsing */
     unsigned int      parsing_flag;
@@ -152,6 +151,10 @@ zend_string *yaf_canonical_name(int type, zend_string *name);
 zend_string *yaf_build_camel_name(const char *str, size_t len);
 zend_string *yaf_build_lower_name(const char *str, size_t len);
 int yaf_call_user_method(zend_object *obj, zend_function *fbc, zval *ret, int num_args, zval *args, zval *arg2);
+
+static zend_always_inline unsigned int yaf_get_forward_limit() {
+	return YAF_VAR_FLAGS(YAF_G(loader));
+}
 
 static zend_always_inline zend_bool yaf_is_use_namespace() {
 	return YAF_FLAGS() & YAF_USE_NAMESPACE;
