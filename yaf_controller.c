@@ -383,7 +383,6 @@ static zend_object *yaf_controller_new(zend_class_entry *ce) /* {{{ */ {
 		ctl->flags = (zend_uchar)YAF_CTL_AUTORENDER_DEPEND;
 	}
 	ctl->std.handlers = &yaf_controller_obj_handlers;
-	ctl->properties = NULL;
 
 	return &ctl->std;
 }

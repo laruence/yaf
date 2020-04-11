@@ -29,21 +29,22 @@ typedef struct {
 	zend_uchar      flags;
 	zend_string    *module;
 	zend_string    *name;
-	zend_string    *script_path;
-	zend_array     *invoke_args;
 	yaf_request_t  *request;
 	yaf_response_t *response;
 	yaf_view_t     *view;
+	zend_string    *script_path;
 	struct {
 		yaf_controller_t ctl;
 		zend_string     *name;
 	} ctl;
+	zend_array     *invoke_args;
 	zend_array     *properties;
 	zend_object     std;
 } yaf_controller_object;
 
 #define Z_YAFCTLOBJ(zv)    (php_yaf_controller_fetch_object(Z_OBJ(zv)))
 #define Z_YAFCTLOBJ_P(zv)  Z_YAFCTLOBJ(*zv)
+
 static zend_always_inline yaf_controller_object *php_yaf_controller_fetch_object(zend_object *obj) {
 	return (yaf_controller_object *)((char*)(obj) - XtOffsetOf(yaf_controller_object, std));
 }
