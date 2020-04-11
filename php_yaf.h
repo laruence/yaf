@@ -110,7 +110,6 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
     size_t            name_separator_len;
 
     /*for ini parsing */
-    unsigned int      parsing_flag;
     zval              active_ini_file_section;
     zval             *ini_wanted_section;
 ZEND_END_MODULE_GLOBALS(yaf)

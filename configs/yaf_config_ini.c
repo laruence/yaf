@@ -303,7 +303,7 @@ static inline void yaf_config_ini_strip_section_name(const char **name, size_t *
 
 static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int callback_type, zval *arr) /* {{{ */ {
 
-	if (YAF_G(parsing_flag) == YAF_CONFIG_INI_PARSING_END) {
+	if (YAF_CONFIG_PARSER_FLAG() == YAF_CONFIG_INI_PARSING_END) {
 		return;
 	}
 
@@ -313,8 +313,8 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 		size_t l;
 		zend_bool empty_section = 0;
 
-		if (YAF_G(parsing_flag) == YAF_CONFIG_INI_PARSING_PROCESS) {
-			YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_END;
+		if (YAF_CONFIG_PARSER_FLAG()  == YAF_CONFIG_INI_PARSING_PROCESS) {
+			YAF_CONFIG_PARSER_FLAG() = YAF_CONFIG_INI_PARSING_END;
 			return;
 		}
 		
@@ -348,7 +348,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 		}
 		if (YAF_G(ini_wanted_section) && Z_STRLEN_P(YAF_G(ini_wanted_section)) == l
 				&& !strncasecmp(Z_STRVAL_P(YAF_G(ini_wanted_section)), p, l)) {
-			YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_PROCESS;
+			YAF_CONFIG_PARSER_FLAG() = YAF_CONFIG_INI_PARSING_PROCESS;
 		}
 	} else if (value) {
 		zval *active_arr;
@@ -395,7 +395,7 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 
 					ZVAL_UNDEF(&YAF_G(active_ini_file_section));
 
-					YAF_G(parsing_flag) = YAF_CONFIG_INI_PARSING_START;
+					YAF_CONFIG_PARSER_FLAG() = YAF_CONFIG_INI_PARSING_START;
 
 					array_init(&configs);
 					if (zend_parse_ini_file(&fh, 0, 0 /* ZEND_INI_SCANNER_NORMAL */,
