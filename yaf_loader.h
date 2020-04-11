@@ -31,10 +31,10 @@
 #define YAF_SPL_AUTOLOAD_REGISTER_NAME     "spl_autoload_register"
 #define YAF_AUTOLOAD_FUNC_NAME             "autoload"
 
-#define YAF_LOADER_USE_SPL        (1<<0)
-#define YAF_LOADER_LOWERCASE      (1<<1)
-#define YAF_LOADER_NAMESUFFIX     (1<<2)
-#define YAF_LOADER_NAMESEPARATOR  (1<<3)
+#define YAF_LOADER_USE_SPL                 YAF_USE_SPL_AUTOLOAD
+#define YAF_LOADER_LOWERCASE               YAF_LOWERCASE_PATH
+#define YAF_LOADER_NAMESUFFIX              YAF_NAME_SUFFIX
+#define YAF_LOADER_NAMESEPARATOR           YAF_HAS_NAME_SEPERATOR
 
 typedef struct {
 	zend_uchar   flags;

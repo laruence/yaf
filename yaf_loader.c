@@ -389,10 +389,7 @@ static int yaf_loader_is_local_namespace(yaf_loader_object *loader, char *class_
 
 void yaf_loader_reset(yaf_loader_object *loader) /* {{{ */ {
 	/* for back-compatibility of change of YAF_G after loader in initialized only */
-	loader->flags = YAF_G(use_spl_autoload)? YAF_LOADER_USE_SPL : 0;
-	loader->flags |= YAF_G(name_suffix) ? YAF_LOADER_NAMESUFFIX : 0;
-	loader->flags |= YAF_G(lowcase_path) ? YAF_LOADER_LOWERCASE : 0;
-	loader->flags |= YAF_G(name_separator_len) ? YAF_LOADER_NAMESEPARATOR : 0;
+	loader->flags = (zend_uchar)YAF_FLAGS();
 }
 /* }}} */
 

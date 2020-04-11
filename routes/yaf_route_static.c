@@ -135,7 +135,7 @@ int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, s
 			controller = module;
 			controller_len = module_len;
 			module = NULL;
-		} else if (controller && UNEXPECTED(YAF_G(action_prefer))) {
+		} else if (controller && UNEXPECTED(yaf_is_action_prefer())) {
 			action = controller;
 			action_len = controller_len;
 			controller = NULL;

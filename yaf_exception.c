@@ -31,12 +31,10 @@ zend_class_entry *yaf_exception_ce;
 
 zend_class_entry *yaf_buildin_exceptions[YAF_MAX_BUILDIN_EXCEPTION];
 
-/** {{{void yaf_trigger_error(int type, char *format, ...)
- */
-void yaf_trigger_error(int type, char *format, ...) {
+void yaf_trigger_error(int type, char *format, ...) /* {{{ */ {
 	va_list args;
 
-	if (YAF_G(throw_exception)) {
+	if (yaf_is_throw_exception()) {
 		char buf[256];
 		va_start(args, format);
 		vsnprintf(buf, sizeof(buf), format, args);

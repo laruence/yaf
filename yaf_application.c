@@ -602,11 +602,11 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("throwException"))) != NULL) {
-			YAF_G(throw_exception) = zend_is_true(psval);
+			yaf_set_throw_exception(zend_is_true(psval));
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("catchException"))) != NULL) {
-			YAF_G(catch_exception) = zend_is_true(psval);
+			yaf_set_catch_exception(zend_is_true(psval));
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultRoute"))) != NULL &&

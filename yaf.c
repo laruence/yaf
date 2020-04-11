@@ -233,27 +233,96 @@ sanitize:
 }
 /* }}} */
 
-/** {{{ PHP_INI_MH(OnUpdateSeparator)
- */
-PHP_INI_MH(OnUpdateSeparator) {
-	YAF_G(name_separator) = ZSTR_VAL(new_value);
-	YAF_G(name_separator_len) = ZSTR_LEN(new_value);
+static zend_bool yaf_ini_entry_is_true(const zend_string *new_value) /* {{{ */ {
+	if (ZSTR_LEN(new_value) == 2 && strcasecmp("on", ZSTR_VAL(new_value)) == 0) {
+		return 1;
+	}
+	else if (ZSTR_LEN(new_value) == 3 && strcasecmp("yes", ZSTR_VAL(new_value)) == 0) {
+		return 1;
+	}
+	else if (ZSTR_LEN(new_value) == 4 && strcasecmp("true", ZSTR_VAL(new_value)) == 0) {
+		return 1;
+	}
+	else {
+		return (zend_bool) atoi(ZSTR_VAL(new_value));
+	}
+}
+/* }}} */
+
+PHP_INI_MH(OnUpdateUseNamespace) /* {{{ */ {
+	if (yaf_ini_entry_is_true(new_value)) {
+		YAF_FLAGS() |= YAF_USE_NAMESPACE;
+	} else {
+		YAF_FLAGS() &= ~YAF_USE_NAMESPACE;
+	}
 	return SUCCESS;
 }
 /* }}} */
 
-/** {{{ PHP_INI
+PHP_INI_MH(OnUpdateLowerCasePath) /* {{{ */ {
+	if (yaf_ini_entry_is_true(new_value)) {
+		YAF_FLAGS() |= YAF_LOWERCASE_PATH;
+	} else {
+		YAF_FLAGS() &= ~YAF_LOWERCASE_PATH;
+	}
+	return SUCCESS;
+}
+/* }}} */
+
+PHP_INI_MH(OnUpdateActionPrefer) /* {{{ */ {
+	if (yaf_ini_entry_is_true(new_value)) {
+		YAF_FLAGS() |= YAF_ACTION_PREFER;
+	} else {
+		YAF_FLAGS() &= ~YAF_ACTION_PREFER;
+	}
+	return SUCCESS;
+}
+/* }}} */
+
+PHP_INI_MH(OnUpdateUseSplAutoload) /* {{{ */ {
+	if (yaf_ini_entry_is_true(new_value)) {
+		YAF_FLAGS() |= YAF_USE_SPL_AUTOLOAD;
+	} else {
+		YAF_FLAGS() &= ~YAF_USE_SPL_AUTOLOAD;
+	}
+	return SUCCESS;
+}
+/* }}} */
+
+PHP_INI_MH(OnUpdateNameSuffix) /* {{{ */ {
+	if (yaf_ini_entry_is_true(new_value)) {
+		YAF_FLAGS() |= YAF_NAME_SUFFIX;
+	} else {
+		YAF_FLAGS() &= ~YAF_NAME_SUFFIX;
+	}
+	return SUCCESS;
+}
+/* }}} */
+
+PHP_INI_MH(OnUpdateSeparator) /* {{{ */ {
+	YAF_G(name_separator) = ZSTR_VAL(new_value);
+	YAF_G(name_separator_len) = ZSTR_LEN(new_value);
+	if (ZSTR_LEN(new_value)) {
+		YAF_FLAGS() |= YAF_HAS_NAME_SEPERATOR;
+	} else {
+		YAF_FLAGS() &= ~YAF_HAS_NAME_SEPERATOR;
+	}
+	return SUCCESS;
+}
+/* }}} */
+
+/** {{{ PHP_YAF_INI_ENTRY
  */
 PHP_INI_BEGIN()
-	STD_PHP_INI_ENTRY("yaf.library",         	"",  PHP_INI_ALL, OnUpdateString, global_library, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_BOOLEAN("yaf.action_prefer",   	"0", PHP_INI_ALL, OnUpdateBool, action_prefer, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_BOOLEAN("yaf.lowcase_path",    	"0", PHP_INI_ALL, OnUpdateBool, lowcase_path, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_BOOLEAN("yaf.use_spl_autoload", "0", PHP_INI_ALL, OnUpdateBool, use_spl_autoload, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_ENTRY("yaf.forward_limit", 		"5", PHP_INI_ALL, OnUpdateLongGEZero, forward_limit, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_BOOLEAN("yaf.name_suffix", 		"1", PHP_INI_ALL, OnUpdateBool, name_suffix, zend_yaf_globals, yaf_globals)
-	PHP_INI_ENTRY("yaf.name_separator", 		"",  PHP_INI_ALL, OnUpdateSeparator)
-	STD_PHP_INI_ENTRY("yaf.environ",        	"product", PHP_INI_SYSTEM, OnUpdateString, environ_name, zend_yaf_globals, yaf_globals)
-	STD_PHP_INI_BOOLEAN("yaf.use_namespace",   	"0", PHP_INI_SYSTEM, OnUpdateBool, use_namespace, zend_yaf_globals, yaf_globals)
+	STD_PHP_INI_ENTRY("yaf.library",       "",  PHP_INI_ALL, OnUpdateString, global_library, zend_yaf_globals, yaf_globals)
+	STD_PHP_INI_ENTRY("yaf.forward_limit", "5", PHP_INI_ALL, OnUpdateLongGEZero, forward_limit, zend_yaf_globals, yaf_globals)
+	STD_PHP_INI_ENTRY("yaf.environ",       "product", PHP_INI_SYSTEM, OnUpdateString, environ_name, zend_yaf_globals, yaf_globals)
+	PHP_INI_ENTRY("yaf.use_namespace",     "0", PHP_INI_ALL, OnUpdateUseNamespace)
+	PHP_INI_ENTRY("yaf.action_prefer",     "0", PHP_INI_ALL, OnUpdateActionPrefer)
+	PHP_INI_ENTRY("yaf.lowcase_path",      "0", PHP_INI_ALL, OnUpdateLowerCasePath)
+	PHP_INI_ENTRY("yaf.use_spl_autoload",  "0", PHP_INI_ALL, OnUpdateUseSplAutoload)
+	PHP_INI_ENTRY("yaf.name_suffix",       "1", PHP_INI_ALL, OnUpdateNameSuffix)
+	PHP_INI_ENTRY("yaf.name_separator",    "",  PHP_INI_ALL, OnUpdateSeparator)
 PHP_INI_END();
 /* }}} */
 
@@ -272,7 +341,7 @@ PHP_MINIT_FUNCTION(yaf)
 {
 	REGISTER_INI_ENTRIES();
 
-	if (YAF_G(use_namespace)) {
+	if (yaf_is_use_namespace()) {
 
 		REGISTER_STRINGL_CONSTANT("YAF\\VERSION", PHP_YAF_VERSION, 	sizeof(PHP_YAF_VERSION) - 1, CONST_PERSISTENT | CONST_CS);
 		REGISTER_STRINGL_CONSTANT("YAF\\ENVIRON", YAF_G(environ_name), strlen(YAF_G(environ_name)), CONST_PERSISTENT | CONST_CS);
@@ -341,13 +410,13 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 */
 PHP_RINIT_FUNCTION(yaf)
 {
-	YAF_G(throw_exception) = 1;
-	YAF_G(catch_exception) = 0;
+	YAF_FLAGS() |= YAF_THROW_EXCEPTION;
+	YAF_FLAGS() &= ~YAF_CATCH_EXCEPTION;
 
+	ZVAL_UNDEF(&YAF_G(app));
+	ZVAL_UNDEF(&YAF_G(loader));
 	ZVAL_UNDEF(&YAF_G(registry));
 	ZVAL_UNDEF(&YAF_G(session));
-	ZVAL_UNDEF(&YAF_G(loader));
-	ZVAL_UNDEF(&YAF_G(app));
 
 	return SUCCESS;
 }

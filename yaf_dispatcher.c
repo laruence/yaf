@@ -336,7 +336,7 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_reques
 	}
 
 	lc_name = zend_string_alloc(ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("Controller") - 1, 0);
-	if (EXPECTED(YAF_G(name_suffix))) {
+	if (EXPECTED(yaf_is_name_suffix())) {
 		char *p = ZSTR_VAL(lc_name);
 		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller));
 		p += ZSTR_LEN(controller);
@@ -364,7 +364,7 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_reques
 			return NULL;
 		} else if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) == NULL)  {
 			zend_string_release(lc_name);
-			if (EXPECTED(YAF_G(name_suffix))) {
+			if (EXPECTED(yaf_is_name_suffix())) {
 				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
 					"Could not find class %s%s%s in controller script %s",
 					ZSTR_VAL(controller), YAF_G(name_separator), "Controller", directory);
@@ -403,7 +403,7 @@ zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller
 		zend_string *lc_name;
 
 		lc_name = zend_string_alloc(ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("Action") - 1, 0);
-		if (EXPECTED(YAF_G(name_suffix))) {
+		if (EXPECTED(yaf_is_name_suffix())) {
 			char *p = ZSTR_VAL(lc_name);
 			memcpy(p, ZSTR_VAL(action), ZSTR_LEN(action));
 			p += ZSTR_LEN(action);
@@ -741,7 +741,7 @@ int yaf_dispatcher_route(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_request_object *request;
 	unsigned int nesting = YAF_G(forward_limit);
-	zend_bool catch_exception = YAF_G(catch_exception);
+	zend_bool catch_exception = yaf_is_catch_exception();
 
 	if (EXPECTED(Z_TYPE(dispatcher->response) != IS_OBJECT)) {
 		yaf_response_instance(&dispatcher->response, sapi_module.name);
@@ -1047,10 +1047,10 @@ PHP_METHOD(yaf_dispatcher, throwException) {
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		YAF_G(throw_exception) = flag? 1: 0;
+		yaf_set_throw_exception(flag);
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(YAF_G(throw_exception));
+		RETURN_BOOL(yaf_is_throw_exception());
 	}
 }
 /* }}} */
@@ -1064,10 +1064,10 @@ PHP_METHOD(yaf_dispatcher, catchException) {
 	}
 
 	if (ZEND_NUM_ARGS()) {
-		YAF_G(catch_exception) = flag? 1: 0;
+		yaf_set_catch_exception(flag);
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		RETURN_BOOL(YAF_G(catch_exception));
+		RETURN_BOOL(yaf_is_catch_exception());
 	}
 }
 /* }}} */

@@ -21,10 +21,10 @@
 #define YAF_BEGIN_ARG_INFO_EX  ZEND_BEGIN_ARG_INFO_EX
 
 #define namespace_switch(n) \
-	(YAF_G(use_namespace)? n##_ns : n)
+	((yaf_is_use_namespace())? n##_ns : n)
 
 #define YAF_INIT_CLASS_ENTRY(ce, name, name_ns, methods) \
-	if (YAF_G(use_namespace)) { \
+	if (yaf_is_use_namespace()) { \
 		INIT_CLASS_ENTRY(ce, name_ns, methods); \
 	} else { \
 		INIT_CLASS_ENTRY(ce, name, methods); \

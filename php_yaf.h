@@ -69,24 +69,35 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_WHANDLER_RET(zv)    return zv
 #endif
 
-#define yaf_application_t  zval
-#define yaf_view_t         zval
-#define yaf_controller_t   zval
-#define yaf_request_t      zval
-#define yaf_router_t       zval
-#define yaf_route_t        zval
-#define yaf_dispatcher_t   zval
-#define yaf_action_t       zval
-#define yaf_loader_t       zval
-#define yaf_response_t     zval
-#define yaf_config_t       zval
-#define yaf_registry_t     zval
-#define yaf_plugin_t       zval
-#define yaf_session_t      zval
-#define yaf_exception_t    zval
+#define yaf_application_t       zval
+#define yaf_view_t              zval
+#define yaf_controller_t        zval
+#define yaf_request_t           zval
+#define yaf_router_t            zval
+#define yaf_route_t             zval
+#define yaf_dispatcher_t        zval
+#define yaf_action_t            zval
+#define yaf_loader_t            zval
+#define yaf_response_t          zval
+#define yaf_config_t            zval
+#define yaf_registry_t          zval
+#define yaf_plugin_t            zval
+#define yaf_session_t           zval
+#define yaf_exception_t         zval
+
+#define YAF_USE_SPL_AUTOLOAD    (1<<0)
+#define YAF_LOWERCASE_PATH      (1<<1)
+#define YAF_NAME_SUFFIX         (1<<2)
+#define YAF_HAS_NAME_SEPERATOR  (1<<3)
+#define YAF_USE_NAMESPACE       (1<<4)
+#define YAF_ACTION_PREFER       (1<<5)
+#define YAF_THROW_EXCEPTION     (1<<6)
+#define YAF_CATCH_EXCEPTION     (1<<7)
+
+#define YAF_FLAGS()             (YAF_VAR_FLAGS(YAF_G(app)))
 
 ZEND_BEGIN_MODULE_GLOBALS(yaf)
-	/* for instances stash */
+	/* for instances stash, and flags */
 	yaf_application_t app;
     yaf_loader_t      loader;
 	yaf_registry_t    registry;
@@ -97,13 +108,6 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
     char             *environ_name;
     char             *name_separator;
     size_t            name_separator_len;
-    zend_bool         action_prefer;
-    zend_bool         name_suffix;
-    zend_bool         lowcase_path;
-    zend_bool         use_spl_autoload;
-    zend_bool         use_namespace;
-	zend_bool         throw_exception;
-	zend_bool         catch_exception;
     unsigned int      forward_limit;
 
     /*for ini parsing */
@@ -149,6 +153,39 @@ zend_string *yaf_build_camel_name(const char *str, size_t len);
 zend_string *yaf_build_lower_name(const char *str, size_t len);
 int yaf_call_user_method(zend_object *obj, zend_function *fbc, zval *ret, int num_args, zval *args, zval *arg2);
 
+static zend_always_inline zend_bool yaf_is_use_namespace() {
+	return YAF_FLAGS() & YAF_USE_NAMESPACE;
+}
+
+static zend_always_inline zend_bool yaf_is_action_prefer() {
+	return YAF_FLAGS() & YAF_ACTION_PREFER;
+}
+
+static zend_always_inline zend_bool yaf_is_name_suffix() {
+	return YAF_FLAGS() & YAF_NAME_SUFFIX;
+}
+
+static zend_always_inline zend_bool yaf_is_throw_exception() {
+	return YAF_FLAGS() & YAF_THROW_EXCEPTION;
+}
+
+static zend_always_inline zend_bool yaf_is_catch_exception() {
+	return YAF_FLAGS() & YAF_CATCH_EXCEPTION;
+}
+static zend_always_inline void yaf_set_throw_exception(zend_bool flag) {
+	if (flag) {
+		YAF_FLAGS() |= YAF_THROW_EXCEPTION;
+	} else {
+		YAF_FLAGS() &= ~YAF_THROW_EXCEPTION;
+	}
+}
+static zend_always_inline void yaf_set_catch_exception(zend_bool flag) {
+	if (flag) {
+		YAF_FLAGS() |= YAF_CATCH_EXCEPTION;
+	} else {
+		YAF_FLAGS() &= ~YAF_CATCH_EXCEPTION;
+	}
+}
 #endif
 
 /*
