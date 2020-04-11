@@ -49,14 +49,17 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_module_name_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, module)
+	ZEND_ARG_INFO(0, format_name)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_controller_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, controller)
+	ZEND_ARG_INFO(0, format_name)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_action_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, action)
+	ZEND_ARG_INFO(0, format_name)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_baseuri_arginfo, 0, 0, 1)
@@ -888,49 +891,73 @@ PHP_METHOD(yaf_request, getActionName) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setModuleName(string $module)
+/** {{{ proto public Yaf_Request_Abstract::setModuleName(string $module, bool $format_name = true)
 */
 PHP_METHOD(yaf_request, setModuleName) {
 	zend_string *module;
+	zend_bool format_name = 1;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &module) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|b", &module, &format_name) == FAILURE) {
 		return;
 	}
 
-	yaf_request_set_module(request, module);
+	if (format_name) {
+		yaf_request_set_module(request, module);
+	} else {
+		if (request->module) {
+			zend_string_release(request->module);
+			request->module = zend_string_copy(module);
+		}
+	}
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setControllerName(string $controller)
+/** {{{ proto public Yaf_Request_Abstract::setControllerName(string $controller, bool $format_name = true)
 */
 PHP_METHOD(yaf_request, setControllerName) {
 	zend_string *controller;
+	zend_bool format_name = 1;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &controller) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|b", &controller, &format_name) == FAILURE) {
 		return;
 	}
 
-	yaf_request_set_controller(request, controller);
+	if (format_name) {
+		yaf_request_set_controller(request, controller);
+	} else {
+		if (request->controller) {
+			zend_string_release(request->controller);
+			request->controller = zend_string_copy(controller);
+		}
+	}
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::setActionName(string $action)
+/** {{{ proto public Yaf_Request_Abstract::setActionName(string $action, bool $format_name = true)
 */
 PHP_METHOD(yaf_request, setActionName) {
 	zend_string *action;
+	zend_bool format_name = 1;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &action) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|b", &action, &format_name) == FAILURE) {
 		return;
 	}
 
-	yaf_request_set_action(request, action);
+	if (format_name) {
+		yaf_request_set_action(request, action);
+	} else {
+		if (request->action) {
+			zend_string_release(request->action);
+			request->action = zend_string_copy(action);
+		}
+	}
 
 	RETURN_ZVAL(getThis(), 1, 0);
 }
