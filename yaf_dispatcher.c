@@ -769,7 +769,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	do {
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_PREDISPATCH);
 		YAF_EXCEPTION_HANDLE(dispatcher);
-		if (!yaf_dispatcher_handle(dispatcher)) {
+		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
 			YAF_EXCEPTION_HANDLE(dispatcher);
 			return NULL;
 		}

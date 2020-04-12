@@ -511,7 +511,8 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 		}
 	}
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("directory"))) == NULL ||
+	conf = Z_ARRVAL_P(config);
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("directory"))) == NULL ||
 		Z_TYPE_P(pzval) != IS_STRING || Z_STRLEN_P(pzval) == 0)) {
 		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected a directory entry in application configures");
 		return 0;
@@ -524,18 +525,18 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	}
 
 	/* following options are optional */
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("ext"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("ext"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_STRING)) {
 		app->ext = zend_string_copy(Z_STR_P(pzval));
 	}
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("bootstrap"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("bootstrap"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_STRING)) {
 		app->bootstrap = zend_string_copy(Z_STR_P(pzval));
 	}
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("library"))) != NULL)) {
-		if (IS_STRING == Z_TYPE_P(pzval)) {
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("library"))) != NULL)) {
+		if (EXPECTED(IS_STRING == Z_TYPE_P(pzval))) {
 			app->library = zend_string_copy(Z_STR_P(pzval));
 		} else if (IS_ARRAY == Z_TYPE_P(pzval)) {
 			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("directory"))) != NULL &&
@@ -566,19 +567,19 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 		}
 	}
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("view"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("view"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_ARRAY &&
 		((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("ext"))) != NULL &&
 		Z_TYPE_P(psval) == IS_STRING))) {
 		app->view_ext = zend_string_copy(Z_STR_P(psval));
 	}
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("baseUri"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("baseUri"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_STRING)) {
 		app->base_uri = zend_string_copy(Z_STR_P(pzval));
 	}
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("dispatcher"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("dispatcher"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_ARRAY)) {
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultModule"))) != NULL &&
 			Z_TYPE_P(psval) == IS_STRING) {
@@ -623,7 +624,7 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	do {
 		zval rv;
 		char *ptrptr;
-		if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("modules"))) != NULL &&
+		if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("modules"))) != NULL &&
 			Z_TYPE_P(pzval) == IS_STRING && Z_STRLEN_P(pzval))) {
 			char *seg, *modules;
 
@@ -646,7 +647,7 @@ static int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 		}
 	} while (0);
 
-	if (UNEXPECTED((pzval = zend_hash_str_find(Z_ARRVAL_P(config), ZEND_STRL("system"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("system"))) != NULL &&
 		Z_TYPE_P(pzval) == IS_ARRAY)) {
 		zval *value;
 		char name[128];
@@ -685,15 +686,13 @@ PHP_METHOD(yaf_application, __construct) {
 		return;
 	}
 
-	if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
+	if (UNEXPECTED(Z_TYPE(YAF_G(app)) == IS_OBJECT)) {
 		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
 		return;
 	}
 
-	ZVAL_OBJ(&YAF_G(app), Z_OBJ_P(getThis()));
-	Z_ADDREF(YAF_G(app));
-
-	app = Z_YAFAPPOBJ_P(getThis());
+	GC_ADDREF(&app->std);
+	ZVAL_OBJ(&YAF_G(app), &app->std);
 
 	if (!section || !ZSTR_LEN(section)) {
 		section = zend_string_init(YAF_G(environ_name), strlen(YAF_G(environ_name)), 0);
@@ -713,13 +712,13 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	app->env = section /* initialized flag */;
-	if (app->library) {
-		yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library);
-	} else {
+	if (app->library == NULL) {
 		zend_string *local_library;
 		local_library = strpprintf(0, "%s%c%s", ZSTR_VAL(app->directory), DEFAULT_SLASH, YAF_LIBRARY_DIRECTORY_NAME);
 		yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), local_library);
 		zend_string_release(local_library);
+	} else {
+		yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library);
 	}
 
 	yaf_dispatcher_instance(&app->dispatcher);
