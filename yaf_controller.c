@@ -37,8 +37,8 @@
 #include "yaf_controller.h"
 #include "yaf_action.h"
 
-zend_class_entry     *yaf_controller_ce;
-zend_object_handlers  yaf_controller_obj_handlers;
+zend_class_entry *yaf_controller_ce;
+static zend_object_handlers yaf_controller_obj_handlers;
 
 /** {{{ ARG_INFO
  */

@@ -44,7 +44,7 @@
 #define YAF_CLASS_NAME_CONTROLLER   3
 
 zend_class_entry *yaf_loader_ce;
-zend_object_handlers yaf_loader_obj_handlers;
+static zend_object_handlers yaf_loader_obj_handlers;
 
 /** {{{ ARG_INFO
  */

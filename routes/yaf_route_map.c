@@ -32,7 +32,7 @@
 #include "routes/yaf_route_map.h"
 
 zend_class_entry *yaf_route_map_ce;
-zend_object_handlers yaf_route_map_obj_handlers;
+static zend_object_handlers yaf_route_map_obj_handlers;
 
 /** {{{ ARG_INFO
  */

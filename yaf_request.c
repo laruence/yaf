@@ -36,7 +36,7 @@
 #include "requests/yaf_request_http.h"
 
 zend_class_entry *yaf_request_ce;
-zend_object_handlers yaf_request_obj_handlers;
+static zend_object_handlers yaf_request_obj_handlers;
 
 /** {{{ ARG_INFO
 */

@@ -33,7 +33,7 @@
 #include "routes/yaf_route_supervar.h"
 
 zend_class_entry *yaf_route_supervar_ce;
-zend_object_handlers yaf_route_supervar_obj_handlers;
+static zend_object_handlers yaf_route_supervar_obj_handlers;
 
 /** {{{ ARG_INFO
  */

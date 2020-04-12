@@ -37,8 +37,8 @@
 #include "routes/yaf_route_supervar.h"
 #include "routes/yaf_route_simple.h"
 
-zend_class_entry     *yaf_router_ce;
-zend_object_handlers  yaf_router_obj_handlers;
+zend_class_entry *yaf_router_ce;
+static zend_object_handlers yaf_router_obj_handlers;
 
 /** {{{ ARG_INFO
 */

@@ -27,7 +27,7 @@
 #include "yaf_exception.h"
 
 zend_class_entry *yaf_session_ce;
-zend_object_handlers yaf_session_obj_handlers;
+static zend_object_handlers yaf_session_obj_handlers;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 extern PHPAPI zend_class_entry *spl_ce_Countable;

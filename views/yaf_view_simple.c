@@ -33,7 +33,7 @@
 #include "views/yaf_view_simple.h"
 
 zend_class_entry *yaf_view_simple_ce;
-zend_object_handlers yaf_view_simple_obj_handlers;
+static zend_object_handlers yaf_view_simple_obj_handlers;
 
 /** {{{ ARG_INFO */
 ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_construct_arginfo, 0, 0, 1)

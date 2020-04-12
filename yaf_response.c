@@ -32,7 +32,7 @@
 #include "responses/yaf_response_cli.h"
 
 zend_class_entry *yaf_response_ce;
-zend_object_handlers yaf_response_obj_handlers;
+static zend_object_handlers yaf_response_obj_handlers;
 
 /** {{{ ARG_INFO
  */

@@ -27,7 +27,7 @@
 #include "yaf_registry.h"
 
 zend_class_entry    *yaf_registry_ce;
-zend_object_handlers yaf_registry_obj_handlers;
+static zend_object_handlers yaf_registry_obj_handlers;
 
 /* {{{ ARG_INFO
  */

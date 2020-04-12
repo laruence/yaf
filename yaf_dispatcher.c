@@ -39,7 +39,7 @@
 #include "yaf_exception.h"
 
 zend_class_entry    *yaf_dispatcher_ce;
-zend_object_handlers yaf_dispatcher_obj_handlers;
+static zend_object_handlers yaf_dispatcher_obj_handlers;
 
 /** {{{ ARG_INFO
  */

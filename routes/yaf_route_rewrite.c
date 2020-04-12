@@ -35,7 +35,7 @@
 #include "ext/standard/php_string.h"
 
 zend_class_entry *yaf_route_rewrite_ce;
-zend_object_handlers yaf_route_rewrite_obj_handlers;
+static zend_object_handlers yaf_route_rewrite_obj_handlers;
 
 /** {{{ ARG_INFO
  */

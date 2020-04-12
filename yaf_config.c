@@ -36,7 +36,7 @@ extern PHPAPI zend_class_entry *spl_ce_Countable;
 #include "configs/yaf_config_simple.h"
 
 zend_class_entry *yaf_config_ce;
-zend_object_handlers yaf_config_obj_handlers;
+static zend_object_handlers yaf_config_obj_handlers;
 
 /** {{{ ARG_INFO
  */
