@@ -337,12 +337,6 @@ PHP_METHOD(yaf_response, __construct) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Response_Abstract::__destruct(void)
-*/
-PHP_METHOD(yaf_response, __destruct) {
-}
-/* }}} */
-
 /** {{{ proto public Yaf_Response_Abstract::appendBody($body, $name = NULL)
 */
 PHP_METHOD(yaf_response, appendBody) {

@@ -31,7 +31,7 @@ zend_class_entry *yaf_exception_ce;
 
 zend_class_entry *yaf_buildin_exceptions[YAF_MAX_BUILDIN_EXCEPTION];
 
-void yaf_trigger_error(int type, char *format, ...) /* {{{ */ {
+ZEND_COLD void yaf_trigger_error(int type, char *format, ...) /* {{{ */ {
 	va_list args;
 
 	if (yaf_is_throw_exception()) {
@@ -57,9 +57,7 @@ void yaf_trigger_error(int type, char *format, ...) /* {{{ */ {
 }
 /* }}} */
 
-/** {{{ zend_class_entry * yaf_get_exception_base(int root)
-*/
-zend_class_entry * yaf_get_exception_base(int root) {
+zend_class_entry * yaf_get_exception_base(int root) /* {{{ */ {
 #if can_handle_soft_dependency_on_SPL && defined(HAVE_SPL) && ((PHP_MAJOR_VERSION > 5) || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 1))
 	if (!root) {
 		if (!spl_ce_RuntimeException) {
@@ -79,7 +77,7 @@ zend_class_entry * yaf_get_exception_base(int root) {
 }
 /* }}} */
 
-void yaf_throw_exception(long code, char *message) /* {{{ */ {
+ZEND_COLD void yaf_throw_exception(long code, char *message) /* {{{ */ {
 	zend_class_entry *base_exception = yaf_exception_ce;
 
 	if ((code & YAF_ERR_BASE) == YAF_ERR_BASE

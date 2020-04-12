@@ -174,7 +174,7 @@ int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, s
 }
 /* }}} */
 
-int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
+ZEND_HOT int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	const char *req_uri;
 	size_t req_uri_len;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
@@ -189,6 +189,19 @@ int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	yaf_route_pathinfo_route(request, req_uri, req_uri_len);
 
 	return 1;
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Router_Static::route(Yaf_Request $req)
+*/
+PHP_METHOD(yaf_route_static, route) {
+	yaf_request_t *request;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
+		return;
+	}
+
+	RETURN_BOOL(yaf_route_static_route(getThis(), request));
 }
 /* }}} */
 
@@ -265,19 +278,6 @@ zend_string * yaf_route_static_assemble(yaf_route_t *this_ptr, zval *info, zval 
 */
 PHP_METHOD(yaf_route_static, match) {
 	RETURN_TRUE;
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Router_Static::route(Yaf_Request $req)
-*/
-PHP_METHOD(yaf_route_static, route) {
-	yaf_request_t *request;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &request, yaf_request_ce) == FAILURE) {
-		return;
-	}
-
-	RETURN_BOOL(yaf_route_static_route(getThis(), request));
 }
 /* }}} */
 

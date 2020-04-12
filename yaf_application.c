@@ -78,17 +78,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_application_setappdir_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
-
-	memset(app, 0, XtOffsetOf(yaf_application_object, std));
-	zend_object_std_init(&app->std, ce);
-	app->std.handlers = &yaf_application_obj_handlers;
-
-	return &app->std;
-}
-/* }}} */
-
 static void yaf_application_free(zend_object *object) /* {{{ */ {
 	yaf_application_object *app = yaf_application_instance();
 
@@ -139,6 +128,17 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 	}
 
 	zend_object_std_dtor(object);
+}
+/* }}} */
+
+static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
+	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
+
+	memset(app, 0, XtOffsetOf(yaf_application_object, std));
+	zend_object_std_init(&app->std, ce);
+	app->std.handlers = &yaf_application_obj_handlers;
+
+	return &app->std;
 }
 /* }}} */
 
@@ -444,7 +444,7 @@ static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, 
 }
 /* }}} */
 
-int yaf_application_is_module_name(zend_string *name) /* {{{ */ {
+ZEND_HOT int yaf_application_is_module_name(zend_string *name) /* {{{ */ {
 	zval *pzval;
 	yaf_application_object *app = yaf_application_instance();
 
@@ -470,7 +470,7 @@ int yaf_application_is_module_name(zend_string *name) /* {{{ */ {
 }
 /* }}} */
 
-int yaf_application_is_module_name_str(const char *name, size_t len) /* {{{ */ {
+ZEND_HOT int yaf_application_is_module_name_str(const char *name, size_t len) /* {{{ */ {
 	zval *pzval;
 	yaf_application_object *app = yaf_application_instance();
 
@@ -757,88 +757,6 @@ PHP_METHOD(yaf_application, run) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Application::execute(callback $func)
- * We can not call to zif_call_user_func on windows, since it was not declared with dllexport
- */
-PHP_METHOD(yaf_application, execute) {
-	zval retval;
-	zend_fcall_info fci;
-	zend_fcall_info_cache fci_cache;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "f*", &fci, &fci_cache, &fci.params, &fci.param_count) == FAILURE) {
-		return;
-	}
-
-	fci.retval = &retval;
-
-	if (zend_call_function(&fci, &fci_cache) == SUCCESS && Z_TYPE(retval) != IS_UNDEF) {
-		ZVAL_COPY_VALUE(return_value, &retval);
-	} else {
-		RETURN_FALSE;
-	}
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Application::app(void)
-*/
-PHP_METHOD(yaf_application, app) {
-	RETURN_ZVAL(&YAF_G(app), 1, 0);
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Application::getConfig(void)
-*/
-PHP_METHOD(yaf_application, getConfig) {
-	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
-	zend_object *config = yaf_application_get_config(app);
-
-	if (config) {
-		RETURN_OBJ(config);
-	}
-
-	RETURN_NULL();
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Application::getDispatcher(void)
-*/
-PHP_METHOD(yaf_application, getDispatcher) {
-	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
-	zend_object *dispatcher = yaf_application_get_dispatcher(app);
-
-	if (dispatcher) {
-		RETURN_OBJ(dispatcher);
-	}
-
-	RETURN_NULL();
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Application::getModules(void)
-*/
-PHP_METHOD(yaf_application, getModules) {
-	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
-
-	GC_ADDREF(app->modules);
-	RETURN_ARR(app->modules);
-}
-/* }}} */
-
-/** {{{ proto public Yaf_Application::environ(void)
-*/
-PHP_METHOD(yaf_application, environ) {
-	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
-
-	if (zend_parse_parameters_none() == FAILURE) {
-		return;
-	}
-	if (app->env) {
-		RETURN_STR(zend_string_copy(app->env));
-	}
-	RETURN_EMPTY_STRING();
-}
-/* }}} */
-
 /** {{{ proto public Yaf_Application::bootstrap(void)
 */
 PHP_METHOD(yaf_application, bootstrap) {
@@ -901,6 +819,88 @@ PHP_METHOD(yaf_application, bootstrap) {
 	}
 	yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance, %s given", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
 	RETURN_FALSE;
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Application::getDispatcher(void)
+*/
+PHP_METHOD(yaf_application, getDispatcher) {
+	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
+	zend_object *dispatcher = yaf_application_get_dispatcher(app);
+
+	if (dispatcher) {
+		RETURN_OBJ(dispatcher);
+	}
+
+	RETURN_NULL();
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Application::getConfig(void)
+*/
+PHP_METHOD(yaf_application, getConfig) {
+	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
+	zend_object *config = yaf_application_get_config(app);
+
+	if (config) {
+		RETURN_OBJ(config);
+	}
+
+	RETURN_NULL();
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Application::app(void)
+*/
+PHP_METHOD(yaf_application, app) {
+	RETURN_ZVAL(&YAF_G(app), 1, 0);
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Application::getModules(void)
+*/
+PHP_METHOD(yaf_application, getModules) {
+	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
+
+	GC_ADDREF(app->modules);
+	RETURN_ARR(app->modules);
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Application::environ(void)
+*/
+PHP_METHOD(yaf_application, environ) {
+	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+	if (app->env) {
+		RETURN_STR(zend_string_copy(app->env));
+	}
+	RETURN_EMPTY_STRING();
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Application::execute(callback $func)
+ * We can not call to zif_call_user_func on windows, since it was not declared with dllexport
+ */
+PHP_METHOD(yaf_application, execute) {
+	zval retval;
+	zend_fcall_info fci;
+	zend_fcall_info_cache fci_cache;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "f*", &fci, &fci_cache, &fci.params, &fci.param_count) == FAILURE) {
+		return;
+	}
+
+	fci.retval = &retval;
+
+	if (zend_call_function(&fci, &fci_cache) == SUCCESS && Z_TYPE(retval) != IS_UNDEF) {
+		ZVAL_COPY_VALUE(return_value, &retval);
+	} else {
+		RETURN_FALSE;
+	}
 }
 /* }}} */
 

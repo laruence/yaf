@@ -50,28 +50,6 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_router_name_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_router_get_properties(zval *object) /* {{{ */ {
-	zval rv;
-	HashTable *ht;
-	yaf_router_object *router = Z_YAFROUTEROBJ_P(object);
-
-	if (!router->properties) {
-		ALLOC_HASHTABLE(router->properties);
-		zend_hash_init(router->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
-		HT_ALLOW_COW_VIOLATION(router->properties);
-	}
-
-	ht = router->properties;
-	ZVAL_ARR(&rv, zend_array_dup(&router->routes));
-	zend_hash_str_update(ht, "routes:protected", sizeof("routes:protected") - 1, &rv);
-
-	ZVAL_COPY(&rv, &router->current);
-	zend_hash_str_update(ht, "current:protected", sizeof("current:protected") - 1, &rv);
-
-	return ht;
-}
-/* }}} */
-
 static zend_object *yaf_router_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_router_object *router = emalloc(sizeof(yaf_router_object));
 
@@ -100,6 +78,28 @@ static void yaf_router_object_free(zend_object *object) /* {{{ */ {
 }
 /* }}} */
 
+static HashTable *yaf_router_get_properties(zval *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_router_object *router = Z_YAFROUTEROBJ_P(object);
+
+	if (!router->properties) {
+		ALLOC_HASHTABLE(router->properties);
+		zend_hash_init(router->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		HT_ALLOW_COW_VIOLATION(router->properties);
+	}
+
+	ht = router->properties;
+	ZVAL_ARR(&rv, zend_array_dup(&router->routes));
+	zend_hash_str_update(ht, "routes:protected", sizeof("routes:protected") - 1, &rv);
+
+	ZVAL_COPY(&rv, &router->current);
+	zend_hash_str_update(ht, "current:protected", sizeof("current:protected") - 1, &rv);
+
+	return ht;
+}
+/* }}} */
+
 void yaf_router_init(yaf_router_object *router) /* {{{ */ {
 	zval route;
 	yaf_application_object *app = yaf_application_instance();
@@ -125,7 +125,7 @@ void yaf_router_instance(yaf_router_t *this_ptr) /* {{{ */ {
 }
 /** }}} */
 
-int yaf_router_route(yaf_router_object *router, yaf_request_t *request) /* {{{ */ {
+ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request) /* {{{ */ {
 	zend_string *key;
 	zend_ulong  idx;
 	yaf_route_t *route;
