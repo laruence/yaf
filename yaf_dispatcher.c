@@ -319,7 +319,7 @@ static zend_always_inline int yaf_dispatcher_route(yaf_dispatcher_object *dispat
 }
 /* }}} */
 
-zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_request_object *request, int def_module) /* {{{ */ {
+static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_request_object *request, int def_module) /* {{{ */ {
 	char directory[MAXPATHLEN];
 	size_t directory_len;
 	zend_class_entry *ce;
@@ -395,7 +395,7 @@ zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_reques
 }
 /* }}} */
 
-zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller_t *controller, yaf_request_object *request) /* {{{ */ {
+static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_controller_t *controller, yaf_request_object *request) /* {{{ */ {
 	zval *pzval;
 	zval *actions_map;
 	zend_string *action = request->action;
@@ -779,19 +779,19 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
 	YAF_EXCEPTION_HANDLE(dispatcher);
 
-	if (UNEXPECTED(0 == nesting && !yaf_request_is_dispatched(request))) {
+	if (EXPECTED(nesting != 0)) {
+		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
+			yaf_response_response(&dispatcher->response);
+
+			yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
+		}
+		return &dispatcher->response;
+	} else {
+		ZEND_ASSERT(!yaf_request_is_dispatched(request));
 		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The maximum dispatching count %ld is reached", yaf_get_forward_limit());
 		YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 		return NULL;
 	}
-
-	if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
-		yaf_response_response(&dispatcher->response);
-
-		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
-	}
-
-	return &dispatcher->response;
 }
 /* }}} */
 
