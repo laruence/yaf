@@ -101,15 +101,14 @@ static void yaf_router_object_free(zend_object *object) /* {{{ */ {
 /* }}} */
 
 void yaf_router_init(yaf_router_object *router) /* {{{ */ {
-	zval route = {{0}};
+	zval route;
 	yaf_application_object *app = yaf_application_instance();
 
 	if (app == NULL || app->default_route == NULL) {
 static_route:
 		object_init_ex(&route, yaf_route_static_ce);
 	} else {
-		yaf_route_instance(&route, app->default_route);
-		if (UNEXPECTED(Z_TYPE(route) != IS_OBJECT)) {
+		if (UNEXPECTED(!yaf_route_instance(&route, app->default_route))) {
 			zval_ptr_dtor(&route);
 			php_error_docref(NULL, E_WARNING,
 					"Unable to initialize default route, use %s instead", ZSTR_VAL(yaf_route_static_ce->name));
