@@ -41,14 +41,6 @@ final class Yaf_Application {
 	}
 	public function clearLastError() {
 	}
-	public function __destruct() {
-	}
-	private function __clone() {
-	}
-	private function __sleep() {
-	}
-	private function __wakeup() {
-	}
 }
 
 abstract class Yaf_Bootstrap_Abstract { 
@@ -77,12 +69,6 @@ final class Yaf_Dispatcher {
 
 	/* methods */
 	private function __construct() {
-	}
-	private function __clone() {
-	}
-	private function __sleep() {
-	}
-	private function __wakeup() {
 	}
 	public function enableView() {
 	}
@@ -124,6 +110,12 @@ final class Yaf_Dispatcher {
 	}
 	public function registerPlugin($plugin) {
 	}
+	public function getDefaultModule() {
+	}
+	public function getDefaultController() {
+	}
+	public function getDefaultAction() {
+	}
 }
 
 final class Yaf_Loader { 
@@ -137,12 +129,6 @@ final class Yaf_Loader {
 
 	/* methods */
 	private function __construct() {
-	}
-	private function __clone() {
-	}
-	private function __sleep() {
-	}
-	private function __wakeup() {
 	}
 	public function autoload($class_name) {
 	}
@@ -215,11 +201,11 @@ abstract class Yaf_Request_Abstract {
 	}
 	public function getActionName() {
 	}
-	public function setModuleName($module) {
+	public function setModuleName($module, $format_name = true) {
 	}
-	public function setControllerName($controller) {
+	public function setControllerName($controller, $format_name = true) {
 	}
-	public function setActionName($action) {
+	public function setActionName($action, $format_name) {
 	}
 	public function getMethod() {
 	}
@@ -275,8 +261,6 @@ class Yaf_Request_Http extends Yaf_Request_Abstract {
 	public function isXmlHttpRequest() {
 	}
 	public function __construct() {
-	}
-	private function __clone() {
 	}
 	public function isGet() {
 	}
@@ -356,8 +340,6 @@ final class Yaf_Request_Simple extends Yaf_Request_Abstract {
 
 	/* methods */
 	public function __construct() {
-	}
-	private function __clone() {
 	}
 	public function getQuery() {
 	}
@@ -442,10 +424,6 @@ abstract class Yaf_Response_Abstract {
 	/* methods */
 	public function __construct() {
 	}
-	public function __destruct() {
-	}
-	private function __clone() {
-	}
 	private function __toString() {
 	}
 	public function setBody() {
@@ -484,10 +462,6 @@ class Yaf_Response_Http extends Yaf_Response_Abstract {
 	/* methods */
 	public function __construct() {
 	}
-	public function __destruct() {
-	}
-	private function __clone() {
-	}
 	private function __toString() {
 	}
 	public function setBody() {
@@ -524,10 +498,6 @@ class Yaf_Response_Cli extends Yaf_Response_Abstract {
 
 	/* methods */
 	public function __construct() {
-	}
-	public function __destruct() {
-	}
-	private function __clone() {
 	}
 	private function __toString() {
 	}
@@ -594,9 +564,7 @@ abstract class Yaf_Controller_Abstract {
 	}
 	final public function getInvokeArg($name) {
 	}
-	final public function __construct() {
-	}
-	final private function __clone() {
+	final public function getName() {
 	}
 }
 
@@ -617,6 +585,8 @@ abstract class Yaf_Action_Abstract extends Yaf_Controller_Abstract {
 	abstract public function execute();
 
 	public function getController() {
+	}
+	public function getControllerName() {
 	}
 	final protected function render($tpl, array $parameters = NULL) {
 	}
@@ -645,8 +615,6 @@ abstract class Yaf_Action_Abstract extends Yaf_Controller_Abstract {
 	final public function getInvokeArg($name) {
 	}
 	final public function __construct() {
-	}
-	final private function __clone() {
 	}
 }
 
@@ -946,8 +914,6 @@ final class Yaf_Registry {
 	/* methods */
 	private function __construct() {
 	}
-	private function __clone() {
-	}
 	public static function get($name) {
 	}
 	public static function has($name) {
@@ -968,12 +934,6 @@ final class Yaf_Session implements Iterator, Traversable, ArrayAccess, Countable
 
 	/* methods */
 	private function __construct() {
-	}
-	private function __clone() {
-	}
-	private function __sleep() {
-	}
-	private function __wakeup() {
 	}
 	public static function getInstance() {
 	}
@@ -1032,8 +992,6 @@ class Yaf_Exception extends Exception {
 	}
 	public function getPrevious() {
 	}
-	final private function __clone() {
-	}
 	final public function getMessage() {
 	}
 	final public function getCode() {
@@ -1064,8 +1022,6 @@ class Yaf_Exception_StartupError extends Yaf_Exception {
 	public function __construct() {
 	}
 	public function getPrevious() {
-	}
-	final private function __clone() {
 	}
 	final public function getMessage() {
 	}
@@ -1098,8 +1054,6 @@ class Yaf_Exception_RouterFailed extends Yaf_Exception {
 	}
 	public function getPrevious() {
 	}
-	final private function __clone() {
-	}
 	final public function getMessage() {
 	}
 	final public function getCode() {
@@ -1130,8 +1084,6 @@ class Yaf_Exception_DispatchFailed extends Yaf_Exception {
 	public function __construct() {
 	}
 	public function getPrevious() {
-	}
-	final private function __clone() {
 	}
 	final public function getMessage() {
 	}
@@ -1164,8 +1116,6 @@ class Yaf_Exception_LoadFailed extends Yaf_Exception {
 	}
 	public function getPrevious() {
 	}
-	final private function __clone() {
-	}
 	final public function getMessage() {
 	}
 	final public function getCode() {
@@ -1196,8 +1146,6 @@ class Yaf_Exception_LoadFailed_Module extends Yaf_Exception_LoadFailed {
 	public function __construct() {
 	}
 	public function getPrevious() {
-	}
-	final private function __clone() {
 	}
 	final public function getMessage() {
 	}
@@ -1230,8 +1178,6 @@ class Yaf_Exception_LoadFailed_Controller extends Yaf_Exception_LoadFailed {
 	}
 	public function getPrevious() {
 	}
-	final private function __clone() {
-	}
 	final public function getMessage() {
 	}
 	final public function getCode() {
@@ -1262,8 +1208,6 @@ class Yaf_Exception_LoadFailed_Action extends Yaf_Exception_LoadFailed {
 	public function __construct() {
 	}
 	public function getPrevious() {
-	}
-	final private function __clone() {
 	}
 	final public function getMessage() {
 	}
@@ -1296,8 +1240,6 @@ class Yaf_Exception_LoadFailed_View extends Yaf_Exception_LoadFailed {
 	}
 	public function getPrevious() {
 	}
-	final private function __clone() {
-	}
 	final public function getMessage() {
 	}
 	final public function getCode() {
@@ -1328,8 +1270,6 @@ class Yaf_Exception_TypeError extends Yaf_Exception {
 	public function __construct() {
 	}
 	public function getPrevious() {
-	}
-	final private function __clone() {
 	}
 	final public function getMessage() {
 	}
