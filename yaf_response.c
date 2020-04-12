@@ -327,6 +327,7 @@ int yaf_response_response(yaf_response_t *response) /* {{{ */ {
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}
+		return 1;
 	}
 }
 /* }}} */

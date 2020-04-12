@@ -79,11 +79,11 @@ shutdown();
 --EXPECT--
 string(43) "Initialization of application config failed"
 bool(false)
-string(42) "Expected an array of application configure"
+string(46) "Expected an array of application configuration"
 bool(false)
-string(42) "Expected an array of application configure"
+string(46) "Expected an array of application configuration"
 bool(false)
-string(52) "Expected a directory entry in application configures"
+string(55) "Expected 'directory' entry in application configuration"
 bool(false)
 string(79) "Yaf_Application::__construct() expects parameter 2 to be string, resource given"
 bool(false)

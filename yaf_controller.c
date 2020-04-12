@@ -353,7 +353,7 @@ static YAF_WRITE_HANDLER yaf_controller_write_property(zval *zobj, zval *name, z
 }
 /* }}} */
 
-static yaf_controller_determine_auto_render(yaf_controller_object *ctl, zend_class_entry *ce, zend_object *obj) /* {{{ */ {
+static void yaf_controller_determine_auto_render(yaf_controller_object *ctl, zend_class_entry *ce, zend_object *obj) /* {{{ */ {
 	zval *render;
 	zval *offset = zend_hash_str_find(&ce->properties_info, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER));
 	if (EXPECTED(offset == NULL)) {
@@ -364,7 +364,7 @@ static yaf_controller_determine_auto_render(yaf_controller_object *ctl, zend_cla
 	render = &obj->properties_table[((zend_property_info*)Z_PTR_P(offset))->offset];
 	if (Z_TYPE_P(render) == IS_NULL) {
 		ctl->flags = (zend_uchar)YAF_CTL_AUTORENDER_DEPEND;
-		return;
+		return ;
 	}
 
 	ctl->flags = (Z_TYPE_P(render) == IS_TRUE || (Z_TYPE_P(render) == IS_LONG && Z_LVAL_P(render)))? YAF_CTL_AUTORENDER : 0;
@@ -509,13 +509,6 @@ void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_res
 		zval_ptr_dtor(&ret);
 	}
 }
-/* }}} */
-
-/** {{{ proto public Yaf_Controller_Abstract::init()
-*/
-PHP_METHOD(yaf_controller, init) {
-}
-
 /* }}} */
 
 /** {{{ proto protected Yaf_Controller_Abstract::__construct(Yaf_Request_Abstract $request, Yaf_Response_abstrct $response, Yaf_View_Interface $view, array $invokeArgs = NULL)

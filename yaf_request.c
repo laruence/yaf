@@ -292,7 +292,8 @@ zend_string *yaf_request_get_language(yaf_request_object *request) /* {{{ */ {
 		} else if (UNEXPECTED(IS_STRING != Z_TYPE_P(accept_langs) || !Z_STRLEN_P(accept_langs))) {
 			return NULL;
 		} else {
-			char *ptrptr, *seg;
+			char *seg;
+			char *ptrptr = NULL;
 			unsigned prefer_len = 0;
 			double	max_qvlaue = 0;
 			char *prefer = NULL;

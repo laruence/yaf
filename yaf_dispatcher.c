@@ -284,7 +284,6 @@ static int yaf_dispatcher_init_view(yaf_dispatcher_object *dispatcher, zend_stri
 /* }}} */
 
 static inline void yaf_dispatcher_fix_default(yaf_dispatcher_object *dispatcher, yaf_request_object *request) /* {{{ */ {
-	zend_string *p;
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
 	if (request->module == NULL) {
@@ -310,80 +309,6 @@ int yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_request_t 
 		return 1;
 	}
 	return 0;
-}
-/* }}} */
-
-ZEND_COLD void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ */ {
-	zend_string *exception_str, *controller, *action;
-	zval exception;
-	const zend_op *opline;
-	yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
-	yaf_response_object *response = Z_YAFRESPONSEOBJ(dispatcher->response);
-
-	if ((YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_IN_EXCEPTION)|| !EG(exception)) {
-		return;
-	}
-
-	YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_IN_EXCEPTION;
-
-	ZVAL_OBJ(&exception, EG(exception));
-	EG(exception) = NULL;
-	opline = EG(opline_before_exception);
-#if ZEND_DEBUG
-	EG(opline_before_exception) = NULL;
-#endif
-
-	controller = zend_string_init(ZEND_STRL(YAF_ERROR_CONTROLLER), 0);
-	action = zend_string_init(ZEND_STRL(YAF_ERROR_ACTION), 0);
-
-	yaf_request_set_mvc(request, NULL, controller, action, NULL);
-	if (UNEXPECTED(request->module == NULL)) {
-		/* must threw in routerStartup hook ?*/
-		yaf_dispatcher_fix_default(dispatcher, request);
-	}
-
-	zend_string_release(controller);
-	zend_string_release(action);
-
-	/** use $request->getException() instand of */
-	exception_str = zend_string_init(ZEND_STRL("exception"), 0);
-	if (yaf_request_set_params_single(request, exception_str, &exception)) {
-		zval_ptr_dtor(&exception);
-	} else {
-		/* failover to uncaught exception */
-		zend_string_release(exception_str);
-		EG(exception) = Z_OBJ(exception);
-		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
-		return;
-	}
-	yaf_request_set_dispatched(request, 0);
-
-	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
-		yaf_request_del_param(request, exception_str);
-		zend_string_release(exception_str);
-		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
-		return;
-	}
-
-	if (!yaf_dispatcher_handle(dispatcher)) {
-		if (UNEXPECTED(EG(exception)) &&
-			instanceof_function(EG(exception)->ce,
-				yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)])) {
-			zend_string_release(request->module);
-			request->module = zend_string_copy(Z_YAFAPPOBJ(YAF_G(app))->default_module);
-			/* failover to default module error catcher */
-			zend_clear_exception();
-			yaf_dispatcher_handle(dispatcher);
-		}
-	}
-
-	yaf_request_del_param(request, exception_str);
-	zend_string_release(exception_str);
-	yaf_response_response(&dispatcher->response);
-
-	EG(opline_before_exception) = opline;
-	YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
-	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
 
@@ -727,6 +652,79 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 				ZSTR_VAL(yaf_dispatcher_ce->name), ZSTR_VAL(yaf_application_ce->name));
 	}
 	return 0;
+}
+/* }}} */
+
+ZEND_COLD void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ */ {
+	zend_string *exception_str, *controller, *action;
+	zval exception;
+	const zend_op *opline;
+	yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
+
+	if ((YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_IN_EXCEPTION)|| !EG(exception)) {
+		return;
+	}
+
+	YAF_DISPATCHER_FLAGS(dispatcher) |= YAF_DISPATCHER_IN_EXCEPTION;
+
+	ZVAL_OBJ(&exception, EG(exception));
+	EG(exception) = NULL;
+	opline = EG(opline_before_exception);
+#if ZEND_DEBUG
+	EG(opline_before_exception) = NULL;
+#endif
+
+	controller = zend_string_init(ZEND_STRL(YAF_ERROR_CONTROLLER), 0);
+	action = zend_string_init(ZEND_STRL(YAF_ERROR_ACTION), 0);
+
+	yaf_request_set_mvc(request, NULL, controller, action, NULL);
+	if (UNEXPECTED(request->module == NULL)) {
+		/* must threw in routerStartup hook ?*/
+		yaf_dispatcher_fix_default(dispatcher, request);
+	}
+
+	zend_string_release(controller);
+	zend_string_release(action);
+
+	/** use $request->getException() instand of */
+	exception_str = zend_string_init(ZEND_STRL("exception"), 0);
+	if (yaf_request_set_params_single(request, exception_str, &exception)) {
+		zval_ptr_dtor(&exception);
+	} else {
+		/* failover to uncaught exception */
+		zend_string_release(exception_str);
+		EG(exception) = Z_OBJ(exception);
+		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
+		return;
+	}
+	yaf_request_set_dispatched(request, 0);
+
+	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
+		yaf_request_del_param(request, exception_str);
+		zend_string_release(exception_str);
+		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
+		return;
+	}
+
+	if (!yaf_dispatcher_handle(dispatcher)) {
+		if (UNEXPECTED(EG(exception)) &&
+			instanceof_function(EG(exception)->ce,
+				yaf_buildin_exceptions[YAF_EXCEPTION_OFFSET(YAF_ERR_NOTFOUND_CONTROLLER)])) {
+			zend_string_release(request->module);
+			request->module = zend_string_copy(Z_YAFAPPOBJ(YAF_G(app))->default_module);
+			/* failover to default module error catcher */
+			zend_clear_exception();
+			yaf_dispatcher_handle(dispatcher);
+		}
+	}
+
+	yaf_request_del_param(request, exception_str);
+	zend_string_release(exception_str);
+	yaf_response_response(&dispatcher->response);
+
+	EG(opline_before_exception) = opline;
+	YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
+	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
 

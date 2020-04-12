@@ -157,12 +157,15 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 			} else {
 				req_uri_len = query_str - req_uri;
 				query_str = NULL;
+				query_str_len = 0;
 			}
 		} else {
 			query_str = NULL;
+			query_str_len = 0;
 		}
 	} else {
 		query_str = NULL;
+		query_str_len = 0;
 	}
 
 	while ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len))) {
@@ -221,8 +224,9 @@ PHP_METHOD(yaf_route_map, route) {
 
 zend_string * yaf_route_map_assemble(yaf_route_t *route, zval *info, zval *query) /* {{{ */ {
 	zval *zv;
-	char *seg, *ptrptr, *pname;
+	char *seg, *pname;
 	size_t seg_len;
+	char *ptrptr = NULL;
 	smart_str uri = {0};
 	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(route);
 

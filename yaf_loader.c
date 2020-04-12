@@ -827,7 +827,6 @@ PHP_METHOD(yaf_loader, setLibraryPath) {
 */
 PHP_METHOD(yaf_loader, getLibraryPath) {
 	zend_bool global = 0;
-	zend_string *library;
 	yaf_loader_object *loader = Z_YAFLOADEROBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &global) == FAILURE) {

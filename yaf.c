@@ -361,7 +361,7 @@ int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function* fbc, 
 ZEND_HOT zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
 	unsigned int i;
 	zend_string *name = zend_string_alloc(len, 0);
-	unsigned char *p = ZSTR_VAL(name);
+	unsigned char *p = (unsigned char*)ZSTR_VAL(name);
 
 	*p++ = toupper(*str);
 	for (i = 1; i < len; i++) {
@@ -383,7 +383,7 @@ ZEND_HOT zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ *
 ZEND_HOT zend_string *yaf_build_lower_name(const char *str, size_t len) /* {{{ */ {
 	unsigned int i;
 	zend_string *name = zend_string_alloc(len, 0);
-	unsigned char *p = ZSTR_VAL(name);
+	unsigned char *p = (unsigned char*)ZSTR_VAL(name);
 
 	for (i = 0; i < len; i++) {
 		*p++ = tolower(str[i]);

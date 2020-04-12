@@ -44,7 +44,6 @@ ZEND_END_ARG_INFO()
 
 static HashTable *yaf_route_supervar_get_properties(zval *object) /* {{{ */ {
 	zval rv;
-	HashTable *ht;
 	yaf_route_supervar_object *super = Z_YAFROUTESUPEROBJ_P(object);
 
 	if (!super->properties) {
