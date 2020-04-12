@@ -132,7 +132,10 @@ extern zend_object_iterator_funcs yaf_iterator_funcs;
 zend_string *yaf_canonical_name(int type, zend_string *name);
 zend_string *yaf_build_camel_name(const char *str, size_t len);
 zend_string *yaf_build_lower_name(const char *str, size_t len);
-int yaf_call_user_method(zend_object *obj, zend_function *fbc, zval *ret, int num_args, zval *args, zval *arg2);
+int yaf_call_user_method(zend_object *obj, zend_function *fbc, int num_args, zval *args, zval *ret);
+int yaf_call_user_method_with_0_arguments(zend_object *obj, zend_function *fbc, zval *ret);
+int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, zval *arg, zval *ret);
+int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
 
 #define YSCMP(a, b, l, s)  do { \
 	if (l>sizeof(uint##s##_t)) { \

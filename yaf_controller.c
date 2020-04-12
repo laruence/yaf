@@ -505,7 +505,7 @@ void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_res
 	if (!instanceof_function(ce, yaf_action_ce) &&
 		(fptr = (zend_function*)zend_hash_str_find_ptr(&(ce->function_table), ZEND_STRL("init")))) {
 		zval ret;
-		yaf_call_user_method(&ctl->std, fptr, &ret, 0, NULL, NULL);
+		yaf_call_user_method_with_0_arguments(&ctl->std, fptr, &ret);
 		zval_ptr_dtor(&ret);
 	}
 }

@@ -82,8 +82,8 @@ static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
 
 	memset(app, 0, XtOffsetOf(yaf_application_object, std));
-	app->std.handlers = &yaf_application_obj_handlers;
 	zend_object_std_init(&app->std, ce);
+	app->std.handlers = &yaf_application_obj_handlers;
 
 	return &app->std;
 }
@@ -871,18 +871,21 @@ PHP_METHOD(yaf_application, bootstrap) {
 	}
 
 	if (EXPECTED(instanceof_function(ce, yaf_bootstrap_ce))) {
+		zend_object *obj;
 		object_init_ex(&bootstrap, ce);
 		if (UNEXPECTED(EG(exception))) {
 			zval_ptr_dtor(&bootstrap);
 			RETURN_FALSE;
 		}
+		obj = Z_OBJ(bootstrap);
 		ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
 			zval ret;
 			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
-			if (strncmp(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX) - 1)) {
+			if (ZSTR_LEN(func) < 5 ||
+				!yaf_slip_equal(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
 				continue;
 			}
-			yaf_call_user_method(Z_OBJ(bootstrap), fptr, &ret, 1, dispatcher, NULL);
+			yaf_call_user_method_with_1_arguments(obj, fptr, dispatcher, &ret);
 			//call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
 			/** an uncaught exception threw in function call */
 			if (UNEXPECTED(EG(exception))) {
