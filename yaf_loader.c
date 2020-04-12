@@ -497,7 +497,7 @@ ZEND_HOT int yaf_loader_import(const char *path, uint32_t len) /* {{{ */ {
 		zend_execute(op_array, &result);
 
 		destroy_op_array(op_array);
-		efree(op_array);
+		efree_size(op_array, sizeof(zend_op_array));
         zval_ptr_dtor(&result);
 
 	    return 1;

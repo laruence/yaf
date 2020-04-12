@@ -414,7 +414,7 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 			yaf_view_build_symtable(&symbol_table, &(Z_YAFVIEWOBJ_P(view))->tpl_vars, vars);
 			yaf_view_exec_tpl(view, op_array, &symbol_table, ret);
 			destroy_op_array(op_array);
-			efree(op_array);
+			efree_size(op_array, sizeof(zend_op_array));
 		}
 	}
 
@@ -424,7 +424,7 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 }
 /* }}} */
 
-static void yaf_view_simple_assign_single(yaf_view_object *view, zend_string *name, zval *value) /* {{{ */ {
+static zend_always_inline void yaf_view_simple_assign_single(yaf_view_object *view, zend_string *name, zval *value) /* {{{ */ {
 	zend_hash_update(&view->tpl_vars, name, value);
 	Z_TRY_ADDREF_P(value);
 }
