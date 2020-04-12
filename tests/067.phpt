@@ -34,6 +34,8 @@ file_put_contents(APPLICATION_PATH . "/actions/sub.php", <<<PHP
 <?php
    class SubAction extends Yaf_Action_Abstract {
          public function execute() {
+			var_dump(\$this->getModuleName());
+			var_dump(\$this->getControllerName());
          }
    }
 PHP
@@ -56,6 +58,10 @@ shutdown();
 ?>
 --EXPECTF--
 bool(true)
+string(5) "Index"
+string(5) "Index"
 indexAction
 subAction
+string(5) "Index"
+string(5) "Index"
 subAction
