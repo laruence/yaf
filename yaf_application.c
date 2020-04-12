@@ -807,17 +807,16 @@ PHP_METHOD(yaf_application, bootstrap) {
 		obj = Z_OBJ(bootstrap);
 		ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
 			zval ret;
-			/* cann't use ZEND_STRL in strncasecmp, it cause a compile failed in VS2009 */
 			if (ZSTR_LEN(func) < 5 ||
 				!yaf_slip_equal(ZSTR_VAL(func), YAF_BOOTSTRAP_INITFUNC_PREFIX, sizeof(YAF_BOOTSTRAP_INITFUNC_PREFIX)-1)) {
 				continue;
 			}
-			yaf_call_user_method_with_1_arguments(obj, fptr, dispatcher, &ret);
-			//call_user_function_ex(&ce->function_table, &bootstrap, &method, &ret, 1, dispatcher, 0, NULL);
-			/** an uncaught exception threw in function call */
-			if (UNEXPECTED(EG(exception))) {
-				zval_ptr_dtor(&bootstrap);
-				RETURN_FALSE;
+			if (UNEXPECTED(!yaf_call_user_method_with_1_arguments(obj, fptr, dispatcher, &ret))) {
+				/** an uncaught exception threw in function call */
+				if (UNEXPECTED(EG(exception))) {
+					zval_ptr_dtor(&bootstrap);
+					RETURN_FALSE;
+				}
 			}
 			/* Must always return bool? */
 			/* zval_ptr_dtor(&ret); */

@@ -212,25 +212,25 @@ void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
 }
 /* }}} */
 
-static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend_function *fptr, zval **params, unsigned *count) /* {{{ */ {
-	zval          *arg;
-	unsigned       current;
+static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend_function *fptr, zval **args, unsigned int *count) /* {{{ */ {
+	zval *arg;
+	zval *params;
+	unsigned int current;
 	zend_arg_info *arg_info;
-	HashTable 	  *params_ht;
+	HashTable *params_ht;
 
 	if (request->params == NULL) {
 		*count = 0;
-		*params = NULL;
+		*args = NULL;
 		return;
 	}
 
 	params_ht = request->params;
 	arg_info = fptr->common.arg_info;
-	*params = safe_emalloc(sizeof(zval), fptr->common.num_args, 0);
+	*args = params = safe_emalloc(sizeof(zval), fptr->common.num_args, 0);
 	for (current = 0; current < fptr->common.num_args; current++, arg_info++) {
 		if ((arg = zend_hash_find(params_ht, arg_info->name)) != NULL) {
-			ZVAL_COPY_VALUE(&((*params)[current]), arg);
-			++*count;
+			ZVAL_COPY_VALUE(&(params[current]), arg);
 		} else if (current >= fptr->common.required_num_args) {
 			unsigned int idx = current + 1;
 			zend_op *op = ((zend_op_array *)fptr)->opcodes;
@@ -245,25 +245,25 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 #endif
 						/* Constant evaluation? */
 						if (Z_TYPE_P(arg) < IS_OBJECT) {
-							ZVAL_COPY_VALUE(&((*params)[current]), arg);
+							ZVAL_COPY_VALUE(&(params[current]), arg);
 						} else {
-							return;
+							goto out;
 						}
 					} else {
-						ZVAL_NULL(&((*params)[current]));
+						ZVAL_NULL(&(params[current]));
 					}
-					++*count;
 					break;
 				}
 				++op;
 			}
 			if (UNEXPECTED(op == end)) {
-				return;
+				goto out;
 			}
-		} else {
-			return;
 		}
 	}
+out:
+	*count = current;
+	return;
 }
 /* }}} */
 
@@ -336,7 +336,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 				DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
 	}
 
-	if (directory_len >= sizeof(directory)) {
+	if (UNEXPECTED(directory_len >= sizeof(directory))) {
 		yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s: %s", directory);
 		return NULL;
 	}
@@ -431,13 +431,12 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 
 		if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
 			zend_string_release(lc_name);
-			if (instanceof_function(ce, yaf_action_ce)) {
-				return ce;
-			} else {
+			if (UNEXPECTED(!instanceof_function(ce, yaf_action_ce))) {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR,
 						"Action %s must extends from %s", ZSTR_VAL(action), ZSTR_VAL(yaf_action_ce->name));
 				return NULL;
 			}
+			return ce;
 		}
 
 		if ((pzval = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
@@ -521,7 +520,7 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 			ctl = Z_YAFCTLOBJ(controller);
 
 			yaf_controller_init(ctl, &dispatcher->request, &dispatcher->response, &dispatcher->view, NULL);
-			if (EG(exception)) {
+			if (UNEXPECTED(EG(exception))) {
 				zval_ptr_dtor(&controller);
 				return 0;
 			}
@@ -552,23 +551,26 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 			func_name = strpprintf(0, "%s%s", ZSTR_VAL(request->action), "action");
 			/* @TODO: Magic __call supports? */
 			if ((fptr = (zend_function*)zend_hash_find_ptr(&((ce)->function_table), func_name)) != NULL) {
+				zval *args = NULL;
+				unsigned int count = 0;
+
 				zend_string_release(func_name);
-				if (EXPECTED(fptr->common.num_args == 0)) {
-					yaf_controller_execute(&controller, fptr, 0, NULL, &ret);
-				} else {
-					zval *call_args;
-					unsigned int count = 0;
-					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
-					yaf_controller_execute(&controller, fptr, count, call_args, &ret);
-					efree(call_args);
+				if (UNEXPECTED(fptr->common.num_args)) {
+					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &args, &count);
 				}
-
-				if (UNEXPECTED(Z_ISUNDEF(ret))) {
-					zend_string_release(origin_action);
-					zval_ptr_dtor(&controller);
-					return 0;
+				if (UNEXPECTED(!yaf_controller_execute(&controller, fptr, count, args, &ret))) {
+					if (UNEXPECTED(args)) {
+						efree(args);
+					}
+					if (UNEXPECTED(Z_ISUNDEF(ret))) {
+						zend_string_release(origin_action);
+						zval_ptr_dtor(&controller);
+						return 0;
+					}
 				}
-
+				if (UNEXPECTED(args)) {
+					efree(args);
+				}
 				if ((Z_TYPE(ret) == IS_FALSE)) {
 					/* no auto-renderring */
 					zend_string_release(origin_action);
@@ -579,11 +581,12 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 			} else if ((ce = yaf_dispatcher_get_action(app->directory, &controller, request)) &&
 					(zend_string_release(func_name), func_name = zend_string_init(ZEND_STRL(YAF_ACTION_EXECUTOR_NAME), 0)) &&
 					(fptr = zend_hash_find_ptr(&(ce->function_table), func_name))) {
+				zval *args = NULL;
+				unsigned int count = 0;
 				yaf_action_t action;
 				yaf_controller_object *act;
 
 				zend_string_release(func_name);
-
 				object_init_ex(&action, ce);
 				act = Z_YAFCTLOBJ(action);
 
@@ -596,22 +599,22 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 				ZVAL_COPY_VALUE(&controller, &action);
 				ctl = act;
 
-				if (EXPECTED(fptr->common.num_args == 0)) {
-					yaf_controller_execute(&action, fptr, 0, NULL, &ret);
-				} else {
-					zval *call_args;
-					unsigned int count = 0;
-					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &call_args, &count);
-					yaf_controller_execute(&action, fptr, count, call_args, &ret);
-					efree(call_args);
+				if (UNEXPECTED(fptr->common.num_args)) {
+					yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &args, &count);
 				}
-
-				if (UNEXPECTED(Z_ISUNDEF(ret))) {
-					zend_string_release(origin_action);
-					zval_ptr_dtor(&action);
-					return 0;
+				if (UNEXPECTED(!yaf_controller_execute(&action, fptr, count, args, &ret))) {
+					if (UNEXPECTED(args)) {
+						efree(args);
+					}
+					if (UNEXPECTED(Z_ISUNDEF(ret))) {
+						zend_string_release(origin_action);
+						zval_ptr_dtor(&action);
+						return 0;
+					}
 				}
-
+				if (UNEXPECTED(args)) {
+					efree(args);
+				}
 				if ((Z_TYPE(ret) == IS_FALSE)) {
 					/* no auto-renderring */
 					zend_string_release(origin_action);
@@ -743,7 +746,6 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	/* route request */
 	if (EXPECTED(!yaf_request_is_routed(request))) {
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESTARTUP);
-		YAF_EXCEPTION_HANDLE(dispatcher);
 		if (UNEXPECTED(!yaf_dispatcher_route(dispatcher))) {
 			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
@@ -751,14 +753,12 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 		}
 		yaf_dispatcher_fix_default(dispatcher, request);
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESHUTDOWN);
-		YAF_EXCEPTION_HANDLE(dispatcher);
 		yaf_request_set_routed(request, 1);
 	} else {
 		yaf_dispatcher_fix_default(dispatcher, request);
 	}
 
 	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSTARTUP);
-	YAF_EXCEPTION_HANDLE(dispatcher);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		return NULL;
@@ -766,18 +766,15 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 
 	do {
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_PREDISPATCH);
-		YAF_EXCEPTION_HANDLE(dispatcher);
 		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
 			YAF_EXCEPTION_HANDLE(dispatcher);
 			return NULL;
 		}
-		yaf_dispatcher_fix_default(dispatcher, request);
+		/* yaf_dispatcher_fix_default(dispatcher, request); */
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_POSTDISPATCH);
-		YAF_EXCEPTION_HANDLE(dispatcher);
 	} while (--nesting > 0 && !yaf_request_is_dispatched(request));
 
 	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
-	YAF_EXCEPTION_HANDLE(dispatcher);
 
 	if (EXPECTED(nesting != 0)) {
 		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
