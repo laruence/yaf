@@ -393,6 +393,8 @@ static int yaf_controller_render_ex(yaf_controller_object *ctl, zend_string *act
 	zend_string *path;
 	zend_string *controller;
 	const char *view_ext;
+	uint32_t view_ext_len;
+	char *target;
 	yaf_application_object *app;
 
 	if (UNEXPECTED(ctl->view == NULL || ctl->module == NULL)) {
@@ -401,8 +403,10 @@ static int yaf_controller_render_ex(yaf_controller_object *ctl, zend_string *act
 
 	if (UNEXPECTED(app = yaf_application_instance()) && app->view_ext) {
 		view_ext = ZSTR_VAL(app->view_ext);
+		view_ext_len = ZSTR_LEN(app->view_ext);
 	} else {
 		view_ext = YAF_DEFAULT_VIEW_EXT;
+		view_ext_len = sizeof(YAF_DEFAULT_VIEW_EXT) - 1;
 	}
 
 	if (EXPECTED(ctl->ctl.name == NULL)) {
@@ -411,7 +415,12 @@ static int yaf_controller_render_ex(yaf_controller_object *ctl, zend_string *act
 		controller = ctl->ctl.name;
 	}
 
-	path = strpprintf(0, "%s%c%s.%s", ZSTR_VAL(controller), DEFAULT_SLASH, ZSTR_VAL(action), view_ext);
+	path = zend_string_alloc(ZSTR_LEN(controller) + ZSTR_LEN(action) + view_ext_len + 2, 0);
+	target = ZSTR_VAL(path);
+	yaf_compose_2_pathes(target, controller, ZSTR_VAL(action), ZSTR_LEN(action));
+	target += ZSTR_LEN(controller) + ZSTR_LEN(action) + 1;
+	*target++ = '.';
+	memcpy(target, view_ext, view_ext_len + 1);
 
 	zend_str_tolower(ZSTR_VAL(path), ZSTR_LEN(controller));
 

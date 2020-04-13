@@ -89,19 +89,19 @@ static void yaf_registry_object_free(zend_object *object) /* {{{ */ {
 yaf_registry_object *yaf_registry_instance() /* {{{ */ {
 	yaf_registry_object *registry;
 
-	if (UNEXPECTED(Z_TYPE(YAF_G(registry)) != IS_OBJECT)) {
-
-		registry = emalloc(sizeof(yaf_registry_object) + zend_object_properties_size(yaf_registry_ce));
-
-		zend_object_std_init(&registry->std, yaf_registry_ce);
-		registry->std.handlers = &yaf_registry_obj_handlers;
-
-		zend_hash_init(&registry->entries, 8, NULL, ZVAL_PTR_DTOR, 0);
-		registry->properties = NULL;
-
-		ZVAL_OBJ(&YAF_G(registry), &registry->std);
+	if (EXPECTED(Z_TYPE(YAF_G(registry)) == IS_OBJECT)) {
+		return Z_YAFREGISTRYOBJ(YAF_G(registry));
 	}
 
+	registry = emalloc(sizeof(yaf_registry_object) + zend_object_properties_size(yaf_registry_ce));
+
+	zend_object_std_init(&registry->std, yaf_registry_ce);
+	registry->std.handlers = &yaf_registry_obj_handlers;
+
+	zend_hash_init(&registry->entries, 8, NULL, ZVAL_PTR_DTOR, 0);
+	registry->properties = NULL;
+
+	ZVAL_OBJ(&YAF_G(registry), &registry->std);
 	return Z_YAFREGISTRYOBJ(YAF_G(registry));
 }
 /* }}} */

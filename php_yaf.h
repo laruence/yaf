@@ -136,7 +136,6 @@ int yaf_call_user_method(zend_object *obj, zend_function *fbc, int num_args, zva
 int yaf_call_user_method_with_0_arguments(zend_object *obj, zend_function *fbc, zval *ret);
 int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, zval *arg, zval *ret);
 int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
-unsigned int yaf_compose_2_pathes(char *buf, zend_string *c1, const char *c2, int l2);
 
 #define YSCMP(a, b, l, s)  do { \
 	if (l>sizeof(uint##s##_t)) { \
@@ -168,6 +167,9 @@ static zend_always_inline zend_bool yaf_is_action_prefer() {
 static zend_always_inline zend_bool yaf_is_name_suffix() {
 	return YAF_FLAGS() & YAF_NAME_SUFFIX;
 }
+static zend_always_inline zend_bool yaf_has_name_separator() {
+	return YAF_FLAGS() & YAF_HAS_NAME_SEPERATOR;
+}
 static zend_always_inline zend_bool yaf_is_throw_exception() {
 	return YAF_FLAGS() & YAF_THROW_EXCEPTION;
 }
@@ -187,6 +189,14 @@ static zend_always_inline void yaf_set_catch_exception(zend_bool flag) {
 	} else {
 		YAF_FLAGS() &= ~YAF_CATCH_EXCEPTION;
 	}
+}
+static zend_always_inline uint32_t yaf_compose_2_pathes(char *buf, zend_string *c1, const char *c2, uint32_t l2) {
+	uint32_t len = ZSTR_LEN(c1);
+	memcpy(buf, ZSTR_VAL(c1), len);
+	buf[len] = DEFAULT_SLASH;
+	memcpy(buf + len + 1, c2, l2);
+	len = len + l2 + 1;
+	return len;
 }
 #endif
 

@@ -121,7 +121,7 @@ static zval* yaf_config_ini_get(yaf_config_object *conf, zend_string *name) /* {
 }
 /* }}} */
 
-static zval* yaf_config_ini_parse_nesting_key(HashTable *target, char **key, size_t *key_len, char *delim) /* {{{ */ {
+static zval *yaf_config_ini_parse_nesting_key(HashTable *target, char **key, size_t *key_len, char *delim) /* {{{ */ {
 	zval *val, rv;
 	char *seg = *key;
 	size_t len = *key_len;
@@ -129,7 +129,7 @@ static zval* yaf_config_ini_parse_nesting_key(HashTable *target, char **key, siz
 
 	ZVAL_NULL(&rv);
 	do {
-		if (!(val = zend_symtable_str_find(target, seg, delim - seg))) {
+		if (!zend_hash_num_elements(target) || !(val = zend_symtable_str_find(target, seg, delim - seg))) {
 			val = zend_symtable_str_update(target, seg, delim - seg, &rv);
 		}
 
@@ -155,9 +155,7 @@ static zval* yaf_config_ini_parse_nesting_key(HashTable *target, char **key, siz
 }
 /* }}} */
 
-/** {{{ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index, int callback_type, zval *arr)
-*/
-static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index, int callback_type, zval *arr) {
+static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index, int callback_type, zval *arr) /* {{{ */ {
 	zval *val;
 
 	switch (callback_type) {
@@ -165,7 +163,7 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 			{
 				char *delim;
 
-				if (UNEXPECTED(delim = memchr(Z_STRVAL_P(key), '.', Z_STRLEN_P(key)))) {
+				if (delim = memchr(Z_STRVAL_P(key), '.', Z_STRLEN_P(key))) {
 					char *seg = Z_STRVAL_P(key);
 					size_t len = Z_STRLEN_P(key);
 
@@ -183,7 +181,7 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 					zend_symtable_str_update(Z_ARRVAL_P(val), seg, len, value);
 					Z_TRY_ADDREF_P(value);
 				} else {
-					if ((val = zend_symtable_find(Z_ARRVAL_P(arr), Z_STR_P(key)))) {
+					if (zend_hash_num_elements(Z_ARRVAL_P(arr)) && (val = zend_symtable_find(Z_ARRVAL_P(arr), Z_STR_P(key)))) {
 						zval_dtor(val);
 						ZVAL_COPY(val, value);
 					} else {
@@ -192,14 +190,13 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 					}
 				}
 			}
-			break;
-
+			return;
 		case ZEND_INI_PARSER_POP_ENTRY:
 			{
 				zend_ulong idx;
 				zval rv;
 
-				if (ZEND_HANDLE_NUMERIC(Z_STR_P(key), idx)) {
+				if (UNEXPECTED(ZEND_HANDLE_NUMERIC(Z_STR_P(key), idx))) {
 					if ((val = zend_hash_index_find(Z_ARRVAL_P(arr), idx)) == NULL) {
 						array_init(&rv);
 						val = zend_hash_index_update(Z_ARRVAL_P(arr), idx, &rv);
@@ -211,7 +208,7 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 				} else {
 					char *delim;
 
-					if (UNEXPECTED(delim = memchr(Z_STRVAL_P(key), '.', Z_STRLEN_P(key)))) {
+					if ((delim = memchr(Z_STRVAL_P(key), '.', Z_STRLEN_P(key)))) {
 						zval *parent;
 						char *seg = Z_STRVAL_P(key);
 						size_t len = Z_STRLEN_P(key);
@@ -261,8 +258,7 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 				}
 				Z_TRY_ADDREF_P(value);
 			}
-			break;
-
+			return;
 		case ZEND_INI_PARSER_SECTION:
 			break;
 	}
@@ -302,11 +298,11 @@ static inline void yaf_config_ini_strip_section_name(const char **name, size_t *
 
 static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int callback_type, zval *arr) /* {{{ */ {
 
-	if (YAF_CONFIG_PARSER_FLAG() == YAF_CONFIG_INI_PARSING_END) {
+	if (UNEXPECTED(YAF_CONFIG_PARSER_FLAG() == YAF_CONFIG_INI_PARSING_END)) {
 		return;
 	}
 
-	if (callback_type == ZEND_INI_PARSER_SECTION) {
+	if (UNEXPECTED(callback_type == ZEND_INI_PARSER_SECTION)) {
 		zval *parent;
 		const char *p, *colon;
 		size_t l;
@@ -398,7 +394,7 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 
 					array_init(&configs);
 					if (zend_parse_ini_file(&fh, 0, 0 /* ZEND_INI_SCANNER_NORMAL */,
-						   	(zend_ini_parser_cb_t)yaf_config_ini_parser_cb, &configs) == FAILURE
+							(zend_ini_parser_cb_t)yaf_config_ini_parser_cb, &configs) == FAILURE
 							|| Z_TYPE(configs) != IS_ARRAY) {
 						zval_ptr_dtor(&configs);
 						yaf_trigger_error(E_ERROR, "Parsing ini file '%s' failed", ini_file);
@@ -408,6 +404,7 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 			} else {
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
 				return 0;
+
 			}
 		} else {
 			yaf_trigger_error(E_ERROR, "Unable to find config file '%s'", ini_file);

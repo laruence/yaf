@@ -60,7 +60,7 @@ int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, s
 
 		yaf_route_strip_uri(&req_uri, &req_uri_len);
 		if (req_uri_len == 0) {
-			break;
+			return 1;
 		}
 
 		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {

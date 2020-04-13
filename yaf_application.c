@@ -264,7 +264,7 @@ static inline zend_object *yaf_application_get_dispatcher(yaf_application_object
 
 static inline zend_object *yaf_application_get_config(yaf_application_object *app) /* {{{ */ {
 	if (Z_TYPE(app->config) == IS_OBJECT) {
-		Z_ADDREF(app->config);
+		GC_ADDREF(Z_OBJ(app->config));
 		return Z_OBJ(app->config);
 	}
 	return NULL;
@@ -759,13 +759,13 @@ PHP_METHOD(yaf_application, run) {
 	}
 
 	YAF_APP_FLAGS(app) |= YAF_APP_RUNNING;
-	if ((response = yaf_dispatcher_dispatch(Z_YAFDISPATCHEROBJ(app->dispatcher))) == NULL) {
+	if ((response = yaf_dispatcher_dispatch(Z_YAFDISPATCHEROBJ(app->dispatcher)))) {
 		YAF_APP_FLAGS(app) &= ~YAF_APP_RUNNING;
-		RETURN_FALSE;
+		RETURN_ZVAL(response, 1, 0);
 	}
 
 	YAF_APP_FLAGS(app) &= ~YAF_APP_RUNNING;
-	RETURN_ZVAL(response, 1, 0);
+	RETURN_FALSE;
 }
 /* }}} */
 

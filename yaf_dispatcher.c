@@ -363,31 +363,36 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	}
 
 	if ((ce = (zend_class_entry*)zend_hash_find_ptr(EG(class_table), lc_name)) == NULL) {
-		if (!yaf_loader_load(Z_YAFLOADEROBJ(YAF_G(loader)), ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
+		if (yaf_loader_load(Z_YAFLOADEROBJ(YAF_G(loader)), ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
+			if (EXPECTED((ce = zend_hash_find_ptr(EG(class_table), lc_name)))) {
+				zend_string_release(lc_name);
+				if (EXPECTED(instanceof_function(ce, yaf_controller_ce))) {
+					return ce;
+				} else {
+					yaf_trigger_error(YAF_ERR_TYPE_ERROR,
+							"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
+					return NULL;
+				}
+			} else {
+				zend_string_release(lc_name);
+				if (EXPECTED(yaf_is_name_suffix())) {
+					yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
+							"Could not find class %s%s%s in controller script %s",
+							ZSTR_VAL(controller), YAF_G(name_separator), "Controller", directory);
+				} else {
+					yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
+							"Could not find class %s%s%s in controller script %s",
+							"Controller", YAF_G(name_separator), ZSTR_VAL(controller), directory);
+				}
+				return NULL;
+			}
+		} else {
+			zend_string_release(lc_name);
 			yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
 					"Failed opening controller script %s: %s", directory, strerror(errno));
-			zend_string_release(lc_name);
 			return NULL;
-		} else if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) == NULL)  {
-			zend_string_release(lc_name);
-			if (EXPECTED(yaf_is_name_suffix())) {
-				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
-					"Could not find class %s%s%s in controller script %s",
-					ZSTR_VAL(controller), YAF_G(name_separator), "Controller", directory);
-			} else {
-				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
-					"Could not find class %s%s%s in controller script %s",
-					"Controller", YAF_G(name_separator), ZSTR_VAL(controller), directory);
-			}
-			return 0;
-		} else if (!instanceof_function(ce, yaf_controller_ce)) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR,
-					"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
-			zend_string_release(lc_name);
-			return 0;
 		}
 	}
-
 	zend_string_release(lc_name);
 	return ce;
 path_too_long:
