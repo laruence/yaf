@@ -567,8 +567,8 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 				memcpy(func_name + ZSTR_LEN(request->action), "action", sizeof("action") - 1);
 				/* Magic __call supports? */
 				if (UNEXPECTED((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL)) {
+					efree(func_name);
 					if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
-						efree(func_name);
 						zval_ptr_dtor(&controller);
 						return 0;
 					}
