@@ -382,14 +382,13 @@ int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval 
 		}
 	}
 
-	if (UNEXPECTED(yaf_view_render_tpl(view, tpl_dir, tpl_len, &symbol_table, ret) == 0)) {
+	if (EXPECTED(yaf_view_render_tpl(view, tpl_dir, tpl_len, &symbol_table, ret))) {
 		zend_hash_destroy(&symbol_table);
-		return 0;
+		return 1;
 	}
 
 	zend_hash_destroy(&symbol_table);
-
-	return 1;
+	return 0;
 }
 /* }}} */
 
@@ -502,14 +501,7 @@ PHP_METHOD(yaf_view_simple, getScriptPath) {
 PHP_METHOD(yaf_view_simple, assign) {
 	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
 
-	if (ZEND_NUM_ARGS() == 1) {
-		zval *value;
-		if (zend_parse_parameters(ZEND_NUM_ARGS(), "a", &value) == FAILURE) {
-			return;
-		}
-		yaf_view_simple_assign_multi(view, value);
-		RETURN_ZVAL(getThis(), 1, 0);
-	} else if (ZEND_NUM_ARGS() == 2) {
+	if (ZEND_NUM_ARGS() == 2) {
 		zval *value;
 		zend_string *name;
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
@@ -517,11 +509,17 @@ PHP_METHOD(yaf_view_simple, assign) {
 		}
 	    yaf_view_simple_assign_single(view, name, value);
 		RETURN_ZVAL(getThis(), 1, 0);
+	} else if (ZEND_NUM_ARGS() == 1) {
+		zval *value;
+		if (zend_parse_parameters(ZEND_NUM_ARGS(), "a", &value) == FAILURE) {
+			return;
+		}
+		yaf_view_simple_assign_multi(view, value);
+		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
 		WRONG_PARAM_COUNT;
+		RETURN_FALSE;
 	}
-
-	RETURN_FALSE;
 }
 /* }}} */
 
