@@ -460,10 +460,10 @@ static ZEND_HOT int yaf_loader_identify_category(yaf_loader_object *loader, zend
 
 ZEND_HOT int yaf_loader_import(const char *path, uint32_t len) /* {{{ */ {
 	zend_file_handle file_handle;
-	zend_op_array 	*op_array;
-	char realpath[MAXPATHLEN];
+	zend_op_array *op_array;
+	zend_stat_t sb;
 
-	if (!VCWD_REALPATH(path, realpath)) {
+	if (UNEXPECTED(VCWD_STAT(path, &sb) == -1)) {
 		return 0;
 	}
 
