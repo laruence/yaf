@@ -331,25 +331,14 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 		if (UNEXPECTED(ZSTR_LEN(app_dir) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
 			goto path_too_long;
 		}
-		memcpy(directory, ZSTR_VAL(app_dir), ZSTR_LEN(app_dir));
-		directory_len = ZSTR_LEN(app_dir);
-		directory[directory_len++] = DEFAULT_SLASH;
-		memcpy(directory + directory_len, YAF_CONTROLLER_DIRECTORY_NAME, sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1);
-		directory_len += sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1;
+		directory_len = yaf_compose_2_pathes(directory, app_dir, ZEND_STRL(YAF_CONTROLLER_DIRECTORY_NAME));
 	} else {
 		if (UNEXPECTED(ZSTR_LEN(app_dir) + ZSTR_LEN(module) + sizeof(YAF_MODULE_DIRECTORY_NAME) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
 			goto path_too_long;
 		}
-		memcpy(directory, ZSTR_VAL(app_dir), ZSTR_LEN(app_dir));
-		directory_len = ZSTR_LEN(app_dir);
+		directory_len = yaf_compose_2_pathes(directory, app_dir, ZEND_STRL(YAF_MODULE_DIRECTORY_NAME));
 		directory[directory_len++] = DEFAULT_SLASH;
-		memcpy(directory + directory_len, YAF_MODULE_DIRECTORY_NAME, sizeof(YAF_MODULE_DIRECTORY_NAME) - 1);
-		directory_len += sizeof(YAF_MODULE_DIRECTORY_NAME) - 1;
-		memcpy(directory + directory_len, ZSTR_VAL(module), ZSTR_LEN(module));
-		directory_len += ZSTR_LEN(module);
-		directory[directory_len++] = DEFAULT_SLASH;
-		memcpy(directory + directory_len, YAF_CONTROLLER_DIRECTORY_NAME, sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1);
-		directory_len += sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1;
+		directory_len += yaf_compose_2_pathes(directory + directory_len, module, ZEND_STRL(YAF_CONTROLLER_DIRECTORY_NAME));
 	}
 
 	lc_name = zend_string_alloc(ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("Controller") - 1, 0);
@@ -452,14 +441,15 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 		}
 
 		if ((pzval = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
-			zend_string *action_path;
-			ZVAL_DEREF(pzval);
+			char path[MAXPATHLEN];
+			unsigned int len;
 
-			action_path = strpprintf(0, "%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, Z_STRVAL_P(pzval));
-			if (yaf_loader_import(ZSTR_VAL(action_path), ZSTR_LEN(action_path))) {
+			ZVAL_DEREF(pzval);
+			len = yaf_compose_2_pathes(path, app_dir, Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
+			path[len] = '\0';
+			if (yaf_loader_import(path, len)) {
 				if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
 					if (instanceof_function(ce, yaf_action_ce)) {
-						zend_string_release(action_path);
 						zend_string_release(lc_name);
 						return ce;
 					} else {
@@ -468,13 +458,12 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 					}
 				} else {
 					yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
-							"Could not find action %s in %s", ZSTR_VAL(action), ZSTR_VAL(action_path));
+							"Could not find action %s in %s", ZSTR_VAL(action), path);
 				}
 			} else {
 				yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
-						"Failed opening action script %s: %s", ZSTR_VAL(action_path), strerror(errno));
+						"Failed opening action script %s: %s", path, strerror(errno));
 			}
-			zend_string_release(action_path);
 		} else {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "There is no method %s%s in %s::$%s", ZSTR_VAL(action),
 					"Action", ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_CONTROLLER_PROPERTY_NAME_ACTIONS);
@@ -547,7 +536,8 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 			if (EXPECTED(view_dir == NULL)) {
 				/* view template directory for application, please notice that view engine's directory has high priority */
 				if (is_def_module) {
-					view_dir = strpprintf(0, "%s%c%s", ZSTR_VAL(app->directory), DEFAULT_SLASH, "views");
+					view_dir = zend_string_alloc(ZSTR_LEN(app->directory) + sizeof("views"), 0);
+					yaf_compose_2_pathes(ZSTR_VAL(view_dir), app->directory, ZEND_STRS("views"));
 				} else {
 					view_dir = strpprintf(0, "%s%c%s%c%s%c%s", ZSTR_VAL(app->directory),
 							DEFAULT_SLASH, "modules", DEFAULT_SLASH, ZSTR_VAL(request->module), DEFAULT_SLASH, "views");

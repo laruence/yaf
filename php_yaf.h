@@ -58,7 +58,7 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_WRITE_HANDLER       void
 #define YAF_WHANDLER_RET(zv)    return
 #ifndef HT_ALLOW_COW_VIOLATION
-# define HT_ALLOW_COW_VIOLATION
+# define HT_ALLOW_COW_VIOLATION(ht)
 #endif
 #if PHP_VERSION_ID < 70300
 # define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
@@ -136,6 +136,7 @@ int yaf_call_user_method(zend_object *obj, zend_function *fbc, int num_args, zva
 int yaf_call_user_method_with_0_arguments(zend_object *obj, zend_function *fbc, zval *ret);
 int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, zval *arg, zval *ret);
 int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
+unsigned int yaf_compose_2_pathes(char *buf, zend_string *c1, const char *c2, int l2);
 
 #define YSCMP(a, b, l, s)  do { \
 	if (l>sizeof(uint##s##_t)) { \

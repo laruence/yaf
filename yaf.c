@@ -358,6 +358,17 @@ int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function* fbc, 
 }
 /* }}} */
 
+unsigned int yaf_compose_2_pathes(char *buf, zend_string *c1, const char *c2, int l2) /* {{{ */ {
+	unsigned int len;
+	memcpy(buf, ZSTR_VAL(c1), ZSTR_LEN(c1));
+	len = ZSTR_LEN(c1);
+	buf[len++] = DEFAULT_SLASH;
+	memcpy(buf + len, c2, l2);
+	len += l2;
+	return len;
+}
+/* }}} */
+
 ZEND_HOT zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
 	unsigned int i;
 	zend_string *name = zend_string_alloc(len, 0);

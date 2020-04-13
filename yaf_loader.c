@@ -624,13 +624,6 @@ PHP_METHOD(yaf_loader, autoload) {
 			RETURN_FALSE;
 		}
 
-		if (UNEXPECTED(ZSTR_LEN(app->directory) > MAXPATHLEN)) {
-			goto path_too_long;
-		}
-
-		memcpy(directory, ZSTR_VAL(app->directory), ZSTR_LEN(app->directory));
-		directory_len = ZSTR_LEN(app->directory);
-		directory[directory_len++] = DEFAULT_SLASH;
 		switch (class_type) {
 			case YAF_CLASS_NAME_CONTROLLER:
 				folder = YAF_CONTROLLER_DIRECTORY_NAME;
@@ -651,11 +644,10 @@ PHP_METHOD(yaf_loader, autoload) {
 				ZEND_ASSERT(0);
 				break;
 		}
-		if (UNEXPECTED(directory_len + f_len > MAXPATHLEN)) {
+		if (UNEXPECTED(ZSTR_LEN(app->directory) + 1 + f_len > MAXPATHLEN)) {
 			goto path_too_long;
 		}
-		memcpy(directory + directory_len, folder, MAXPATHLEN - directory_len);
-		directory_len += f_len;
+		directory_len = yaf_compose_2_pathes(directory, app->directory, folder, f_len);
 		if (UNEXPECTED(yaf_loader_has_name_separator(loader))) {
 			fname_len -= YAF_G(name_separator_len);
 		}

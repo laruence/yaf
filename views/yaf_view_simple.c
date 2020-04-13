@@ -312,26 +312,26 @@ static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_arr
 }
 /* }}} */
 
-static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_string *tpl, zval *ret) /* {{{ */ {
+static int yaf_view_render_tpl(yaf_view_t *view, const char *tpl, unsigned int tpl_len, zend_array *symbol_table, zval *ret) /* {{{ */ {
 	int status = 0;
 	zend_file_handle file_handle;
-	zend_op_array *op_array;
 	char realpath[MAXPATHLEN];
+	zend_op_array *op_array;
 
-	if (UNEXPECTED(!VCWD_REALPATH(ZSTR_VAL(tpl), realpath))) {
-		yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", ZSTR_VAL(tpl), strerror(errno));
+	if (UNEXPECTED(!VCWD_REALPATH(tpl, realpath))) {
+		yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", tpl, strerror(errno));
 		return 0;
 	}
 
 #if PHP_VERSION_ID < 70400
-	file_handle.filename = ZSTR_VAL(tpl);
+	file_handle.filename = tpl;
 	file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.free_filename = 0;
 	file_handle.opened_path = NULL;
 	file_handle.handle.fp = NULL;
 #else
 	/* setup file-handle */
-	zend_stream_init_filename(&file_handle, ZSTR_VAL(tpl));
+	zend_stream_init_filename(&file_handle, tpl);
 #endif
 
 	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
@@ -339,7 +339,7 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 	if (op_array) {
 		if (file_handle.handle.stream.handle) {
 			if (!file_handle.opened_path) {
-				file_handle.opened_path = zend_string_copy(tpl);
+				file_handle.opened_path = zend_string_init(tpl, tpl_len, 0);
 			}
 			zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
 		}
@@ -358,36 +358,35 @@ static int yaf_view_render_tpl(yaf_view_t *view, zend_array *symbol_table, zend_
 
 int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval *ret) /* {{{ */ {
 	zend_array symbol_table;
-	zend_string *tpl_dup = NULL;
+	char directory[MAXPATHLEN];
+	char *tpl_dir;
+	unsigned int tpl_len;
 	yaf_view_object *v = Z_YAFVIEWOBJ_P(view);
 
 	yaf_view_build_symtable(&symbol_table, &v->tpl_vars, vars);
 
-	if (!IS_ABSOLUTE_PATH(ZSTR_VAL(tpl), ZSTR_LEN(tpl))) {
-		zend_string *tpl_dir = v->tpl_dir;
-
-		if (UNEXPECTED(tpl_dir == NULL)) {
+	tpl_dir = ZSTR_VAL(tpl);
+	tpl_len = ZSTR_LEN(tpl);
+	if (!IS_ABSOLUTE_PATH(tpl_dir, tpl_len)) {
+		if (UNEXPECTED(v->tpl_dir == NULL)) {
 			zend_hash_destroy(&symbol_table);
 			yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW,
 					"Could not determine the view script path, you should call %s::setScriptPath to specific it",
 					ZSTR_VAL(yaf_view_simple_ce->name));
 			return 0;
 		} else {
-			tpl = tpl_dup = strpprintf(0, "%s%c%s", ZSTR_VAL(tpl_dir), DEFAULT_SLASH, ZSTR_VAL(tpl));
+			zend_string *v_tpl = v->tpl_dir;
+			tpl_len = yaf_compose_2_pathes(directory, v_tpl, tpl_dir, tpl_len);
+			directory[tpl_len] = '\0';
+			tpl_dir = directory;
 		}
 	}
 
-	if (UNEXPECTED(yaf_view_render_tpl(view, &symbol_table, tpl, ret) == 0)) {
-		if (tpl_dup) {
-			zend_string_release(tpl_dup);
-		}
+	if (UNEXPECTED(yaf_view_render_tpl(view, tpl_dir, tpl_len, &symbol_table, ret) == 0)) {
 		zend_hash_destroy(&symbol_table);
 		return 0;
 	}
 
-	if (tpl_dup) {
-		zend_string_release(tpl_dup);
-	}
 	zend_hash_destroy(&symbol_table);
 
 	return 1;
