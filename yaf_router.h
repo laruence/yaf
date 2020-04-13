@@ -25,14 +25,18 @@
 #define YAF_ROUTE_REGEX_DILIMITER  	 '#'
 
 typedef struct {
-	zend_object  std;
 	zend_array   routes;
 	zval         current;
 	zend_array  *properties;
+	zend_object  std;
 } yaf_router_object;
 
-#define Z_YAFROUTEROBJ(zv)    ((yaf_router_object*)(Z_OBJ(zv)))
+#define Z_YAFROUTEROBJ(zv)    (php_yaf_router_fetch_object(Z_OBJ(zv)))
 #define Z_YAFROUTEROBJ_P(zv)  Z_YAFROUTEROBJ(*zv)
+
+static zend_always_inline yaf_router_object *php_yaf_router_fetch_object(zend_object *obj) {
+	return (yaf_router_object *)((char*)(obj) - XtOffsetOf(yaf_router_object, std));
+}
 
 extern zend_class_entry *yaf_router_ce;
 

@@ -51,7 +51,7 @@ ZEND_END_ARG_INFO()
 /* }}} */
 
 static zend_object *yaf_router_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_router_object *router = emalloc(sizeof(yaf_router_object));
+	yaf_router_object *router = emalloc(sizeof(yaf_router_object) + zend_object_properties_size(yaf_router_ce));
 
 	zend_object_std_init(&router->std, ce);
 	router->std.handlers = &yaf_router_obj_handlers;
@@ -65,7 +65,7 @@ static zend_object *yaf_router_new(zend_class_entry *ce) /* {{{ */ {
 /* }}} */
 
 static void yaf_router_object_free(zend_object *object) /* {{{ */ {
-	yaf_router_object *router = (yaf_router_object*)object;
+	yaf_router_object *router = php_yaf_router_fetch_object(object);
 
 	zend_hash_destroy(&router->routes);
 	if (router->properties) {
@@ -414,6 +414,7 @@ YAF_STARTUP_FUNCTION(router) {
 	yaf_router_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_router_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	yaf_router_obj_handlers.offset = XtOffsetOf(yaf_router_object, std);
 	yaf_router_obj_handlers.clone_obj = NULL;
 	yaf_router_obj_handlers.get_gc = NULL;
 	yaf_router_obj_handlers.free_obj = yaf_router_object_free;
