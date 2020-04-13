@@ -46,12 +46,8 @@ typedef struct {
 	zend_array  *properties;
 } yaf_loader_object;
 
-#define Z_YAFLOADEROBJ(zv)    (php_yaf_loader_fetch_object(Z_OBJ(zv)))
+#define Z_YAFLOADEROBJ(zv)    ((yaf_loader_object*)(Z_OBJ(zv)))
 #define Z_YAFLOADEROBJ_P(zv)  Z_YAFLOADEROBJ(*zv)
-
-static zend_always_inline yaf_loader_object *php_yaf_loader_fetch_object(zend_object *obj) {
-	return (yaf_loader_object *)((char*)(obj) - XtOffsetOf(yaf_loader_object, std));
-}
 
 extern zend_class_entry *yaf_loader_ce;
 

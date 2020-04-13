@@ -83,7 +83,7 @@ ZEND_END_ARG_INFO()
 /* }}} */
 
 static void yaf_loader_obj_free(zend_object *object) /* {{{ */ {
-	yaf_loader_object *loader = php_yaf_loader_fetch_object(object);
+	yaf_loader_object *loader = (yaf_loader_object*)object;
 
 	if (loader->library) {
 		zend_string_release(loader->library);
@@ -914,7 +914,6 @@ YAF_STARTUP_FUNCTION(loader) {
 	yaf_loader_ce->unserialize = zend_class_unserialize_deny;
 
 	memcpy(&yaf_loader_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_loader_obj_handlers.offset = XtOffsetOf(yaf_loader_object, std);
 	yaf_loader_obj_handlers.clone_obj = NULL;
 	yaf_loader_obj_handlers.get_gc = NULL;
 	yaf_loader_obj_handlers.free_obj = yaf_loader_obj_free;
