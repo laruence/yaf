@@ -314,11 +314,11 @@ static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_arr
 
 static int yaf_view_render_tpl(yaf_view_t *view, const char *tpl, unsigned int tpl_len, zend_array *symbol_table, zval *ret) /* {{{ */ {
 	int status = 0;
+	zend_stat_t sb;
 	zend_file_handle file_handle;
-	char realpath[MAXPATHLEN];
 	zend_op_array *op_array;
 
-	if (UNEXPECTED(!VCWD_REALPATH(tpl, realpath))) {
+	if (UNEXPECTED(VCWD_STAT(tpl, &sb) == -1)) {
 		yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "Failed opening template %s: %s", tpl, strerror(errno));
 		return 0;
 	}
