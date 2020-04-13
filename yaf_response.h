@@ -52,6 +52,8 @@ int yaf_response_response(yaf_response_t *response);
 int yaf_response_set_redirect(yaf_response_object *response, zend_string *url);
 int yaf_response_clear_body(yaf_response_object *response, zend_string *name);
 
+#define yaf_response_append_body(r, n, v)  yaf_response_alter_body(r, n, v, YAF_RESPONSE_APPEND)
+
 YAF_STARTUP_FUNCTION(response);
 
 #endif

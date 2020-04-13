@@ -700,7 +700,7 @@ PHP_METHOD(yaf_controller, getViewpath) {
 	}
 
 	if (EXPECTED(ctl->view)) {
-		yaf_view_get_tpl_dir(tpl_dir, ctl->view, NULL);
+		tpl_dir = yaf_view_get_tpl_dir(ctl->view, NULL);
 		if (UNEXPECTED(tpl_dir == NULL)) {
 			RETURN_STR_COPY(tpl_dir);
 		}

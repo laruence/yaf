@@ -503,6 +503,10 @@ static zend_never_inline zend_function *yaf_dispatcher_handle_action(yaf_applica
 }
 /* }}} */
 
+static zend_always_inline void yaf_dispatcher_fix_view_tpl(yaf_application_object *app, yaf_dispatcher_object *dispatcher, yaf_request_object *request, int def) /* {{{ */ {
+}
+/* }}} */
+
 ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
@@ -521,15 +525,10 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 		}
 
 		if ((ce = yaf_dispatcher_get_controller(app->directory, request, is_def_module))) {
-			zval ret;
-			zval *args = NULL;
-			unsigned int count = 0;
-			zend_string *view_dir;
 			zend_function *fptr;
-			zend_string *func_name;
-			zend_string *origin_action;
-			yaf_controller_t controller;
 			yaf_controller_object *ctl;
+			yaf_controller_t controller;
+			zend_string *current_action;
 
 			object_init_ex(&controller, ce);
 			ctl = Z_YAFCTLOBJ(controller);
@@ -543,8 +542,9 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 				zval_ptr_dtor(&controller);
 				return yaf_dispatcher_handle(dispatcher);
 			}
-			yaf_view_get_tpl_dir(view_dir, &dispatcher->view, &dispatcher->request);
-			if (EXPECTED(view_dir == NULL)) {
+
+			if (EXPECTED(yaf_view_get_tpl_dir(&dispatcher->view, &dispatcher->request) == NULL)) {
+				zend_string *view_dir;
 				/* view template directory for application, view engine's directory has high priority */
 				if (is_def_module) {
 					view_dir = zend_string_alloc(ZSTR_LEN(app->directory) + sizeof("views"), 0);
@@ -553,65 +553,79 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 					view_dir = strpprintf(0, "%s%c%s%c%s%c%s", ZSTR_VAL(app->directory),
 							DEFAULT_SLASH, "modules", DEFAULT_SLASH, ZSTR_VAL(request->module), DEFAULT_SLASH, "views");
 				}
-
 				yaf_view_set_tpl_dir(&dispatcher->view, view_dir);
 				zend_string_release(view_dir);
 			}
 
-			func_name = strpprintf(0, "%s%s", ZSTR_VAL(request->action), "action");
-			/* Magic __call supports? */
-			if (UNEXPECTED((fptr = (zend_function*)zend_hash_find_ptr(&((ce)->function_table), func_name)) == NULL)) {
-				if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
-					zend_string_release(func_name);
-					zval_ptr_dtor(&controller);
-					return 0;
-				}
-				ctl = Z_YAFCTLOBJ(controller);
-			}
-			zend_string_release(func_name);
+			do { /* Fetch the action method, if it doesn't exist , fall to $action_map property */
+				char *func_name;
+				unsigned int func_len;
 
-			origin_action = zend_string_copy(request->action);
-			if (UNEXPECTED(fptr->common.num_args)) {
-				yaf_dispatcher_get_call_parameters(Z_YAFREQUESTOBJ(dispatcher->request), fptr, &args, &count);
-			}
-			if (UNEXPECTED(!yaf_controller_execute(&controller, fptr, count, args, &ret))) {
+				func_len = ZSTR_LEN(request->action) + sizeof("action") - 1;
+				func_name = emalloc(func_len);
+				memcpy(func_name, ZSTR_VAL(request->action), ZSTR_LEN(request->action));
+				memcpy(func_name + ZSTR_LEN(request->action), "action", sizeof("action") - 1);
+				/* Magic __call supports? */
+				if (UNEXPECTED((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL)) {
+					if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
+						efree(func_name);
+						zval_ptr_dtor(&controller);
+						return 0;
+					}
+					ctl = Z_YAFCTLOBJ(controller);
+				}
+				efree(func_name);
+			} while (0);
+
+			do { /* Execute the method */
+				zval ret;
+				zval *args = NULL;
+				unsigned int count = 0;
+
+				current_action = zend_string_copy(request->action);
+				if (UNEXPECTED(fptr->common.num_args)) {
+					yaf_dispatcher_get_call_parameters(request, fptr, &args, &count);
+				}
+				if (UNEXPECTED(!yaf_controller_execute(&controller, fptr, count, args, &ret))) {
+					if (UNEXPECTED(args)) {
+						efree(args);
+					}
+					if (UNEXPECTED(Z_ISUNDEF(ret))) {
+						zend_string_release(current_action);
+						zval_ptr_dtor(&controller);
+						return 0;
+					}
+				}
 				if (UNEXPECTED(args)) {
 					efree(args);
 				}
-				if (UNEXPECTED(Z_ISUNDEF(ret))) {
-					zend_string_release(origin_action);
+				if ((Z_TYPE(ret) == IS_FALSE)) {
+					/* no auto-renderring */
+					zend_string_release(current_action);
 					zval_ptr_dtor(&controller);
-					return 0;
+					return 1;
 				}
-			}
-			if (UNEXPECTED(args)) {
-				efree(args);
-			}
-			if ((Z_TYPE(ret) == IS_FALSE)) {
-				/* no auto-renderring */
-				zend_string_release(origin_action);
-				zval_ptr_dtor(&controller);
-				return 1;
-			}
-			zval_ptr_dtor(&ret);
+				zval_ptr_dtor(&ret);
+			} while(0);
 
+			/* controller's property yafAutoRender has higher priority */
 			if (yaf_controller_auto_render(ctl, YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_AUTO_RENDER)) {
 				zval res;
 				zend_bool flush_instantly = YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_INSTANT_FLUSH;
-				if (EXPECTED(yaf_controller_render(&controller, origin_action, NULL, flush_instantly? NULL : &res))) {
+				if (EXPECTED(yaf_controller_render(&controller, current_action, NULL, flush_instantly? NULL : &res))) {
 					if (UNEXPECTED(!flush_instantly)) {
 						ZEND_ASSERT(Z_TYPE(res) == IS_STRING);
-						yaf_response_alter_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL, Z_STR(res), YAF_RESPONSE_APPEND );
+						yaf_response_append_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL, Z_STR(res));
 						zend_string_release(Z_STR(res));
 					}
 				} else {
-					zend_string_release(origin_action);
+					zend_string_release(current_action);
 					zval_ptr_dtor(&controller);
 					return 0;
 				}
 			}
 
-			zend_string_release(origin_action);
+			zend_string_release(current_action);
 			zval_ptr_dtor(&controller);
 			return 1;
 		}

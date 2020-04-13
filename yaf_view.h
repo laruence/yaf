@@ -50,13 +50,7 @@ zend_string *yaf_view_get_tpl_dir_ex(yaf_view_t *view, yaf_request_t *request);
 	} \
 } while (0)
 
-#define yaf_view_get_tpl_dir(r, v, q) do { \
-	if (EXPECTED(Z_OBJCE_P(v) == yaf_view_simple_ce)) { \
-		r = Z_YAFVIEWOBJ_P(v)->tpl_dir; \
-	} else { \
-		r = yaf_view_get_tpl_dir_ex(v, q); \
-	} \
-} while (0)
+#define yaf_view_get_tpl_dir(v, q)  ((Z_OBJCE_P(v)==yaf_view_simple_ce)?Z_YAFVIEWOBJ_P(v)->tpl_dir:yaf_view_get_tpl_dir_ex(v, q))
 
 YAF_STARTUP_FUNCTION(view);
 
