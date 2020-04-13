@@ -27,8 +27,12 @@ typedef struct {
 	zend_object  std;
 } yaf_view_object;
 
-#define Z_YAFVIEWOBJ(zv)    ((yaf_view_object*)Z_OBJ(zv))
+#define Z_YAFVIEWOBJ(zv)    (php_yaf_view_fetch_object(Z_OBJ(zv)))
 #define Z_YAFVIEWOBJ_P(zv)  Z_YAFVIEWOBJ(*zv)
+
+static zend_always_inline yaf_view_object *php_yaf_view_fetch_object(zend_object *obj) {
+	return (yaf_view_object *)((char*)(obj) - XtOffsetOf(yaf_view_object, std));
+}
 
 void yaf_view_instance(yaf_view_t *view, zend_string *tpl_dir, zval *options);
 int yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval *ret);

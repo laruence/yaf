@@ -127,7 +127,7 @@ static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, 
 /* }}} */
 
 static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_view_object *view = emalloc(sizeof(yaf_view_object));
+	yaf_view_object *view = emalloc(sizeof(yaf_view_object) + zend_object_properties_size(yaf_view_simple_ce));
 
 	zend_object_std_init(&view->std, ce);
 	view->std.handlers = &yaf_view_simple_obj_handlers;
@@ -141,7 +141,7 @@ static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
 /* }}} */
 
 static void yaf_view_object_free(zend_object *object) /* {{{ */ {
-	yaf_view_object *view = (yaf_view_object*)object;
+	yaf_view_object *view = php_yaf_view_fetch_object(object);
 
 	if (view->tpl_dir) {
 		zend_string_release(view->tpl_dir);
@@ -673,6 +673,7 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	zend_class_implements(yaf_view_simple_ce, 1, yaf_view_interface_ce);
 
 	memcpy(&yaf_view_simple_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	yaf_view_simple_obj_handlers.offset = XtOffsetOf(yaf_view_object, std);
 	yaf_view_simple_obj_handlers.free_obj = yaf_view_object_free;
 	yaf_view_simple_obj_handlers.get_properties = yaf_view_simple_get_properties;
 	yaf_view_simple_obj_handlers.read_property = yaf_view_simple_read_property;
