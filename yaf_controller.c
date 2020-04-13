@@ -23,6 +23,7 @@
 #endif
 
 #include "php.h"
+#include "Zend/zend_exceptions.h" /* for zend_throw_exception_ex */
 #include "Zend/zend_interfaces.h" /* for zend_call_method_with_* */
 
 #include "php_yaf.h"
@@ -488,43 +489,43 @@ int yaf_controller_render(yaf_controller_t *controller, zend_string *action, zva
 }
 /* }}} */
 
-void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args) /* {{{ */ {
+int yaf_controller_init(yaf_controller_object *ctl, yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	zend_function *fptr;
 	zend_class_entry *ce = ctl->std.ce;
 
-	ctl->request = req;
-	ctl->response = response;
-	ctl->view = view;
-	ctl->name = zend_string_copy(Z_YAFREQUESTOBJ_P(req)->controller);
-	ctl->module = zend_string_copy(Z_YAFREQUESTOBJ_P(req)->module);
-/*
-	if (args) {
-		zend_update_property(ce, self, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ARGS), args);
-	}
-*/
+	ctl->request = &dispatcher->request;
+	ctl->response = &dispatcher->response;
+	ctl->view = &dispatcher->view;
+	ctl->name = zend_string_copy(Z_YAFREQUESTOBJ(dispatcher->request)->controller);
+	ctl->module = zend_string_copy(Z_YAFREQUESTOBJ(dispatcher->request)->module);
+
 	if (!instanceof_function(ce, yaf_action_ce) &&
 		(fptr = (zend_function*)zend_hash_str_find_ptr(&(ce->function_table), ZEND_STRL("init")))) {
 		zval ret;
 		yaf_call_user_method_with_0_arguments(&ctl->std, fptr, &ret);
 		zval_ptr_dtor(&ret);
+
+		if (UNEXPECTED(EG(exception))) {
+			return 0;
+		}
 	}
+
+	return 1;
 }
 /* }}} */
 
-/** {{{ proto protected Yaf_Controller_Abstract::__construct(Yaf_Request_Abstract $request, Yaf_Response_abstrct $response, Yaf_View_Interface $view, array $invokeArgs = NULL)
+/** {{{ proto protected Yaf_Controller_Abstract::__construct(void)
 */
 PHP_METHOD(yaf_controller, __construct) {
-	yaf_request_t 	*request;
-	yaf_response_t	*response;
-	yaf_view_t		*view;
-	zval 			*invoke_arg = NULL;
+	zend_class_entry *ce = Z_OBJCE_P(getThis());
+	yaf_application_object *app = yaf_application_instance();
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "OOO|a",
-		&request, yaf_request_ce, &response, yaf_response_ce, &view, yaf_view_interface_ce, &invoke_arg) == FAILURE) {
+	if (app == NULL) {
+		zend_throw_exception_ex(NULL, 0,
+			"Cannot construct '%s' while no '%s' initialized", ZSTR_VAL(ce->name), ZSTR_VAL(yaf_application_ce->name));
 		return;
 	}
-
-	yaf_controller_init(Z_YAFCTLOBJ_P(getThis()), request, response, view, invoke_arg);
+	yaf_controller_init(Z_YAFCTLOBJ_P(getThis()), Z_YAFDISPATCHEROBJ(app->dispatcher));
 }
 /* }}} */
 

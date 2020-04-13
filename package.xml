@@ -29,6 +29,7 @@
   - Added optional $format_name argument to Yaf_Request::setModule/Controller/actionName
      if it set to false, Yaf will set original input as name,
      default it true, which means Yaf will format the name(camel/lowercase) before set it to Request
+  - Yaf_Controller::__construct now accpet no parameters, it now requires Yaf_Application is initialized.
   - Rmoved all lead underline for fake protected property name(examing by var_dump)
   - Fixed bug that protected method of Bootstrap get executed
   - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface

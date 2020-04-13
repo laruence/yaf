@@ -50,7 +50,7 @@ static zend_always_inline yaf_controller_object *php_yaf_controller_fetch_object
 }
 
 int yaf_controller_render(yaf_controller_t *ctl, zend_string *action, zval *vars, zval *ret);
-void yaf_controller_init(yaf_controller_object *ctl, yaf_request_t *req, yaf_response_t *response, yaf_view_t *view, zval *args);
+int yaf_controller_init(yaf_controller_object *ctl, yaf_dispatcher_object *dispatcher);
 void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *module);
 
 static zend_always_inline zend_bool yaf_controller_auto_render(yaf_controller_object *ctl, zend_bool dispatch_render) {

@@ -25,6 +25,7 @@
 #include "yaf_request.h"
 #include "yaf_response.h"
 #include "yaf_view.h"
+#include "yaf_dispatcher.h"
 #include "yaf_exception.h"
 #include "yaf_controller.h"
 #include "yaf_action.h"
