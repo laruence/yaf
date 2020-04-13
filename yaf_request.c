@@ -773,11 +773,15 @@ zval *yaf_request_get_param_str(yaf_request_object *request, const char *key, si
 const char *yaf_request_get_request_method(void) /* {{{ */ {
 	if (SG(request_info).request_method) {
 		return SG(request_info).request_method;
-	} else if (yaf_slip_equal(sapi_module.name, "cli", 4)) {
+	}
+#if 0
+	else if (yaf_slip_equal(sapi_module.name, "cli", 4)) {
 		return "CLI";
 	} else {
-		return "UNKNOW";
+		return "UNKNOWN";
 	}
+#endif
+	return "CLI";
 }
 /* }}} */
 
