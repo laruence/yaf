@@ -15,21 +15,25 @@ $config = array(
 );
 
 class ControllerController extends Yaf_Controller_Abstract {
-    public function actionAction() {
-		var_dump(__METHOD__);
-		$this->forward("module", "controller", "index");
+    public function actionAction($from = NULL) {
+		if (!$from) {
+			print "starting\n";
+		} else {
+			var_dump($from);
+		}
+		$this->forward("module", "controller", "index", array("from" => __METHOD__));
 		return false;
     }
 
-    public function indexAction() {
-		var_dump(__METHOD__);
-        $this->forward("dummy");
+    public function indexAction($from) {
+		var_dump($from);
+        $this->forward("dummy", array("from" => __METHOD__));
 		return false;
     }
 
-    public function dummyAction() {
-		var_dump(__METHOD__);
-		$this->forward("controller", "action");
+    public function dummyAction($from) {
+		var_dump($from);
+		$this->forward("controller", "action", array("from" => __METHOD__));
 		return false;
     }
 }
@@ -45,6 +49,7 @@ try {
 }
 ?>
 --EXPECTF--
+starting
 string(34) "ControllerController::actionAction"
 string(33) "ControllerController::indexAction"
 string(33) "ControllerController::dummyAction"
@@ -54,5 +59,4 @@ string(33) "ControllerController::dummyAction"
 string(34) "ControllerController::actionAction"
 string(33) "ControllerController::indexAction"
 string(33) "ControllerController::dummyAction"
-string(34) "ControllerController::actionAction"
 The maximum dispatching count 10 is reached
