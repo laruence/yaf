@@ -133,9 +133,9 @@ PHP_METHOD(ce, get##x) { \
 	zend_string *name; \
 	zval *ret; \
 	zval *def = NULL; \
-	if (ZEND_NUM_ARGS() == 0) { \
+	if (UNEXPECTED(ZEND_NUM_ARGS() == 0)) { \
 		ret = yaf_request_query(type, NULL); \
-	}else if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|z", &name, &def) == FAILURE) { \
+	} else if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|z", &name, &def) == FAILURE) { \
 		return; \
 	} else { \
 		ret = yaf_request_query(type, name); \
