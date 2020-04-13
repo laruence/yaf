@@ -573,7 +573,6 @@ ZEND_HOT int yaf_loader_load(yaf_loader_object *loader, char *filename, size_t f
 
 	return yaf_loader_import(directory, directory_len);
 path_too_long:
-
 	*position = '\0';
 	php_error_docref(NULL, E_WARNING, "path too long: '%s/%s'", directory, filename);
 	return 0;
@@ -592,9 +591,9 @@ PHP_METHOD(yaf_loader, autoload) {
 	yaf_application_object *app = yaf_application_instance();
 	yaf_loader_object *loader = Z_YAFLOADEROBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &class_name) == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(class_name)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (UNEXPECTED(ZSTR_LEN(class_name) == 0)) {
 		RETURN_FALSE;
@@ -613,7 +612,9 @@ PHP_METHOD(yaf_loader, autoload) {
 	if ((class_type = yaf_loader_identify_category(loader, class_name)) == YAF_CLASS_NAME_NORMAL) {
 		status = yaf_loader_load(loader, sanitized_name, sanitized_len, directory, 0);
 	} else {
+		const char *folder;
 		uint32_t fname_len;
+		uint32_t f_len;
 
 		if (UNEXPECTED(app == NULL)) {
 			php_error_docref(NULL, E_WARNING, "Couldn't load a MVC class unless an %s is initialized", ZSTR_VAL(yaf_application_ce->name));
@@ -623,24 +624,38 @@ PHP_METHOD(yaf_loader, autoload) {
 			RETURN_FALSE;
 		}
 
-		directory_len = snprintf(directory, sizeof(directory), "%s%c", ZSTR_VAL(app->directory), DEFAULT_SLASH);
+		if (UNEXPECTED(ZSTR_LEN(app->directory) > MAXPATHLEN)) {
+			goto path_too_long;
+		}
+
+		memcpy(directory, ZSTR_VAL(app->directory), ZSTR_LEN(app->directory));
+		directory_len = ZSTR_LEN(app->directory);
+		directory[directory_len++] = DEFAULT_SLASH;
 		switch (class_type) {
 			case YAF_CLASS_NAME_CONTROLLER:
-				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_CONTROLLER_DIRECTORY_NAME);
+				folder = YAF_CONTROLLER_DIRECTORY_NAME;
+				f_len = sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1;
 				fname_len = sanitized_len - (sizeof(YAF_LOADER_CONTROLLER) - 1);
 				break;
 			case YAF_CLASS_NAME_MODEL:
-				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_MODEL_DIRECTORY_NAME);
+				folder = YAF_MODEL_DIRECTORY_NAME;
+				f_len = sizeof(YAF_MODEL_DIRECTORY_NAME) - 1;
 				fname_len = sanitized_len - (sizeof(YAF_LOADER_MODEL) - 1);
 				break;
 			case YAF_CLASS_NAME_PLUGIN:
-				directory_len += snprintf(directory + directory_len, sizeof(directory) - directory_len, YAF_PLUGIN_DIRECTORY_NAME);
+				folder = YAF_PLUGIN_DIRECTORY_NAME;
+				f_len = sizeof(YAF_PLUGIN_DIRECTORY_NAME) - 1;
 				fname_len = sanitized_len - (sizeof(YAF_LOADER_PLUGIN) - 1);
 				break;
 			default:
 				ZEND_ASSERT(0);
 				break;
 		}
+		if (UNEXPECTED(directory_len + f_len > MAXPATHLEN)) {
+			goto path_too_long;
+		}
+		memcpy(directory + directory_len, folder, MAXPATHLEN - directory_len);
+		directory_len += f_len;
 		if (UNEXPECTED(yaf_loader_has_name_separator(loader))) {
 			fname_len -= YAF_G(name_separator_len);
 		}
@@ -670,6 +685,9 @@ PHP_METHOD(yaf_loader, autoload) {
 	}
 
 	RETURN_BOOL(status);
+path_too_long:
+	php_error_docref(NULL, E_WARNING, "path too long while loading '%s'", ZSTR_VAL(class_name));
+	RETURN_FALSE;
 }
 /* }}} */
 
@@ -679,9 +697,9 @@ PHP_METHOD(yaf_loader, import) {
 	zend_string *file;
 	int need_free = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &file) == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR(file)
+	ZEND_PARSE_PARAMETERS_END();
 
 	if (ZSTR_LEN(file) == 0) {
 		RETURN_FALSE;

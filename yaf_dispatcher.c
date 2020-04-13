@@ -328,17 +328,28 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	zend_string *module = request->module;
 
 	if (def_module) {
-		directory_len = snprintf(directory, sizeof(directory),
-				"%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
+		if (UNEXPECTED(ZSTR_LEN(app_dir) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
+			goto path_too_long;
+		}
+		memcpy(directory, ZSTR_VAL(app_dir), ZSTR_LEN(app_dir));
+		directory_len = ZSTR_LEN(app_dir);
+		directory[directory_len++] = DEFAULT_SLASH;
+		memcpy(directory + directory_len, YAF_CONTROLLER_DIRECTORY_NAME, sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1);
+		directory_len += sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1;
 	} else {
-		directory_len = snprintf(directory, sizeof(directory),
-				"%s%c%s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, YAF_MODULE_DIRECTORY_NAME,
-				DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, YAF_CONTROLLER_DIRECTORY_NAME);
-	}
-
-	if (UNEXPECTED(directory_len >= sizeof(directory))) {
-		yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s: %s", directory);
-		return NULL;
+		if (UNEXPECTED(ZSTR_LEN(app_dir) + ZSTR_LEN(module) + sizeof(YAF_MODULE_DIRECTORY_NAME) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
+			goto path_too_long;
+		}
+		memcpy(directory, ZSTR_VAL(app_dir), ZSTR_LEN(app_dir));
+		directory_len = ZSTR_LEN(app_dir);
+		directory[directory_len++] = DEFAULT_SLASH;
+		memcpy(directory + directory_len, YAF_MODULE_DIRECTORY_NAME, sizeof(YAF_MODULE_DIRECTORY_NAME) - 1);
+		directory_len += sizeof(YAF_MODULE_DIRECTORY_NAME) - 1;
+		memcpy(directory + directory_len, ZSTR_VAL(module), ZSTR_LEN(module));
+		directory_len += ZSTR_LEN(module);
+		directory[directory_len++] = DEFAULT_SLASH;
+		memcpy(directory + directory_len, YAF_CONTROLLER_DIRECTORY_NAME, sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1);
+		directory_len += sizeof(YAF_CONTROLLER_DIRECTORY_NAME) - 1;
 	}
 
 	lc_name = zend_string_alloc(ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("Controller") - 1, 0);
@@ -389,9 +400,10 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	}
 
 	zend_string_release(lc_name);
-
 	return ce;
-
+path_too_long:
+	yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, ZSTR_VAL(controller));
+	return NULL;
 }
 /* }}} */
 
@@ -734,6 +746,7 @@ ZEND_COLD void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatche
 ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_request_object *request;
 	zend_bool catch_exception = yaf_is_catch_exception();
+	HashTable *plugins = dispatcher->plugins;
 	unsigned int nesting = yaf_get_forward_limit();
 
 	if (EXPECTED(Z_TYPE(dispatcher->response) != IS_OBJECT)) {
@@ -745,36 +758,36 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	request = Z_YAFREQUESTOBJ(dispatcher->request);
 	/* route request */
 	if (EXPECTED(!yaf_request_is_routed(request))) {
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESTARTUP);
+		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_ROUTESTARTUP);
 		if (UNEXPECTED(!yaf_dispatcher_route(dispatcher))) {
 			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 			return NULL;
 		}
 		yaf_dispatcher_fix_default(dispatcher, request);
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESHUTDOWN);
+		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_ROUTESHUTDOWN);
 		yaf_request_set_routed(request, 1);
 	} else {
 		yaf_dispatcher_fix_default(dispatcher, request);
 	}
 
-	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSTARTUP);
+	YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_LOOPSTARTUP);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		return NULL;
 	}
 
 	do {
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_PREDISPATCH);
+		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_PREDISPATCH);
 		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
 			YAF_EXCEPTION_HANDLE(dispatcher);
 			return NULL;
 		}
 		/* yaf_dispatcher_fix_default(dispatcher, request); */
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_POSTDISPATCH);
+		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_POSTDISPATCH);
 	} while (--nesting > 0 && !yaf_request_is_dispatched(request));
 
-	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
+	YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
 
 	if (EXPECTED(nesting != 0)) {
 		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {

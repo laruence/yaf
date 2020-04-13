@@ -54,13 +54,13 @@ static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object
 	return (yaf_dispatcher_object *)((char*)(obj) - XtOffsetOf(yaf_dispatcher_object, std));
 }
 
-#define YAF_PLUGIN_HANDLE(dispatcher, ev) \
+#define YAF_PLUGIN_HANDLE(dispatcher, plugins, ev) \
 	do { \
-		yaf_dispatcher_object *_d = (dispatcher); \
-		if (_d->plugins) { \
+		if (plugins) { \
 			zval _r, *_t;\
 			zend_function *_f; \
-			ZEND_HASH_FOREACH_VAL(_d->plugins, _t) { \
+			yaf_dispatcher_object *_d = (dispatcher); \
+			ZEND_HASH_FOREACH_VAL(plugins, _t) { \
 			    if ((_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1))) { \
 			        if (!yaf_call_user_method_with_2_arguments(Z_OBJ_P(_t), _f, &_d->request, &_d->response, &_r)) { \
 						YAF_EXCEPTION_HANDLE(_d); \
