@@ -36,13 +36,14 @@
 #define YAF_LOADER_NAMESUFFIX              YAF_NAME_SUFFIX
 #define YAF_LOADER_NAMESEPARATOR           YAF_HAS_NAME_SEPERATOR
 
+#define YAF_LOADER_FLAGS(loader)           YAF_VAR_FLAGS(loader->std.properties_table[0])
+#define YAF_LOADER_GLIBRARY(loader)        (Z_STR(loader->std.properties_table[0]))
+
 typedef struct {
-	zend_uchar   flags;
+	zend_object std;
 	zend_string *library;
-	zend_string *glibrary;
 	zend_array  *namespaces;
 	zend_array  *properties;
-	zend_object std;
 } yaf_loader_object;
 
 #define Z_YAFLOADEROBJ(zv)    (php_yaf_loader_fetch_object(Z_OBJ(zv)))
@@ -70,19 +71,19 @@ static zend_always_inline void yaf_loader_set_library_path(yaf_loader_object *lo
 }
 
 static zend_always_inline zend_bool yaf_loader_use_spl_autoload(yaf_loader_object *loader) {
-	return loader->flags & YAF_LOADER_USE_SPL;
+	return YAF_LOADER_FLAGS(loader) & YAF_LOADER_USE_SPL;
 }
 
 static zend_always_inline zend_bool yaf_loader_is_lowcase_path(yaf_loader_object *loader) {
-	return loader->flags & YAF_LOADER_LOWERCASE;
+	return YAF_LOADER_FLAGS(loader) & YAF_LOADER_LOWERCASE;
 }
 
 static zend_always_inline zend_bool yaf_loader_is_name_suffix(yaf_loader_object *loader) {
-	return loader->flags & YAF_LOADER_NAMESUFFIX;
+	return YAF_LOADER_FLAGS(loader) & YAF_LOADER_NAMESUFFIX;
 }
 
 static zend_always_inline zend_bool yaf_loader_has_name_separator(yaf_loader_object *loader) {
-	return loader->flags & YAF_LOADER_NAMESEPARATOR;
+	return YAF_LOADER_FLAGS(loader) & YAF_LOADER_NAMESEPARATOR;
 }
 
 extern PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode);

@@ -88,8 +88,8 @@ static void yaf_loader_obj_free(zend_object *object) /* {{{ */ {
 	if (loader->library) {
 		zend_string_release(loader->library);
 	}
-	if (loader->glibrary) {
-		zend_string_release(loader->glibrary);
+	if (YAF_LOADER_GLIBRARY(loader)) {
+		zend_string_release(YAF_LOADER_GLIBRARY(loader));
 	}
 	if (loader->namespaces) {
 		if (GC_DELREF(loader->namespaces) == 0) {
@@ -154,10 +154,10 @@ int yaf_loader_register(yaf_loader_t *loader) /* {{{ */ {
 /* }}} */
 
 void yaf_loader_set_global_library_path(yaf_loader_object *loader, zend_string *global_library) /* {{{ */ {
-	if (EXPECTED(loader->glibrary)) {
-		zend_string_release(loader->glibrary);
+	if (EXPECTED(YAF_LOADER_GLIBRARY(loader))) {
+		zend_string_release(YAF_LOADER_GLIBRARY(loader));
 	}
-	loader->glibrary = zend_string_copy(global_library);
+	YAF_LOADER_GLIBRARY(loader) = zend_string_copy(global_library);
 }
 /* }}} */
 
@@ -196,8 +196,8 @@ static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
 
 	ZVAL_STR_COPY(&rv, loader->library);
 	zend_hash_str_update(ht, "library:protected", sizeof("library:protected") - 1, &rv);
-	if (loader->glibrary) {
-		ZVAL_STR_COPY(&rv, loader->glibrary);
+	if (YAF_LOADER_GLIBRARY(loader)) {
+		ZVAL_STR_COPY(&rv, YAF_LOADER_GLIBRARY(loader));
 	} else {
 		ZVAL_NULL(&rv);
 	}
@@ -226,7 +226,7 @@ static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
 
 void yaf_loader_reset(yaf_loader_object *loader) /* {{{ */ {
 	/* for back-compatibility of change of YAF_G after loader in initialized only */
-	loader->flags = (zend_uchar)YAF_FLAGS();
+	YAF_LOADER_FLAGS(loader) = (zend_uchar)YAF_FLAGS();
 }
 /* }}} */
 
@@ -238,12 +238,12 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 		return instance;
 	}
 
-	loader = emalloc(sizeof(yaf_loader_object) + zend_object_properties_size(yaf_loader_ce));
+	loader = emalloc(sizeof(yaf_loader_object));
 	zend_object_std_init(&loader->std, yaf_loader_ce);
 	loader->std.handlers = &yaf_loader_obj_handlers;
 
 	/* yaf_loader_reset(loader); */
-	loader->flags = (zend_uchar)YAF_FLAGS();
+	YAF_LOADER_FLAGS(loader) = (zend_uchar)YAF_FLAGS();
 	if (library_path) {
 		loader->library = zend_string_copy(library_path);
 	} else {
@@ -251,9 +251,9 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 	}
 
 	if (*YAF_G(global_library)) {
-		loader->glibrary = zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0);
+		YAF_LOADER_GLIBRARY(loader) = zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0);
 	} else {
-		loader->glibrary = NULL;
+		YAF_LOADER_GLIBRARY(loader) = NULL;
 	}
 
 	ZVAL_OBJ(&YAF_G(loader), &loader->std);
@@ -524,10 +524,10 @@ ZEND_HOT int yaf_loader_load(yaf_loader_object *loader, char *filename, size_t f
 	if (directory_len == 0) {
 		zend_string *library_dir;
 
-		if (!loader->namespaces || !loader->glibrary ||  yaf_loader_is_local_namespace(loader, filename, fname_len)) {
+		if (!loader->namespaces || !YAF_LOADER_GLIBRARY(loader) ||  yaf_loader_is_local_namespace(loader, filename, fname_len)) {
 			library_dir = loader->library;
 		} else {
-			library_dir	= loader->glibrary;
+			library_dir	= YAF_LOADER_GLIBRARY(loader);
 		}
 
 		if (UNEXPECTED(ZSTR_LEN(library_dir) + fname_len + directory_len + ext_len + 4 > MAXPATHLEN)) {
@@ -697,15 +697,14 @@ PHP_METHOD(yaf_loader, import) {
 		RETURN_FALSE;
 	} else {
 		int retval;
-		yaf_loader_t *loader;
 
 		if (!IS_ABSOLUTE_PATH(ZSTR_VAL(file), ZSTR_LEN(file))) {
-			loader = &YAF_G(loader);
-			if (UNEXPECTED(Z_TYPE_P(loader) != IS_OBJECT)) {
+			if (UNEXPECTED(Z_TYPE(YAF_G(loader)) != IS_OBJECT)) {
 				php_error_docref(NULL, E_WARNING, "%s need to be initialize first", ZSTR_VAL(yaf_loader_ce->name));
 				RETURN_FALSE;
 			} else {
-				zend_string *library = Z_YAFLOADEROBJ_P(loader)->library;
+				yaf_loader_object *loader = Z_YAFLOADEROBJ(YAF_G(loader));
+				zend_string *library = loader->library;
 				file = strpprintf(0, "%s%c%s", ZSTR_VAL(library), DEFAULT_SLASH, ZSTR_VAL(file));
 				need_free = 1;
 			}
@@ -845,8 +844,8 @@ PHP_METHOD(yaf_loader, getLibraryPath) {
 
 	if (!global) {
 		RETURN_STR_COPY(loader->library);
-	} else if (loader->glibrary) {
-		RETURN_STR_COPY(loader->glibrary);
+	} else if (YAF_LOADER_GLIBRARY(loader)) {
+		RETURN_STR_COPY(YAF_LOADER_GLIBRARY(loader));
 	} else {
 		RETURN_EMPTY_STRING();
 	}
