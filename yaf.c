@@ -415,7 +415,7 @@ ZEND_HOT zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ 
 			goto sanitize;
 		}
 		while (p++ != e) {
-			if (*p >= 'A' && *p <= 'Z') {
+			if (((*p == '_' && *(p + 1) >= 'a' || *(p + 1) <= 'z')) || (*p >= 'A' && *p <= 'Z')) {
 				goto sanitize;
 			}
 		}
@@ -515,10 +515,10 @@ PHP_RINIT_FUNCTION(yaf)
 	YAF_FLAGS() |= YAF_THROW_EXCEPTION;
 	YAF_FLAGS() &= ~YAF_CATCH_EXCEPTION;
 
-	ZVAL_UNDEF(&YAF_G(app));
-	ZVAL_UNDEF(&YAF_G(loader));
-	ZVAL_UNDEF(&YAF_G(registry));
-	ZVAL_UNDEF(&YAF_G(session));
+	ZVAL_NULL(&YAF_G(app));
+	ZVAL_NULL(&YAF_G(loader));
+	ZVAL_NULL(&YAF_G(registry));
+	ZVAL_NULL(&YAF_G(session));
 
 	return SUCCESS;
 }
