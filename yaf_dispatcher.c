@@ -319,6 +319,45 @@ static zend_always_inline int yaf_dispatcher_route(yaf_dispatcher_object *dispat
 }
 /* }}} */
 
+static ZEND_COLD zend_never_inline zend_class_entry *yaf_dispatcher_get_controller_error_hub(int type, ...) /* {{{ */ {
+	va_list args;
+
+	va_start(args, type);
+	if (type == 0) {
+		zend_string *app_dir = va_arg(args, zend_string*);
+		zend_string *module = va_arg(args, zend_string*);
+		zend_string *controller = va_arg(args, zend_string*);
+		yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s%c%s%c%s",
+			ZSTR_VAL(app_dir), DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, ZSTR_VAL(controller));
+	} else {
+		zend_class_entry *ce = va_arg(args, zend_class_entry*);
+		zend_string *controller = va_arg(args, zend_string*);
+		char *directory = va_arg(args, char*);
+		size_t directory_len = va_arg(args, size_t);
+		if (ce) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR,
+					"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
+		} else if (strlen(directory) != directory_len) {
+			yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
+					"Failed opening controller script %s: %s", directory, strerror(errno));
+		} else {
+			if (EXPECTED(yaf_is_name_suffix())) {
+				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
+						"Could not find class %s%s%s in controller script %s",
+						ZSTR_VAL(controller), YAF_G(name_separator), "Controller", directory);
+			} else {
+				yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
+						"Could not find class %s%s%s in controller script %s",
+						"Controller", YAF_G(name_separator), ZSTR_VAL(controller), directory);
+			}
+		}
+	}
+
+	va_end(args);
+	return NULL;
+}
+/* }}} */
+
 static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf_request_object *request, int def_module) /* {{{ */ {
 	char directory[MAXPATHLEN];
 	size_t directory_len;
@@ -330,12 +369,12 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 
 	if (def_module) {
 		if (UNEXPECTED(ZSTR_LEN(app_dir) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
-			goto path_too_long;
+			return yaf_dispatcher_get_controller_error_hub(0, app_dir, module, controller);
 		}
 		directory_len = yaf_compose_2_pathes(directory, app_dir, ZEND_STRL(YAF_CONTROLLER_DIRECTORY_NAME));
 	} else {
 		if (UNEXPECTED(ZSTR_LEN(app_dir) + ZSTR_LEN(module) + sizeof(YAF_MODULE_DIRECTORY_NAME) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
-			goto path_too_long;
+			return yaf_dispatcher_get_controller_error_hub(0, app_dir, module, controller);
 		}
 		directory_len = yaf_compose_2_pathes(directory, app_dir, ZEND_STRL(YAF_MODULE_DIRECTORY_NAME));
 		directory[directory_len++] = DEFAULT_SLASH;
@@ -366,39 +405,17 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	if ((ce = (zend_class_entry*)zend_hash_find_ptr(EG(class_table), lc_name)) == NULL) {
 		if (yaf_loader_load(Z_YAFLOADEROBJ(YAF_G(loader)), ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
 			if (EXPECTED((ce = zend_hash_find_ptr(EG(class_table), lc_name)))) {
-				STR_ALLOCA_FREE(lc_name, use_heap);
 				if (EXPECTED(instanceof_function(ce, yaf_controller_ce))) {
+					STR_ALLOCA_FREE(lc_name, use_heap);
 					return ce;
-				} else {
-					yaf_trigger_error(YAF_ERR_TYPE_ERROR,
-							"Controller must be an instance of %s", ZSTR_VAL(yaf_controller_ce->name));
-					return NULL;
 				}
-			} else {
-				STR_ALLOCA_FREE(lc_name, use_heap);
-				if (EXPECTED(yaf_is_name_suffix())) {
-					yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
-							"Could not find class %s%s%s in controller script %s",
-							ZSTR_VAL(controller), YAF_G(name_separator), "Controller", directory);
-				} else {
-					yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
-							"Could not find class %s%s%s in controller script %s",
-							"Controller", YAF_G(name_separator), ZSTR_VAL(controller), directory);
-				}
-				return NULL;
 			}
-		} else {
-			STR_ALLOCA_FREE(lc_name, use_heap);
-			yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
-					"Failed opening controller script %s: %s", directory, strerror(errno));
-			return NULL;
 		}
+		STR_ALLOCA_FREE(lc_name, use_heap);
+		return yaf_dispatcher_get_controller_error_hub(1, ce, controller, directory, directory_len);
 	}
 	STR_ALLOCA_FREE(lc_name, use_heap);
 	return ce;
-path_too_long:
-	yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, ZSTR_VAL(controller));
-	return NULL;
 }
 /* }}} */
 
