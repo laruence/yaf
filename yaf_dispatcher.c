@@ -326,6 +326,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	zend_string *lc_name;
 	zend_string *controller = request->controller;
 	zend_string *module = request->module;
+	ALLOCA_FLAG(use_heap);
 
 	if (def_module) {
 		if (UNEXPECTED(ZSTR_LEN(app_dir) + sizeof(YAF_CONTROLLER_DIRECTORY_NAME) > MAXPATHLEN)) {
@@ -341,7 +342,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 		directory_len += yaf_compose_2_pathes(directory + directory_len, module, ZEND_STRL(YAF_CONTROLLER_DIRECTORY_NAME));
 	}
 
-	lc_name = zend_string_alloc(ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("Controller") - 1, 0);
+	STR_ALLOCA_ALLOC(lc_name, ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("Controller") - 1, use_heap);
 	if (EXPECTED(yaf_is_name_suffix())) {
 		char *p = ZSTR_VAL(lc_name);
 		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller));
@@ -365,7 +366,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	if ((ce = (zend_class_entry*)zend_hash_find_ptr(EG(class_table), lc_name)) == NULL) {
 		if (yaf_loader_load(Z_YAFLOADEROBJ(YAF_G(loader)), ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
 			if (EXPECTED((ce = zend_hash_find_ptr(EG(class_table), lc_name)))) {
-				zend_string_release(lc_name);
+				STR_ALLOCA_FREE(lc_name, use_heap);
 				if (EXPECTED(instanceof_function(ce, yaf_controller_ce))) {
 					return ce;
 				} else {
@@ -374,7 +375,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 					return NULL;
 				}
 			} else {
-				zend_string_release(lc_name);
+				STR_ALLOCA_FREE(lc_name, use_heap);
 				if (EXPECTED(yaf_is_name_suffix())) {
 					yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED,
 							"Could not find class %s%s%s in controller script %s",
@@ -387,13 +388,13 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 				return NULL;
 			}
 		} else {
-			zend_string_release(lc_name);
+			STR_ALLOCA_FREE(lc_name, use_heap);
 			yaf_trigger_error(YAF_ERR_NOTFOUND_CONTROLLER,
 					"Failed opening controller script %s: %s", directory, strerror(errno));
 			return NULL;
 		}
 	}
-	zend_string_release(lc_name);
+	STR_ALLOCA_FREE(lc_name, use_heap);
 	return ce;
 path_too_long:
 	yaf_trigger_error(YAF_ERR_AUTOLOAD_FAILED, "path too long %s%c%s%c%s", ZSTR_VAL(app_dir), DEFAULT_SLASH, ZSTR_VAL(module), DEFAULT_SLASH, ZSTR_VAL(controller));
@@ -413,8 +414,9 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 	if (EXPECTED(IS_ARRAY == Z_TYPE_P(actions_map))) {
 		zend_class_entry *ce;
 		zend_string *lc_name;
+		ALLOCA_FLAG(use_heap);
 
-		lc_name = zend_string_alloc(ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("Action") - 1, 0);
+		STR_ALLOCA_ALLOC(lc_name, ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("Action") - 1, use_heap);
 		if (EXPECTED(yaf_is_name_suffix())) {
 			char *p = ZSTR_VAL(lc_name);
 			memcpy(p, ZSTR_VAL(action), ZSTR_LEN(action));
@@ -436,7 +438,7 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 		}
 
 		if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
-			zend_string_release(lc_name);
+			STR_ALLOCA_FREE(lc_name, use_heap);
 			if (UNEXPECTED(!instanceof_function(ce, yaf_action_ce))) {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR,
 						"Action %s must extends from %s", ZSTR_VAL(action), ZSTR_VAL(yaf_action_ce->name));
@@ -455,7 +457,7 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 			if (yaf_loader_import(path, len)) {
 				if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
 					if (instanceof_function(ce, yaf_action_ce)) {
-						zend_string_release(lc_name);
+						STR_ALLOCA_FREE(lc_name, use_heap);
 						return ce;
 					} else {
 						yaf_trigger_error(YAF_ERR_TYPE_ERROR,
@@ -473,6 +475,7 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "There is no method %s%s in %s::$%s", ZSTR_VAL(action),
 					"Action", ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_CONTROLLER_PROPERTY_NAME_ACTIONS);
 		}
+		STR_ALLOCA_FREE(lc_name, use_heap);
 	} else {
 		yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION,
 				"There is no method %s%s in %s", ZSTR_VAL(action), "Action", ZSTR_VAL(Z_OBJCE_P(controller)->name));
@@ -561,21 +564,22 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 			do { /* Fetch the action method, if it doesn't exist , fall to $action_map property */
 				char *func_name;
 				uint32_t func_len;
+				ALLOCA_FLAG(use_heap);
 
 				func_len = ZSTR_LEN(request->action) + sizeof("action") - 1;
-				func_name = emalloc(func_len);
+				func_name = do_alloca(func_len, use_heap);
 				memcpy(func_name, ZSTR_VAL(request->action), ZSTR_LEN(request->action));
 				memcpy(func_name + ZSTR_LEN(request->action), "action", sizeof("action") - 1);
 				/* Magic __call supports? */
 				if (UNEXPECTED((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL)) {
-					efree(func_name);
+					free_alloca(func_name, use_heap);
 					if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
 						zval_ptr_dtor(&controller);
 						return 0;
 					}
 					ctl = Z_YAFCTLOBJ(controller);
 				}
-				efree(func_name);
+				free_alloca(func_name, use_heap);
 			} while (0);
 
 			do { /* Execute the method */
