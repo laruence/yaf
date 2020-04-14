@@ -253,21 +253,39 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 }
 /* }}} */
 
-static ZEND_COLD zend_never_inline void yaf_application_errors_hub(yaf_application_object *app) /* {{{ */ {
-	if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
-		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
-	} else if (Z_TYPE(app->config) != IS_OBJECT) {
-		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
-	} else {
-		zval *pzval;
-		HashTable *conf = Z_YAFCONFIGOBJ(app->config)->config;
-		if ((((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) &&
-			(((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY)) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configuration");
+static ZEND_COLD zend_never_inline void yaf_application_errors_hub(int type, ...) /* {{{ */ {
+	va_list args;
+
+	va_start(args, type);
+	if (type == 0) {
+		yaf_application_object *app = va_arg(args, yaf_application_object*);
+		if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
+			zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
+		} else if (Z_TYPE(app->config) != IS_OBJECT) {
+			zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
 		} else {
-			yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected 'directory' entry in application configuration");
+			zval *pzval;
+			HashTable *conf = Z_YAFCONFIGOBJ(app->config)->config;
+			if ((((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) &&
+					(((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY)) {
+				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configuration");
+			} else {
+				yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected 'directory' entry in application configuration");
+			}
+		}
+	} else if (type == 1) {
+		zend_class_entry *ce = va_arg(args, zend_class_entry*);
+		char *bootstrap_path = va_arg(args, char*);
+
+		if (ce) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "'%s' is not a subclass of %s", ZSTR_VAL(ce->name), ZSTR_VAL(yaf_bootstrap_ce->name));
+		} else if (zend_hash_str_exists(&EG(included_files), bootstrap_path, strlen(bootstrap_path))) {
+			php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
+		} else {
+			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path);
 		}
 	}
+	va_end(args);
 }
 /* }}} */
 
@@ -460,24 +478,6 @@ static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, 
 	}
 
 	YAF_WHANDLER_RET(value);
-}
-/* }}} */
-
-static ZEND_COLD zend_never_inline void yaf_application_bootstrap_error_hub(int type, ...) /* {{{ */ {
-	va_list args;
-	va_start(args, type);
-	if (type) {
-		zend_class_entry *ce = va_arg(args, zend_class_entry*);
-		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance, %s given", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
-	} else {
-		char *bootstrap_path = va_arg(args, char*);
-		if (zend_hash_str_exists(&EG(included_files), bootstrap_path, strlen(bootstrap_path))) {
-			php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
-		} else {
-			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path);
-		}
-	}
-	va_end(args);
 }
 /* }}} */
 
@@ -763,7 +763,7 @@ PHP_METHOD(yaf_application, __construct) {
 		zend_string_release(section);
 	}
 
-	yaf_application_errors_hub(app);
+	yaf_application_errors_hub(0, app);
 	zval_ptr_dtor(&app->config);
 	return;
 }
@@ -796,13 +796,13 @@ PHP_METHOD(yaf_application, run) {
 PHP_METHOD(yaf_application, bootstrap) {
 	zval bootstrap;
 	zend_string *func;
+	char buf[MAXPATHLEN];
 	zend_function *fptr;
 	zend_class_entry  *ce;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 	yaf_dispatcher_t *dispatcher = &app->dispatcher;
 
 	if (!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER)))) {
-		char buf[MAXPATHLEN];
 		const char *bootstrap_path;
 		uint32_t bootstrap_path_len;
 		if (UNEXPECTED(app->bootstrap)) {
@@ -823,8 +823,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 		}
 		if (UNEXPECTED((!yaf_loader_import(bootstrap_path, bootstrap_path_len)) ||
 			(!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER)))))) {
-			yaf_application_bootstrap_error_hub(0, bootstrap_path);
-			RETURN_FALSE;
+			goto error;
 		}
 	}
 
@@ -854,7 +853,8 @@ PHP_METHOD(yaf_application, bootstrap) {
 		RETURN_ZVAL(getThis(), 1, 0);
 	}
 
-	yaf_application_bootstrap_error_hub(1, ce);
+error:
+	yaf_application_errors_hub(1, ce, buf);
 	RETURN_FALSE;
 }
 /* }}} */

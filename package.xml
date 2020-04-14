@@ -223,6 +223,7 @@
     <file name="102.phpt" role="test" />
     <file name="103.phpt" role="test" />
     <file name="104.phpt" role="test" />
+    <file name="105.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
