@@ -144,15 +144,15 @@ ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request)
 			if (!yaf_route_rewrite_route(route, request)) {
 				continue;
 			}
-		} else if (Z_OBJCE_P(route) == yaf_route_regex_ce) {
+		} else if (UNEXPECTED(Z_OBJCE_P(route) == yaf_route_regex_ce)) {
 			if (!yaf_route_regex_route(route, request)) {
 				continue;
 			}
-		} else if (Z_OBJCE_P(route) == yaf_route_supervar_ce) {
+		} else if (UNEXPECTED(Z_OBJCE_P(route) == yaf_route_supervar_ce)) {
 			if (!yaf_route_supervar_route(route, request)) {
 				continue;
 			}
-		} else if (Z_OBJCE_P(route) == yaf_route_simple_ce) {
+		} else if (UNEXPECTED(Z_OBJCE_P(route) == yaf_route_simple_ce)) {
 			if (!yaf_route_simple_route(route, request)) {
 				continue;
 			}
