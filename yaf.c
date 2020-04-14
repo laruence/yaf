@@ -404,7 +404,7 @@ ZEND_HOT zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ 
 			goto sanitize;
 		}
 		while (p++ != e) {
-			if (((*p == '_' && *(p + 1) >= 'a' || *(p + 1) <= 'z')) || (*p >= 'A' && *p <= 'Z')) {
+			if (((*p == '_' && (*(p + 1) >= 'a' || *(p + 1) <= 'z'))) || (*p >= 'A' && *p <= 'Z')) {
 				goto sanitize;
 			}
 		}

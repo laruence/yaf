@@ -163,7 +163,7 @@ static void yaf_config_ini_simple_parser_cb(zval *key, zval *value, zval *index,
 			{
 				char *delim;
 
-				if (delim = memchr(Z_STRVAL_P(key), '.', Z_STRLEN_P(key))) {
+				if ((delim = memchr(Z_STRVAL_P(key), '.', Z_STRLEN_P(key)))) {
 					char *seg = Z_STRVAL_P(key);
 					size_t len = Z_STRLEN_P(key);
 

@@ -119,8 +119,8 @@ void yaf_route_map_instance(yaf_route_t *route, zend_bool ctl_prefer, zend_strin
 }
 /* }}} */
 
-static inline void yaf_route_map_append(smart_str *str, const char *seg, unsigned int len) /* {{{ */ {
-	unsigned int i;
+static inline void yaf_route_map_append(smart_str *str, const char *seg, uint32_t len) /* {{{ */ {
+	uint32_t i;
 
 	smart_str_appendc(str, toupper(*seg));
 	for (i = 1; i < len; i++) {

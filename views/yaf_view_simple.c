@@ -312,7 +312,7 @@ static int yaf_view_exec_tpl(yaf_view_t *view, zend_op_array *op_array, zend_arr
 }
 /* }}} */
 
-static int yaf_view_render_tpl(yaf_view_t *view, const char *tpl, unsigned int tpl_len, zend_array *symbol_table, zval *ret) /* {{{ */ {
+static int yaf_view_render_tpl(yaf_view_t *view, const char *tpl, uint32_t tpl_len, zend_array *symbol_table, zval *ret) /* {{{ */ {
 	int status = 0;
 	zend_stat_t sb;
 	zend_file_handle file_handle;
@@ -360,7 +360,7 @@ int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval 
 	zend_array symbol_table;
 	char directory[MAXPATHLEN];
 	char *tpl_dir;
-	unsigned int tpl_len;
+	uint32_t tpl_len;
 	yaf_view_object *v = Z_YAFVIEWOBJ_P(view);
 
 	yaf_view_build_symtable(&symbol_table, &v->tpl_vars, vars);

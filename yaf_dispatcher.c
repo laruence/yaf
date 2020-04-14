@@ -212,10 +212,10 @@ void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
 }
 /* }}} */
 
-static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend_function *fptr, zval **args, unsigned int *count) /* {{{ */ {
+static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend_function *fptr, zval **args, uint32_t *count) /* {{{ */ {
 	zval *arg;
 	zval *params;
-	unsigned int current;
+	uint32_t current;
 	zend_arg_info *arg_info;
 	HashTable *params_ht;
 
@@ -232,7 +232,7 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 		if ((arg = zend_hash_find(params_ht, arg_info->name)) != NULL) {
 			ZVAL_COPY_VALUE(&(params[current]), arg);
 		} else if (current >= fptr->common.required_num_args) {
-			unsigned int idx = current + 1;
+			uint32_t idx = current + 1;
 			zend_op *op = ((zend_op_array *)fptr)->opcodes;
 			zend_op *end = op + ((zend_op_array *)fptr)->last;
 			while (op < end) {
@@ -447,7 +447,7 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 
 		if ((pzval = zend_hash_find(Z_ARRVAL_P(actions_map), action)) != NULL) {
 			char path[MAXPATHLEN];
-			unsigned int len;
+			uint32_t len;
 
 			ZVAL_DEREF(pzval);
 			len = yaf_compose_2_pathes(path, app_dir, Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
@@ -564,7 +564,7 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 
 			do { /* Fetch the action method, if it doesn't exist , fall to $action_map property */
 				char *func_name;
-				unsigned int func_len;
+				uint32_t func_len;
 
 				func_len = ZSTR_LEN(request->action) + sizeof("action") - 1;
 				func_name = emalloc(func_len);
@@ -585,7 +585,7 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 			do { /* Execute the method */
 				zval ret;
 				zval *args = NULL;
-				unsigned int count = 0;
+				uint32_t count = 0;
 
 				current_action = zend_string_copy(request->action);
 				if (UNEXPECTED(fptr->common.num_args)) {
@@ -720,7 +720,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	yaf_request_object *request;
 	zend_bool catch_exception = yaf_is_catch_exception();
 	HashTable *plugins = dispatcher->plugins;
-	unsigned int nesting = yaf_get_forward_limit();
+	uint32_t nesting = yaf_get_forward_limit();
 
 	if (EXPECTED(Z_TYPE(dispatcher->response) != IS_OBJECT)) {
 		yaf_response_instance(&dispatcher->response, sapi_module.name);

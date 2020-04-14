@@ -608,7 +608,7 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	zval *pzval;
 	HashTable *conf;
-	unsigned int items;
+	uint32_t items;
 
 	conf = Z_YAFCONFIGOBJ(app->config)->config;
 	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
@@ -782,7 +782,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 	if (!(ce = zend_hash_str_find_ptr(EG(class_table), YAF_DEFAULT_BOOTSTRAP_LOWER, sizeof(YAF_DEFAULT_BOOTSTRAP_LOWER) - 1))) {
 		char buf[MAXPATHLEN];
 		const char *bootstrap_path;
-		unsigned int bootstrap_path_len;
+		uint32_t bootstrap_path_len;
 		if (UNEXPECTED(app->bootstrap)) {
 			bootstrap_path = ZSTR_VAL(app->bootstrap);
 			bootstrap_path_len = ZSTR_LEN(app->bootstrap);
