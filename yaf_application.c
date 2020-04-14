@@ -253,6 +253,24 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 }
 /* }}} */
 
+static ZEND_COLD zend_never_inline void yaf_application_errors_hub(yaf_application_object *app) /* {{{ */ {
+	if (Z_TYPE(YAF_G(app)) == IS_OBJECT) {
+		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
+	} else if (Z_TYPE(app->config) != IS_OBJECT) {
+		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
+	} else {
+		zval *pzval;
+		HashTable *conf = Z_YAFCONFIGOBJ(app->config)->config;
+		if ((((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) &&
+			(((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY)) {
+			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configuration");
+		} else {
+			yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected 'directory' entry in application configuration");
+		}
+	}
+}
+/* }}} */
+
 static inline zend_object *yaf_application_get_dispatcher(yaf_application_object *app) /* {{{ */ {
 	if (Z_TYPE(app->dispatcher) == IS_OBJECT) {
 		Z_ADDREF(app->dispatcher);
@@ -632,7 +650,6 @@ int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
 		/* For back compatibilty */
 		if (((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
-			yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configuration");
 			return 0;
 		}
 	}
@@ -640,7 +657,6 @@ int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	conf = Z_ARRVAL_P(pzval);
 	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("directory"))) == NULL ||
 		Z_TYPE_P(pzval) != IS_STRING || Z_STRLEN_P(pzval) == 0)) {
-		yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected 'directory' entry in application configuration");
 		return 0;
 	}
 
@@ -717,51 +733,39 @@ PHP_METHOD(yaf_application, __construct) {
 		return;
 	}
 
-	if (UNEXPECTED(Z_TYPE(YAF_G(app)) == IS_OBJECT)) {
-		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Only one application can be initialized");
-		return;
+	if (EXPECTED(Z_TYPE(YAF_G(app)) != IS_OBJECT)) {
+		if (!section || !ZSTR_LEN(section)) {
+			section = zend_string_init(YAF_G(environ_name), strlen(YAF_G(environ_name)), 0);
+		} else {
+			zend_string_copy(section);
+		}
+		yaf_config_instance(&app->config, config, section);
+		if (EXPECTED(Z_TYPE(app->config) == IS_OBJECT)) {
+			loader = yaf_loader_instance(NULL);
+			if (EXPECTED(yaf_application_parse_option(app))) {
+				app->env = section /* initialized flag */;
+				if (app->library == NULL) {
+					zend_string *local_library = zend_string_alloc(ZSTR_LEN(app->directory) + sizeof(YAF_LIBRARY_DIRECTORY_NAME), 0);
+					yaf_compose_2_pathes(ZSTR_VAL(local_library), app->directory, ZEND_STRS(YAF_LIBRARY_DIRECTORY_NAME));
+					yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), local_library);
+					zend_string_release(local_library);
+				} else {
+					yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library);
+				}
+
+				GC_ADDREF(&app->std);
+				ZVAL_OBJ(&YAF_G(app), &app->std);
+				yaf_dispatcher_instance(&app->dispatcher);
+				yaf_request_instance(&Z_YAFDISPATCHEROBJ(app->dispatcher)->request, app->base_uri);
+				return;
+			}
+		}
+		zend_string_release(section);
 	}
 
-	GC_ADDREF(&app->std);
-	ZVAL_OBJ(&YAF_G(app), &app->std);
-
-	if (!section || !ZSTR_LEN(section)) {
-		section = zend_string_init(YAF_G(environ_name), strlen(YAF_G(environ_name)), 0);
-	} else {
-		zend_string_copy(section);
-	}
-
-	yaf_config_instance(&app->config, config, section);
-	if (UNEXPECTED(Z_TYPE(app->config) != IS_OBJECT)) {
-		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED, "Initialization of application config failed");
-		goto dtor;
-	}
-
-	loader = yaf_loader_instance(NULL);
-	if (!yaf_application_parse_option(app)) {
-		goto dtor;
-	}
-
-	app->env = section /* initialized flag */;
-	if (app->library == NULL) {
-		zend_string *local_library = zend_string_alloc(ZSTR_LEN(app->directory) + sizeof(YAF_LIBRARY_DIRECTORY_NAME), 0);
-		yaf_compose_2_pathes(ZSTR_VAL(local_library), app->directory, ZEND_STRS(YAF_LIBRARY_DIRECTORY_NAME));
-		yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), local_library);
-		zend_string_release(local_library);
-	} else {
-		yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library);
-	}
-
-	yaf_dispatcher_instance(&app->dispatcher);
-
-	yaf_request_instance(&Z_YAFDISPATCHEROBJ(app->dispatcher)->request, app->base_uri);
-
-	return;
-dtor:
-	zend_string_release(section);
+	yaf_application_errors_hub(app);
 	zval_ptr_dtor(&app->config);
-	GC_DELREF(Z_OBJ(YAF_G(app)));
-	ZVAL_UNDEF(&YAF_G(app));
+	return;
 }
 /* }}} */
 
