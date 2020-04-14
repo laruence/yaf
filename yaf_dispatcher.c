@@ -878,19 +878,12 @@ PHP_METHOD(yaf_dispatcher, flushInstantly) {
 /** {{{ proto public Yaf_Dispatcher::registerPlugin(Yaf_Plugin_Abstract $plugin)
 */
 PHP_METHOD(yaf_dispatcher, registerPlugin) {
-	zval *plugin;
+	yaf_plugin_t *plugin;
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &plugin) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &plugin, yaf_plugin_ce) == FAILURE) {
 		return;
 	}
-
-	if (EXPECTED(Z_TYPE_P(plugin) != IS_OBJECT ||
-		!instanceof_function(Z_OBJCE_P(plugin), yaf_plugin_ce))) {
-		php_error_docref(NULL, E_WARNING, "Expect a %s instance", ZSTR_VAL(yaf_plugin_ce->name));
-		RETURN_FALSE;
-	}
-
 
 	if (!dispatcher->plugins) {
 		ALLOC_HASHTABLE(dispatcher->plugins);
