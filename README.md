@@ -51,9 +51,9 @@ A classic application directory layout:
   + views    
      |+ index   
         - index.phtml // View template for default controller
-  - library
-  - models  // Models
-  - plugins // Plugins
+  + library // libraries
+  + models  // Models
+  + plugins // Plugins
 ```
 ### DocumentRoot
 You should set `DocumentRoot` to `application/public`, thus only the public folder can be accessed by user
