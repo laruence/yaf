@@ -364,102 +364,74 @@ static int yaf_loader_is_local_namespace(yaf_loader_object *loader, const char *
 static int yaf_loader_identify_category(yaf_loader_object *loader, zend_string *class_name) /* {{{ */ {
 	char *name = ZSTR_VAL(class_name);
 	size_t len = ZSTR_LEN(class_name);
+	char *suspense_name;
+	int suspense_len;
 	int suspense_type = YAF_CLASS_NAME_NORMAL;
 
 	if (EXPECTED(yaf_loader_is_name_suffix(loader))) {
 		switch (name[len - 1]) {
 			case 'l':
-				if (len < sizeof(YAF_LOADER_MODEL)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
-				len -= sizeof(YAF_LOADER_MODEL) - 1;
-				name += len;
-				if (!yaf_slip_equal(name, YAF_LOADER_MODEL, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
+				suspense_name = YAF_LOADER_MODEL;
+				suspense_len = sizeof(YAF_LOADER_MODEL) - 1;
 				suspense_type = YAF_CLASS_NAME_MODEL;
 				break;
 			case 'n':
-				if (len < sizeof(YAF_LOADER_PLUGIN)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
-				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
-				name += len;
-				if (!yaf_slip_equal(name, YAF_LOADER_PLUGIN, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
+				suspense_name = YAF_LOADER_PLUGIN;
+				suspense_len = sizeof(YAF_LOADER_PLUGIN) - 1;
 				suspense_type = YAF_CLASS_NAME_PLUGIN;
 				break;
 			case 'r':
-				if (len < sizeof(YAF_LOADER_CONTROLLER)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
-				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
-				name += len;
-				if (!yaf_slip_equal(name, YAF_LOADER_CONTROLLER, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
+				suspense_name = YAF_LOADER_CONTROLLER;
+				suspense_len = sizeof(YAF_LOADER_CONTROLLER) - 1;
 				suspense_type = YAF_CLASS_NAME_CONTROLLER;
 				break;
 			default:
 				return YAF_CLASS_NAME_NORMAL;
 		}
+		if (len <= suspense_len || !yaf_slip_equal(name + len - suspense_len, suspense_name, suspense_len - 1)) {
+			return YAF_CLASS_NAME_NORMAL;
+		}
 		if (UNEXPECTED(yaf_loader_has_name_separator(loader))) {
+			name += (len - suspense_len);
 			if (len > YAF_G(name_separator_len) &&
 				memcmp(name - YAF_G(name_separator_len), YAF_G(name_separator), YAF_G(name_separator_len)) == 0) {
 				return suspense_type;
 			}
-		} else {
-			return suspense_type;
+			return YAF_CLASS_NAME_NORMAL;
 		}
-		return YAF_CLASS_NAME_NORMAL;
+		return suspense_type;
 	} else {
 		switch (*name) {
 			case 'M':
-				if (len < sizeof(YAF_LOADER_MODEL)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
-				if (!yaf_slip_equal(name + 1, YAF_LOADER_MODEL + 1, sizeof(YAF_LOADER_MODEL) - 1 - 1)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
+				suspense_name = YAF_LOADER_MODEL;
+				suspense_len = sizeof(YAF_LOADER_MODEL) - 1;
 				suspense_type = YAF_CLASS_NAME_MODEL;
-				name += sizeof(YAF_LOADER_MODEL) - 1;
-				len -= sizeof(YAF_LOADER_MODEL) - 1;
 				break;
 			case 'P':
-				if (len < sizeof(YAF_LOADER_PLUGIN)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
-				if (!yaf_slip_equal(name + 1, YAF_LOADER_PLUGIN + 1, sizeof(YAF_LOADER_PLUGIN) - 1 - 1)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
+				suspense_name = YAF_LOADER_PLUGIN;
+				suspense_len = sizeof(YAF_LOADER_PLUGIN) - 1;
 				suspense_type = YAF_CLASS_NAME_PLUGIN;
-				name += sizeof(YAF_LOADER_PLUGIN) - 1;
-				len -= sizeof(YAF_LOADER_PLUGIN) - 1;
 				break;
 			case 'C':
-				if (len < sizeof(YAF_LOADER_CONTROLLER)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
-				if (!yaf_slip_equal(name + 1, YAF_LOADER_CONTROLLER + 1, sizeof(YAF_LOADER_CONTROLLER) - 1 - 1)) {
-					return YAF_CLASS_NAME_NORMAL;
-				}
+				suspense_name = YAF_LOADER_CONTROLLER;
+				suspense_len = sizeof(YAF_LOADER_CONTROLLER) - 1;
 				suspense_type = YAF_CLASS_NAME_CONTROLLER;
-				name += sizeof(YAF_LOADER_CONTROLLER) - 1;
-				len -= sizeof(YAF_LOADER_CONTROLLER) - 1;
 				break;
 			default:
 				return YAF_CLASS_NAME_NORMAL;
 		}
+		if (len <= suspense_len || !yaf_slip_equal(name + 1, suspense_name + 1, suspense_len - 1)) {
+			return YAF_CLASS_NAME_NORMAL;
+		}
 		if (UNEXPECTED(yaf_loader_has_name_separator(loader))) {
+			name += suspense_len;
 			if (len > YAF_G(name_separator_len) &&
 				memcmp(name, YAF_G(name_separator), YAF_G(name_separator_len)) == 0) {
 				return suspense_type;
 			}
-		} else {
-			return suspense_type;
+			return YAF_CLASS_NAME_NORMAL;
 		}
-		return YAF_CLASS_NAME_NORMAL;
+		return suspense_type;
 	}
 }
 /* }}} */
