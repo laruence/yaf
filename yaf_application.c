@@ -796,14 +796,13 @@ PHP_METHOD(yaf_application, bootstrap) {
 				memcpy(buf + bootstrap_path_len, YAF_DEFAULT_EXT, sizeof(YAF_DEFAULT_EXT) - 1);
 				bootstrap_path_len += sizeof(YAF_DEFAULT_EXT) - 1;
 			}
+			buf[bootstrap_path_len] = '\0';
 			bootstrap_path = buf;
 		}
 		if (UNEXPECTED(!yaf_loader_import(bootstrap_path, bootstrap_path_len))) {
-			buf[bootstrap_path_len] = '\0';
 			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path);
 			RETURN_FALSE;
 		} else if (UNEXPECTED(!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER))))) {
-			buf[bootstrap_path_len] = '\0';
 			php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
 			RETURN_FALSE;
 		}
