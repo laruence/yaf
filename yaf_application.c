@@ -448,15 +448,16 @@ static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, 
 static ZEND_COLD zend_never_inline void yaf_application_bootstrap_error_hub(int type, ...) /* {{{ */ {
 	va_list args;
 	va_start(args, type);
-	if (type == 1) {
+	if (type) {
 		zend_class_entry *ce = va_arg(args, zend_class_entry*);
 		yaf_trigger_error(YAF_ERR_TYPE_ERROR, "Expect a %s instance, %s given", ZSTR_VAL(yaf_bootstrap_ce->name), ZSTR_VAL(ce->name));
-	} else if (type == 2) {
+	} else {
 		char *bootstrap_path = va_arg(args, char*);
-		php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path);
-	} else if (type == 3) {
-		char *bootstrap_path = va_arg(args, char*);
-		php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
+		if (zend_hash_str_exists(&EG(included_files), bootstrap_path, strlen(bootstrap_path))) {
+			php_error_docref(NULL, E_WARNING, "Couldn't find class %s in %s", YAF_DEFAULT_BOOTSTRAP, bootstrap_path);
+		} else {
+			php_error_docref(NULL, E_WARNING, "Couldn't find bootstrap file %s", bootstrap_path);
+		}
 	}
 	va_end(args);
 }
@@ -816,11 +817,9 @@ PHP_METHOD(yaf_application, bootstrap) {
 			buf[bootstrap_path_len] = '\0';
 			bootstrap_path = buf;
 		}
-		if (UNEXPECTED(!yaf_loader_import(bootstrap_path, bootstrap_path_len))) {
-			yaf_application_bootstrap_error_hub(2, bootstrap_path);
-			RETURN_FALSE;
-		} else if (UNEXPECTED(!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER))))) {
-			yaf_application_bootstrap_error_hub(3, bootstrap_path);
+		if (UNEXPECTED((!yaf_loader_import(bootstrap_path, bootstrap_path_len)) ||
+			(!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER)))))) {
+			yaf_application_bootstrap_error_hub(0, bootstrap_path);
 			RETURN_FALSE;
 		}
 	}
