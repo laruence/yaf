@@ -12,10 +12,11 @@ startup();
 $config = array(
 	"application" => array(
 		"directory" => APPLICATION_PATH,
+		"bootstrap" => APPLICATION_PATH . "/mybootstrap.php",
 	),
 );
 
-file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/mybootstrap.php", <<<PHP
 <?php
    class Bootstrap extends Yaf_Bootstrap_Abstract {
    }
@@ -45,6 +46,6 @@ shutdown();
 Fatal error: Uncaught Error: Call to undefined function geoge() in %s:5
 Stack trace:
 #0 [internal function]: IndexController->indexAction()
-#1 %s080.php(30): Yaf_Application->run()
+#1 %s080.php(%d): Yaf_Application->run()
 #2 {main}
   thrown in %s on line %d
