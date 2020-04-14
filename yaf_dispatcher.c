@@ -508,10 +508,6 @@ static zend_never_inline zend_function *yaf_dispatcher_handle_action(yaf_applica
 }
 /* }}} */
 
-static zend_always_inline void yaf_dispatcher_fix_view_tpl(yaf_application_object *app, yaf_dispatcher_object *dispatcher, yaf_request_object *request, int def) /* {{{ */ {
-}
-/* }}} */
-
 ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
