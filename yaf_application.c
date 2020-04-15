@@ -855,8 +855,8 @@ PHP_METHOD(yaf_application, bootstrap) {
 	}
 
 error:
-	RETVAL_FALSE;
-	return yaf_application_errors_hub(1, ce, buf);
+	yaf_application_errors_hub(1, ce, buf);
+	RETURN_FALSE;
 }
 /* }}} */
 
