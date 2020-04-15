@@ -1,7 +1,7 @@
 <?php
 define('DIR_ROOT', dirname(__FILE__));
 
-define("APPLICATION_PATH", DIR_ROOT . '/application');
+define("APPLICATION_PATH", DIR_ROOT . DIRECTORY_SEPARATOR . 'application');
 
 function shutdown($root = APPLICATION_PATH) {
     $dp = opendir($root);
