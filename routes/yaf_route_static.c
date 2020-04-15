@@ -186,7 +186,9 @@ ZEND_HOT int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {
 		req_uri_len = ZSTR_LEN(request->uri);
 	}
 
-	return yaf_route_pathinfo_route(request, req_uri, req_uri_len);
+	yaf_route_pathinfo_route(request, req_uri, req_uri_len);
+
+	return 1;
 }
 /* }}} */
 
