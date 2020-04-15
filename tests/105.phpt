@@ -21,7 +21,6 @@ $app = new Yaf_Application($config);
 
 $app->bootstrap();
 file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
-<?php
 PHP
 );
 $app->bootstrap();
