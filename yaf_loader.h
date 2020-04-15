@@ -59,11 +59,12 @@ int yaf_loader_import(const char* path, uint32_t path_len);
 int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string *prefix);
 void yaf_loader_set_global_library_path(yaf_loader_object *loader, zend_string *library_path);
 
-static zend_always_inline void yaf_loader_set_library_path(yaf_loader_object *loader, zend_string *library_path) {
+#define yaf_loader_set_library_path(loader, path)   yaf_loader_set_library_path_ex(loader, zend_string_copy(path))
+static zend_always_inline void yaf_loader_set_library_path_ex(yaf_loader_object *loader, zend_string *library_path) {
 	if (UNEXPECTED(loader->library)) {
 		zend_string_release(loader->library);
 	}
-	loader->library = zend_string_copy(library_path);
+	loader->library = library_path;
 }
 
 static zend_always_inline zend_bool yaf_loader_use_spl_autoload(yaf_loader_object *loader) {

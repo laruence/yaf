@@ -745,14 +745,12 @@ PHP_METHOD(yaf_application, __construct) {
 			loader = yaf_loader_instance(NULL);
 			if (EXPECTED(yaf_application_parse_option(app))) {
 				app->env = section /* initialized flag */;
-				ZEND_ASSERT(Z_YAFLOADEROBJ_P(loader)->library == ZSTR_EMPTY_ALLOC());
 				if (app->library == NULL) {
 					zend_string *local_library = zend_string_alloc(ZSTR_LEN(app->directory) + sizeof(YAF_LIBRARY_DIRECTORY_NAME), 0);
 					yaf_compose_2_pathes(ZSTR_VAL(local_library), app->directory, ZEND_STRS(YAF_LIBRARY_DIRECTORY_NAME));
-					Z_YAFLOADEROBJ_P(loader)->library = local_library;
+					yaf_loader_set_library_path_ex(Z_YAFLOADEROBJ_P(loader), local_library);
 				} else {
-					/* yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library); */
-					Z_YAFLOADEROBJ_P(loader)->library = zend_string_copy(app->library);
+					yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library);
 				}
 
 				GC_ADDREF(&app->std);

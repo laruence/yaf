@@ -560,7 +560,6 @@ ZEND_HOT int yaf_loader_load(yaf_loader_object *loader, char *filename, size_t f
 	char *position = directory + directory_len;
 	yaf_application_object *app = yaf_application_instance();
 
-	ZEND_ASSERT(directory_len);
 	if (EXPECTED(app) && UNEXPECTED(app->ext)) {
 		ext = ZSTR_VAL(app->ext);
 		ext_len = ZSTR_LEN(app->ext);
