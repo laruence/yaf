@@ -272,6 +272,7 @@ static ZEND_COLD zend_never_inline void yaf_application_errors_hub(int type, ...
 			} else {
 				yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected 'directory' entry in application configuration");
 			}
+			zval_ptr_dtor(&app->config);
 		}
 	} else if (type == 1) {
 		zend_class_entry *ce = va_arg(args, zend_class_entry*);
@@ -744,13 +745,14 @@ PHP_METHOD(yaf_application, __construct) {
 			loader = yaf_loader_instance(NULL);
 			if (EXPECTED(yaf_application_parse_option(app))) {
 				app->env = section /* initialized flag */;
+				ZEND_ASSERT(Z_YAFLOADEROBJ_P(loader)->library == ZSTR_EMPTY_ALLOC());
 				if (app->library == NULL) {
 					zend_string *local_library = zend_string_alloc(ZSTR_LEN(app->directory) + sizeof(YAF_LIBRARY_DIRECTORY_NAME), 0);
 					yaf_compose_2_pathes(ZSTR_VAL(local_library), app->directory, ZEND_STRS(YAF_LIBRARY_DIRECTORY_NAME));
-					yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), local_library);
-					zend_string_release(local_library);
+					Z_YAFLOADEROBJ_P(loader)->library = local_library;
 				} else {
-					yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library);
+					/* yaf_loader_set_library_path(Z_YAFLOADEROBJ_P(loader), app->library); */
+					Z_YAFLOADEROBJ_P(loader)->library = zend_string_copy(app->library);
 				}
 
 				GC_ADDREF(&app->std);
@@ -764,7 +766,6 @@ PHP_METHOD(yaf_application, __construct) {
 	}
 
 	yaf_application_errors_hub(0, app);
-	zval_ptr_dtor(&app->config);
 	return;
 }
 /* }}} */
