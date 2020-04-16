@@ -556,16 +556,16 @@ ZEND_HOT int yaf_loader_load_internal(yaf_loader_object *loader, char *filename,
 	   return 0;
    }
 
+   directory[directory_len] = DEFAULT_SLASH;
    memcpy(directory + directory_len + 1, filename, fname_len);
    filename = directory + directory_len + 1;
    if (UNEXPECTED(yaf_loader_is_lowcase_path(loader))) {
 	   zend_str_tolower(filename, fname_len);
    }
    yaf_loader_sanitize_path(filename, fname_len);
+   directory[directory_len + 1 + fname_len] = '.';
    memcpy(directory + directory_len + 1 + fname_len + 1, ext, ext_len);
    /* aussume all the path is not end in slash */
-   directory[directory_len] = DEFAULT_SLASH;
-   directory[directory_len + 1 + fname_len] = '.';
    directory[directory_len + 1 + fname_len + 1 + ext_len] = '\0';
    directory_len = directory_len + 1 + fname_len + 1 + ext_len;
 
@@ -614,9 +614,9 @@ ZEND_HOT static int yaf_loader_load_user(yaf_loader_object *loader, char *buf, u
 
 	memmove(buf + ZSTR_LEN(library_dir) + 1, name, len);
 	memcpy(buf, ZSTR_VAL(library_dir), ZSTR_LEN(library_dir));
-	memcpy(buf + ZSTR_LEN(library_dir) + 1 + len + 1, ext, ext_len);
 	buf[ZSTR_LEN(library_dir)] = DEFAULT_SLASH;
 	buf[ZSTR_LEN(library_dir) + 1 + len] = '.';
+	memcpy(buf + ZSTR_LEN(library_dir) + 1 + len + 1, ext, ext_len);
 	buf[ZSTR_LEN(library_dir) + 1 + len + 1 + ext_len] = '\0';
 	len = ZSTR_LEN(library_dir) + 1 + len + 1 + ext_len;
 
@@ -690,11 +690,11 @@ static zend_never_inline int yaf_loader_load_mvc(yaf_loader_object *loader, char
 	library_dir = app->directory;
 	memmove(buf + ZSTR_LEN(library_dir) + 1 + folder_len + 1, name, len);
 	memcpy(buf, ZSTR_VAL(library_dir), ZSTR_LEN(library_dir));
-	memcpy(buf + ZSTR_LEN(library_dir) + 1, folder, folder_len);
-	memcpy(buf + ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len + 1, ext, ext_len);
 	buf[ZSTR_LEN(library_dir)] = DEFAULT_SLASH;
+	memcpy(buf + ZSTR_LEN(library_dir) + 1, folder, folder_len);
 	buf[ZSTR_LEN(library_dir) + 1 + folder_len] = DEFAULT_SLASH;
 	buf[ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len] = '.';
+	memcpy(buf + ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len + 1, ext, ext_len);
 	buf[ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len + 1 + ext_len] = '\0';
 
 	return yaf_loader_import(buf, len);
