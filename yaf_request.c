@@ -1062,9 +1062,9 @@ PHP_METHOD(yaf_request, getParams) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::cleanParams(void)
+/** {{{ proto public Yaf_Request_Abstract::clearParams(void)
 */
-PHP_METHOD(yaf_request, cleanParams) {
+PHP_METHOD(yaf_request, clearParams) {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 
 	if (zend_parse_parameters_none() == FAILURE) {
@@ -1243,7 +1243,7 @@ zend_function_entry yaf_request_methods[] = {
 	PHP_ME(yaf_request, setParam, yaf_request_set_param_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getParam, yaf_request_get_param_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getParams, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request, cleanParams, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, clearParams, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getException, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getModuleName, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getControllerName, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
