@@ -38,7 +38,7 @@ $req->setControllerName('index');
 $req->setActionName('func');
 $req->setParam(array('b' => 'the second param'));
 $app->getDispatcher()->dispatch($req);
-$req->cleanParams();
+$req->clearParams();
 $req->setParam(array('a' => 'the first param'));
 $app->getDispatcher()->dispatch($req);
 ?>

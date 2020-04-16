@@ -22,7 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Added Yaf_Request::cleanParams()
+  - Added Yaf_Request::clearParams()
   - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
   - Added Yaf_Dispatcher::getDefaultModule(), Yaf_Dispatcher::getDefaultController() and Yaf_Dispatcher::getDefaultAction()
   - Added Yaf_Application::getInstance(), which is alias of Yaf_Application:app()

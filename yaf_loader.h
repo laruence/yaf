@@ -53,10 +53,10 @@ extern zend_class_entry *yaf_loader_ce;
 
 yaf_loader_t *yaf_loader_instance(zend_string *library_path);
 void yaf_loader_reset(yaf_loader_object *loader);
-int yaf_loader_load(yaf_loader_object *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
+int yaf_loader_load_internal(yaf_loader_object *loader, char *file_name, size_t name_len, char *directory, uint32_t directory_len);
 int yaf_register_autoloader(yaf_loader_t *loader);
 int yaf_loader_import(const char* path, uint32_t path_len);
-int yaf_loader_register_namespace_single(yaf_loader_object *loader, zend_string *prefix);
+int yaf_loader_register_namespace(yaf_loader_object *loader, zend_string *prefix, zend_string *path);
 void yaf_loader_set_global_library_path(yaf_loader_object *loader, zend_string *library_path);
 
 #define yaf_loader_set_library_path(loader, path)   yaf_loader_set_library_path_ex(loader, zend_string_copy(path))
