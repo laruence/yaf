@@ -104,10 +104,10 @@ ZEND_BEGIN_MODULE_GLOBALS(yaf)
 	yaf_session_t     session;
 
 	/* ini configurations */
-    char             *global_library;
-    char             *environ_name;
     char             *name_separator;
     size_t            name_separator_len;
+    char             *global_library;
+    char             *environ_name;
 
     /*for ini parsing */
     zval              active_ini_file_section;
