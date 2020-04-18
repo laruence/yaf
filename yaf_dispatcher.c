@@ -785,11 +785,11 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 		}
 		/* yaf_dispatcher_fix_default(dispatcher, request); */
 		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_POSTDISPATCH);
-	} while (--nesting > 0 && !yaf_request_is_dispatched(request));
+	} while (!yaf_request_is_dispatched(request) && --nesting > 0);
 
 	YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
 
-	if (EXPECTED(nesting != 0)) {
+	if (EXPECTED(yaf_request_is_dispatched(request))) {
 		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
 			yaf_response_response(&dispatcher->response);
 
@@ -797,7 +797,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 		}
 		return &dispatcher->response;
 	} else {
-		ZEND_ASSERT(!yaf_request_is_dispatched(request));
+		ZEND_ASSERT(nesting == 0);
 		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The maximum dispatching count %ld is reached", yaf_get_forward_limit());
 		YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 		return NULL;
