@@ -22,6 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
+  - Implemented PSR-4 autoloading, user now can specific a path for a namespace by Yaf_Loader::registerNamespace(name, path)
   - Added Yaf_Request::clearParams()
   - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
   - Added Yaf_Dispatcher::getDefaultModule(), Yaf_Dispatcher::getDefaultController() and Yaf_Dispatcher::getDefaultAction()
