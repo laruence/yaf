@@ -43,7 +43,7 @@ ZEND_END_ARG_INFO()
 static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len) /* {{{ */ {
 	register const char *p = *req_uri;
 	size_t l = *req_uri_len;
-	while (*p == ' ' || *p == YAF_ROUTER_URL_DELIMIETER) {
+	while (*p == YAF_ROUTER_URL_DELIMIETER) {
 		p++; l--;
 	}
 	*req_uri = p;
@@ -52,120 +52,94 @@ static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len
 /* }}} */
 
 int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
-	const char *module = NULL, *controller = NULL, *action = NULL, *rest = NULL;
-	size_t module_len, controller_len, action_len, rest_len;
+	const char *pos;
+	const char *parts[3];
+	uint32_t lens[3];
+	uint32_t current = 0;
 
-	do {
-		const char *s;
-
-		yaf_route_strip_uri(&req_uri, &req_uri_len);
-		if (req_uri_len == 0) {
-			return 1;
-		}
-
-		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {
-			if (yaf_application_is_module_name_str(req_uri, s - req_uri)) {
-				module = req_uri;
-				module_len = s++ - req_uri;
-				req_uri_len -= s - req_uri;
-				req_uri = s;
-
-				yaf_route_strip_uri(&req_uri, &req_uri_len);
-				if (req_uri_len == 0) {
-					break;
-				}
-				if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {
-					controller = req_uri;
-					controller_len = s++ - req_uri;
-					req_uri_len -= s - req_uri;
-					req_uri = s;
-				} else {
-					controller = req_uri;
-					controller_len = req_uri_len;
-					break;
-				}
-			} else {
-				controller = req_uri;
-				controller_len = s++ - req_uri;
-				req_uri_len -= s - req_uri;
-				req_uri = s;
-			}
-		} else {
-			if (yaf_application_is_module_name_str(req_uri, req_uri_len)) {
-				module = req_uri;
-				module_len = req_uri_len;
-			} else {
-				controller = req_uri;
-				controller_len = req_uri_len;
-			}
-			break;
-		}
-
-		yaf_route_strip_uri(&req_uri, &req_uri_len);
-		if (req_uri_len == 0) {
-			break;
-		}
-
-		if ((s = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len)) != NULL) {
-			action = req_uri;
-			action_len = s++ - req_uri;
-			req_uri_len -= s - req_uri;
-			req_uri = s;
-		} else {
-			action = req_uri;
-			action_len = req_uri_len;
-			req_uri_len = 0;
-		}
-
-		yaf_route_strip_uri(&req_uri, &req_uri_len);
-		if (req_uri_len) {
-			rest = req_uri;
-			rest_len = req_uri_len;
-		}
-	} while (0);
-
-	if (controller == NULL) {
-		controller = module;
-		controller_len = module_len;
-		module = NULL;
-	} else if (action == NULL) {
-		if (module && controller) {
-			action = controller;
-			action_len = controller_len;
-			controller = module;
-			controller_len = module_len;
-			module = NULL;
-		} else if (controller && UNEXPECTED(yaf_is_action_prefer())) {
-			action = controller;
-			action_len = controller_len;
-			controller = NULL;
-		}
+	yaf_route_strip_uri(&req_uri, &req_uri_len);
+	if (req_uri_len == 0) {
+		return 1;
 	}
 
-	if (module) {
+	do {
+		parts[current] = req_uri;
+		lens[current] = req_uri_len;
+		req_uri_len = 0;
+		if ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, lens[current])) != NULL) {
+			req_uri_len = lens[current] - (pos - req_uri + 1);
+			lens[current] = pos - req_uri;
+			req_uri = pos + 1;
+			yaf_route_strip_uri(&req_uri, &req_uri_len);
+		}
+	} while (++current < 3 && req_uri_len);
+
+	switch (current) {
+		case 1:
+			if (UNEXPECTED(yaf_is_action_prefer())) {
+				parts[2] = parts[0];
+				parts[0] = NULL;
+				parts[1] = NULL;
+				lens[2] = lens[0];
+			} else {
+				parts[1] = parts[0];
+				parts[0] = NULL;
+				parts[2] = NULL;
+				lens[1] = lens[0];
+			}
+			break;
+		case 2:
+			/*if (!yaf_application_is_module_name_str(parts[0], lens[0]) || UNEXPECTED(yaf_is_action_prefer())) { */
+				/* /module/controller/ -> /controller/action */
+				parts[2] = parts[1];
+				parts[1] = parts[0];
+				parts[0] = NULL;
+				lens[2] = lens[1];
+				lens[1] = lens[0];
+			/*}*/
+			break;
+		case 3:
+			if (!yaf_application_is_module_name_str(parts[0], lens[0])) {
+				/* /module/controller/ -> /controller/action */
+				/* action -> call args */
+				req_uri = parts[2];
+				req_uri_len += lens[2] + (req_uri_len? 1 : 0) /* stripped back slash */;
+				parts[2] = parts[1];
+				parts[1] = parts[0];
+				parts[0] = NULL;
+				lens[2] = lens[1];
+				lens[1] = lens[0];
+			}
+			break;
+		default:
+			break;
+	}
+
+	if (parts[0]) {
 		if (UNEXPECTED(request->module)) {
 			zend_string_release(request->module);
 		}
-		request->module = yaf_build_camel_name(module, module_len);
+		request->module = yaf_build_camel_name(parts[0], lens[0]);
 	}
 
-	if (controller) {
+	if (parts[1]) {
 		if (UNEXPECTED(request->controller)) {
 			zend_string_release(request->controller);
 		}
-		request->controller = yaf_build_camel_name(controller, controller_len);
+		request->controller = yaf_build_camel_name(parts[1], lens[1]);
 	}
 
-	if (action) {
+	if (parts[2]) {
 		if (UNEXPECTED(request->action)) {
 			zend_string_release(request->action);
 		}
-		request->action = yaf_build_lower_name(action, action_len);
+		request->action = yaf_build_lower_name(parts[2], lens[2]);
 	}
 
-	if (rest) {
+	if (req_uri_len) {
+		/* call args */
 		zval params;
-		yaf_router_parse_parameters(rest, rest_len, &params);
+		yaf_router_parse_parameters(req_uri, req_uri_len, &params);
 		yaf_request_set_params_multi(request, &params);
 		zval_ptr_dtor(&params);
 	}
@@ -185,7 +159,6 @@ ZEND_HOT int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {
 		req_uri = ZSTR_VAL(request->uri);
 		req_uri_len = ZSTR_LEN(request->uri);
 	}
-
 	yaf_route_pathinfo_route(request, req_uri, req_uri_len);
 
 	return 1;

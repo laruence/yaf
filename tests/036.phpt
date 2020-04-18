@@ -84,7 +84,7 @@ index/foo : m=> c=>Index a=>foo
 / : m=> c=> a=>
 /foo : m=> c=> a=>foo
 /foo/ : m=> c=> a=>foo
-/my : m=> c=>My a=>
-/my/ : m=> c=>My a=>
+/my : m=> c=> a=>my
+/my/ : m=> c=> a=>my
 /my/foo : m=> c=>My a=>foo
 /my//foo/ : m=> c=>My a=>foo
