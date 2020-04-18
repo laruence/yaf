@@ -245,7 +245,7 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 		return instance;
 	}
 
-	loader = emalloc(128/*sizeof(yaf_loader_object)*/);
+	loader = emalloc(sizeof(yaf_loader_object));
 	zend_object_std_init(&loader->std, yaf_loader_ce);
 	loader->std.handlers = &yaf_loader_obj_handlers;
 

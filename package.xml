@@ -10,18 +10,19 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-04-??</date>
- <time>12:00:00</time>
+ <date>2020-04-18</date>
+ <time>21:40:00</time>
  <version>
   <release>3.2.0</release>
   <api>3.2.0</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
+  - Refactor core data structs for performance, 20% speed up according to demo created by tool/cg/yaf_cg
   - Implemented PSR-4 autoloading, user now can specific a path for a namespace by Yaf_Loader::registerNamespace(name, path)
   - Added Yaf_Loader::registerNamespace(), Yaf_Loader::getNamespaces(), Yaf_Loader::getNamespacePath()
   - Added Yaf_Request::clearParams()
@@ -264,6 +265,37 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-04-18</date> 
+   <version> 
+    <release>3.2.0</release> 
+    <api>3.2.0</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Refactor core data structs for performance, according to demo created by tool/cg/yaf_cg, 20% performance improved
+    - Implemented PSR-4 autoloading, user now can specific a path for a namespace by Yaf_Loader::registerNamespace(name, path)
+    - Added Yaf_Loader::registerNamespace(), Yaf_Loader::getNamespaces(), Yaf_Loader::getNamespacePath()
+    - Added Yaf_Request::clearParams()
+    - Added Yaf_Controller::getName(), Yaf_Action::getControllerName()
+    - Added Yaf_Dispatcher::getDefaultModule(), Yaf_Dispatcher::getDefaultController() and Yaf_Dispatcher::getDefaultAction()
+    - Added Yaf_Application::getInstance(), which is alias of Yaf_Application:app()
+    - Added optional $format_name argument to Yaf_Request::setModule/Controller/actionName
+      if it set to false, Yaf will set original input as name,
+      default it true, which means Yaf will format the name(camel/lowercase) before set it to Request
+    - Yaf_Controller::__construct now accpet no parameters, it now requires Yaf_Application is initialized.
+    - Rmoved all lead underline for fake protected property name(examing by var_dump)
+    - Fixed bug that protected method of Bootstrap get executed
+    - Yaf_View_Simple is final class now, custom view engin should implements Yaf_View_Interface
+    - Yaf_Route_* now routes valid Module/Controller/action name directly
+    - Yaf_Controller action's arguments will be set even if there are gaps now (see test/issue420.phpt)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-04-01</date> 
    <version> 
     <release>3.1.4</release> 
@@ -280,7 +312,6 @@
     - minor optimization to avoding memory allocations
    </notes> 
   </release> 
-
   <release> 
    <date>2020-03-20</date> 
    <version> 
