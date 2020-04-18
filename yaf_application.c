@@ -557,25 +557,42 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 				Z_TYPE_P(psval) == IS_STRING) {
 				app->library = zend_string_copy(Z_STR_P(psval));
 			}
-			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("namespace"))) != NULL &&
-				Z_TYPE_P(psval) == IS_STRING) {
-				if (Z_STRLEN_P(psval)) {
-					zend_string *prefix;
-					char *src = Z_STRVAL_P(psval), *pos;
-					size_t len = Z_STRLEN_P(psval);
-					while ((pos = memchr(src, ',', len))) {
-						len -= pos - src;
-						prefix = zend_string_init(src, pos - src, 0);
-						yaf_loader_register_namespace_single(Z_YAFLOADEROBJ(YAF_G(loader)), prefix);
-						zend_string_release(prefix);
-						src = pos + 1;
-					}
+			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("namespace"))) != NULL) {
+				yaf_loader_object *loader = Z_YAFLOADEROBJ(YAF_G(loader));
+				if (Z_TYPE_P(psval) == IS_STRING) {
+					if (Z_STRLEN_P(psval)) {
+						zend_string *prefix;
+						char *src = Z_STRVAL_P(psval), *pos;
+						size_t len = Z_STRLEN_P(psval);
+						while ((pos = memchr(src, ',', len))) {
+							len -= (pos - src) + 1;
+							while (*src == ' ') src++;
+							prefix = zend_string_init(src, pos - src, 0);
+							yaf_loader_register_namespace(loader, prefix, NULL);
+							zend_string_release(prefix);
+							src = pos + 1;
+						}
 
-					if (len) {
-						prefix = zend_string_init(src, len, 0);
-						yaf_loader_register_namespace_single(Z_YAFLOADEROBJ(YAF_G(loader)), prefix);
-						zend_string_release(prefix);
-					}
+						if (len) {
+							while (*src == ' ') src++, len--;
+							prefix = zend_string_init(src, len, 0);
+							yaf_loader_register_namespace(loader, prefix, NULL);
+							zend_string_release(prefix);
+						}
+					} 
+				} else if (Z_TYPE_P(psval) == IS_ARRAY) {
+					zend_string *name;
+					zval *path;
+					ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(psval), name, path) {
+						if (name == NULL) {
+							continue;
+						}
+						if (Z_TYPE_P(path) == IS_STRING) {
+							yaf_loader_register_namespace(Z_YAFLOADEROBJ(YAF_G(loader)), name, Z_STR_P(path));
+						} else {
+							yaf_loader_register_namespace(Z_YAFLOADEROBJ(YAF_G(loader)), name, NULL);
+						}
+					} ZEND_HASH_FOREACH_END();
 				}
 			}
 		}

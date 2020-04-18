@@ -162,7 +162,6 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-string(100) "Yaf_Dispatcher::dispatch(): Path too long: '%s"
 string(100) "path too long while loading 'Indexindexindexindexindexindexindexindexindexindexindexindexindexindexi"
 string(%d) "Failed opening controller script %sIndex.php: No such file or directory"
 xxxstring(%d) "Could not find class IndexController in controller script %sIndex.php"

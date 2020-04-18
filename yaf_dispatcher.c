@@ -431,7 +431,8 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 	}
 
 	if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) == NULL || !instanceof_function(ce, yaf_controller_ce)) {
-		if (yaf_loader_load(Z_YAFLOADEROBJ(YAF_G(loader)), ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
+		yaf_loader_object *l = Z_YAFLOADEROBJ(YAF_G(loader));
+		if (yaf_loader_load_internal(l, ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
 			if (EXPECTED((ce = zend_hash_find_ptr(EG(class_table), lc_name)))) {
 				if (EXPECTED(instanceof_function(ce, yaf_controller_ce))) {
 					STR_ALLOCA_FREE(lc_name, use_heap);
