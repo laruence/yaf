@@ -275,46 +275,6 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 }
 /* }}} */
 
-static void zend_always_inline yaf_loader_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t) /* {{{ */ {
-	char *pos = name;
-#ifdef __SSE2__
-	do {
-		const __m128i from = _mm_set1_epi8(f);
-		const __m128i delta = _mm_set1_epi8(t - f);
-		while (len >= 16) {
-			__m128i op = _mm_loadu_si128((__m128i *)pos);
-			__m128i eq = _mm_cmpeq_epi8(op, from);
-			if (_mm_movemask_epi8(eq)) {
-				eq = _mm_and_si128(eq, delta);
-				op = _mm_add_epi8(op, eq);
-				_mm_storeu_si128((__m128i*)pos, op);
-			}
-			len -= 16;
-			pos += 16;
-		}
-	} while (0);
-#endif
-	if (len) {
-		name = pos; /* reset start */
-		while ((pos = memchr(pos, f, len - (pos - name)))) {
-			*pos++ = t;
-		}
-	}
-}
-/* }}} */
-
-static void yaf_loader_sanitize_path(char *name, uint32_t len) /* {{{ */ {
-	yaf_loader_replace_chr(name, len, '_', DEFAULT_SLASH);
-}
-/* }}} */
-
-static void yaf_loader_sanitize_name(char *name, uint32_t len, char *buf) /* {{{ */ {
-	memcpy(buf, name, len);
-	/* replace all '\' to '_' */
-	yaf_loader_replace_chr(buf, len, '\\', '_');
-}
-/* }}} */
-
 int yaf_loader_register_namespace(yaf_loader_object *loader, zend_string *class_name, zend_string *path) /* {{{ */ {
 	zval *entry, rv;
 	HashTable *target;
@@ -382,6 +342,46 @@ int yaf_loader_register_namespace_multi(yaf_loader_object *loader, zval *namespa
 	} ZEND_HASH_FOREACH_END();
 
 	return 1;
+}
+/* }}} */
+
+static void zend_always_inline yaf_loader_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t) /* {{{ */ {
+	char *pos = name;
+#ifdef __SSE2__
+	do {
+		const __m128i from = _mm_set1_epi8(f);
+		const __m128i delta = _mm_set1_epi8(t - f);
+		while (len >= 16) {
+			__m128i op = _mm_loadu_si128((__m128i *)pos);
+			__m128i eq = _mm_cmpeq_epi8(op, from);
+			if (_mm_movemask_epi8(eq)) {
+				eq = _mm_and_si128(eq, delta);
+				op = _mm_add_epi8(op, eq);
+				_mm_storeu_si128((__m128i*)pos, op);
+			}
+			len -= 16;
+			pos += 16;
+		}
+	} while (0);
+#endif
+	if (len) {
+		name = pos; /* reset start */
+		while ((pos = memchr(pos, f, len - (pos - name)))) {
+			*pos++ = t;
+		}
+	}
+}
+/* }}} */
+
+static void yaf_loader_sanitize_path(char *name, uint32_t len) /* {{{ */ {
+	yaf_loader_replace_chr(name, len, '_', DEFAULT_SLASH);
+}
+/* }}} */
+
+static void yaf_loader_sanitize_name(char *name, uint32_t len, char *buf) /* {{{ */ {
+	memcpy(buf, name, len);
+	/* replace all '\' to '_' */
+	yaf_loader_replace_chr(buf, len, '\\', '_');
 }
 /* }}} */
 
@@ -509,31 +509,26 @@ ZEND_HOT int yaf_loader_import(const char *path, uint32_t len) /* {{{ */ {
 	zend_stream_init_filename(&file_handle, path);
 #endif
 
-	op_array = zend_compile_file(&file_handle, ZEND_INCLUDE);
-
-	if (op_array && file_handle.handle.stream.handle) {
-		if (!file_handle.opened_path) {
-			file_handle.opened_path = zend_string_init(path, len, 0);
+	if (EXPECTED((op_array = zend_compile_file(&file_handle, ZEND_INCLUDE)))) {
+		zval result;
+		if (EXPECTED(file_handle.handle.stream.handle)) {
+			if (UNEXPECTED(!file_handle.opened_path)) {
+				file_handle.opened_path = zend_string_init(path, len, 0);
+			}
+			zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
 		}
 
-		zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
-	}
-	zend_destroy_file_handle(&file_handle);
-
-	if (EXPECTED(op_array)) {
-		zval result;
-
-        ZVAL_UNDEF(&result);
-
+        /* ZVAL_UNDEF(&result); */
 		zend_execute(op_array, &result);
-
 		destroy_op_array(op_array);
 		efree_size(op_array, sizeof(zend_op_array));
-        zval_ptr_dtor(&result);
+        /* zval_ptr_dtor(&result); */
+		zend_destroy_file_handle(&file_handle);
 
-	    return 1;
+		return 1;
 	}
 
+	zend_destroy_file_handle(&file_handle);
 	return 0;
 }
 /* }}} */
