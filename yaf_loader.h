@@ -37,13 +37,13 @@
 #define YAF_LOADER_NAMESEPARATOR           YAF_HAS_NAME_SEPERATOR
 
 #define YAF_LOADER_FLAGS(loader)           YAF_VAR_FLAGS(loader->std.properties_table[0])
-#define YAF_LOADER_PROPERTIES(loader)      (Z_ARR(loader->std.properties_table[0]))
+#define YAF_LOADER_NAMESPACES(loader)      (Z_ARR(loader->std.properties_table[0]))
 
 typedef struct {
 	zend_object std;
 	zend_string *library;
 	zend_string *glibrary;
-	zend_array  *namespaces;
+	zend_array  *properties;
 } yaf_loader_object;
 
 #define Z_YAFLOADEROBJ(zv)    ((yaf_loader_object*)(Z_OBJ(zv)))
