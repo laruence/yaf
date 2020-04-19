@@ -377,7 +377,7 @@ static zend_object *yaf_controller_new(zend_class_entry *ce) /* {{{ */ {
 
 	memset(ctl, 0, XtOffsetOf(yaf_controller_object, std));
 	zend_object_std_init(&ctl->std, ce);
-	if (ce->default_properties_count) {
+	if (UNEXPECTED(ce->default_properties_count)) {
 		object_properties_init(&ctl->std, ce);
 		yaf_controller_determine_auto_render(ctl, ce, &ctl->std);
 	} else {

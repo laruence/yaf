@@ -154,7 +154,7 @@ static zend_object *yaf_response_new(zend_class_entry *ce) /* {{{ */ {
 	memset(response, 0, XtOffsetOf(yaf_response_object, std));
 	zend_object_std_init(&response->std, ce);
 	response->std.handlers = &yaf_response_obj_handlers;
-	if (ce->default_properties_count) {
+	if (UNEXPECTED(ce->default_properties_count)) {
 		object_properties_init(&response->std, ce);
 	}
 
