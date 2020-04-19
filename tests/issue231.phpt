@@ -40,7 +40,7 @@ Yaf_Request_Http::__set_state(array(
    'controller' => NULL,
    'action' => NULL,
    'uri:protected' => '%stests',
-   'base_uri:protected' => '%syaf',
+   'base_uri:protected' => '%s',
    'dispatched:protected' => false,
    'routed:protected' => false,
    'language:protected' => '',
