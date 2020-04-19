@@ -298,10 +298,14 @@ int yaf_loader_register_namespace(yaf_loader_object *loader, zend_string *class_
 	if (((delim = memchr(name, '\\', len)) || (delim = memchr(name, '_', len)))) {
 		do {
 loop:
-			entry = zend_hash_str_update(target, name, delim - name, &rv);
+			if ((entry = zend_hash_str_find(target, name, delim - name)) == NULL) {
+				entry = zend_hash_str_update(target, name, delim - name, &rv);
+			}
 			len -= delim - name + 1;
 			name = delim + 1;
-			array_init(entry);
+			if (Z_TYPE_P(entry) != IS_ARRAY) {
+				array_init(entry);
+			}
 			target = Z_ARRVAL_P(entry);
 			if (((delim = memchr(name, '\\', len)) || (delim = memchr(name, '_', len)))) {
 				goto loop;
