@@ -179,38 +179,6 @@ ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request)
 }
 /* }}} */
 
-int yaf_router_add_config(yaf_router_object *router, zend_array *configs) /* {{{ */ {
-	zval rv;
-	zend_ulong idx;
-	zend_string *key;
-	zval *entry;
-
-	if (UNEXPECTED(configs == NULL)) {
-		return 0;
-	}
-
-	ZEND_HASH_FOREACH_KEY_VAL(configs, idx, key, entry) {
-		if (Z_TYPE_P(entry) != IS_ARRAY) {
-			continue;
-		}
-		if (UNEXPECTED(!yaf_route_instance(&rv, Z_ARRVAL_P(entry)))) {
-			if (key) {
-				php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", ZSTR_VAL(key));
-			} else {
-				php_error_docref(NULL, E_WARNING, "Unable to initialize route at index '"ZEND_ULONG_FMT"'", idx);
-			}
-			continue;
-		} else if (key) {
-			zend_hash_update(&router->routes, key, &rv);
-		} else {
-			zend_hash_index_update(&router->routes, idx, &rv);
-		}
-	} ZEND_HASH_FOREACH_END();
-
-	return 1;
-}
-/* }}} */
-
 void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {{{ */ {
 	char *k, *v;
 	uint32_t l;
@@ -250,6 +218,38 @@ void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {
 		}
 		return;
 	}
+}
+/* }}} */
+
+int yaf_router_add_config(yaf_router_object *router, zend_array *configs) /* {{{ */ {
+	zval rv;
+	zend_ulong idx;
+	zend_string *key;
+	zval *entry;
+
+	if (UNEXPECTED(configs == NULL)) {
+		return 0;
+	}
+
+	ZEND_HASH_FOREACH_KEY_VAL(configs, idx, key, entry) {
+		if (Z_TYPE_P(entry) != IS_ARRAY) {
+			continue;
+		}
+		if (UNEXPECTED(!yaf_route_instance(&rv, Z_ARRVAL_P(entry)))) {
+			if (key) {
+				php_error_docref(NULL, E_WARNING, "Unable to initialize route named '%s'", ZSTR_VAL(key));
+			} else {
+				php_error_docref(NULL, E_WARNING, "Unable to initialize route at index '"ZEND_ULONG_FMT"'", idx);
+			}
+			continue;
+		} else if (key) {
+			zend_hash_update(&router->routes, key, &rv);
+		} else {
+			zend_hash_index_update(&router->routes, idx, &rv);
+		}
+	} ZEND_HASH_FOREACH_END();
+
+	return 1;
 }
 /* }}} */
 

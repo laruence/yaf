@@ -538,7 +538,7 @@ static zend_never_inline zend_function *yaf_dispatcher_handle_action(yaf_applica
 }
 /* }}} */
 
-ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
+static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
 
 	yaf_request_set_dispatched(Z_YAFREQUESTOBJ(dispatcher->request), 1);
@@ -670,7 +670,7 @@ ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* {{{ */ 
 }
 /* }}} */
 
-ZEND_COLD void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ */ {
+static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	zend_string *exception_str, *controller, *action;
 	zval exception;
 	const zend_op *opline;
