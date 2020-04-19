@@ -10,14 +10,14 @@ $response = new Yaf_Response_Cli();
 
 
 $body  = <<<HTML
-ifjakdsljfklasdjfkljasdkljfkljadsf
+yaf
 HTML;
 
-$string = "laruence";
+$string = "header|";
 
 $response->appendBody($body);
 $response->prependBody($string);
-$response->appendBody("kfjdaksljfklajdsfkljasdkljfkjasdf");
+$response->appendBody("|footer");
 
 $body = $response->getBody();
 unset($body);
@@ -28,17 +28,21 @@ var_dump($response->getBody(Yaf_Response_Http::DEFAULT_BODY));
 unset($string);
 var_dump($response->getBody());
 echo($response);
+echo "\n";
 var_dump($response->getBody());
 $response->response();
+echo "\n";
 var_dump($response->getBody());
 ?>
 --EXPECTF--
 string(7) "content"
 Array
 (
-    [content] => laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf
+    [content] => header|yaf|footer
 )
-string(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf"
-string(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf"
-laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdfstring(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf"
-laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdfstring(75) "laruenceifjakdsljfklasdjfkljasdkljfkljadsfkfjdaksljfklajdsfkljasdkljfkjasdf"
+string(17) "header|yaf|footer"
+string(17) "header|yaf|footer"
+header|yaf|footer
+string(17) "header|yaf|footer"
+header|yaf|footer
+string(17) "header|yaf|footer"

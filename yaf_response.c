@@ -201,72 +201,48 @@ void yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name) /* {{{ */ 
 /* }}} */
 
 int yaf_response_alter_body(yaf_response_object *response, zend_string *name, zend_string *body, int flag) /* {{{ */ {
-	zval *zbody, rv;
-	zend_string *obody;
-
-	if (ZSTR_LEN(body) == 0) {
-		return 1;
-	}
+	zval rv;
 
 	if (!response->body) {
 		ALLOC_HASHTABLE(response->body);
 		zend_hash_init(response->body, 8, NULL, ZVAL_PTR_DTOR, 0);
 		HT_ALLOW_COW_VIOLATION(response->body);
-	}
-
-	if (!name) {
-		zbody = zend_hash_str_find(response->body, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+update:
+		ZVAL_STR_COPY(&rv, body);
+		if (EXPECTED(name == NULL)) {
+			return zend_hash_str_update(response->body,
+					YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv) != NULL;
+		} else {
+			return zend_hash_update(response->body, name, &rv) != NULL;
+		}
 	} else {
-		zbody = zend_hash_find(response->body, name);
-	}
+		zval *pzval;
+		zend_string *obody;
 
-	if (zbody) {
-		obody = Z_STR_P(zbody);
-	} else {
-		obody = NULL;
-	}
-
-	if (obody == NULL) {
-		obody = zend_string_copy(body);
-	} else {
-		zend_string *result;
-		size_t result_len;
-
-		switch (flag) {
-			case YAF_RESPONSE_PREPEND:
-				result_len = ZSTR_LEN(body) + ZSTR_LEN(obody);
-				result = zend_string_alloc(result_len, 0);
+		if (EXPECTED(name == NULL)) {
+			pzval = zend_hash_str_find(response->body, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+		} else {
+			pzval = zend_hash_find(response->body, name);
+		}
+		if (EXPECTED(pzval == NULL) || flag == YAF_RESPONSE_REPLACE) {
+			goto update;
+		} else if (Z_TYPE_P(pzval) == IS_STRING) {
+			zend_string *result;
+			obody = Z_STR_P(pzval);
+			result = zend_string_alloc(ZSTR_LEN(obody) + ZSTR_LEN(body), 0);
+			if (flag == YAF_RESPONSE_APPEND) {
+				memcpy(ZSTR_VAL(result), ZSTR_VAL(obody), ZSTR_LEN(obody));
+				memcpy(ZSTR_VAL(result) + ZSTR_LEN(obody), ZSTR_VAL(body), ZSTR_LEN(body) + 1);
+			} else {
 				memcpy(ZSTR_VAL(result), ZSTR_VAL(body), ZSTR_LEN(body));
 				memcpy(ZSTR_VAL(result) + ZSTR_LEN(body), ZSTR_VAL(obody), ZSTR_LEN(obody) + 1);
-				zend_string_release(obody);
-				obody = result;
-				break;
-			case YAF_RESPONSE_APPEND:
-				result_len = ZSTR_LEN(body) + ZSTR_LEN(obody);
-				result = zend_string_realloc(obody, result_len, 0);
-				memcpy(ZSTR_VAL(result) + ZSTR_LEN(result) - ZSTR_LEN(body), ZSTR_VAL(body), ZSTR_LEN(body) + 1);
-				obody = result;
-				break;
-			case YAF_RESPONSE_REPLACE:
-			default:
-				zend_string_release(obody);
-				obody = body;
-				break;
+			}
+			zend_string_release(obody);
+			ZVAL_STR(pzval, result);
+			return 1;
 		}
 	}
-
-	if (zbody) {
-		ZVAL_STR(zbody, obody);
-	} else {
-		ZVAL_STR(&rv, obody);
-		if (!name) {
-			zend_hash_str_update(response->body, YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv);;
-		} else {
-			zend_hash_update(response->body, name, &rv);
-		}
-	}
-
-	return 1;
+	return 0;
 }
 /* }}} */
 
