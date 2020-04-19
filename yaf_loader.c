@@ -300,12 +300,13 @@ int yaf_loader_register_namespace(yaf_loader_object *loader, zend_string *class_
 loop:
 			if ((entry = zend_hash_str_find(target, name, delim - name)) == NULL) {
 				entry = zend_hash_str_update(target, name, delim - name, &rv);
+				array_init(entry);
+			} else if (UNEXPECTED(Z_TYPE_P(entry) != IS_ARRAY)) {
+				zval_ptr_dtor(entry);
+				array_init(entry);
 			}
 			len -= delim - name + 1;
 			name = delim + 1;
-			if (Z_TYPE_P(entry) != IS_ARRAY) {
-				array_init(entry);
-			}
 			target = Z_ARRVAL_P(entry);
 			if (((delim = memchr(name, '\\', len)) || (delim = memchr(name, '_', len)))) {
 				goto loop;
