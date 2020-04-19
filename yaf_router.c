@@ -133,9 +133,7 @@ ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request)
 
 	ZEND_HASH_REVERSE_FOREACH_KEY_VAL(routes, idx, key, route) {
 		if (Z_OBJCE_P(route) == yaf_route_static_ce) {
-			if (!yaf_route_static_route(route, request)) {
-				continue;
-			}
+			yaf_route_static_route(route, request);
 		} else if (Z_OBJCE_P(route) == yaf_route_map_ce) {
 			if (!yaf_route_map_route(route, request)) {
 				continue;

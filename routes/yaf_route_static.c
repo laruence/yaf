@@ -51,7 +51,7 @@ static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len
 }
 /* }}} */
 
-int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
+void yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, size_t req_uri_len) /* {{{ */ {
 	const char *pos;
 	const char *parts[3];
 	uint32_t lens[3];
@@ -59,7 +59,7 @@ int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, s
 
 	yaf_route_strip_uri(&req_uri, &req_uri_len);
 	if (req_uri_len == 0) {
-		return 1;
+		return;
 	}
 
 	do {
@@ -143,12 +143,10 @@ int yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, s
 		yaf_request_set_params_multi(request, &params);
 		zval_ptr_dtor(&params);
 	}
-
-	return 1;
 }
 /* }}} */
 
-ZEND_HOT int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
+ZEND_HOT void yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	const char *req_uri;
 	size_t req_uri_len;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
@@ -160,8 +158,6 @@ ZEND_HOT int yaf_route_static_route(yaf_route_t *route, yaf_request_t *req) /* {
 		req_uri_len = ZSTR_LEN(request->uri);
 	}
 	yaf_route_pathinfo_route(request, req_uri, req_uri_len);
-
-	return 1;
 }
 /* }}} */
 
@@ -174,7 +170,8 @@ PHP_METHOD(yaf_route_static, route) {
 		return;
 	}
 
-	RETURN_BOOL(yaf_route_static_route(getThis(), request));
+	yaf_route_static_route(getThis(), request);
+	RETURN_TRUE;
 }
 /* }}} */
 
