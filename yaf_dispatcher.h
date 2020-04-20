@@ -73,7 +73,6 @@ static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object
 
 void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr);
 yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher);
-int yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_request_t *request);
 
 PHP_METHOD(yaf_application, app);
 PHP_FUNCTION(set_error_handler);

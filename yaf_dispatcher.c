@@ -367,15 +367,12 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_object *dispatcher,
 }
 /* }}} */
 
-int yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_request_t *request) /* {{{ */ {
-	if (EXPECTED(request)) {
-		zval garbage;
-		ZVAL_COPY_VALUE(&garbage, &dispatcher->request);
+static void yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_request_t *request) /* {{{ */ {
+	if (UNEXPECTED(Z_TYPE(dispatcher->request) == IS_OBJECT)) {
+		zend_object *garbage = Z_OBJ(dispatcher->request);
 		ZVAL_COPY(&dispatcher->request, request);
-		zval_ptr_dtor(&garbage);
-		return 1;
+		OBJ_RELEASE(garbage);
 	}
-	return 0;
 }
 /* }}} */
 
@@ -934,11 +931,8 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 		return;
 	}
 
-	if (yaf_dispatcher_set_request(dispatcher, request)) {
-		RETURN_ZVAL(getThis(), 1, 0);
-	}
-
-	RETURN_FALSE;
+	yaf_dispatcher_set_request(dispatcher, request);
+	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
 
