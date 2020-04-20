@@ -138,7 +138,7 @@ int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, 
 int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
 
 #define YSCMP(a, b, l, s)  do { \
-	if (l>sizeof(uint##s##_t)) { \
+	if (l>=sizeof(uint##s##_t)) { \
 		if (*(uint##s##_t*)a != *(uint##s##_t*)b) return 0; \
 		l-=sizeof(uint##s##_t),a+=sizeof(uint##s##_t),b+=sizeof(uint##s##_t); \
 	}\
