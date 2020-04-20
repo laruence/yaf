@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_View_Simple
+Check for Yaf_View_Simple basic usages
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--

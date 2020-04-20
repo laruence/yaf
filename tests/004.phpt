@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Registry
+Check for Yaf_Registry APIs
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--

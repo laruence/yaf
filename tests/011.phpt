@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Route_Rewrite
+Check for Yaf_Route_Rewrite routing
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--

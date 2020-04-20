@@ -1,5 +1,5 @@
 --TEST--
-Check for Yaf_Loader
+Check for Yaf_Loader local names
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
