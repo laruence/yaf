@@ -11,7 +11,7 @@
   <active>yes</active>
  </lead>
  <date>2020-04-20</date>
- <time>11:40:00</time>
+ <time>17:40:00</time>
  <version>
   <release>3.2.1</release>
   <api>3.2.1</api>
@@ -23,6 +23,7 @@
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
   - Fixed Namespace resgister unexpected overridden
+  - Fixed yaf_slip_equal fails on 4-bytes string
   - Added Yaf_Dispatcher::getResponse()
  </notes>
  <contents> 
@@ -251,6 +252,24 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-04-20</date> 
+   <version> 
+    <release>3.2.1</release> 
+    <api>3.2.1</api> 
+   </version> 
+   <stability> 
+    <release>beta</release> 
+    <api>beta</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed Namespace resgister unexpected overridden
+    - Fixed yaf_slip_equal fails on 4-bytes string
+    - Added Yaf_Dispatcher::getResponse()
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-04-18</date> 
    <version> 
     <release>3.2.0</release> 
@@ -280,7 +299,6 @@
     - Yaf_Controller action's arguments will be set even if there are gaps now (see test/issue420.phpt)
    </notes> 
   </release> 
-
   <release> 
    <date>2020-04-01</date> 
    <version> 
