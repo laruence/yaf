@@ -612,11 +612,11 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				uint32_t count = 0;
 
 				current_action = zend_string_copy(request->action);
-				if (UNEXPECTED(fptr->common.num_args)) {
+				if ((fptr->common.num_args)) {
 					yaf_dispatcher_get_call_parameters(request, fptr, &args, &count);
 				}
 				if (UNEXPECTED(!yaf_controller_execute(&controller, fptr, count, args, &ret))) {
-					if (UNEXPECTED(args)) {
+					if ((args)) {
 						efree(args);
 					}
 					if (UNEXPECTED(Z_ISUNDEF(ret))) {
@@ -625,7 +625,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 						return 0;
 					}
 				}
-				if (UNEXPECTED(args)) {
+				if ((args)) {
 					efree(args);
 				}
 				if ((Z_TYPE(ret) == IS_FALSE)) {
