@@ -564,13 +564,13 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 			object_init_ex(&controller, ce);
 			ctl = Z_YAFCTLOBJ(controller);
 			if (UNEXPECTED(!yaf_controller_init(ctl, dispatcher))) {
-				zval_ptr_dtor(&controller);
+				OBJ_RELEASE(Z_OBJ(controller));
 				return 0;
 			}
 
 			if (UNEXPECTED(!yaf_request_is_dispatched(request))) {
 				/* forward is called in init method */
-				zval_ptr_dtor(&controller);
+				OBJ_RELEASE(Z_OBJ(controller));
 				return yaf_dispatcher_handle(dispatcher);
 			}
 
@@ -601,7 +601,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				if (UNEXPECTED((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL)) {
 					free_alloca(func_name, use_heap);
 					if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
-						zval_ptr_dtor(&controller);
+						OBJ_RELEASE(Z_OBJ(controller));
 						return 0;
 					}
 					ctl = Z_YAFCTLOBJ(controller);
@@ -624,7 +624,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 					}
 					if (UNEXPECTED(Z_ISUNDEF(ret))) {
 						zend_string_release(current_action);
-						zval_ptr_dtor(&controller);
+						OBJ_RELEASE(Z_OBJ(controller));
 						return 0;
 					}
 				}
@@ -634,7 +634,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				if ((Z_TYPE(ret) == IS_FALSE)) {
 					/* no auto-renderring */
 					zend_string_release(current_action);
-					zval_ptr_dtor(&controller);
+					OBJ_RELEASE(Z_OBJ(controller));
 					return 1;
 				}
 				zval_ptr_dtor(&ret);
@@ -652,13 +652,13 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 					}
 				} else {
 					zend_string_release(current_action);
-					zval_ptr_dtor(&controller);
+					OBJ_RELEASE(Z_OBJ(controller));
 					return 0;
 				}
 			}
 
 			zend_string_release(current_action);
-			zval_ptr_dtor(&controller);
+			OBJ_RELEASE(Z_OBJ(controller));
 			return 1;
 		}
 	} else {

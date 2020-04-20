@@ -109,7 +109,7 @@ static_route:
 		object_init_ex(&route, yaf_route_static_ce);
 	} else {
 		if (UNEXPECTED(!yaf_route_instance(&route, app->default_route))) {
-			zval_ptr_dtor(&route);
+			OBJ_RELEASE(Z_OBJ(route));
 			php_error_docref(NULL, E_WARNING,
 					"Unable to initialize default route, use %s instead", ZSTR_VAL(yaf_route_static_ce->name));
 			goto static_route;

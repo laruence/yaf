@@ -390,7 +390,7 @@ static void yaf_loader_sanitize_name(char *name, uint32_t len, char *buf) /* {{{
 }
 /* }}} */
 
-static zend_string *yaf_loader_resolve_namespace(yaf_loader_object *loader, const char *class_name, int *name_len) /* {{{ */ {
+static zend_string *yaf_loader_resolve_namespace(yaf_loader_object *loader, const char *class_name, uint32_t *name_len) /* {{{ */ {
 	zval *name;
 	const char *delim;
 	uint32_t len = *name_len;
@@ -416,6 +416,7 @@ static zend_string *yaf_loader_resolve_namespace(yaf_loader_object *loader, cons
 	} else if ((name = zend_hash_str_find(target, class_name, len))) {
 		return Z_TYPE_P(name) == IS_STRING? Z_STR_P(name) : (zend_string*)-1;
 	}
+	return NULL;
 }
 /* }}} */
 

@@ -405,7 +405,7 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 
 		op_array = zend_compile_string(&phtml, eval_desc);
 
-		zval_ptr_dtor(&phtml);
+		zval_dtor(&phtml);
 		efree(eval_desc);
 
 		if (op_array) {

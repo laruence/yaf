@@ -857,14 +857,14 @@ PHP_METHOD(yaf_application, bootstrap) {
 			if (UNEXPECTED(!yaf_call_user_method_with_1_arguments(obj, fptr, dispatcher, &ret))) {
 				/** an uncaught exception threw in function call */
 				if (UNEXPECTED(EG(exception))) {
-					zval_ptr_dtor(&bootstrap);
+					OBJ_RELEASE(Z_OBJ(bootstrap));
 					RETURN_FALSE;
 				}
 			}
 			/* Must always return bool? */
 			/* zval_ptr_dtor(&ret); */
 		} ZEND_HASH_FOREACH_END();
-		zval_ptr_dtor(&bootstrap);
+		OBJ_RELEASE(Z_OBJ(bootstrap));
 
 		RETURN_ZVAL(getThis(), 1, 0);
 	}
