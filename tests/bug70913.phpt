@@ -36,10 +36,11 @@ file_put_contents(APPLICATION_PATH . "/controllers/Second.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "Okey");
+file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "Okey\n");
 
 $app = new Yaf_Application($config);
 $response = $app->run();
+print_r($response);
 ?>
 --CLEAN--
 <?php
@@ -48,3 +49,8 @@ shutdown();
 ?>
 --EXPECT--
 Okey
+Yaf_Response_Cli Object
+(
+    [response_code:protected] => 0
+    [header_sent:protected] => 
+)

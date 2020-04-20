@@ -979,6 +979,19 @@ PHP_METHOD(yaf_dispatcher, getRequest) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Dispatcher::getResponse(void)
+*/
+PHP_METHOD(yaf_dispatcher, getResponse) {
+	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	RETURN_ZVAL(&dispatcher->response, 1, 0);
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Dispatcher::getApplication(void)
 */
 PHP_METHOD(yaf_dispatcher, getApplication) {
@@ -1265,6 +1278,7 @@ zend_function_entry yaf_dispatcher_methods[] = {
 	PHP_ME(yaf_dispatcher, setRequest,           yaf_dispatcher_setrequest_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getApplication,       yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getRouter,            yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getResponse,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getRequest,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getDefaultModule,     yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getDefaultController, yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
