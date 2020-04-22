@@ -23,6 +23,7 @@
 #include "standard/php_string.h" /* for php_basename */
 #include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
 #include "Zend/zend_interfaces.h" /* for zend_class_serialize_deny */
+#include "Zend/zend_smart_str.h"
 
 #include "php_yaf.h"
 #include "yaf_application.h"
@@ -75,17 +76,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_request_set_param_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_request_get_param_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, default)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_request_getserver_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, default)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_request_getenv_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_get_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(0, default)
 ZEND_END_ARG_INFO()
@@ -825,10 +816,122 @@ YAF_REQUEST_IS_METHOD(Options);
 YAF_REQUEST_IS_METHOD(Cli);
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Abstract::isXmlHttpRequest(void)
+/** {{{ proto public Yaf_Request_Abstract::isXmlHttpRequest()
 */
 PHP_METHOD(yaf_request, isXmlHttpRequest) {
+	zend_string *name;
+	zval * header;
+	name = zend_string_init("HTTP_X_REQUESTED_WITH", sizeof("HTTP_X_REQUESTED_WITH") - 1, 0);
+	header = yaf_request_query(YAF_GLOBAL_VARS_SERVER, name);
+	zend_string_release(name);
+	if (header && Z_TYPE_P(header) == IS_STRING
+			&& strncasecmp("XMLHttpRequest", Z_STRVAL_P(header), Z_STRLEN_P(header)) == 0) {
+		RETURN_TRUE;
+	}
 	RETURN_FALSE;
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::getQuery(mixed $name, mixed $default = NULL)
+*/
+YAF_REQUEST_METHOD(yaf_request, Query, 	YAF_GLOBAL_VARS_GET);
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::getPost(mixed $name, mixed $default = NULL)
+*/
+YAF_REQUEST_METHOD(yaf_request, Post,  	YAF_GLOBAL_VARS_POST);
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::getRequet(mixed $name, mixed $default = NULL)
+*/
+YAF_REQUEST_METHOD(yaf_request, Request, YAF_GLOBAL_VARS_REQUEST);
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::getFiles(mixed $name, mixed $default = NULL)
+*/
+YAF_REQUEST_METHOD(yaf_request, Files, 	YAF_GLOBAL_VARS_FILES);
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::getCookie(mixed $name, mixed $default = NULL)
+*/
+YAF_REQUEST_METHOD(yaf_request, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::getRaw()
+*/
+PHP_METHOD(yaf_request, getRaw) {
+	php_stream *s;
+	smart_str raw_data = {0};
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	s = SG(request_info).request_body;
+	if (!s || FAILURE == php_stream_rewind(s)) {
+		RETURN_FALSE;
+	}
+
+	while (!php_stream_eof(s)) {
+		char buf[512];
+		size_t len = php_stream_read(s, buf, sizeof(buf));
+
+		if (len && len != (size_t) -1) {
+			smart_str_appendl(&raw_data, buf, len);
+		}
+	}
+
+	if (raw_data.s) {
+		smart_str_0(&raw_data);
+		RETURN_STR(raw_data.s);
+	} else {
+		RETURN_FALSE;
+	}
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Request_Abstract::get(mixed $name, mixed $default)
+ * params -> post -> get -> cookie -> server
+ */
+PHP_METHOD(yaf_request, get) {
+	zend_string	*name;
+	zval *def = NULL;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|z", &name, &def) == FAILURE) {
+		return;
+	} else {
+		zval *value = yaf_request_get_param(Z_YAFREQUESTOBJ_P(getThis()), name);
+		if (value) {
+			RETURN_ZVAL(value, 1, 0);
+		} else {
+			zval *params = NULL;
+			zval *pzval	= NULL;
+
+			YAF_GLOBAL_VARS_TYPE methods[4] = {
+				YAF_GLOBAL_VARS_POST,
+				YAF_GLOBAL_VARS_GET,
+				YAF_GLOBAL_VARS_COOKIE,
+				YAF_GLOBAL_VARS_SERVER
+			};
+
+			{
+				int i = 0;
+				for (;i < 4; i++) {
+					params = &PG(http_globals)[methods[i]];
+					if (params && Z_TYPE_P(params) == IS_ARRAY) {
+						if ((pzval = zend_hash_find(Z_ARRVAL_P(params), name)) != NULL ){
+							RETURN_ZVAL(pzval, 1, 0);
+						}
+					}
+				}
+
+			}
+			if (def) {
+				RETURN_ZVAL(def, 1, 0);
+			}
+		}
+	}
+	RETURN_NULL();
 }
 /* }}} */
 
@@ -1238,10 +1341,17 @@ zend_function_entry yaf_request_methods[] = {
 	PHP_ME(yaf_request, isOptions, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isCli, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, isXmlHttpRequest, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request, getServer, yaf_request_getserver_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request, getEnv, yaf_request_getenv_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getQuery, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getRequest, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getPost, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getCookie, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getRaw, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getFiles, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, get, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getServer, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getEnv, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, setParam, yaf_request_set_param_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request, getParam, yaf_request_get_param_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request, getParam, yaf_request_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getParams, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, clearParams, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request, getException, yaf_request_void_arginfo, ZEND_ACC_PUBLIC)

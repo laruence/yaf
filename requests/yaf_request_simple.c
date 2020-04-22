@@ -103,31 +103,6 @@ PHP_METHOD(yaf_request_simple, __construct) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Simple::getQuery(mixed $name, mixed $default = NULL)
-*/
-YAF_REQUEST_METHOD(yaf_request_simple, Query, 	YAF_GLOBAL_VARS_GET);
-/* }}} */
-
-/** {{{ proto public Yaf_Request_Simple::getPost(mixed $name, mixed $default = NULL)
-*/
-YAF_REQUEST_METHOD(yaf_request_simple, Post,  	YAF_GLOBAL_VARS_POST);
-/* }}} */
-
-/** {{{ proto public Yaf_Request_Simple::getRequet(mixed $name, mixed $default = NULL)
-*/
-YAF_REQUEST_METHOD(yaf_request_simple, Request, YAF_GLOBAL_VARS_REQUEST);
-/* }}} */
-
-/** {{{ proto public Yaf_Request_Simple::getFiles(mixed $name, mixed $default = NULL)
-*/
-YAF_REQUEST_METHOD(yaf_request_simple, Files, 	YAF_GLOBAL_VARS_FILES);
-/* }}} */
-
-/** {{{ proto public Yaf_Request_Simple::getCookie(mixed $name, mixed $default = NULL)
-*/
-YAF_REQUEST_METHOD(yaf_request_simple, Cookie, 	YAF_GLOBAL_VARS_COOKIE);
-/* }}} */
-
 /** {{{ proto public Yaf_Request_Simple::isXmlHttpRequest()
 */
 PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
@@ -135,61 +110,10 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Request_Simple::get(mixed $name, mixed $default)
- * params -> post -> get -> cookie -> server
- */
-PHP_METHOD(yaf_request_simple, get) {
-	zend_string	*name 	= NULL;
-	zval 	*def 	= NULL;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|z", &name, &def) == FAILURE) {
-		return;
-	} else {
-		zval *value = yaf_request_get_param(Z_YAFREQUESTOBJ_P(getThis()), name);
-		if (value) {
-			RETURN_ZVAL(value, 1, 0);
-		} else {
-			zval *params	= NULL;
-			zval *pzval	= NULL;
-
-			YAF_GLOBAL_VARS_TYPE methods[4] = {
-				YAF_GLOBAL_VARS_POST,
-				YAF_GLOBAL_VARS_GET,
-				YAF_GLOBAL_VARS_COOKIE,
-				YAF_GLOBAL_VARS_SERVER
-			};
-
-			{
-				int i = 0;
-				for (;i<4; i++) {
-					params = &PG(http_globals)[methods[i]];
-					if (params && Z_TYPE_P(params) == IS_ARRAY) {
-						if ((pzval = zend_hash_find(Z_ARRVAL_P(params), name)) != NULL ){
-							RETURN_ZVAL(pzval, 1, 0);
-						}
-					}
-				}
-
-			}
-			if (def) {
-				RETURN_ZVAL(def, 1, 0);
-			}
-		}
-	}
-	RETURN_NULL();
-}
-/* }}} */
-
 /** {{{ yaf_request_simple_methods
  */
 zend_function_entry yaf_request_simple_methods[] = {
 	PHP_ME(yaf_request_simple, __construct,	NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_request_simple, getQuery, 	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request_simple, getRequest, 	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request_simple, getPost, 		NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request_simple, getCookie,	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request_simple, getFiles,		NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_request_simple, get,			NULL, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_request_simple, isXmlHttpRequest,NULL,ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
