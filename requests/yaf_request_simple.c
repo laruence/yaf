@@ -125,7 +125,6 @@ YAF_STARTUP_FUNCTION(request_simple){
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Simple", "Yaf\\Request\\Simple", yaf_request_simple_methods);
 	yaf_request_simple_ce = zend_register_internal_class_ex(&ce, yaf_request_ce);
-	yaf_request_simple_ce->ce_flags |= ZEND_ACC_FINAL;
 
 	return SUCCESS;
 }

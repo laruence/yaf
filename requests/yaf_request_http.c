@@ -151,7 +151,6 @@ YAF_STARTUP_FUNCTION(request_http){
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Http", "Yaf\\Request\\Http", yaf_request_http_methods);
 	yaf_request_http_ce = zend_register_internal_class_ex(&ce, yaf_request_ce);
-	yaf_request_http_ce->ce_flags |= ZEND_ACC_FINAL;
 
 	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTP"), "http");
 	zend_declare_class_constant_string(yaf_request_ce, ZEND_STRL("SCHEME_HTTPS"), "https");

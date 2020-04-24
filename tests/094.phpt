@@ -14,7 +14,7 @@ function ref_change(&$val) {
 
 $request = new Yaf_Request_Simple();
 
-foreach (array("method", "module", "controller", "action", "uri", "base_uri", "language", 123, "noexists") as $k) {
+foreach (array("method", "module", "controller", "action", "uri", "base_uri", "language", 123) as $k) {
 	print "Testing $k:\n";
 	var_dump($request->{$k});
 	$request->{$k} = true;
@@ -76,11 +76,6 @@ Warning: main(): Modification of Yaf_Request internal property 'language' is not
 NULL
 
 Testing 123:
-NULL
-NULL
-NULL
-
-Testing noexists:
 NULL
 NULL
 NULL
