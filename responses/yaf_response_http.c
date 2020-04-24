@@ -313,7 +313,6 @@ YAF_STARTUP_FUNCTION(response_http) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Http", "Yaf\\Response\\Http", yaf_response_http_methods);
 
 	yaf_response_http_ce = zend_register_internal_class_ex(&ce, yaf_response_ce);
-	yaf_response_http_ce->ce_flags |= ZEND_ACC_FINAL;
 
 	return SUCCESS;
 }
