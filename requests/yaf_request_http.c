@@ -117,8 +117,6 @@ void yaf_request_http_init(yaf_request_object *req, zend_string *request_uri, ze
 	if (settled_uri) {
 		req->uri = settled_uri;
 		yaf_request_set_base_uri(req, base_uri, settled_uri);
-	} else {
-		req->uri = ZSTR_EMPTY_ALLOC();
 	}
 
 	return;

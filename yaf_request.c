@@ -95,6 +95,7 @@ static zend_object *yaf_request_new(zend_class_entry *ce) /* {{{ */ {
 		object_properties_init(&req->std, ce);
 	}
 	req->std.handlers = &yaf_request_obj_handlers;
+	req->uri = ZSTR_EMPTY_ALLOC();
 
 	return &req->std;
 }
