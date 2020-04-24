@@ -48,9 +48,9 @@ static zend_always_inline yaf_response_object *php_yaf_response_fetch_object(zen
 
 void yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name);
 int yaf_response_alter_body(yaf_response_object *response, zend_string *name, zend_string *body, int flag);
-int yaf_response_response(yaf_response_t *response);
-int yaf_response_set_redirect(yaf_response_object *response, zend_string *url);
+int yaf_response_response(yaf_response_object *response);
 int yaf_response_clear_body(yaf_response_object *response, zend_string *name);
+int yaf_response_set_redirect(yaf_response_object *response, zend_string *url);
 
 #define yaf_response_append_body(r, n, v)  yaf_response_alter_body(r, n, v, YAF_RESPONSE_APPEND)
 

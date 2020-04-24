@@ -67,6 +67,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setrequest_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, request)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setresponse_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, response)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_throwex_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
@@ -371,6 +375,15 @@ static void yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_re
 	if (UNEXPECTED(Z_TYPE(dispatcher->request) == IS_OBJECT)) {
 		zend_object *garbage = Z_OBJ(dispatcher->request);
 		ZVAL_COPY(&dispatcher->request, request);
+		OBJ_RELEASE(garbage);
+	}
+}
+/* }}} */
+
+static void yaf_dispatcher_set_response(yaf_dispatcher_object *dispatcher, yaf_response_t *response) /* {{{ */ {
+	if (UNEXPECTED(Z_TYPE(dispatcher->response) == IS_OBJECT)) {
+		zend_object *garbage = Z_OBJ(dispatcher->response);
+		ZVAL_COPY(&dispatcher->response, response);
 		OBJ_RELEASE(garbage);
 	}
 }
@@ -732,7 +745,7 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 
 	yaf_request_del_param(request, exception_str);
 	zend_string_release(exception_str);
-	yaf_response_response(&dispatcher->response);
+	yaf_response_response(Z_YAFRESPONSEOBJ(dispatcher->response));
 
 	EG(opline_before_exception) = opline;
 	YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
@@ -788,8 +801,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 
 	if (EXPECTED(yaf_request_is_dispatched(request))) {
 		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
-			yaf_response_response(&dispatcher->response);
-
+			yaf_response_response(Z_YAFRESPONSEOBJ(dispatcher->response));
 			yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
 		}
 		return &dispatcher->response;
@@ -932,6 +944,22 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 	}
 
 	yaf_dispatcher_set_request(dispatcher, request);
+	RETURN_ZVAL(getThis(), 1, 0);
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Dispatcher::setResponse(Yaf_Response_Abstract $response)
+*/
+PHP_METHOD(yaf_dispatcher, setResponse) {
+	yaf_response_t *response;
+	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
+
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &response, yaf_response_ce) == FAILURE) {
+		return;
+	}
+
+	yaf_dispatcher_set_response(dispatcher, response);
 	RETURN_ZVAL(getThis(), 1, 0);
 }
 /* }}} */
@@ -1270,9 +1298,10 @@ zend_function_entry yaf_dispatcher_methods[] = {
 	PHP_ME(yaf_dispatcher, initView,             yaf_dispatcher_initview_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, setView,              yaf_dispatcher_setview_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, setRequest,           yaf_dispatcher_setrequest_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setResponse,          yaf_dispatcher_setresponse_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getApplication,       yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getRouter,            yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getResponse,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getResponse,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getRequest,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getDefaultModule,     yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, getDefaultController, yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)

@@ -202,59 +202,86 @@ void yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name) /* {{{ */ 
 
 int yaf_response_alter_body(yaf_response_object *response, zend_string *name, zend_string *body, int flag) /* {{{ */ {
 	zval rv;
-
-	if (!response->body) {
-		ALLOC_HASHTABLE(response->body);
-		zend_hash_init(response->body, 8, NULL, ZVAL_PTR_DTOR, 0);
-		HT_ALLOW_COW_VIOLATION(response->body);
+	zend_class_entry *ce = response->std.ce;
+	if (EXPECTED(ce == yaf_response_http_ce || ce == yaf_response_cli_ce)) {
+		if (!response->body) {
+			ALLOC_HASHTABLE(response->body);
+			zend_hash_init(response->body, 8, NULL, ZVAL_PTR_DTOR, 0);
+			HT_ALLOW_COW_VIOLATION(response->body);
 update:
-		ZVAL_STR_COPY(&rv, body);
-		if (EXPECTED(name == NULL)) {
-			return zend_hash_str_update(response->body,
-					YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv) != NULL;
-		} else {
-			return zend_hash_update(response->body, name, &rv) != NULL;
-		}
-	} else {
-		zval *pzval;
-		zend_string *obody;
-
-		if (EXPECTED(name == NULL)) {
-			pzval = zend_hash_str_find(response->body, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
-		} else {
-			pzval = zend_hash_find(response->body, name);
-		}
-		if (EXPECTED(pzval == NULL) || flag == YAF_RESPONSE_REPLACE) {
-			goto update;
-		} else if (Z_TYPE_P(pzval) == IS_STRING) {
-			zend_string *result;
-			obody = Z_STR_P(pzval);
-			result = zend_string_alloc(ZSTR_LEN(obody) + ZSTR_LEN(body), 0);
-			if (flag == YAF_RESPONSE_APPEND) {
-				memcpy(ZSTR_VAL(result), ZSTR_VAL(obody), ZSTR_LEN(obody));
-				memcpy(ZSTR_VAL(result) + ZSTR_LEN(obody), ZSTR_VAL(body), ZSTR_LEN(body) + 1);
+			ZVAL_STR_COPY(&rv, body);
+			if (EXPECTED(name == NULL)) {
+				return zend_hash_str_update(response->body,
+						YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv) != NULL;
 			} else {
-				memcpy(ZSTR_VAL(result), ZSTR_VAL(body), ZSTR_LEN(body));
-				memcpy(ZSTR_VAL(result) + ZSTR_LEN(body), ZSTR_VAL(obody), ZSTR_LEN(obody) + 1);
+				return zend_hash_update(response->body, name, &rv) != NULL;
 			}
-			zend_string_release(obody);
-			ZVAL_STR(pzval, result);
-			return 1;
+		} else {
+			zval *pzval;
+			zend_string *obody;
+
+			if (EXPECTED(name == NULL)) {
+				pzval = zend_hash_str_find(response->body, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+			} else {
+				pzval = zend_hash_find(response->body, name);
+			}
+			if (EXPECTED(pzval == NULL) || flag == YAF_RESPONSE_REPLACE) {
+				goto update;
+			} else if (Z_TYPE_P(pzval) == IS_STRING) {
+				zend_string *result;
+				obody = Z_STR_P(pzval);
+				result = zend_string_alloc(ZSTR_LEN(obody) + ZSTR_LEN(body), 0);
+				if (flag == YAF_RESPONSE_APPEND) {
+					memcpy(ZSTR_VAL(result), ZSTR_VAL(obody), ZSTR_LEN(obody));
+					memcpy(ZSTR_VAL(result) + ZSTR_LEN(obody), ZSTR_VAL(body), ZSTR_LEN(body) + 1);
+				} else {
+					memcpy(ZSTR_VAL(result), ZSTR_VAL(body), ZSTR_LEN(body));
+					memcpy(ZSTR_VAL(result) + ZSTR_LEN(body), ZSTR_VAL(obody), ZSTR_LEN(obody) + 1);
+				}
+				zend_string_release(obody);
+				ZVAL_STR(pzval, result);
+				return 1;
+			}
 		}
+		return 0;
+	} else {
+		zval obj, arg, ret;
+
+		ZVAL_OBJ(&obj, &response->std);
+		ZVAL_STR_COPY(&arg, body);
+		zend_call_method_with_1_params(&obj, ce, NULL, "appendbody", &arg, &ret);
+		if (UNEXPECTED(EG(exception))) {
+			return 0;
+		}
+		zval_ptr_dtor(&ret);
+		return 1;
 	}
-	return 0;
 }
 /* }}} */
 
 int yaf_response_clear_body(yaf_response_object *response, zend_string *name) /* {{{ */ {
-	if (response->body) {
-		if (name) {
-			zend_hash_del(response->body, name);
-		} else {
-			zend_hash_clean(response->body);
+	zend_class_entry *ce = response->std.ce;
+	if (EXPECTED(ce == yaf_response_http_ce || ce == yaf_response_cli_ce)) {
+		if (response->body) {
+			if (name) {
+				zend_hash_del(response->body, name);
+			} else {
+				zend_hash_clean(response->body);
+			}
 		}
+		return 1;
+	} else {
+		zval obj, arg, ret;
+
+		ZVAL_OBJ(&obj, &response->std);
+		ZVAL_STR_COPY(&arg, name);
+		zend_call_method_with_1_params(&obj, ce, NULL, "clearbody", &arg, &ret);
+		if (UNEXPECTED(EG(exception))) {
+			return 0;
+		}
+		zval_ptr_dtor(&ret);
+		return 1;
 	}
-	return 1;
 }
 /* }}} */
 
@@ -290,19 +317,21 @@ static int yaf_response_send(yaf_response_object *response) /* {{{ */ {
 }
 /* }}} */
 
-int yaf_response_response(yaf_response_t *response) /* {{{ */ {
-	zend_class_entry *ce = Z_OBJCE_P(response);
+int yaf_response_response(yaf_response_object *response) /* {{{ */ {
+	zend_class_entry *ce = response->std.ce;
 	if (EXPECTED(ce == yaf_response_http_ce)) {
-		return yaf_response_http_send(Z_YAFRESPONSEOBJ_P(response));
+		return yaf_response_http_send(response);
 	} else if (ce == yaf_response_cli_ce) {
-		return yaf_response_send(Z_YAFRESPONSEOBJ_P(response));
+		return yaf_response_send(response);
 	} else {
-		zval ret;
-		zend_call_method_with_0_params(response, ce, NULL, "response", &ret);
-		zval_ptr_dtor(&ret);
+		zval obj, ret;
+
+		ZVAL_OBJ(&obj, &response->std);
+		zend_call_method_with_0_params(&obj, ce, NULL, "response", &ret);
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}
+		zval_ptr_dtor(&ret);
 		return 1;
 	}
 }
