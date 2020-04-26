@@ -37,7 +37,7 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "custom response" . PHP_EOL);
+file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "custom response");
 
 $app = new Yaf_Application($config);
 $app->getDispatcher()->setResponse(new my_response());
@@ -49,4 +49,4 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECT--
-string(21) "["custom response\n"]"
+string(19) "["custom response"]"
