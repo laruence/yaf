@@ -100,6 +100,12 @@ static zval *yaf_response_read_property(zval *zobj, zval *name, int type, void *
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
+
+	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
+		php_error_docref(NULL, E_WARNING,
+				"Indirect modification of Yaf_Response internal property '%s' is not allowed", Z_STRVAL_P(name));
+		return &EG(error_zval);
+	}
 	
 	member = Z_STR_P(name);
 	
