@@ -241,7 +241,6 @@ update:
 /* }}} */
 
 int yaf_response_alter_body(yaf_response_object *response, zend_string *name, zend_string *body, int flag) /* {{{ */ {
-	zval rv;
 	zend_class_entry *ce = response->std.ce;
 	if (EXPECTED(ce == yaf_response_http_ce || ce == yaf_response_cli_ce)) {
 		return yaf_response_alter_body_ex(response, name, body, flag);
