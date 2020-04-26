@@ -372,20 +372,18 @@ static inline void yaf_dispatcher_fix_default(yaf_dispatcher_object *dispatcher,
 /* }}} */
 
 static void yaf_dispatcher_set_request(yaf_dispatcher_object *dispatcher, yaf_request_t *request) /* {{{ */ {
-	if (UNEXPECTED(Z_TYPE(dispatcher->request) == IS_OBJECT)) {
-		zend_object *garbage = Z_OBJ(dispatcher->request);
-		ZVAL_COPY(&dispatcher->request, request);
-		OBJ_RELEASE(garbage);
+	if (EXPECTED(Z_TYPE(dispatcher->request) == IS_OBJECT)) {
+		OBJ_RELEASE(Z_OBJ(dispatcher->request));
 	}
+	ZVAL_COPY(&dispatcher->request, request);
 }
 /* }}} */
 
 static void yaf_dispatcher_set_response(yaf_dispatcher_object *dispatcher, yaf_response_t *response) /* {{{ */ {
-	if (UNEXPECTED(Z_TYPE(dispatcher->response) == IS_OBJECT)) {
-		zend_object *garbage = Z_OBJ(dispatcher->response);
-		ZVAL_COPY(&dispatcher->response, response);
-		OBJ_RELEASE(garbage);
-	}
+	if (EXPECTED(Z_TYPE(dispatcher->response) == IS_OBJECT)) {
+		OBJ_RELEASE(Z_OBJ(dispatcher->response));
+	} 
+	ZVAL_COPY(&dispatcher->response, response);
 }
 /* }}} */
 
@@ -953,7 +951,6 @@ PHP_METHOD(yaf_dispatcher, setRequest) {
 PHP_METHOD(yaf_dispatcher, setResponse) {
 	yaf_response_t *response;
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
-
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &response, yaf_response_ce) == FAILURE) {
 		return;
