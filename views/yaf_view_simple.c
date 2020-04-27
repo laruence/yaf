@@ -127,7 +127,7 @@ static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, 
 /* }}} */
 
 static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
-	yaf_view_object *view = emalloc(sizeof(yaf_view_object) + zend_object_properties_size(yaf_view_simple_ce));
+	yaf_view_object *view = emalloc(sizeof(yaf_view_object) + zend_object_properties_size(ce));
 
 	zend_object_std_init(&view->std, ce);
 	view->std.handlers = &yaf_view_simple_obj_handlers;
