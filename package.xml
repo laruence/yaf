@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-04-20</date>
+ <date>2020-??-??</date>
  <time>17:40:00</time>
  <version>
-  <release>3.2.1</release>
-  <api>3.2.1</api>
+  <release>3.2.2</release>
+  <api>3.2.2</api>
  </version>
  <stability>
   <release>beta</release>
@@ -22,9 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed Namespace resgister unexpected overridden
-  - Fixed yaf_slip_equal fails on 4-bytes string
-  - Added Yaf_Dispatcher::getResponse()
+  - Added Yaf_Dispatcher::setResponse
+  - Removed FINAL flags of Yaf_Request_*, Yaf_Response_*
  </notes>
  <contents> 
   <dir name="/"> 
