@@ -70,6 +70,11 @@ $is_mvc = true;
 try_load_class("Model_auto");
 try_load_class("Plugin_auto");
 try_load_class("Controller_auto");
+
+ini_set("yaf.name_separator", "\\");
+try_load_class("Model\auto");
+try_load_class("\Plugin\auto");
+try_load_class("\Controller\auto");
 ?>
 okey
 --EXPECT--

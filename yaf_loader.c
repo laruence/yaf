@@ -705,9 +705,10 @@ static zend_never_inline int yaf_loader_load_mvc(yaf_loader_object *loader, char
 /** {{{ proto public Yaf_Loader::autoload($class_name)
 */
 PHP_METHOD(yaf_loader, autoload) {
-	zend_string *class_name;
 	char directory[MAXPATHLEN];
 	uint32_t class_type, status;
+	zend_string *class_name;
+	zend_string *unqualified = NULL;
 	yaf_loader_object *loader = Z_YAFLOADEROBJ_P(getThis());
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
@@ -724,6 +725,10 @@ PHP_METHOD(yaf_loader, autoload) {
 		php_error_docref(NULL, E_WARNING, "You should not use '%s' as class name prefix", YAF_LOADER_RESERVERD);
 	}
 	*/
+	if (ZSTR_VAL(class_name)[0] == '\\') {
+		unqualified = zend_string_init(ZSTR_VAL(class_name) + 1, ZSTR_LEN(class_name) - 1, 0);
+		class_name = unqualified;
+	}
 	yaf_loader_sanitize_name(ZSTR_VAL(class_name), ZSTR_LEN(class_name), directory);
 	if ((class_type = yaf_loader_identify_category(loader, class_name)) == YAF_CLASS_NAME_NORMAL) {
 		status = yaf_loader_load_user(loader, directory, ZSTR_LEN(class_name));
@@ -731,6 +736,9 @@ PHP_METHOD(yaf_loader, autoload) {
 		status = yaf_loader_load_mvc(loader, directory, ZSTR_LEN(class_name), class_type);
 	}
 
+	if (unqualified) {
+		zend_string_release(unqualified);
+	}
 	if (EXPECTED(!yaf_loader_use_spl_autoload(loader))) {
 		if (EXPECTED(status)) {
 			zend_string *lc_name = zend_string_tolower(class_name);
