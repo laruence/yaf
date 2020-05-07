@@ -649,35 +649,51 @@ void yaf_request_clean_params(yaf_request_object *request) /* {{{ */ {
 /* }}} */
 
 static inline zval* yaf_request_fetch_container(unsigned type) /* {{{ */ {
+	zval *container;
 	zend_bool jit_initialization = PG(auto_globals_jit);
 
 	switch (type) {
 		case YAF_GLOBAL_VARS_POST:
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_POST"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_POST"));
+			break;
 		case YAF_GLOBAL_VARS_GET:
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_GET"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_GET"));
+			break;
 		case YAF_GLOBAL_VARS_COOKIE:
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_COOKIE"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_COOKIE"));
+			break;
 		case YAF_GLOBAL_VARS_FILES:
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_FILES"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_FILES"));
+			break;
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
 				zend_is_auto_global_str(ZEND_STRL("_SERVER"));
 			}
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
+			break;
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
 				zend_is_auto_global_str(ZEND_STRL("_REQUEST"));
 			}
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
+			break;
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
 				zend_is_auto_global_str(ZEND_STRL("_ENV"));
 			}
-			return zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_ENV"));
+			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_ENV"));
+			break;
 		default:
 			return NULL;
 	}
+
+	if (UNEXPECTED(Z_TYPE_P(container) != IS_ARRAY)) {
+		if (Z_TYPE_P(container) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(container)) == IS_ARRAY) {
+			return NULL;
+		}
+		return Z_REFVAL_P(container);
+	}
+	return container;
 }
 /* }}} */
 
