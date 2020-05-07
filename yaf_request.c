@@ -688,7 +688,7 @@ static inline zval* yaf_request_fetch_container(unsigned type) /* {{{ */ {
 	}
 
 	if (UNEXPECTED(Z_TYPE_P(container) != IS_ARRAY)) {
-		if (Z_TYPE_P(container) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(container)) == IS_ARRAY) {
+		if (Z_TYPE_P(container) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(container)) != IS_ARRAY) {
 			return NULL;
 		}
 		return Z_REFVAL_P(container);
