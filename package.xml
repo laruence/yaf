@@ -24,6 +24,7 @@
  <notes>
   - Added Yaf_Dispatcher::setResponse
   - Removed FINAL flags of Yaf_Request_*, Yaf_Response_*
+  - Fixed bug that ErrorController doesn't respect returnResponse
  </notes>
  <contents> 
   <dir name="/"> 
@@ -215,6 +216,7 @@
     <file name="105.phpt" role="test" />
     <file name="106.phpt" role="test" />
     <file name="107.phpt" role="test" />
+    <file name="108.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />

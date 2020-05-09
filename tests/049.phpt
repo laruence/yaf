@@ -43,7 +43,7 @@ file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
             \$dispatcher->registerPlugin(new TestPlugin());
         }
         public function _initReturn(Yaf_Dispatcher \$dispatcher) {
-            \$dispatcher->returnResponse(true);
+ //           \$dispatcher->returnResponse(true);
         }
    }
 PHP
