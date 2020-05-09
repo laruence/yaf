@@ -743,7 +743,11 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 
 	yaf_request_del_param(request, exception_str);
 	zend_string_release(exception_str);
-	yaf_response_response(Z_YAFRESPONSEOBJ(dispatcher->response));
+
+	if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
+		yaf_response_response(Z_YAFRESPONSEOBJ(dispatcher->response));
+		yaf_response_clear_body(Z_YAFRESPONSEOBJ(dispatcher->response), NULL);
+	}
 
 	EG(opline_before_exception) = opline;
 	YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
