@@ -61,7 +61,9 @@ static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object
 			zend_function *_f; \
 			yaf_dispatcher_object *_d = (dispatcher); \
 			ZEND_HASH_FOREACH_VAL(plugins, _t) { \
-			    if ((_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1))) { \
+				_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1); \
+				ZEND_ASSERT(_f); \
+				if (_f->type == ZEND_USER_FUNCTION) {\
 			        if (!yaf_call_user_method_with_2_arguments(Z_OBJ_P(_t), _f, &_d->request, &_d->response, &_r)) { \
 						YAF_EXCEPTION_HANDLE(_d); \
 					} \
