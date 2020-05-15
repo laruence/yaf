@@ -654,7 +654,13 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 			zend_string_release(val);
 		} ZEND_HASH_FOREACH_END();
 
+		/* We have to reset the loader as the yaf.* inis has beend changed */
 		yaf_loader_reset(Z_YAFLOADEROBJ(YAF_G(loader)));
+		if (*YAF_G(global_library)) {
+			zend_string *library = zend_string_init(YAF_G(global_library), strlen(YAF_G(global_library)), 0);
+			yaf_loader_set_global_library_path(Z_YAFLOADEROBJ(YAF_G(loader)), library);
+			zend_string_release(library);
+		}
 	}
 }
 /* }}} */
