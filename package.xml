@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-05-11</date>
- <time>18:00:00</time>
+ <date>2020-05-15</date>
+ <time>12:30:00</time>
  <version>
-  <release>3.2.2</release>
-  <api>3.2.2</api>
+  <release>3.2.3</release>
+  <api>3.2.3</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,9 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Added Yaf_Dispatcher::setResponse
-  - Removed FINAL flags of Yaf_Request_*, Yaf_Response_*
-  - Fixed bug that ErrorController doesn't respect returnResponse
+  - Fixed issue #482 (segfault if plugin doesn't defines all hooks)
+  - Fixed issue #481 (application.system.yaf.directory has no effect)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -255,6 +254,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-05-15</date> 
+   <version> 
+    <release>3.2.3</release> 
+    <api>3.2.3</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed issue #482 (segfault if plugin doesn't defines all hooks)
+    - Fixed issue #481 (application.system.yaf.directory has no effect)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-05-11</date> 
    <version> 
     <release>3.2.2</release> 
@@ -271,7 +287,6 @@
     - Fixed bug that ErrorController doesn't respect returnResponse
    </notes> 
   </release> 
-
   <release> 
    <date>2020-04-20</date> 
    <version> 
