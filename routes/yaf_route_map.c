@@ -151,21 +151,17 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 				rest++;
 			}
 			if (*rest != '\0') {
+				zval params;
 				query_str_len = req_uri_len - (rest - req_uri);
 				req_uri_len = query_str - req_uri;
 				query_str = rest;
+				yaf_router_parse_parameters(query_str, query_str_len, &params);
+				yaf_request_set_params_multi(request, &params);
+				zval_ptr_dtor(&params);
 			} else {
 				req_uri_len = query_str - req_uri;
-				query_str = NULL;
-				query_str_len = 0;
 			}
-		} else {
-			query_str = NULL;
-			query_str_len = 0;
 		}
-	} else {
-		query_str = NULL;
-		query_str_len = 0;
 	}
 
 	while ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len))) {
@@ -196,13 +192,6 @@ int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 			yaf_request_set_action(request, route_result.s);
 			smart_str_free(&route_result);
 		}
-	}
-
-	if (query_str) {
-		zval params;
-		yaf_router_parse_parameters(query_str, query_str_len, &params);
-		yaf_request_set_params_multi(request, &params);
-		zval_ptr_dtor(&params);
 	}
 
 	return 1;
