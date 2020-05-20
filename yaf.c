@@ -434,10 +434,10 @@ ZEND_HOT zend_string *yaf_build_lower_name(const char *str, size_t len) /* {{{ *
 /* }}} */
 
 ZEND_HOT zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ {
-	const char *p = ZSTR_VAL(name);
-	const char *e = ZSTR_VAL(name) + ZSTR_LEN(name);
-
 	if (type) {
+#if 0
+		const char *p = ZSTR_VAL(name);
+		const char *e = ZSTR_VAL(name) + ZSTR_LEN(name);
 		/* Module, Controller */
 		if ((*p < 'A' || *p > 'Z') && *p != '_') {
 			goto sanitize;
@@ -449,6 +449,7 @@ ZEND_HOT zend_string *yaf_canonical_name(int type, zend_string *name) /* {{{ */ 
 		}
 		return zend_string_copy(name);
 sanitize:
+#endif
 		return yaf_build_camel_name(ZSTR_VAL(name), ZSTR_LEN(name));
 	} else {
 		return zend_string_tolower(name);

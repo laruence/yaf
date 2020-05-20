@@ -99,21 +99,21 @@ static zend_always_inline void yaf_request_set_module(yaf_request_object *reques
 	if (request->module) {
 		zend_string_release(request->module);
 	}
-	request->module = yaf_canonical_name(1, module);
+	request->module = yaf_build_camel_name(ZSTR_VAL(module), ZSTR_LEN(module));
 }
 
 static zend_always_inline void yaf_request_set_controller(yaf_request_object *request, zend_string *controller) {
 	if (request->controller) {
 		zend_string_release(request->controller);
 	}
-	request->controller = yaf_canonical_name(1, controller);
+	request->controller = yaf_build_camel_name(ZSTR_VAL(controller), ZSTR_LEN(controller));
 }
 
 static zend_always_inline void yaf_request_set_action(yaf_request_object *request, zend_string *action) {
 	if (request->action) {
 		zend_string_release(request->action);
 	}
-	request->action = yaf_canonical_name(0, action);
+	request->action = zend_string_tolower(action);
 }
 
 #define YAF_REQUEST_IS_METHOD(x) \
