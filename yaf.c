@@ -456,6 +456,34 @@ sanitize:
 }
 /* }}} */
 
+ZEND_HOT void yaf_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t) /* {{{ */ {
+	char *pos = name;
+#ifdef __SSE2__
+	do {
+		const __m128i from = _mm_set1_epi8(f);
+		const __m128i delta = _mm_set1_epi8(t - f);
+		while (len >= 16) {
+			__m128i op = _mm_loadu_si128((__m128i *)pos);
+			__m128i eq = _mm_cmpeq_epi8(op, from);
+			if (_mm_movemask_epi8(eq)) {
+				eq = _mm_and_si128(eq, delta);
+				op = _mm_add_epi8(op, eq);
+				_mm_storeu_si128((__m128i*)pos, op);
+			}
+			len -= 16;
+			pos += 16;
+		}
+	} while (0);
+#endif
+	if (len) {
+		name = pos; /* reset start */
+		while ((pos = memchr(pos, f, len - (pos - name)))) {
+			*pos++ = t;
+		}
+	}
+}
+/* }}} */
+
 /** {{{ PHP_GINIT_FUNCTION
 */
 PHP_GINIT_FUNCTION(yaf)

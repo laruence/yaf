@@ -22,10 +22,6 @@
 #include "Zend/zend_interfaces.h" /* for zend_class_serialize_deny */
 #include "ext/standard/php_string.h" /* php_trim */
 
-#ifdef __SSE2__
-#include <emmintrin.h>
-#endif
-
 #include "php_yaf.h"
 #include "yaf_application.h"
 #include "yaf_namespace.h"
@@ -350,43 +346,15 @@ int yaf_loader_register_namespace_multi(yaf_loader_object *loader, zval *namespa
 }
 /* }}} */
 
-static void zend_always_inline yaf_loader_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t) /* {{{ */ {
-	char *pos = name;
-#ifdef __SSE2__
-	do {
-		const __m128i from = _mm_set1_epi8(f);
-		const __m128i delta = _mm_set1_epi8(t - f);
-		while (len >= 16) {
-			__m128i op = _mm_loadu_si128((__m128i *)pos);
-			__m128i eq = _mm_cmpeq_epi8(op, from);
-			if (_mm_movemask_epi8(eq)) {
-				eq = _mm_and_si128(eq, delta);
-				op = _mm_add_epi8(op, eq);
-				_mm_storeu_si128((__m128i*)pos, op);
-			}
-			len -= 16;
-			pos += 16;
-		}
-	} while (0);
-#endif
-	if (len) {
-		name = pos; /* reset start */
-		while ((pos = memchr(pos, f, len - (pos - name)))) {
-			*pos++ = t;
-		}
-	}
-}
-/* }}} */
-
 static void yaf_loader_sanitize_path(char *name, uint32_t len) /* {{{ */ {
-	yaf_loader_replace_chr(name, len, '_', DEFAULT_SLASH);
+	yaf_replace_chr(name, len, '_', DEFAULT_SLASH);
 }
 /* }}} */
 
 static void yaf_loader_sanitize_name(char *name, uint32_t len, char *buf) /* {{{ */ {
 	memcpy(buf, name, len);
 	/* replace all '\' to '_' */
-	yaf_loader_replace_chr(buf, len, '\\', '_');
+	yaf_replace_chr(buf, len, '\\', '_');
 }
 /* }}} */
 

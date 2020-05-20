@@ -136,6 +136,8 @@ int yaf_call_user_method(zend_object *obj, zend_function *fbc, int num_args, zva
 int yaf_call_user_method_with_0_arguments(zend_object *obj, zend_function *fbc, zval *ret);
 int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, zval *arg, zval *ret);
 int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
+void yaf_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t);
+
 
 #define YSCMP(a, b, l, s)  do { \
 	if (l>=sizeof(uint##s##_t)) { \

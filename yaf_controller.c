@@ -18,10 +18,6 @@
 #include "config.h"
 #endif
 
-#ifdef __SSE2__
-#include <emmintrin.h>
-#endif
-
 #include "php.h"
 #include "Zend/zend_exceptions.h" /* for zend_throw_exception_ex */
 #include "Zend/zend_interfaces.h" /* for zend_call_method_with_* */
@@ -87,37 +83,8 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_controller_display_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static inline void yaf_controller_sanitize_view_path_normal(char *str, size_t len) /* {{{ */ {
-	register char *s = str;
-	while ((s = memchr(s, '_', len - (s - str)))) {
-		*s++ = DEFAULT_SLASH;
-	}
-}
-/* }}} */
-
 static void yaf_controller_sanitize_view_path(zend_string *path) /* {{{ */ {
-	char *pos = ZSTR_VAL(path);
-	size_t len = ZSTR_LEN(path);
-
-#ifdef __SSE2__
-	const __m128i sep = _mm_set1_epi8('_');
-	const __m128i delta = _mm_set1_epi8('_' - DEFAULT_SLASH);
-
-	while (len >= 16) {
-		__m128i op = _mm_loadu_si128((__m128i *)pos);
-		__m128i eq = _mm_cmpeq_epi8(op, sep);
-		if (_mm_movemask_epi8(eq)) {
-			eq = _mm_and_si128(eq, delta);
-			op = _mm_sub_epi8(op, eq);
-			_mm_storeu_si128((__m128i*)pos, op);
-		}
-		len -= 16;
-		pos += 16;
-	}
-#endif
-	if (len) {
-		yaf_controller_sanitize_view_path_normal(pos, len);
-	}
+	yaf_replace_chr(ZSTR_VAL(path), ZSTR_LEN(path), '_', DEFAULT_SLASH);
 }
 /* }}} */
 
