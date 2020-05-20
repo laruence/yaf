@@ -25,6 +25,10 @@
 #include "ext/standard/info.h"
 #include "ext/standard/php_string.h"
 
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
+
 #include "php_yaf.h"
 #include "yaf_logo.h"
 #include "yaf_loader.h"
@@ -360,18 +364,53 @@ ZEND_HOT int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_functi
 
 ZEND_HOT zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
 	unsigned int i;
+	unsigned int ucfirst = 1;
 	zend_string *name = zend_string_alloc(len, 0);
 	unsigned char *p = (unsigned char*)ZSTR_VAL(name);
+#ifdef __SSE2__
+	while (len >= 16) {
+		__m128i lower, upper, delta, is_slash;
+		const __m128i upper_guard = _mm_set1_epi8('A' + 128);
+		const __m128i lower_guard = _mm_set1_epi8('a' + 128);
+		__m128i in = _mm_loadu_si128((__m128i*)str);
 
-	*p++ = toupper(*str);
-	for (i = 1; i < len; i++) {
-		unsigned char ch = str[i];
-		if (ch != '_') {
-			*p++ = tolower(ch);
+		upper = _mm_cmpgt_epi8(_mm_sub_epi8(in, upper_guard), _mm_set1_epi8('Z' - 'A' + 128));
+		delta = _mm_andnot_si128(upper, _mm_set1_epi8('a' - 'A'));
+	    in = _mm_add_epi8(in, delta);
+
+		is_slash = _mm_cmpeq_epi8(in, _mm_set1_epi8('_'));
+		delta = _mm_slli_si128(is_slash, 1);
+		if (ucfirst) {
+			delta = _mm_or_si128(delta, _mm_setr_epi8(0xff, 0, 0, 0,
+						                             0, 0, 0, 0,
+													 0, 0, 0, 0,
+													 0, 0, 0, 0));
+		}
+		ucfirst = _mm_movemask_epi8(is_slash) & (0x1 << 15);
+		lower = _mm_cmpgt_epi8(_mm_sub_epi8(in, lower_guard), _mm_set1_epi8('z' - 'a' + 128));;
+		delta = _mm_andnot_si128(lower, delta);
+		delta = _mm_and_si128(delta, _mm_set1_epi8('a' - 'A'));
+		in = _mm_sub_epi8(in, delta);
+		_mm_storeu_si128((__m128i*)p, in);
+		p += 16;
+		str += 16;
+		len -= 16;
+	}
+#endif
+
+	if (len) {
+		if (ucfirst) {
+			*p++ = toupper(*str);
 		} else {
-			*p++ = ch;
-			i++;
-			*p++ = toupper(str[i]);
+			*p++ = tolower(*str);
+		}
+		for (i = 1; i < len; i++) {
+			unsigned char ch = str[i];
+			if (str[i - 1] != '_') {
+				*p++ = tolower(ch);
+			} else {
+				*p++ = toupper(ch);
+			}
 		}
 	}
 	*p = '\0';
