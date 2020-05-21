@@ -363,53 +363,56 @@ ZEND_HOT int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_functi
 /* }}} */
 
 ZEND_HOT zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ */ {
-	unsigned int i;
 	unsigned int ucfirst = 1;
 	zend_string *name = zend_string_alloc(len, 0);
 	unsigned char *p = (unsigned char*)ZSTR_VAL(name);
+	unsigned char *e = p + ZSTR_LEN(name);
 #ifdef __SSE2__
-	while (len >= 16) {
-		__m128i lower, upper, delta, is_slash;
+	while (p + 16 <= e) {
+		uint32_t mask;
+		__m128i rot, lower, upper, delta, line;
 		const __m128i upper_guard = _mm_set1_epi8('A' + 128);
 		const __m128i lower_guard = _mm_set1_epi8('a' + 128);
 		__m128i in = _mm_loadu_si128((__m128i*)str);
 
-		upper = _mm_cmpgt_epi8(_mm_sub_epi8(in, upper_guard), _mm_set1_epi8('Z' - 'A' + 128));
+		rot = _mm_sub_epi8(in, upper_guard);
+		upper = _mm_cmpgt_epi8(rot, _mm_set1_epi8(-128 + 'Z' - 'A'));
 		delta = _mm_andnot_si128(upper, _mm_set1_epi8('a' - 'A'));
 	    in = _mm_add_epi8(in, delta);
 
-		is_slash = _mm_cmpeq_epi8(in, _mm_set1_epi8('_'));
-		delta = _mm_slli_si128(is_slash, 1);
+		line = _mm_cmpeq_epi8(in, _mm_set1_epi8('_'));
+		mask = _mm_movemask_epi8(line);
+		delta = _mm_slli_si128(line, 1);
 		if (ucfirst) {
-			delta = _mm_or_si128(delta, _mm_setr_epi8(0xff, 0, 0, 0,
-						                             0, 0, 0, 0,
-													 0, 0, 0, 0,
-													 0, 0, 0, 0));
+			delta = _mm_or_si128(delta, _mm_set_epi8(0, 0, 0, 0,
+												     0, 0, 0, 0,
+												     0, 0, 0, 0,
+												     0, 0, 0, 0xff));
 		}
-		ucfirst = _mm_movemask_epi8(is_slash) & (0x1 << 15);
-		lower = _mm_cmpgt_epi8(_mm_sub_epi8(in, lower_guard), _mm_set1_epi8('z' - 'a' + 128));;
+		ucfirst = mask & (0x1 << 15);
+
+		rot = _mm_sub_epi8(in, lower_guard);
+		lower = _mm_cmpgt_epi8(rot, _mm_set1_epi8(-128 + 'z' - 'a'));;
 		delta = _mm_andnot_si128(lower, delta);
 		delta = _mm_and_si128(delta, _mm_set1_epi8('a' - 'A'));
 		in = _mm_sub_epi8(in, delta);
+
 		_mm_storeu_si128((__m128i*)p, in);
 		p += 16;
 		str += 16;
-		len -= 16;
 	}
 #endif
-
-	if (len) {
+	if (p != e) {
 		if (ucfirst) {
-			*p++ = toupper(*str);
+			*p = toupper(*str++);
 		} else {
-			*p++ = tolower(*str);
+			*p = tolower(*str++);
 		}
-		for (i = 1; i < len; i++) {
-			unsigned char ch = str[i];
-			if (str[i - 1] != '_') {
-				*p++ = tolower(ch);
+		while (++p != e) {
+			if (*(str - 1) != '_') {
+				*p = tolower(*str++);
 			} else {
-				*p++ = toupper(ch);
+				*p = toupper(*str++);
 			}
 		}
 	}
