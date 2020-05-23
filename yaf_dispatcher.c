@@ -1250,7 +1250,7 @@ PHP_METHOD(yaf_dispatcher, setDefaultAction) {
 PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 	zval *callback, *error_type = NULL;
 	zval params[2];
-	zval function = {{0}};
+	zval function;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z|z", &callback, &error_type) == FAILURE) {
 		return;
@@ -1263,7 +1263,6 @@ PHP_METHOD(yaf_dispatcher, setErrorHandler) {
 
 	ZVAL_STRING(&function, "set_error_handler");
 	if (call_user_function(EG(function_table), NULL, &function, return_value, ZEND_NUM_ARGS(), params) == FAILURE) {
-		zval_ptr_dtor(return_value);
 		zval_ptr_dtor(&params[0]);
 		if (error_type) {
 			zval_ptr_dtor(&params[1]);
