@@ -180,6 +180,7 @@ ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request)
 void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {{{ */ {
 	char *k, *v;
 	uint32_t l;
+	zval *zv, rv;
 
 	array_init(params);
 
@@ -187,12 +188,12 @@ void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {
 		return;
 	}
 
+	ZVAL_NULL(&rv);
 	while (1) {
 		if ((k = memchr(str, YAF_ROUTER_URL_DELIMIETER, len))) {
-			zval *zv;
 			l = k++ - str;
 			if (l) {
-				zv = zend_hash_str_add_empty_element(Z_ARRVAL_P(params), str, l);
+				zv = zend_hash_str_update(Z_ARRVAL_P(params), str, l, &rv);
 				len -= k - str;
 				if ((v = memchr(k, YAF_ROUTER_URL_DELIMIETER, len))) {
 					if (v - k) {
@@ -212,7 +213,7 @@ void yaf_router_parse_parameters(const char *str, size_t len, zval *params) /* {
 				continue;
 			}
 		} else if (len) {
-			zend_hash_str_add_empty_element(Z_ARRVAL_P(params), str, len);
+			zend_hash_str_update(Z_ARRVAL_P(params), str, len, &rv);
 		}
 		return;
 	}
