@@ -24,10 +24,11 @@ $config = array(
 file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
-         public function init() {}
+         protected function init() {
+            \$this->getView()->assign("ref", "first-source");
+		 }
 
          public function indexAction() {
-            \$this->getView()->assign("ref", "first-source");
             \$this->getView()->assign("ref", "second-source");
             \$this->getView()->display("index/index.phtml", ["ref" => "thrid-source"]);
             return false;

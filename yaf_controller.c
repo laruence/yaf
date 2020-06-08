@@ -466,7 +466,6 @@ int yaf_controller_render(yaf_controller_t *controller, zend_string *action, zva
 /* }}} */
 
 int yaf_controller_init(yaf_controller_object *ctl, yaf_dispatcher_object *dispatcher) /* {{{ */ {
-	zend_function *fptr;
 	zend_class_entry *ce = ctl->std.ce;
 
 	ctl->request = &dispatcher->request;
@@ -476,11 +475,10 @@ int yaf_controller_init(yaf_controller_object *ctl, yaf_dispatcher_object *dispa
 	ctl->module = zend_string_copy(Z_YAFREQUESTOBJ(dispatcher->request)->module);
 
 	if (!instanceof_function(ce, yaf_action_ce) &&
-		(fptr = (zend_function*)zend_hash_str_find_ptr(&(ce->function_table), ZEND_STRL("init")))) {
-		zval ret;
-		yaf_call_user_method_with_0_arguments(&ctl->std, fptr, &ret);
-		zval_ptr_dtor(&ret);
-
+		zend_hash_str_exists(&(ce->function_table), ZEND_STRL("init"))) {
+		zval self;
+		ZVAL_OBJ(&self, &ctl->std);
+		zend_call_method_with_0_params(&self, ce, NULL, "init", NULL);
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}
