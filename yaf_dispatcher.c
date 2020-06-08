@@ -790,6 +790,8 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	}
 
 	do {
+		/* plugins maybe added in controller? */
+		plugins = dispatcher->plugins;
 		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_PREDISPATCH);
 		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
