@@ -1027,12 +1027,14 @@ PHP_METHOD(yaf_request, setModuleName) {
 		return;
 	}
 
-	if (format_name) {
-		yaf_request_set_module(request, module);
-	} else {
-		if (request->module) {
-			zend_string_release(request->module);
-			request->module = zend_string_copy(module);
+	if (EXPECTED(ZSTR_LEN(module))) {
+		if (format_name) {
+			yaf_request_set_module(request, module);
+		} else {
+			if (request->module) {
+				zend_string_release(request->module);
+				request->module = zend_string_copy(module);
+			}
 		}
 	}
 
@@ -1051,12 +1053,14 @@ PHP_METHOD(yaf_request, setControllerName) {
 		return;
 	}
 
-	if (format_name) {
-		yaf_request_set_controller(request, controller);
-	} else {
-		if (request->controller) {
-			zend_string_release(request->controller);
-			request->controller = zend_string_copy(controller);
+	if (EXPECTED(ZSTR_LEN(controller))) {
+		if (format_name) {
+			yaf_request_set_controller(request, controller);
+		} else {
+			if (request->controller) {
+				zend_string_release(request->controller);
+				request->controller = zend_string_copy(controller);
+			}
 		}
 	}
 
@@ -1075,12 +1079,14 @@ PHP_METHOD(yaf_request, setActionName) {
 		return;
 	}
 
-	if (format_name) {
-		yaf_request_set_action(request, action);
-	} else {
-		if (request->action) {
-			zend_string_release(request->action);
-			request->action = zend_string_copy(action);
+	if (EXPECTED(ZSTR_LEN(action))) {
+		if (format_name) {
+			yaf_request_set_action(request, action);
+		} else {
+			if (request->action) {
+				zend_string_release(request->action);
+				request->action = zend_string_copy(action);
+			}
 		}
 	}
 
