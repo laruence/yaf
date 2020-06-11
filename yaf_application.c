@@ -161,8 +161,7 @@ static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	if (!app->properties) {
 		ALLOC_HASHTABLE(app->properties);
 		zend_hash_init(app->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
-		zend_hash_real_init_mixed(app->properties);
-		HT_ALLOW_COW_VIOLATION(app->properties);
+		YAF_ALLOW_VIOLATION(app->properties);
 	}
 
 	ht = app->properties;
@@ -620,8 +619,7 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 
 			ALLOC_HASHTABLE(app->modules);
 			zend_hash_init(app->modules, 8, NULL, ZVAL_PTR_DTOR, 0);
-			zend_hash_real_init_mixed(app->modules);
-			HT_ALLOW_COW_VIOLATION(app->modules);
+			YAF_ALLOW_VIOLATION(app->modules);
 
 			modules = estrndup(Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 			seg = php_strtok_r(modules, ",", &ptrptr);

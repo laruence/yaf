@@ -187,8 +187,7 @@ static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
 	if (!loader->properties) {
 		ALLOC_HASHTABLE(loader->properties);
 		zend_hash_init(loader->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
-		zend_hash_real_init_mixed(loader->properties);
-		HT_ALLOW_COW_VIOLATION(loader->properties);;
+		YAF_ALLOW_VIOLATION(loader->properties);;
 	}
 
 	ht = loader->properties;
@@ -260,8 +259,7 @@ yaf_loader_t *yaf_loader_instance(zend_string *library_path) /* {{{ */ {
 	
 	ALLOC_HASHTABLE(YAF_LOADER_NAMESPACES(loader));
 	zend_hash_init(YAF_LOADER_NAMESPACES(loader), 8, NULL, ZVAL_PTR_DTOR, 0);
-	zend_hash_real_init_mixed(YAF_LOADER_NAMESPACES(loader));
-	HT_ALLOW_COW_VIOLATION(YAF_LOADER_NAMESPACES(loader));
+	YAF_ALLOW_VIOLATION(YAF_LOADER_NAMESPACES(loader));
 
 	loader->properties = NULL;
 

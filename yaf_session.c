@@ -73,8 +73,7 @@ static HashTable *yaf_session_get_properties(zval *object) /* {{{ */ {
 	if (!sess->properties) {
 		ALLOC_HASHTABLE(sess->properties);
 		zend_hash_init(sess->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
-		zend_hash_real_init_mixed(sess->properties);
-		HT_ALLOW_COW_VIOLATION(sess->properties);
+		YAF_ALLOW_VIOLATION(sess->properties);
 	}
 
 	ht = sess->properties;
