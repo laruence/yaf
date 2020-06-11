@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-06-04</date>
- <time>18:00:00</time>
+ <date>2020-06-11</date>
+ <time>15:30:00</time>
  <version>
-  <release>3.2.4</release>
-  <api>3.2.4</api>
+  <release>3.2.5</release>
+  <api>3.2.5</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,8 +22,10 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #489 (global library is not used if namespace is not set)
-  - Fixed issue #490 (segfault with repeated call arguments)
+  - Fixed issue #492 (init method could be protected)
+  - Fixed issue #492 (plugins maybe changed in controller execution)
+  - Fixed issue #492 (empty names shoud not be set to request)
+  - Fixed cow_violation conflicts
  </notes>
  <contents> 
   <dir name="/"> 
@@ -255,6 +257,25 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2020-06-11</date> 
+   <version> 
+    <release>3.2.5</release> 
+    <api>3.2.5</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed issue #492 (init method could be protected)
+    - Fixed issue #492 (plugins maybe changed in controller execution)
+    - Fixed issue #492 (empty names shoud not be set to request)
+    - Fixed cow_violation conflicts
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-06-04</date> 
    <version> 
     <release>3.2.4</release> 
@@ -270,7 +291,6 @@
     - Fixed issue #490 (segfault with repeated call arguments)
    </notes> 
   </release> 
-
   <release> 
    <date>2020-05-15</date> 
    <version> 
