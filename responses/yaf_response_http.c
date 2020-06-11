@@ -85,6 +85,7 @@ int yaf_response_alter_header(yaf_response_object *response, zend_string *name, 
 	if (!response->header) {
 		ALLOC_HASHTABLE(response->header);
 		zend_hash_init(response->header, 8, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(response->header);
 		HT_ALLOW_COW_VIOLATION(response->header);
 	}
 

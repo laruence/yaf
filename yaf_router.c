@@ -86,6 +86,7 @@ static HashTable *yaf_router_get_properties(zval *object) /* {{{ */ {
 	if (!router->properties) {
 		ALLOC_HASHTABLE(router->properties);
 		zend_hash_init(router->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(router->properties);
 		HT_ALLOW_COW_VIOLATION(router->properties);
 	}
 

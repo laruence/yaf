@@ -72,6 +72,7 @@ static HashTable *yaf_view_simple_get_properties(zval *object) /* {{{ */ {
 	if (!view->properties) {
 		ALLOC_HASHTABLE(view->properties);
 		zend_hash_init(view->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(view->properties);
 		HT_ALLOW_COW_VIOLATION(view->properties);
 	}
 

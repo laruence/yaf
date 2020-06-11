@@ -57,6 +57,7 @@ static HashTable *yaf_registry_get_properties(zval *object) /* {{{ */ {
 	if (!registry->properties) {
 		ALLOC_HASHTABLE(registry->properties);
 		zend_hash_init(registry->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(registry->properties);
 		HT_ALLOW_COW_VIOLATION(registry->properties);
 	}
 

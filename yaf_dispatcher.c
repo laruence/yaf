@@ -143,6 +143,7 @@ static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
 	if (!dispatcher->properties) {
 		ALLOC_HASHTABLE(dispatcher->properties);
 		zend_hash_init(dispatcher->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(dispatcher->properties);
 		HT_ALLOW_COW_VIOLATION(dispatcher->properties);
 	}
 

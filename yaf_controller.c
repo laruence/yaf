@@ -137,6 +137,7 @@ static HashTable *yaf_controller_get_properties(zval *object) /* {{{ */ {
 	if (!ctl->properties) {
 		ALLOC_HASHTABLE(ctl->properties);
 		zend_hash_init(ctl->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(ctl->properties);
 		HT_ALLOW_COW_VIOLATION(ctl->properties);
 	}
 

@@ -50,6 +50,7 @@ static HashTable *yaf_route_map_get_properties(zval *object) /* {{{ */ {
 	if (!map->properties) {
 		ALLOC_HASHTABLE(map->properties);
 		zend_hash_init(map->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
+		zend_hash_real_init_mixed(map->properties);
 		HT_ALLOW_COW_VIOLATION(map->properties);
 
 		ht = map->properties;
