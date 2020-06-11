@@ -54,10 +54,18 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_ME(c, m, a, f)              {m, PHP_MN(c), a, (unsigned)(sizeof(a)/sizeof(struct _zend_arg_info)-1), f},
 #define YAF_VAR_FLAGS(v)                ((v).u2.next)
 
+#if PHP_VERSION_ID < 70200
+#define YAF_ALLOW_VIOLATION(ht)
+#else
+#define YAF_ALLOW_VIOLATION(ht) do { \
+	zend_hash_real_init(ht, 0);      \
+	HT_ALLOW_COW_VIOLATION(ht);      \
+} while (0)
+#endif
+
 #if PHP_VERSION_ID < 70400
 #define YAF_WRITE_HANDLER       void
 #define YAF_WHANDLER_RET(zv)    return
-#define YAF_ALLOW_VIOLATION(ht)
 # if PHP_VERSION_ID < 70300
 # define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
 # define GC_DELREF(gc)           (--GC_REFCOUNT(gc))
@@ -65,10 +73,6 @@ extern zend_module_entry yaf_module_entry;
 #else
 #define YAF_WRITE_HANDLER       zval *
 #define YAF_WHANDLER_RET(zv)    return zv
-#define YAF_ALLOW_VIOLATION(ht) do { \
-	zend_hash_real_init_mixed(ht);   \
-	HT_ALLOW_COW_VIOLATION(ht);      \
-} while (0)
 #endif
 
 #define yaf_application_t       zval
