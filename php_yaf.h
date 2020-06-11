@@ -58,10 +58,10 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_WRITE_HANDLER       void
 #define YAF_WHANDLER_RET(zv)    return
 #define YAF_ALLOW_VIOLATION(ht)
-#if PHP_VERSION_ID < 70300
+# if PHP_VERSION_ID < 70300
 # define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
 # define GC_DELREF(gc)           (--GC_REFCOUNT(gc))
-#endif
+# endif
 #else
 #define YAF_WRITE_HANDLER       zval *
 #define YAF_WHANDLER_RET(zv)    return zv

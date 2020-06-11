@@ -72,8 +72,7 @@ static HashTable *yaf_view_simple_get_properties(zval *object) /* {{{ */ {
 	if (!view->properties) {
 		ALLOC_HASHTABLE(view->properties);
 		zend_hash_init(view->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
-		zend_hash_real_init_mixed(view->properties);
-		HT_ALLOW_COW_VIOLATION(view->properties);
+		YAF_ALLOW_VIOLATION(view->properties);
 	}
 
 	ht = view->properties;
@@ -220,7 +219,6 @@ static void yaf_view_build_symtable(zend_array *symbol_table, zend_array *tpl_va
 	zend_string *var_name;
 
 	zend_hash_init(symbol_table, 8, NULL, ZVAL_PTR_DTOR, 0);
-	zend_hash_real_init(symbol_table, 0);
 
 	if (EXPECTED(tpl_vars)) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(tpl_vars, var_name, entry) {
