@@ -83,6 +83,15 @@ void yaf_request_simple_init(yaf_request_object *request, zend_string *module, z
 		}
 	}
 
+	if (params) {
+		if (!request->params) {
+			ALLOC_HASHTABLE(request->params);
+			zend_hash_init(request->params, zend_hash_num_elements(params), NULL, ZVAL_PTR_DTOR, 0);
+			YAF_ALLOW_VIOLATION(request->params);
+		}
+		zend_hash_copy(request->params, params, (copy_ctor_func_t) zval_add_ref);
+	}
+
 	return;
 }
 /* }}} */
