@@ -758,7 +758,6 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatcher) /* {{{ */ {
 	yaf_request_object *request;
 	zend_bool catch_exception = yaf_is_catch_exception();
-	HashTable *plugins = dispatcher->plugins;
 	uint32_t nesting = yaf_get_forward_limit();
 
 	if (EXPECTED(Z_TYPE(dispatcher->response) != IS_OBJECT)) {
@@ -770,38 +769,36 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	request = Z_YAFREQUESTOBJ(dispatcher->request);
 	/* route request */
 	if (EXPECTED(!yaf_request_is_routed(request))) {
-		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_ROUTESTARTUP);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESTARTUP);
 		if (UNEXPECTED(!yaf_dispatcher_route(dispatcher))) {
 			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 			return NULL;
 		}
 		yaf_dispatcher_fix_default(dispatcher, request);
-		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_ROUTESHUTDOWN);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESHUTDOWN);
 		yaf_request_set_routed(request, 1);
 	} else {
 		yaf_dispatcher_fix_default(dispatcher, request);
 	}
 
-	YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_LOOPSTARTUP);
+	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSTARTUP);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		return NULL;
 	}
 
 	do {
-		/* plugins maybe added in controller? */
-		plugins = dispatcher->plugins;
-		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_PREDISPATCH);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_PREDISPATCH);
 		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 			return NULL;
 		}
 		/* yaf_dispatcher_fix_default(dispatcher, request); */
-		YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_POSTDISPATCH);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_POSTDISPATCH);
 	} while (!yaf_request_is_dispatched(request) && --nesting > 0);
 
-	YAF_PLUGIN_HANDLE(dispatcher, plugins, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
+	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
 
 	if (EXPECTED(yaf_request_is_dispatched(request))) {
 		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
