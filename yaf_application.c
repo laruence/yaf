@@ -921,8 +921,12 @@ PHP_METHOD(yaf_application, app) {
 PHP_METHOD(yaf_application, getModules) {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 
-	GC_ADDREF(app->modules);
-	RETURN_ARR(app->modules);
+	if (app->modules) {
+		GC_ADDREF(app->modules);
+		RETURN_ARR(app->modules);
+	} else {
+		RETURN_NULL();
+	}
 }
 /* }}} */
 
