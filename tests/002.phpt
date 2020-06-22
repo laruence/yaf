@@ -9,6 +9,7 @@ yaf.use_namespace=0
 $request  = new Yaf_Request_Simple("CLI", "index", "dummy", NULL, array());
 print_r($request);
 var_dump((bool)$request->setParam("name", "Laruence"));
+$request->setParam(["age" => 28, "gender" => "man"]);
 var_dump($request->isCli());
 var_dump($request->isXmlHttpRequest());
 var_dump($request->isPost());
@@ -90,7 +91,11 @@ string(7) "2.13232"
 Warning: Yaf_Request_Abstract::setParam() expects parameter 1 to be array, string given in %s002.php on line %d
 NULL
 NULL
-array(1) {
+array(3) {
   ["name"]=>
   string(8) "Laruence"
+  ["age"]=>
+  int(28)
+  ["gender"]=>
+  string(3) "man"
 }
