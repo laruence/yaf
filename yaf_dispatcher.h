@@ -60,8 +60,8 @@ static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object
 			zval _r, *_t;\
 			zend_function *_f; \
 			yaf_dispatcher_object *_d = (dispatcher); \
-			HashTable *_p = _d->plugins; \
-			ZEND_HASH_FOREACH_VAL(_p, _t) { \
+			HashTable *_pls = _d->plugins; \
+			ZEND_HASH_FOREACH_VAL(_pls, _t) { \
 				_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1); \
 				ZEND_ASSERT(_f); \
 				if (_f->type == ZEND_USER_FUNCTION) {\
