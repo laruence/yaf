@@ -34,7 +34,8 @@ zend_class_entry *yaf_action_ce;
 
 /** {{{ ARG_INFO
  */
-
+ZEND_BEGIN_ARG_INFO_EX(yaf_action_void_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
 /* }}} */
 
 void yaf_action_init(yaf_action_object *action, yaf_controller_t *ctl, zend_string *name) /* {{{ */ {
@@ -80,9 +81,9 @@ PHP_METHOD(yaf_action, getControllerName) {
 /** {{{ yaf_controller_methods
 */
 zend_function_entry yaf_action_methods[] = {
-	PHP_ABSTRACT_ME(yaf_action_controller, execute, NULL)
-	PHP_ME(yaf_action, getController, NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_action, getControllerName, NULL, ZEND_ACC_PUBLIC)
+	PHP_ABSTRACT_ME(yaf_action_controller, execute, yaf_action_void_arginfo)
+	PHP_ME(yaf_action, getController, yaf_action_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_action, getControllerName, yaf_action_void_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

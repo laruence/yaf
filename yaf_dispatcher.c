@@ -1291,7 +1291,7 @@ PHP_METHOD(yaf_dispatcher, __construct) {
 /** {{{ yaf_dispatcher_methods
 */
 zend_function_entry yaf_dispatcher_methods[] = {
-	PHP_ME(yaf_dispatcher, __construct,          NULL, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+	PHP_ME(yaf_dispatcher, __construct,          yaf_dispatcher_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
 	PHP_ME(yaf_dispatcher, enableView,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, disableView,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, initView,             yaf_dispatcher_initview_arginfo, ZEND_ACC_PUBLIC)

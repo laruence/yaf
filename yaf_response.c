@@ -541,7 +541,7 @@ PHP_METHOD(yaf_response, __toString) {
 */
 zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, __construct, yaf_response_void_arginfo,       ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_response, __toString,  NULL,                            ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, __toString,  yaf_response_void_arginfo,                            ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setBody,     yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, appendBody,  yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, prependBody, yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)

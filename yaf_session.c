@@ -311,7 +311,7 @@ PHP_METHOD(yaf_session, clear) {
 /** {{{ yaf_session_methods
 */
 zend_function_entry yaf_session_methods[] = {
-	PHP_ME(yaf_session, __construct, NULL, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_session, __construct, yaf_session_void_arginfo, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_session, getInstance, yaf_session_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_session, start, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)

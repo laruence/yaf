@@ -390,9 +390,9 @@ PHP_METHOD(yaf_router, getCurrentRoute) {
  */
 zend_function_entry yaf_router_methods[] = {
 	PHP_ME(yaf_router, __construct,	yaf_router_void_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-	PHP_ME(yaf_router, addRoute,  	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, addConfig, 	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, route,		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, addRoute,  	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, addConfig, 	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, route,		yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_router, getRoute,  	yaf_router_name_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_router, getRoutes,   yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_router, getCurrentRoute,	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
