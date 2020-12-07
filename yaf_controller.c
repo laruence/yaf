@@ -128,12 +128,17 @@ static void yaf_controller_object_free(zend_object *object) /* {{{ */ {
 	zend_object_std_dtor(object);
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_controller_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(object);
-
+#else
+static HashTable *yaf_controller_get_properties(zend_object *object) /* {{{ */ {
+        zval rv;
+        HashTable *ht;
+        yaf_controller_object *ctl = php_yaf_controller_fetch_object(object);
+#endif
 	if (!ctl->properties) {
 		ALLOC_HASHTABLE(ctl->properties);
 		zend_hash_init(ctl->properties, 8, NULL, ZVAL_PTR_DTOR, 0);

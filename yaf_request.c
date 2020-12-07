@@ -143,11 +143,15 @@ static void yaf_request_object_free(zend_object *object) /* {{{ */ {
 	zend_object_std_dtor(object);
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_request_get_gc(zval *object, zval **table, int *n) /* {{{ */
 {
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(object);
-
+#else
+static HashTable *yaf_request_get_gc(zend_object *object, zval **table, int *n) /* {{{ */
+{
+	yaf_request_object *request = php_yaf_request_fetch_object(object);
+#endif
 	*table = NULL;
 	*n = 0;
 
@@ -155,11 +159,17 @@ static HashTable *yaf_request_get_gc(zval *object, zval **table, int *n) /* {{{ 
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_request_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(object);
-
+#else
+static HashTable *yaf_request_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_request_object *request = php_yaf_request_fetch_object(object);
+#endif
 	if (!request->properties) {
 		ALLOC_HASHTABLE(request->properties);
 		zend_hash_init(request->properties, 16, NULL, ZVAL_PTR_DTOR, 0);

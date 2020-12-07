@@ -77,12 +77,17 @@ static void yaf_router_object_free(zend_object *object) /* {{{ */ {
 	zend_object_std_dtor(object);
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_router_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_router_object *router = Z_YAFROUTEROBJ_P(object);
-
+#else
+static HashTable *yaf_router_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_router_object *router = php_yaf_router_fetch_object(object);
+#endif
 	if (!router->properties) {
 		ALLOC_HASHTABLE(router->properties);
 		zend_hash_init(router->properties, 2, NULL, ZVAL_PTR_DTOR, 0);

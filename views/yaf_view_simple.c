@@ -64,11 +64,17 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO();
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_view_simple_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_view_object *view = Z_YAFVIEWOBJ_P(object);
-
+#else
+static HashTable *yaf_view_simple_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_view_object *view = php_yaf_view_fetch_object(object);
+#endif
 	if (!view->properties) {
 		ALLOC_HASHTABLE(view->properties);
 		zend_hash_init(view->properties, 2, NULL, ZVAL_PTR_DTOR, 0);

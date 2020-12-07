@@ -64,12 +64,17 @@ static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
 	session->flags |= YAF_SESSION_STARTED;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_session_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
-
+#else
+static HashTable *yaf_session_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_session_object *sess = php_yaf_session_fetch_object(object);
+#endif
 	if (!sess->properties) {
 		ALLOC_HASHTABLE(sess->properties);
 		zend_hash_init(sess->properties, 2, NULL, ZVAL_PTR_DTOR, 0);

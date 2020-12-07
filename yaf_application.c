@@ -142,23 +142,31 @@ static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 	return &app->std;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_application_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
-
+#else
+static HashTable *yaf_application_get_gc(zend_object *object, zval **table, int *n) /* {{{ */ {
+	yaf_application_object *app = php_yaf_application_fetch_object(object);
+#endif
 	*table = &app->dispatcher;
 	*n = 2;
 
 	return NULL;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
-
-	if (!app->properties) {
+#else
+static HashTable *yaf_application_get_properties(zend_object *object) /* {{{ */ {
+zval rv;
+HashTable *ht;
+yaf_application_object *app = php_yaf_application_fetch_object(object);
+#endif
+    if (!app->properties) {
 		ALLOC_HASHTABLE(app->properties);
 		zend_hash_init(app->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
 		YAF_ALLOW_VIOLATION(app->properties);

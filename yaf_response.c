@@ -52,12 +52,17 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_body_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_response_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(object);
-
+#else
+static HashTable *yaf_response_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_response_object *response = php_yaf_response_fetch_object(object);
+#endif
 	if (!response->properties) {
 		ALLOC_HASHTABLE(response->properties);
 		zend_hash_init(response->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
@@ -71,7 +76,11 @@ static HashTable *yaf_response_get_properties(zval *object) /* {{{ */ {
 	ZVAL_BOOL(&rv, response->flags & YAF_RESPONSE_HEADER_SENT);
 	zend_hash_str_update(ht, "header_sent:protected", sizeof("header_sent:protected") - 1, &rv);
 
+#if PHP_VERSION_ID < 80000
 	if (Z_OBJCE_P(object) == yaf_response_http_ce) {
+#else
+    if (object->ce == yaf_response_http_ce) {
+#endif
 		if (response->header) {
 			ZVAL_ARR(&rv, response->header);
 			GC_ADDREF(response->header);

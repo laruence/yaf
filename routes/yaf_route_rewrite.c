@@ -49,12 +49,17 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_match_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, uri)
 ZEND_END_ARG_INFO()
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_route_rewrite_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_rewrite_object *rewrite = Z_YAFROUTEREWRITEOBJ_P(object);
-
+#else
+static HashTable *yaf_route_rewrite_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_route_rewrite_object *rewrite = (yaf_route_rewrite_object*)(object);
+#endif
 	if (!rewrite->properties) {
 		ALLOC_HASHTABLE(rewrite->properties);
 		zend_hash_init(rewrite->properties, 4, NULL, ZVAL_PTR_DTOR, 0);

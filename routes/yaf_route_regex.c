@@ -51,11 +51,17 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_regex_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_route_regex_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_route_regex_object *regex = Z_YAFROUTEREGEXOBJ_P(object);
-
+#else
+static HashTable *yaf_route_regex_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_route_regex_object *regex = (yaf_route_regex_object*)(object);
+#endif
 	if (!regex->properties) {
 		ALLOC_HASHTABLE(regex->properties);
 		zend_hash_init(regex->properties, 8, NULL, ZVAL_PTR_DTOR, 0);

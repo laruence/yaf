@@ -129,7 +129,11 @@ int yaf_loader_register(yaf_loader_t *loader) /* {{{ */ {
 			&autoload,
 			NULL,
 			1,
-			1
+#if PHP_VERSION_ID < 80000
+            1
+#else
+           NULL
+#endif
 		};
 
 		if (zend_call_function(&fci, NULL) == FAILURE) {
@@ -178,12 +182,17 @@ static zend_array *yaf_loader_get_namespaces(yaf_loader_object *loader) /* {{{ *
 	return ht;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_loader_object *loader = Z_YAFLOADEROBJ_P(object);
-
+#else
+static HashTable *yaf_loader_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_loader_object *loader = (yaf_loader_object*)(object);
+#endif
 	if (!loader->properties) {
 		ALLOC_HASHTABLE(loader->properties);
 		zend_hash_init(loader->properties, 4, NULL, ZVAL_PTR_DTOR, 0);

@@ -135,11 +135,17 @@ static void yaf_dispatcher_obj_free(zend_object *object) /* {{{ */ {
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(object);
-
+#else
+static HashTable *yaf_dispatcher_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_dispatcher_object *dispatcher = php_yaf_dispatcher_fetch_object(object);
+#endif
 	if (!dispatcher->properties) {
 		ALLOC_HASHTABLE(dispatcher->properties);
 		zend_hash_init(dispatcher->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
@@ -179,11 +185,14 @@ static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
 	return ht;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_dispatcher_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(object);
-
+#else
+static HashTable *yaf_dispatcher_get_gc(zend_object *object, zval **table, int *n) /* {{{ */ {
+	yaf_dispatcher_object *dispatcher = php_yaf_dispatcher_fetch_object(object);
 	*table = &dispatcher->request;
+#endif
 	*n = 4;
 
 	return dispatcher->plugins;

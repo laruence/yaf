@@ -33,7 +33,9 @@ zend_class_entry *yaf_request_http_ce;
 
 /** {{{ ARG_INFO
  */
-ZEND_BEGIN_ARG_INFO_EX(yaf_request_http_void_arginfo, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_http_arginfo, 0, 0, 0)
+ZEND_ARG_INFO(0, request_uri)
+ZEND_ARG_INFO(0, base_uri)
 ZEND_END_ARG_INFO()
 /* }}} */
 
@@ -146,7 +148,7 @@ PHP_METHOD(yaf_request_http, __construct) {
 /** {{{ yaf_request_http_methods
  */
 zend_function_entry yaf_request_http_methods[] = {
-	PHP_ME(yaf_request_http, __construct,      yaf_request_http_void_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+	PHP_ME(yaf_request_http, __construct,      yaf_request_http_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
 	{NULL, NULL, NULL}
 };
 /* }}} */
