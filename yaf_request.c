@@ -337,6 +337,7 @@ zend_string *yaf_request_get_language(yaf_request_object *request) /* {{{ */ {
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zend_string *member;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(zobj);
@@ -352,6 +353,16 @@ static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **
 	}
 
 	member = Z_STR_P(name);
+#else
+static zval* yaf_request_read_property(zend_object *zobj, zend_string *member, int type, void **cache_slot, zval *rv) /* {{{ */ {
+	yaf_request_object *request = php_yaf_request_fetch_object(zobj);
+
+	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
+		php_error_docref(NULL, E_WARNING,
+				"Indirect modification of Yaf_Reqeust internal property '%s' is not allowed", ZSTR_VA(member));
+		return &EG(error_zval);
+	}
+#endif
 
 	switch (ZSTR_LEN(member)) {
 		case 3:
@@ -428,8 +439,11 @@ static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **
 			default:
 			break;
 	}
-
+#if PHP_VERSION_ID < 80000
 	return std_object_handlers.read_property(zobj, name, type, cache_slot, rv);
+#else
+    return std_object_handlers.read_property(zobj, member, type, cache_slot, rv);
+#endif
 }
 /* }}} */
 
@@ -563,6 +577,7 @@ int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri,
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static YAF_WRITE_HANDLER yaf_request_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(zobj);
@@ -570,9 +585,11 @@ static YAF_WRITE_HANDLER yaf_request_write_property(zval *zobj, zval *name, zval
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
-
 	member = Z_STR_P(name);
-
+#else
+static YAF_WRITE_HANDLER yaf_request_write_property(zend_object *zobj, zend_string *member, zval *value, void **cache_slot) /* {{{ */ {
+	yaf_request_object *request = php_yaf_request_fetch_object(zobj);
+#endif
 	if (zend_string_equals_literal(member, "method")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING || Z_STRLEN_P(value) == 0)) {
 			YAF_WHANDLER_RET(value);
@@ -612,12 +629,19 @@ static YAF_WRITE_HANDLER yaf_request_write_property(zval *zobj, zval *name, zval
 		zend_string_equals_literal(member, "language") ||
 		zend_string_equals_literal(member, "routed") ||
 		zend_string_equals_literal(member, "params")) {
+#if PHP_VERSION_ID < 80000
 		php_error_docref(NULL, E_WARNING,
 				"Modification of Yaf_Request internal property '%s' is not allowed", Z_STRVAL_P(name));
 		YAF_WHANDLER_RET(value);
 	}
-
-	return std_object_handlers.write_property(zobj, name, value, cache_slot);
+    return std_object_handlers.write_property(zobj, name, value, cache_slot);
+#else
+    php_error_docref(NULL, E_WARNING,
+				"Modification of Yaf_Request internal property '%s' is not allowed", ZSTR_VAL(member));
+		YAF_WHANDLER_RET(value);
+	}
+    return std_object_handlers.write_property(zobj, member, value, cache_slot);
+#endif
 }
 /* }}} */
 

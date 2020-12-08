@@ -95,7 +95,7 @@ static HashTable *yaf_view_simple_get_properties(zend_object *object) /* {{{ */ 
 	return ht;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zval *var;
 	zend_string *member;
@@ -113,8 +113,22 @@ static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, voi
 
 	return &EG(uninitialized_zval);
 }
+#else
+static zval* yaf_view_simple_read_property(zend_object *zobj, zend_string *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+	zval *var;
+
+	yaf_view_object *view = php_yaf_view_fetch_object(zobj);
+
+	if (var = zend_hash_find(&view->tpl_vars, name)) {
+		return var;
+	}
+
+	return &EG(uninitialized_zval);
+}
+#endif
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_view_object *view = Z_YAFVIEWOBJ_P(zobj);
@@ -130,6 +144,17 @@ static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, 
 
 	YAF_WHANDLER_RET(value);
 }
+#else
+static YAF_WRITE_HANDLER yaf_view_simple_write_property(zend_object *zobj, zend_string *name, zval *value, void **cache_slot) /* {{{ */ {
+	yaf_view_object *view = php_yaf_view_fetch_object(zobj);
+
+	zend_hash_update(&view->tpl_vars, name, value);
+	Z_TRY_ADDREF_P(value);
+
+	YAF_WHANDLER_RET(value);
+}
+#endif
+
 /* }}} */
 
 static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
