@@ -296,9 +296,17 @@ int yaf_response_clear_body(yaf_response_object *response, zend_string *name) /*
 		ZVAL_OBJ(&obj, &response->std);
 		if (name) {
 			ZVAL_STR(&arg, name);
-			zend_call_method_with_1_params(&obj, ce, NULL, "clearbody", &ret, &arg);
+#if PHP_VERSION_ID < 80000
+            zend_call_method_with_1_params(&obj, ce, NULL, "clearbody", &ret, &arg);
+#else
+            zend_call_method_with_1_params(Z_OBJ(obj), ce, NULL, "clearbody", &ret, &arg);
+#endif
 		} else {
+#if PHP_VERSION_ID < 80000
 			zend_call_method_with_0_params(&obj, ce, NULL, "clearbody", &ret);
+#else
+            zend_call_method_with_0_params(Z_OBJ(obj), ce, NULL, "clearbody", &ret);
+#endif
 		}
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
@@ -351,7 +359,11 @@ int yaf_response_response(yaf_response_object *response) /* {{{ */ {
 		zval obj, ret;
 
 		ZVAL_OBJ(&obj, &response->std);
+#if PHP_VERSION_ID < 80000
 		zend_call_method_with_0_params(&obj, ce, NULL, "response", &ret);
+#else
+        zend_call_method_with_0_params(Z_OBJ(obj), ce, NULL, "response", &ret);
+#endif
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}

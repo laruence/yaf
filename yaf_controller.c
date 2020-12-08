@@ -483,7 +483,11 @@ int yaf_controller_init(yaf_controller_object *ctl, yaf_dispatcher_object *dispa
 		zend_hash_str_exists(&(ce->function_table), ZEND_STRL("init"))) {
 		zval self;
 		ZVAL_OBJ(&self, &ctl->std);
+#if PHP_VERSION_ID < 80000
 		zend_call_method_with_0_params(&self, ce, NULL, "init", NULL);
+#else
+        zend_call_method_with_0_params(Z_OBJ(self), ce, NULL, "init", NULL);
+#endif
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}
