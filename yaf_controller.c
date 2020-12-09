@@ -262,11 +262,8 @@ static zval *yaf_controller_read_property(zend_object *zobj, zend_string *name, 
 		}
 		return rv;
 	}
-#if PHP_VERSION_ID < 80000
-    return std_object_handlers.read_property(zobj, Z_STRVAL_P(name), type, cache_slot, rv);
-#else
+
     return std_object_handlers.read_property(zobj, name, type, cache_slot, rv);
-#endif
 }
 /* }}} */
 
