@@ -187,32 +187,30 @@ void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *mod
 /* }}} */
 #if PHP_VERSION_ID < 80000
 static zval *yaf_controller_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
-	const char *member;
-	size_t member_len;
 	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(zobj);  
 #else
 static zval *yaf_controller_read_property(zend_object *zobj, zend_string *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
-     const char *member;
-     size_t member_len;
      yaf_controller_object *ctl = php_yaf_controller_fetch_object(zobj);
 #endif
+    const char *member;
+    size_t member_len;
 
 #if PHP_VERSION_ID < 80000
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
+#endif
+
     if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
-        php_error_docref(NULL, E_WARNING,
+#if PHP_VERSION_ID < 80000
+       php_error_docref(NULL, E_WARNING,
                          "Indirect modification of Yaf_Controller internal property '%s' is not allowed", Z_STRVAL_P(name));
-        return &EG(error_zval);
-    }
 #else
-    if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
         php_error_docref(NULL, E_WARNING,
                          "Indirect modification of Yaf_Controller internal property '%s' is not allowed", ZSTR_VAL(name));
+#endif
         return &EG(error_zval);
     }
-#endif
 
 #if PHP_VERSION_ID < 80000
 	if (UNEXPECTED(!instanceof_function(Z_OBJCE_P(zobj), yaf_controller_ce))) {
