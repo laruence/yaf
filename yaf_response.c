@@ -594,7 +594,11 @@ PHP_METHOD(yaf_response, __toString) {
 
 	if (response->body) {
 		ZVAL_ARR(&rv, response->body);
+#if PHP_VERSION_ID < 80000
 		php_implode(ZSTR_EMPTY_ALLOC(), &rv, return_value);
+#else
+        php_implode(ZSTR_EMPTY_ALLOC(), Z_ARR(rv), return_value);
+#endif
 	} else {
 		RETURN_EMPTY_STRING();
 	}
