@@ -307,7 +307,11 @@ int yaf_response_alter_body(yaf_response_object *response, zend_string *name, ze
 
 		ZVAL_OBJ(&obj, &response->std);
 		ZVAL_STR(&arg, body);
+#if PHP_VERSION_ID < 80000
 		zend_call_method_with_1_params(&obj, ce, NULL, "appendbody", &ret, &arg);
+#else
+        zend_call_method_with_1_params(Z_OBJ(obj), ce, NULL, "appendbody", &ret, &arg);
+#endif
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}

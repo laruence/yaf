@@ -161,7 +161,11 @@ ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request)
 			}
 		} else {
 			zval ret;
+#if PHP_VERSION_ID < 80000
 			zend_call_method_with_1_params(route, Z_OBJCE_P(route), NULL, "route", &ret, request);
+#else
+            zend_call_method_with_1_params(Z_OBJ_P(route), Z_OBJCE_P(route), NULL, "route", &ret, request);
+#endif
 			if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
 				zval_ptr_dtor(&ret);
 				continue;

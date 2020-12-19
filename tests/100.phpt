@@ -85,7 +85,7 @@ string(46) "Expected an array of application configuration"
 bool(false)
 string(55) "Expected 'directory' entry in application configuration"
 bool(false)
-string(79) "Yaf_Application::__construct() expects parameter 2 to be string, resource given"
+string(93) "Yaf_Application::__construct(): Argument #2 ($environ) must be of type string, resource %s"
 bool(false)
 string(39) "Only one application can be initialized"
 bool(false)

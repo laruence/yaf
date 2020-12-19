@@ -483,15 +483,23 @@ int yaf_controller_render(yaf_controller_t *controller, zend_string *action, zva
 		ZVAL_STR(&arg, action);
 		if (var_array == NULL) {
 			if (ret != NULL) {
+#if PHP_VERSION_ID < 80000
 				zend_call_method_with_1_params(controller, ce, NULL, "render", ret, &arg);
-				if (UNEXPECTED(Z_TYPE_P(ret) != IS_STRING || EG(exception))) {
+#else
+                zend_call_method_with_1_params(Z_OBJ_P(controller), ce, NULL, "render", ret, &arg);
+#endif
+                if (UNEXPECTED(Z_TYPE_P(ret) != IS_STRING || EG(exception))) {
 					zval_ptr_dtor(ret);
 					return 0;
 				}
 			} else {
 				zval rt;
+#if PHP_VERSION_ID < 80000
 				zend_call_method_with_1_params(controller, ce, NULL, "display", &rt, &arg);
-				if (UNEXPECTED(Z_TYPE(rt) == IS_FALSE || EG(exception))) {
+#else
+                zend_call_method_with_1_params(Z_OBJ_P(controller), ce, NULL, "display", &rt, &arg);
+#endif
+                if (UNEXPECTED(Z_TYPE(rt) == IS_FALSE || EG(exception))) {
 					zval_ptr_dtor(&rt);
 					return 0;
 				}
@@ -500,14 +508,22 @@ int yaf_controller_render(yaf_controller_t *controller, zend_string *action, zva
 			}
 		} else {
 			if (ret != NULL) {
+#if PHP_VERSION_ID < 80000
 				zend_call_method_with_2_params(controller, ce, NULL, "render", ret, &arg, var_array);
+#else
+                zend_call_method_with_2_params(Z_OBJ_P(controller), ce, NULL, "render", ret, &arg, var_array);
+#endif
 				if (UNEXPECTED(Z_TYPE_P(ret) != IS_STRING || EG(exception))) {
 					zval_ptr_dtor(ret);
 					return 0;
 				}
 			} else {
 				zval rt;
+#if PHP_VERSION_ID < 80000
 				zend_call_method_with_2_params(controller, ce, NULL, "display", &rt, &arg, var_array);
+#else
+                zend_call_method_with_2_params(Z_OBJ_P(controller), ce, NULL, "display", &rt, &arg, var_array);
+#endif
 				if (UNEXPECTED(Z_TYPE(rt) == IS_FALSE || EG(exception))) {
 					zval_ptr_dtor(&rt);
 					return 0;
