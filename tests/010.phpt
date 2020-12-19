@@ -5,7 +5,8 @@ Check for Yaf_Config_Ini basic usages
 --INI--
 yaf.use_namespace=0
 --FILE--
-<?php 
+<?php
+declare(strict_types=1);
 $file = dirname(__FILE__) . "/simple.ini";
 
 $config = new Yaf_Config_Ini($file);
@@ -400,8 +401,10 @@ Yaf_Config_Ini Object
 Warning: Yaf_Config_Ini::__set(): config is readonly in %s010.php on line %d
 bool(true)
 string(%d) "%sapplcation"
-baseextraproductnocatchenvtestbool(false)
-NULL
+baseextraproductnocatchenvtest
+Fatal error: Uncaught ArgumentCountError: Yaf_Config_Ini::__construct() expects at least 1 %s, 0 given in %s010.php:%d
+Stack trace:
+#0 %s010.php(%d): Yaf_Config_Ini->__construct()
+#1 {main}
+  thrown in %s010.php on line %d
 
-Warning: Yaf_Config_Ini::__set(): config is readonly in %s010.php on line %d
-int(0)

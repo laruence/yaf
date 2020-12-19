@@ -5,11 +5,15 @@ Bug (mem leak and crash in Yaf_Config_Ini)
 --INI--
 yaf.use_namespace=0
 --FILE--
-<?php 
+<?php
+declare(strict_types=1);
 $config = new Yaf_Config_Ini;
 
 var_dump($config->get("\0"));
 ?>
 --EXPECTF--
-Warning: Yaf_Config_Ini::__construct() expects at least 1 parameter, 0 given in %s on line %d
-NULL
+Fatal error: Uncaught ArgumentCountError: Yaf_Config_Ini::__construct() expects at least 1%s, 0 given in %s017.php:%d
+Stack trace:
+#0 %s017.php(%d): Yaf_Config_Ini->__construct()
+#1 {main}
+  thrown in %s017.php on line %d

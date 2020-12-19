@@ -45,4 +45,4 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-syntax error, unexpected '}'
+syntax error, unexpected %s}%c

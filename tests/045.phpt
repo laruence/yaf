@@ -49,4 +49,4 @@ try {
 string(5) "Index"
 string(5) "Index"
 string(5) "dummy"
-string(33) "Undefined variable: undefined_var"
+string(33) "Undefined variable%sundefined_var"
