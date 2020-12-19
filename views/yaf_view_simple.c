@@ -433,7 +433,13 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 		/* eval require code mustn't be wrapped in opening and closing PHP tags */
 		ZVAL_STR(&phtml, strpprintf(0, "?>%s", ZSTR_VAL(tpl)));
 
-		op_array = zend_compile_string(&phtml, eval_desc);
+#if PHP_VERSION_ID < 80000
+ 		op_array = zend_compile_string(&phtml, eval_desc);
+
+#else
+        	op_array = zend_compile_string(Z_STR(phtml), eval_desc);
+#endif
+
 
 		zval_dtor(&phtml);
 		efree(eval_desc);
