@@ -53,7 +53,7 @@ while ($i++ < 1024) {
 	$len = rand(1, 64);
     $u = str_repeat(' ', $len);
     for ($c = 0; $c < $len; $c++) {
-       $u[$c] = rand(1, 255);
+       @$u[$c] = rand(1, 255);
     }
 	$request->setControllerName($u);
 	if ($request->getControllerName() != build_camel_name($u)) {
