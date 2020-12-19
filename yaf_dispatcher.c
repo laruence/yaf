@@ -471,11 +471,13 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 	char path[MAXPATHLEN];
 	zend_class_entry *ce = NULL;
 	zend_string *action = request->action;
+
 #if PHP_VERSION_ID < 80000
 	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
 #else
     actions_map = zend_read_property(Z_OBJCE_P(controller), Z_OBJ_P(controller), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
 #endif
+
 	ZVAL_DEREF(actions_map);
 
 	if (EXPECTED(IS_ARRAY == Z_TYPE_P(actions_map))) {
