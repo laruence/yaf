@@ -16,12 +16,18 @@ $request = new Yaf_Request_Simple();
 
 foreach (array("method", "module", "controller", "action", "uri", "base_uri", "language", 123) as $k) {
 	print "Testing $k:\n";
-	var_dump($request->{$k});
+	var_dump(@$request->{$k});
 	$request->{$k} = true;
-	var_dump($request->{$k});
+	if (phpversion() >='8.0.0' && $k==123) {
+    	unset($request->{$k});
+    }
+	var_dump(@$request->{$k});
 	$request->{$k} = "inDex";
 	ref_change($request->{$k});
-	var_dump($request->{$k});
+	if (phpversion() >='8.0.0' && $k==123) {
+        unset($request->{$k});
+     }
+	var_dump(@$request->{$k});
 	echo "\n";
 }
 
@@ -51,28 +57,28 @@ string(5) "index"
 Testing uri:
 string(0) ""
 
-Warning: main(): Modification of Yaf_Request internal property 'uri' is not allowed in %s094.php on line %d
+Warning: main(): Modification of Yaf_Request internal property 'uri' is not allowed in /Users/guchangsheng/Desktop/company/defender-yaf/yaf/tests/094.php on line 12
 string(0) ""
 
-Warning: main(): Modification of Yaf_Request internal property 'uri' is not allowed in %s094.php on line %d
+Warning: main(): Modification of Yaf_Request internal property 'uri' is not allowed in /Users/guchangsheng/Desktop/company/defender-yaf/yaf/tests/094.php on line 17
 string(0) ""
 
 Testing base_uri:
 NULL
 
-Warning: main(): Modification of Yaf_Request internal property 'base_uri' is not allowed in %s094.php on line %d
+Warning: main(): Modification of Yaf_Request internal property 'base_uri' is not allowed in /Users/guchangsheng/Desktop/company/defender-yaf/yaf/tests/094.php on line 12
 NULL
 
-Warning: main(): Modification of Yaf_Request internal property 'base_uri' is not allowed in %s094.php on line %d
+Warning: main(): Modification of Yaf_Request internal property 'base_uri' is not allowed in /Users/guchangsheng/Desktop/company/defender-yaf/yaf/tests/094.php on line 17
 NULL
 
 Testing language:
 NULL
 
-Warning: main(): Modification of Yaf_Request internal property 'language' is not allowed in %s094.php on line %d
+Warning: main(): Modification of Yaf_Request internal property 'language' is not allowed in /Users/guchangsheng/Desktop/company/defender-yaf/yaf/tests/094.php on line 12
 NULL
 
-Warning: main(): Modification of Yaf_Request internal property 'language' is not allowed in %s094.php on line %d
+Warning: main(): Modification of Yaf_Request internal property 'language' is not allowed in /Users/guchangsheng/Desktop/company/defender-yaf/yaf/tests/094.php on line 17
 NULL
 
 Testing 123:
