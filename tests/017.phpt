@@ -1,7 +1,11 @@
 --TEST--
 Bug (mem leak and crash in Yaf_Config_Ini)
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php if (!extension_loaded("yaf")) print "skip";
+if (version_compare(PHP_VERSION, '7.1.0') <= 0) {
+   print "skip PHP 7.0 strict_types __construct() output warning";
+}
+?>
 --INI--
 yaf.use_namespace=0
 --FILE--
