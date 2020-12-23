@@ -119,7 +119,7 @@ static zval* yaf_view_simple_read_property(zend_object *zobj, zend_string *name,
 
 	yaf_view_object *view = php_yaf_view_fetch_object(zobj);
 
-	if (var = zend_hash_find(&view->tpl_vars, name)) {
+	if ((var = zend_hash_find(&view->tpl_vars, name))) {
 		return var;
 	}
 

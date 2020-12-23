@@ -359,7 +359,7 @@ static zval* yaf_request_read_property(zend_object *zobj, zend_string *member, i
 
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
 		php_error_docref(NULL, E_WARNING,
-				"Indirect modification of Yaf_Reqeust internal property '%s' is not allowed", ZSTR_VA(member));
+				"Indirect modification of Yaf_Reqeust internal property '%s' is not allowed", ZSTR_VAL(member));
 		return &EG(error_zval);
 	}
 #endif

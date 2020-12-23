@@ -120,14 +120,27 @@ int yaf_response_set_redirect(yaf_response_object *response, zend_string *url) /
 	if (strcmp("cli", sapi_module.name) == 0 || strcmp("phpdbg", sapi_module.name) == 0) {
 		return 0;
 	}
+#if PHP_VERSION_ID < 80000
 	ctr.line_len = spprintf(&(ctr.line), 0, "%s %s", "Location:", ZSTR_VAL(url));
+
+    ctr.response_code = 0;
+    if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) == SUCCESS) {
+        response->flags = YAF_RESPONSE_HEADER_SENT;
+        efree(ctr.line);
+        return 1;
+    }
+    efree(ctr.line);
+#else
+    ctr.line_len = spprintf((char **)&(ctr.line), 0, "%s %s", "Location:", ZSTR_VAL(url));
+
 	ctr.response_code = 0;
 	if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) == SUCCESS) {
 		response->flags = YAF_RESPONSE_HEADER_SENT;
-		efree(ctr.line);
+		efree((void *)ctr.line);
 		return 1;
 	}
-	efree(ctr.line);
+	efree((void *)ctr.line);
+#endif
 	return 0;
 }
 /* }}} */
@@ -145,18 +158,32 @@ int yaf_response_http_send(yaf_response_object *response) /* {{{ */ {
 			sapi_header_line ctr = {0};
 			ZEND_HASH_FOREACH_KEY_VAL(response->header, num_key, header_name, entry) {
 				if (header_name) {
-					ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
+#if PHP_VERSION_ID < 80000
+                    ctr.line_len = spprintf(&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
 				} else {
 					ctr.line_len = spprintf(&(ctr.line), 0, ""ZEND_ULONG_FMT": %s", num_key, Z_STRVAL_P(entry));
 				}
-
+#else
+                ctr.line_len = spprintf((char **)&(ctr.line), 0, "%s: %s", ZSTR_VAL(header_name), Z_STRVAL_P(entry));
+				} else {
+					ctr.line_len = spprintf((char **)&(ctr.line), 0, ""ZEND_ULONG_FMT": %s", num_key, Z_STRVAL_P(entry));
+				}
+#endif
 				ctr.response_code = 0;
 				if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) != SUCCESS) {
+#if PHP_VERSION_ID < 80000
 					efree(ctr.line);
+#else
+                    efree((void *)ctr.line);
+#endif
 					return 0;
 				}
 			} ZEND_HASH_FOREACH_END();
+#if PHP_VERSION_ID < 80000
 			efree(ctr.line);
+#else
+            efree((void *)ctr.line);
+#endif
 			response->flags |= YAF_RESPONSE_HEADER_SENT;
 		}
 	}

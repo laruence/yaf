@@ -130,7 +130,7 @@ static zval *yaf_response_read_property(zend_object *zobj, zend_string *name, in
 
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
 		php_error_docref(NULL, E_WARNING,
-				"Indirect modification of Yaf_Response internal property '%s' is not allowed", ZSTR_VA(name));
+				"Indirect modification of Yaf_Response internal property '%s' is not allowed", ZSTR_VAL(name));
 		return &EG(error_zval);
 	}
 
@@ -190,7 +190,7 @@ static YAF_WRITE_HANDLER yaf_response_write_property(zend_object *zobj, zend_str
 		zend_string_equals_literal(name, "header") ||
 		zend_string_equals_literal(name, "header_sent")) {
 		php_error_docref(NULL, E_WARNING,
-				"Modification of Yaf_Reponse internal property '%s' is not allowed", ZSTR_VA(name));
+				"Modification of Yaf_Reponse internal property '%s' is not allowed", ZSTR_VAL(name));
 		YAF_WHANDLER_RET(value);
 	}
 
