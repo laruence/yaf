@@ -52,17 +52,11 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_registry_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static HashTable *yaf_registry_get_properties(zval *object) /* {{{ */ {
-	zval rv;
-	HashTable *ht;
-	yaf_registry_object *registry = Z_YAFREGISTRYOBJ_P(object);
-#else
-static HashTable *yaf_registry_get_properties(zend_object *object) /* {{{ */ {
+static HashTable *yaf_registry_get_properties(yaf_object *obj) /* {{{ */ {
     zval rv;
     HashTable *ht;
-    yaf_registry_object *registry = php_yaf_registry_fetch_object(object);
-#endif
+    yaf_registry_object *registry = php_yaf_registry_fetch_object(yaf_strip_obj(obj));
+
 	if (!registry->properties) {
 		ALLOC_HASHTABLE(registry->properties);
 		zend_hash_init(registry->properties, 8, NULL, ZVAL_PTR_DTOR, 0);

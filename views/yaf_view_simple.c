@@ -64,17 +64,11 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO();
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static HashTable *yaf_view_simple_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_view_simple_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_view_object *view = Z_YAFVIEWOBJ_P(object);
-#else
-static HashTable *yaf_view_simple_get_properties(zend_object *object) /* {{{ */ {
-	zval rv;
-	HashTable *ht;
-	yaf_view_object *view = php_yaf_view_fetch_object(object);
-#endif
+	yaf_view_object *view = php_yaf_view_fetch_object(yaf_strip_obj(obj));
+
 	if (!view->properties) {
 		ALLOC_HASHTABLE(view->properties);
 		zend_hash_init(view->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
@@ -95,17 +89,21 @@ static HashTable *yaf_view_simple_get_properties(zend_object *object) /* {{{ */ 
 	return ht;
 }
 /* }}} */
-#if PHP_VERSION_ID < 80000
-static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+
+static zval* yaf_view_simple_read_property(yaf_object *obj, void *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zval *var;
 	zend_string *member;
-	yaf_view_object *view = Z_YAFVIEWOBJ_P(zobj);
+	yaf_view_object *view = php_yaf_view_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
 
-	member = Z_STR_P(name);
+	member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
+#endif
 
 	if ((var = zend_hash_find(&view->tpl_vars, member))) {
 		return var;
@@ -113,48 +111,27 @@ static zval* yaf_view_simple_read_property(zval *zobj, zval *name, int type, voi
 
 	return &EG(uninitialized_zval);
 }
-#else
-static zval* yaf_view_simple_read_property(zend_object *zobj, zend_string *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
-	zval *var;
-
-	yaf_view_object *view = php_yaf_view_fetch_object(zobj);
-
-	if ((var = zend_hash_find(&view->tpl_vars, name))) {
-		return var;
-	}
-
-	return &EG(uninitialized_zval);
-}
-#endif
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static YAF_WRITE_HANDLER yaf_view_simple_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_view_simple_write_property(yaf_object *obj, void *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
-	yaf_view_object *view = Z_YAFVIEWOBJ_P(zobj);
+	yaf_view_object *view = php_yaf_view_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
 
-	member = Z_STR_P(name);
+	member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
+#endif
 
 	zend_hash_update(&view->tpl_vars, member, value);
 	Z_TRY_ADDREF_P(value);
 
 	YAF_WHANDLER_RET(value);
 }
-#else
-static YAF_WRITE_HANDLER yaf_view_simple_write_property(zend_object *zobj, zend_string *name, zval *value, void **cache_slot) /* {{{ */ {
-	yaf_view_object *view = php_yaf_view_fetch_object(zobj);
-
-	zend_hash_update(&view->tpl_vars, name, value);
-	Z_TRY_ADDREF_P(value);
-
-	YAF_WHANDLER_RET(value);
-}
-#endif
-
 /* }}} */
 
 static zend_object *yaf_view_simple_new(zend_class_entry *ce) /* {{{ */ {
@@ -705,8 +682,8 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	yaf_view_simple_obj_handlers.offset = XtOffsetOf(yaf_view_object, std);
 	yaf_view_simple_obj_handlers.free_obj = yaf_view_object_free;
 	yaf_view_simple_obj_handlers.get_properties = yaf_view_simple_get_properties;
-	yaf_view_simple_obj_handlers.read_property = yaf_view_simple_read_property;
-	yaf_view_simple_obj_handlers.write_property = yaf_view_simple_write_property;
+	yaf_view_simple_obj_handlers.read_property = (zend_object_read_property_t)yaf_view_simple_read_property;
+	yaf_view_simple_obj_handlers.write_property = (zend_object_write_property_t)yaf_view_simple_write_property;
 	yaf_view_simple_obj_handlers.clone_obj = NULL;
 	yaf_view_simple_obj_handlers.get_gc = NULL;
 

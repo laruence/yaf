@@ -182,17 +182,16 @@ static zend_array *yaf_loader_get_namespaces(yaf_loader_object *loader) /* {{{ *
 	return ht;
 }
 /* }}} */
+
+static HashTable *yaf_loader_get_properties(yaf_object *obj) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
 #if PHP_VERSION_ID < 80000
-static HashTable *yaf_loader_get_properties(zval *object) /* {{{ */ {
-	zval rv;
-	HashTable *ht;
-	yaf_loader_object *loader = Z_YAFLOADEROBJ_P(object);
+	yaf_loader_object *loader = Z_YAFLOADEROBJ_P(obj);
 #else
-static HashTable *yaf_loader_get_properties(zend_object *object) /* {{{ */ {
-	zval rv;
-	HashTable *ht;
-	yaf_loader_object *loader = (yaf_loader_object*)(object);
+	yaf_loader_object *loader = (yaf_loader_object*)(obj);
 #endif
+
 	if (!loader->properties) {
 		ALLOC_HASHTABLE(loader->properties);
 		zend_hash_init(loader->properties, 4, NULL, ZVAL_PTR_DTOR, 0);
