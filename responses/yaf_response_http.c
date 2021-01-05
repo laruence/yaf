@@ -122,7 +122,7 @@ int yaf_response_set_redirect(yaf_response_object *response, zend_string *url) /
 	}
 	ctr.line_len = spprintf((char**)&(ctr.line), 0, "%s %s", "Location:", ZSTR_VAL(url));
 
-    ctr.response_code = 0;
+    ctr.response_code = 302;
     if (sapi_header_op(SAPI_HEADER_REPLACE, &ctr) == SUCCESS) {
         response->flags = YAF_RESPONSE_HEADER_SENT;
         efree((char*)ctr.line);
@@ -276,7 +276,7 @@ PHP_METHOD(yaf_response_http, setRedirect) {
 		return;
 	}
 
-	if (ZSTR_LEN(url)) {
+	if (ZSTR_LEN(url) == 0) {
 		RETURN_FALSE;
 	}
 
