@@ -50,12 +50,12 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_dispatch_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, request)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_seterrhdler_arginfo, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_seterrhdler_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, callback)
 	ZEND_ARG_INFO(0, error_types)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_flush_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_flush_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
@@ -79,7 +79,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_catchex_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_autorender_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_autorender_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
