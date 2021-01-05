@@ -31,6 +31,7 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
          public function indexAction() {
             \$this->getView()->assign("ref", "second-source");
             \$this->getView()->display("index/index.phtml", ["ref" => "thrid-source"]);
+			var_dump(\$this->getViewpath());
             return false;
          }
    }
@@ -52,3 +53,4 @@ shutdown();
 ?>
 --EXPECTF--
 string(12) "thrid-source"
+string(%d) "%sapplication%cviews"
