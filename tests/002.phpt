@@ -7,7 +7,7 @@ yaf.use_namespace=0
 --FILE--
 <?php
 declare(strict_types=1);
-$request  = new Yaf_Request_Simple("CLI", "index", "dummy", NULL, array());
+$request  = new Yaf_Request_Simple("CLI", "index", "dummy", NULL, array("foo" => "bar"));
 print_r($request);
 var_dump((bool)$request->setParam("name", "Laruence"));
 $request->setParam(["age" => 28, "gender" => "man"]);
@@ -60,6 +60,7 @@ Yaf_Request_Simple Object
     [language:protected] => 
     [params:protected] => Array
         (
+            [foo] => bar
         )
 
 )
@@ -88,7 +89,9 @@ NULL
 bool(false)
 string(7) "2.13232"
 ------params-------
-array(3) {
+array(4) {
+  ["foo"]=>
+  string(3) "bar"
   ["name"]=>
   string(8) "Laruence"
   ["age"]=>
