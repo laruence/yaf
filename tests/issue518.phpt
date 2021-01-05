@@ -13,5 +13,6 @@ var_dump($response->setRedirect('https://yourdomain.com'));
 ?>
 --EXPECTHEADERS--
 Status: 302 Found
+Location: https://yourdomain.com
 --EXPECT--
 bool(true)
