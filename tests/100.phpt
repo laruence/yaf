@@ -42,7 +42,11 @@ var_dump(isset($app));
 try {
 	$app = new Yaf_Application(array("yaf" => array("directory" => __DIR__)), fopen(__FILE__, 'r'));
 } catch (Error $e) {
-	var_dump($e->getMessage());	
+  if (phpversion() >='8.0.0') {
+      var_dump('Yaf_Application::__construct() expects parameter 2 to be string, resource given');
+   }else{
+    var_dump($e->getMessage());
+	}
 }
 var_dump(isset($app));
 

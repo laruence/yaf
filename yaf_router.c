@@ -77,12 +77,17 @@ static void yaf_router_object_free(zend_object *object) /* {{{ */ {
 	zend_object_std_dtor(object);
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_router_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_router_object *router = Z_YAFROUTEROBJ_P(object);
-
+#else
+static HashTable *yaf_router_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	HashTable *ht;
+	yaf_router_object *router = php_yaf_router_fetch_object(object);
+#endif
 	if (!router->properties) {
 		ALLOC_HASHTABLE(router->properties);
 		zend_hash_init(router->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
@@ -156,7 +161,11 @@ ZEND_HOT int yaf_router_route(yaf_router_object *router, yaf_request_t *request)
 			}
 		} else {
 			zval ret;
+#if PHP_VERSION_ID < 80000
 			zend_call_method_with_1_params(route, Z_OBJCE_P(route), NULL, "route", &ret, request);
+#else
+            zend_call_method_with_1_params(Z_OBJ_P(route), Z_OBJCE_P(route), NULL, "route", &ret, request);
+#endif
 			if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
 				zval_ptr_dtor(&ret);
 				continue;
@@ -390,9 +399,9 @@ PHP_METHOD(yaf_router, getCurrentRoute) {
  */
 zend_function_entry yaf_router_methods[] = {
 	PHP_ME(yaf_router, __construct,	yaf_router_void_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-	PHP_ME(yaf_router, addRoute,  	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, addConfig, 	NULL, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, route,		NULL, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, addRoute,  	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, addConfig, 	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, route,		yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_router, getRoute,  	yaf_router_name_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_router, getRoutes,   yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_router, getCurrentRoute,	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)

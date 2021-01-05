@@ -26,16 +26,15 @@ function main() {
 $app = new Yaf_Application($config);
 var_dump($app->environ());
 var_dump(count($app->getConfig()->application));
-$app->execute(123);
 $app->execute("main");
+$app->execute(123);
 ?>
 --EXPECTF--
 string(7) "product"
 int(2)
 
-Warning: Yaf_Application::execute(%sbe a valid callback%sin %s027.php on line %d
-
 Warning: Yaf_Loader::autoload(): Failed opening script %scontrollers%cNoExists.php: No such file or directory in %s027.php on line %d
 
-Fatal error: Uncaught Error: Class 'NoExistsController' not found in %s027.php:%d
+Fatal error: Uncaught Error: Class %sNoExistsController%s not found in %s027.php:%d
 %a
+

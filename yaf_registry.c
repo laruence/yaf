@@ -31,6 +31,9 @@ static zend_object_handlers yaf_registry_obj_handlers;
 
 /* {{{ ARG_INFO
  */
+ZEND_BEGIN_ARG_INFO_EX(yaf_registry_void_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(yaf_registry_get_arginfo, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
@@ -49,11 +52,17 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_registry_set_arginfo, 0, 0, 2)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_registry_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_registry_object *registry = Z_YAFREGISTRYOBJ_P(object);
-
+#else
+static HashTable *yaf_registry_get_properties(zend_object *object) /* {{{ */ {
+    zval rv;
+    HashTable *ht;
+    yaf_registry_object *registry = php_yaf_registry_fetch_object(object);
+#endif
 	if (!registry->properties) {
 		ALLOC_HASHTABLE(registry->properties);
 		zend_hash_init(registry->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
@@ -213,7 +222,7 @@ PHP_METHOD(yaf_registry, getInstance) {
 /** {{{ yaf_registry_methods
 */
 zend_function_entry yaf_registry_methods[] = {
-	PHP_ME(yaf_registry, __construct, 	NULL, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_registry, __construct, 	yaf_registry_void_arginfo, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_registry, get, yaf_registry_get_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_registry, has, yaf_registry_has_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_registry, set, yaf_registry_set_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)

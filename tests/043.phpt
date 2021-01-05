@@ -35,5 +35,5 @@ bool(true)
 
 Warning: Yaf_Loader::autoload(): Failed opening script %sapplcation%cplugins%cABC%cEFG.php: No such file or directory in %s043.php on line %d
 
-Fatal error: Uncaught Error: Class 'Plugin__ABC_EFG' not found in %s043.php:%d
+Fatal error: Uncaught Error: Class %cPlugin__ABC_EFG%c not found in %s043.php:%d
 %a

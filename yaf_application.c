@@ -142,23 +142,31 @@ static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 	return &app->std;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_application_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
-
+#else
+static HashTable *yaf_application_get_gc(zend_object *object, zval **table, int *n) /* {{{ */ {
+	yaf_application_object *app = php_yaf_application_fetch_object(object);
+#endif
 	*table = &app->dispatcher;
 	*n = 2;
 
 	return NULL;
 }
 /* }}} */
-
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
-
-	if (!app->properties) {
+#else
+static HashTable *yaf_application_get_properties(zend_object *object) /* {{{ */ {
+zval rv;
+HashTable *ht;
+yaf_application_object *app = php_yaf_application_fetch_object(object);
+#endif
+    if (!app->properties) {
 		ALLOC_HASHTABLE(app->properties);
 		zend_hash_init(app->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
 		YAF_ALLOW_VIOLATION(app->properties);
@@ -308,20 +316,27 @@ static inline zend_object *yaf_application_get_config(yaf_application_object *ap
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static zval *yaf_application_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+
 	zend_string *member;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(zobj);
 
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
-	
+    member = Z_STR_P(name);
+#else
+static zval *yaf_application_read_property(zend_object *zobj, zend_string *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+
+	zend_string *member;
+	yaf_application_object *app = php_yaf_application_fetch_object(zobj);
+	member = name;
+#endif
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
 		return &EG(error_zval);
 	}
 
-	member = Z_STR_P(name);
-	
 	if (zend_string_equals_literal(member, "directory")) {
 		if (app->directory) {
 			ZVAL_STR_COPY(rv, app->directory);
@@ -413,6 +428,7 @@ static zval *yaf_application_read_property(zval *zobj, zval *name, int type, voi
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(zobj);
@@ -422,7 +438,12 @@ static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, 
 	}
 	
 	member = Z_STR_P(name);
-	
+#else
+static YAF_WRITE_HANDLER yaf_application_write_property(zend_object *zobj, zend_string *member, zval *value, void **cache_slot) /* {{{ */ {
+
+	yaf_application_object *app = php_yaf_application_fetch_object(zobj);
+#endif
+
 	if (zend_string_equals_literal(member, "directory")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
 			YAF_WHANDLER_RET(value);

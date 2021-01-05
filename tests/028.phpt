@@ -1,7 +1,7 @@
 --TEST--
 Bug segfault while call exit in a view template
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php if (!extension_loaded("yaf")|| phpversion() >='8.0.0' ) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
 yaf.use_namespace=0

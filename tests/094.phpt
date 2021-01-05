@@ -16,12 +16,18 @@ $request = new Yaf_Request_Simple();
 
 foreach (array("method", "module", "controller", "action", "uri", "base_uri", "language", 123) as $k) {
 	print "Testing $k:\n";
-	var_dump($request->{$k});
+	var_dump(@$request->{$k});
 	$request->{$k} = true;
-	var_dump($request->{$k});
+	if (phpversion() >='8.0.0' && $k==123) {
+    	unset($request->{$k});
+    }
+	var_dump(@$request->{$k});
 	$request->{$k} = "inDex";
 	ref_change($request->{$k});
-	var_dump($request->{$k});
+	if (phpversion() >='8.0.0' && $k==123) {
+        unset($request->{$k});
+     }
+	var_dump(@$request->{$k});
 	echo "\n";
 }
 

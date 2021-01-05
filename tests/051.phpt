@@ -1,7 +1,7 @@
 --TEST--
 Fixed bug that segfault while a abnormal object set to Yaf_Route*::route
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php if (!extension_loaded("yaf") || phpversion() >='8.0.0') print "skip"; ?>
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0

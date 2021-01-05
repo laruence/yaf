@@ -61,9 +61,13 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_config_isset_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_config_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
-	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(object);;
-
+	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(object);
+#else
+static HashTable *yaf_config_get_gc(zend_object *object, zval **table, int *n) /* {{{ */ {
+	yaf_config_object *conf = php_yaf_config_fetch_object(object);
+#endif
 	*table = NULL;
 	*n = 0;
 
@@ -71,11 +75,17 @@ static HashTable *yaf_config_get_gc(zval *object, zval **table, int *n) /* {{{ *
 }
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_config_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(object);;
-
+	yaf_config_object *conf = Z_YAFCONFIGOBJ_P(object);
+#else
+static HashTable *yaf_config_get_properties(zend_object *object) /* {{{ */ {
+    zval rv;
+    HashTable *ht;
+    yaf_config_object *conf = php_yaf_config_fetch_object(object);
+#endif
 	if (!conf->properties) {
 		ALLOC_HASHTABLE(conf->properties);
 		zend_hash_init(conf->properties, 4, NULL, ZVAL_PTR_DTOR, 0);

@@ -42,10 +42,15 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_supervar_construct_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+#if PHP_VERSION_ID < 80000
 static HashTable *yaf_route_supervar_get_properties(zval *object) /* {{{ */ {
 	zval rv;
 	yaf_route_supervar_object *super = Z_YAFROUTESUPEROBJ_P(object);
-
+#else
+static HashTable *yaf_route_supervar_get_properties(zend_object *object) /* {{{ */ {
+	zval rv;
+	yaf_route_supervar_object *super = (yaf_route_supervar_object*)(object);
+#endif
 	if (!super->properties) {
 		ALLOC_HASHTABLE(super->properties);
 		zend_hash_init(super->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
