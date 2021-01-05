@@ -42,17 +42,11 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_map_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static HashTable *yaf_route_map_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_route_map_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(object);
-#else
-static HashTable *yaf_route_map_get_properties(zend_object *object) /* {{{ */ {
-zval rv;
-HashTable *ht;
-yaf_route_map_object *map = (yaf_route_map_object*)(object);
-#endif
+	yaf_route_map_object *map = (yaf_route_map_object*)(yaf_strip_obj(object));
+
 	if (!map->properties) {
 		ALLOC_HASHTABLE(map->properties);
 		zend_hash_init(map->properties, 2, NULL, ZVAL_PTR_DTOR, 0);
