@@ -75,6 +75,14 @@ extern zend_module_entry yaf_module_entry;
 #define YAF_WHANDLER_RET(zv)    return zv
 #endif
 
+#if PHP_VERSION_ID < 80000
+#define yaf_object zval
+#define yaf_strip_obj(o) Z_OBJ_P(o)
+#else
+#define yaf_object zend_object
+#define yaf_strip_obj
+#endif
+
 #define yaf_application_t       zval
 #define yaf_view_t              zval
 #define yaf_controller_t        zval

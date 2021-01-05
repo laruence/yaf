@@ -128,17 +128,12 @@ static void yaf_controller_object_free(zend_object *object) /* {{{ */ {
 	zend_object_std_dtor(object);
 }
 /* }}} */
-#if PHP_VERSION_ID < 80000
-static HashTable *yaf_controller_get_properties(zval *object) /* {{{ */ {
+
+static HashTable *yaf_controller_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(object);
-#else
-static HashTable *yaf_controller_get_properties(zend_object *object) /* {{{ */ {
-        zval rv;
-        HashTable *ht;
-        yaf_controller_object *ctl = php_yaf_controller_fetch_object(object);
-#endif
+	yaf_controller_object *ctl = php_yaf_controller_fetch_object(yaf_strip_obj(object));
+
 	if (!ctl->properties) {
 		ALLOC_HASHTABLE(ctl->properties);
 		zend_hash_init(ctl->properties, 8, NULL, ZVAL_PTR_DTOR, 0);
@@ -185,76 +180,59 @@ void yaf_controller_set_module_name(yaf_controller_object *ctl, zend_string *mod
 	ctl->module = zend_string_copy(module);
 }
 /* }}} */
-#if PHP_VERSION_ID < 80000
-static zval *yaf_controller_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
-	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(zobj);  
-#else
-static zval *yaf_controller_read_property(zend_object *zobj, zend_string *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
-     yaf_controller_object *ctl = php_yaf_controller_fetch_object(zobj);
-#endif
-    const char *member;
-    size_t member_len;
+
+static zval *yaf_controller_read_property(yaf_object *obj, void *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+	zend_string *member;
+	const char* pos;
+    yaf_controller_object *ctl = php_yaf_controller_fetch_object(yaf_strip_obj(obj));
 
 #if PHP_VERSION_ID < 80000
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
+	member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
 #endif
 
     if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
-#if PHP_VERSION_ID < 80000
-       php_error_docref(NULL, E_WARNING,
-                         "Indirect modification of Yaf_Controller internal property '%s' is not allowed", Z_STRVAL_P(name));
-#else
         php_error_docref(NULL, E_WARNING,
-                         "Indirect modification of Yaf_Controller internal property '%s' is not allowed", ZSTR_VAL(name));
-#endif
+                         "Indirect modification of Yaf_Controller internal property '%s' is not allowed", ZSTR_VAL(member));
         return &EG(error_zval);
     }
 
-#if PHP_VERSION_ID < 80000
-	if (UNEXPECTED(!instanceof_function(Z_OBJCE_P(zobj), yaf_controller_ce))) {
-#else
-	  yaf_controller_object *  yaf_cobj=php_yaf_controller_fetch_object(zobj);
-	if (UNEXPECTED(!instanceof_function((*yaf_cobj).std.ce, yaf_controller_ce))) {
-#endif
+	if (UNEXPECTED(!instanceof_function(ctl->std.ce, yaf_controller_ce))) {
 		return &EG(uninitialized_zval);
 	}
 
-#if PHP_VERSION_ID < 80000
-	member = Z_STRVAL_P(name);
-	member_len = Z_STRLEN_P(name);
-#else
-	member = ZSTR_VAL(name);
-	member_len = ZSTR_LEN(name);
-#endif
+	pos = ZSTR_VAL(member);
+
 	/* for back compatibility of leading _ access */
-	if (*member == '_')	{
-		member++;
-		member_len--;
+	if (*pos == '_')	{
+		pos++;
 	}
 
-	if (strncmp(member, "request", sizeof("request")) == 0) {
+	if (strncmp(pos, "request", sizeof("request")) == 0) {
 		ZVAL_COPY(rv, ctl->request);
 		return rv;
 	}
 
-	if (strncmp(member, "view", sizeof("view")) == 0) {
+	if (strncmp(pos, "view", sizeof("view")) == 0) {
 		ZVAL_COPY(rv, ctl->view);
 		return rv;
 	}
 
-	if (strncmp(member, "response", sizeof("response")) == 0) {
+	if (strncmp(pos, "response", sizeof("response")) == 0) {
 		ZVAL_COPY(rv, ctl->response);
 		return rv;
 	}
 
-	if (strncmp(member, "module", sizeof("module")) == 0) {
+	if (strncmp(pos, "module", sizeof("module")) == 0) {
 		ZVAL_STR_COPY(rv, ctl->module);
 		return rv;
 	}
 
-	if (strncmp(member, YAF_CONTROLLER_PROPERTY_NAME_RENDER, sizeof(YAF_CONTROLLER_PROPERTY_NAME_RENDER)) == 0) {
+	if (strncmp(pos, YAF_CONTROLLER_PROPERTY_NAME_RENDER, sizeof(YAF_CONTROLLER_PROPERTY_NAME_RENDER)) == 0) {
 		if (!(ctl->flags & YAF_CTL_AUTORENDER_DEPEND)) {
 			ZVAL_BOOL(rv, (ctl->flags & YAF_CTL_AUTORENDER));
 		} else {
@@ -263,118 +241,93 @@ static zval *yaf_controller_read_property(zend_object *zobj, zend_string *name, 
 		return rv;
 	}
 
-    return std_object_handlers.read_property(zobj, name, type, cache_slot, rv);
+    return std_object_handlers.read_property(obj, name, type, cache_slot, rv);
 }
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static zval *yaf_controller_get_property(zval *zobj, zval *name, int type, void **cache_slot) /* {{{ */ {
-	const char *member;
-	size_t member_len;
-	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(zobj);
+static zval *yaf_controller_get_property(yaf_object *obj, void *name, int type, void **cache_slot) /* {{{ */ {
+	zend_string *member;
+	const char *pos;
+	yaf_controller_object *ctl = php_yaf_controller_fetch_object(yaf_strip_obj(obj));
 
+#if PHP_VERSION_ID < 80000
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		return &EG(error_zval);
 	}
-
-	if (UNEXPECTED(!instanceof_function(Z_OBJCE_P(zobj), yaf_controller_ce))) {
-		return &EG(error_zval);
-	}
-
-	member = Z_STRVAL_P(name);
-	member_len = Z_STRLEN_P(name);
+	member = Z_STR_P((zval*)name);
 #else
-static zval *yaf_controller_get_property(zend_object *zobj, zend_string *name, int type, void **cache_slot) /* {{{ */ {
-	const char *member;
-	size_t member_len;
-	yaf_controller_object *ctl = php_yaf_controller_fetch_object(zobj);
+	member = (zend_string*)name;
+#endif
 
-	if (UNEXPECTED(!instanceof_function((*ctl).std.ce, yaf_controller_ce))) {
+	if (UNEXPECTED(!instanceof_function(ctl->std.ce, yaf_controller_ce))) {
 		return &EG(error_zval);
 	}
 
-	member = ZSTR_VAL(name);
-	member_len = ZSTR_LEN(name);
-#endif
+
+	pos = ZSTR_VAL(member);
+
 	/* for back compatibility of leading _ access */
-	if (*member == '_')	{
-		member++;
-		member_len--;
+	if (*pos == '_')	{
+		pos++;
 	}
 
-	if (strncmp(member, "request", sizeof("request")) == 0) {
+	if (strncmp(pos, "request", sizeof("request")) == 0) {
 		return ctl->request;
 	}
 
-	if (strncmp(member, "view", sizeof("view")) == 0) {
+	if (strncmp(pos, "view", sizeof("view")) == 0) {
 		return ctl->view;
 	}
 
-	if (strncmp(member, "response", sizeof("response")) == 0) {
+	if (strncmp(pos, "response", sizeof("response")) == 0) {
 		return ctl->response;
 	}
 
-	return std_object_handlers.get_property_ptr_ptr(zobj, name, type, cache_slot);
+	return std_object_handlers.get_property_ptr_ptr(obj, name, type, cache_slot);
 }
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static YAF_WRITE_HANDLER yaf_controller_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
-	const char *member;
-	size_t member_len;
-	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(zobj);
+static YAF_WRITE_HANDLER yaf_controller_write_property(yaf_object *obj, void *name, zval *value, void **cache_slot) /* {{{ */ {
+	zend_string *member;
+	const char *pos;
+	yaf_controller_object *ctl = php_yaf_controller_fetch_object(yaf_strip_obj(obj));
 
+#if PHP_VERSION_ID < 80000
 	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
-
-	if (UNEXPECTED(!instanceof_function(Z_OBJCE_P(zobj), yaf_controller_ce))) {
-		YAF_WHANDLER_RET(value);
-	}
-
-	member = Z_STRVAL_P(name);
-	member_len = Z_STRLEN_P(name);
+	member = Z_STR_P((zval*)name);
 #else
-static YAF_WRITE_HANDLER yaf_controller_write_property(zend_object *zobj, zend_string *name, zval *value, void **cache_slot) /* {{{ */ {
-	const char *member;
-	size_t member_len;
-	yaf_controller_object *ctl = php_yaf_controller_fetch_object(zobj);
+	member = (zend_string*)name;
+#endif
 
-	if (UNEXPECTED(!instanceof_function((*ctl).std.ce, yaf_controller_ce))) {
+	if (UNEXPECTED(!instanceof_function(ctl->std.ce, yaf_controller_ce))) {
 		YAF_WHANDLER_RET(value);
 	}
 
-	member = ZSTR_VAL(name);
-	member_len = ZSTR_LEN(name);
-#endif
+	pos = ZSTR_VAL(member);
+
 	/* for back compatibility of leading _ access */
-	if (*member == '_')	{
-		member++;
-		member_len--;
+	if (*pos == '_')	{
+		pos++;
 	}
 
-	if (strncmp(member, YAF_CONTROLLER_PROPERTY_NAME_RENDER, sizeof(YAF_CONTROLLER_PROPERTY_NAME_RENDER)) == 0) {
+	if (strncmp(pos, YAF_CONTROLLER_PROPERTY_NAME_RENDER, sizeof(YAF_CONTROLLER_PROPERTY_NAME_RENDER)) == 0) {
 		ctl->flags &= ~YAF_CTL_AUTORENDER_DEPEND;
 		ctl->flags |= zend_is_true(value)? YAF_CTL_AUTORENDER : 0;
 		YAF_WHANDLER_RET(value);
 	}
 
-	if (strncmp(member, "request", sizeof("request")) == 0 ||
-		strncmp(member, "view", sizeof("view")) == 0 ||
-		strncmp(member, "response", sizeof("response")) == 0  ||
-		strncmp(member, "module", sizeof("module")) == 0) {
-#if PHP_VERSION_ID < 80000
-		php_error_docref(NULL, E_WARNING,
-				"Modification of Yaf_Controller internal property '%s' is not allowed", Z_STRVAL_P(name));
-		YAF_WHANDLER_RET(value);
-#else
+	if (strncmp(pos, "request", sizeof("request")) == 0 ||
+		strncmp(pos, "view", sizeof("view")) == 0 ||
+		strncmp(pos, "response", sizeof("response")) == 0  ||
+		strncmp(pos, "module", sizeof("module")) == 0) {
         php_error_docref(NULL, E_WARNING,
-				"Modification of Yaf_Controller internal property '%s' is not allowed", ZSTR_VAL(name));
+				"Modification of Yaf_Controller internal property '%s' is not allowed", ZSTR_VAL(member));
 		YAF_WHANDLER_RET(value);
-#endif
 	}
 
-	return std_object_handlers.write_property(zobj, name, value, cache_slot);
+	return std_object_handlers.write_property(obj, name, value, cache_slot);
 }
 /* }}} */
 
@@ -904,9 +857,9 @@ YAF_STARTUP_FUNCTION(controller) {
 	yaf_controller_obj_handlers.get_gc = NULL;
 	yaf_controller_obj_handlers.free_obj = yaf_controller_object_free;
 	yaf_controller_obj_handlers.get_properties = yaf_controller_get_properties;
-	yaf_controller_obj_handlers.read_property = yaf_controller_read_property;
-	yaf_controller_obj_handlers.get_property_ptr_ptr = yaf_controller_get_property;
-	yaf_controller_obj_handlers.write_property = yaf_controller_write_property;
+	yaf_controller_obj_handlers.read_property = (zend_object_read_property_t)yaf_controller_read_property;
+	yaf_controller_obj_handlers.get_property_ptr_ptr = (zend_object_get_property_ptr_ptr_t)yaf_controller_get_property;
+	yaf_controller_obj_handlers.write_property = (zend_object_write_property_t)yaf_controller_write_property;
 
 	return SUCCESS;
 }

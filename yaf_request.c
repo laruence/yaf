@@ -143,15 +143,11 @@ static void yaf_request_object_free(zend_object *object) /* {{{ */ {
 	zend_object_std_dtor(object);
 }
 /* }}} */
-#if PHP_VERSION_ID < 80000
-static HashTable *yaf_request_get_gc(zval *object, zval **table, int *n) /* {{{ */
+
+static HashTable *yaf_request_get_gc(yaf_object *object, zval **table, int *n) /* {{{ */
 {
-	yaf_request_object *request = Z_YAFREQUESTOBJ_P(object);
-#else
-static HashTable *yaf_request_get_gc(zend_object *object, zval **table, int *n) /* {{{ */
-{
-	yaf_request_object *request = php_yaf_request_fetch_object(object);
-#endif
+	yaf_request_object *request = php_yaf_request_fetch_object(yaf_strip_obj(object));
+
 	*table = NULL;
 	*n = 0;
 
@@ -159,17 +155,11 @@ static HashTable *yaf_request_get_gc(zend_object *object, zval **table, int *n) 
 }
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static HashTable *yaf_request_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_request_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_request_object *request = Z_YAFREQUESTOBJ_P(object);
-#else
-static HashTable *yaf_request_get_properties(zend_object *object) /* {{{ */ {
-	zval rv;
-	HashTable *ht;
-	yaf_request_object *request = php_yaf_request_fetch_object(object);
-#endif
+	yaf_request_object *request = php_yaf_request_fetch_object(yaf_strip_obj(object));
+
 	if (!request->properties) {
 		ALLOC_HASHTABLE(request->properties);
 		zend_hash_init(request->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
@@ -337,32 +327,27 @@ zend_string *yaf_request_get_language(yaf_request_object *request) /* {{{ */ {
 }
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static zval* yaf_request_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+static zval* yaf_request_read_property(yaf_object *obj, void/*for php8 portability*/ *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zend_string *member;
-	yaf_request_object *request = Z_YAFREQUESTOBJ_P(zobj);
+	yaf_request_object *request = php_yaf_request_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
+#endif
 
-	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
-		php_error_docref(NULL, E_WARNING,
-				"Indirect modification of Yaf_Reqeust internal property '%s' is not allowed", Z_STRVAL_P(name));
-		return &EG(error_zval);
-	}
-
-	member = Z_STR_P(name);
+#if PHP_VERSION_ID < 80000
+	member = Z_STR_P((zval*)name);
 #else
-static zval* yaf_request_read_property(zend_object *zobj, zend_string *member, int type, void **cache_slot, zval *rv) /* {{{ */ {
-	yaf_request_object *request = php_yaf_request_fetch_object(zobj);
+	member = (zend_string*)name;
+#endif
 
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
 		php_error_docref(NULL, E_WARNING,
 				"Indirect modification of Yaf_Reqeust internal property '%s' is not allowed", ZSTR_VAL(member));
 		return &EG(error_zval);
 	}
-#endif
 
 	switch (ZSTR_LEN(member)) {
 		case 3:
@@ -439,11 +424,7 @@ static zval* yaf_request_read_property(zend_object *zobj, zend_string *member, i
 			default:
 			break;
 	}
-#if PHP_VERSION_ID < 80000
-	return std_object_handlers.read_property(zobj, name, type, cache_slot, rv);
-#else
-    return std_object_handlers.read_property(zobj, member, type, cache_slot, rv);
-#endif
+	return std_object_handlers.read_property(obj, name, type, cache_slot, rv);
 }
 /* }}} */
 
@@ -577,19 +558,20 @@ int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri,
 }
 /* }}} */
 
-#if PHP_VERSION_ID < 80000
-static YAF_WRITE_HANDLER yaf_request_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_request_write_property(yaf_object *obj, void *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
-	yaf_request_object *request = Z_YAFREQUESTOBJ_P(zobj);
+	yaf_request_object *request = php_yaf_request_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
-	member = Z_STR_P(name);
+
+	member = Z_STR_P((zval*)name);
 #else
-static YAF_WRITE_HANDLER yaf_request_write_property(zend_object *zobj, zend_string *member, zval *value, void **cache_slot) /* {{{ */ {
-	yaf_request_object *request = php_yaf_request_fetch_object(zobj);
+	member = (zend_string*)name;
 #endif
+
 	if (zend_string_equals_literal(member, "method")) {
 		if (UNEXPECTED(Z_TYPE_P(value) != IS_STRING || Z_STRLEN_P(value) == 0)) {
 			YAF_WHANDLER_RET(value);
@@ -629,19 +611,13 @@ static YAF_WRITE_HANDLER yaf_request_write_property(zend_object *zobj, zend_stri
 		zend_string_equals_literal(member, "language") ||
 		zend_string_equals_literal(member, "routed") ||
 		zend_string_equals_literal(member, "params")) {
-#if PHP_VERSION_ID < 80000
+
 		php_error_docref(NULL, E_WARNING,
-				"Modification of Yaf_Request internal property '%s' is not allowed", Z_STRVAL_P(name));
-		YAF_WHANDLER_RET(value);
-	}
-    return std_object_handlers.write_property(zobj, name, value, cache_slot);
-#else
-    php_error_docref(NULL, E_WARNING,
 				"Modification of Yaf_Request internal property '%s' is not allowed", ZSTR_VAL(member));
 		YAF_WHANDLER_RET(value);
 	}
-    return std_object_handlers.write_property(zobj, member, value, cache_slot);
-#endif
+
+    return std_object_handlers.write_property(obj, name, value, cache_slot);
 }
 /* }}} */
 
@@ -1449,8 +1425,8 @@ YAF_STARTUP_FUNCTION(request){
 	yaf_request_obj_handlers.offset = XtOffsetOf(yaf_request_object, std);
 	yaf_request_obj_handlers.free_obj = yaf_request_object_free;
 	yaf_request_obj_handlers.get_properties = yaf_request_get_properties;;
-	yaf_request_obj_handlers.read_property = yaf_request_read_property;
-	yaf_request_obj_handlers.write_property = yaf_request_write_property;
+	yaf_request_obj_handlers.read_property = (zend_object_read_property_t)yaf_request_read_property;
+	yaf_request_obj_handlers.write_property = (zend_object_write_property_t)yaf_request_write_property;
 	yaf_request_obj_handlers.get_gc = yaf_request_get_gc;
 	yaf_request_obj_handlers.clone_obj = NULL;
 
