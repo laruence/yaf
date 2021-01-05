@@ -251,7 +251,7 @@ static zval *yaf_controller_get_property(yaf_object *obj, void *name, int type, 
 	yaf_controller_object *ctl = php_yaf_controller_fetch_object(yaf_strip_obj(obj));
 
 #if PHP_VERSION_ID < 80000
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		return &EG(error_zval);
 	}
 	member = Z_STR_P((zval*)name);
@@ -293,7 +293,7 @@ static YAF_WRITE_HANDLER yaf_controller_write_property(yaf_object *obj, void *na
 	yaf_controller_object *ctl = php_yaf_controller_fetch_object(yaf_strip_obj(obj));
 
 #if PHP_VERSION_ID < 80000
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
 	member = Z_STR_P((zval*)name);
