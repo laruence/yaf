@@ -11,5 +11,7 @@ foo=bar
 $response = new Yaf_Response_HTTP(); 
 var_dump($response->setRedirect('https://yourdomain.com'));
 ?>
+--EXPECTHEADERS--
+Status: 302 Found
 --EXPECT--
 bool(true)
