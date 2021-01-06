@@ -4,9 +4,7 @@ Check for Custom MVC name
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.use_spl_autoload=0
-yaf.lowcase_path=0
 yaf.use_namespace=0
-
 --FILE--
 <?php
 require "build.inc";
