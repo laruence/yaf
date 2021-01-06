@@ -112,7 +112,7 @@ int yaf_route_instance(yaf_route_t *route, HashTable *config) /* {{{ */ {
 			return 0;
 		}
 
-		yaf_route_simple_instance(route, Z_STR_P(a), Z_STR_P(c), Z_STR_P(a));
+		yaf_route_simple_instance(route, Z_STR_P(m), Z_STR_P(c), Z_STR_P(a));
 	} else if (zend_string_equals_literal_ci(Z_STR_P(pzval), "supervar")) {
 		zval *varname;
 		if (UNEXPECTED((varname = zend_hash_str_find(config, ZEND_STRL("varname"))) == NULL || Z_TYPE_P(varname) != IS_STRING)) {

@@ -5,8 +5,9 @@ Check for Yaf_Request_Simple
 --INI--
 yaf.use_namespace=0
 --FILE--
-<?php 
-$request  = new Yaf_Request_Simple("CLI", "index", "dummy", NULL, array());
+<?php
+declare(strict_types=1);
+$request  = new Yaf_Request_Simple("CLI", "index", "dummy", NULL, array("foo" => "bar"));
 print_r($request);
 var_dump((bool)$request->setParam("name", "Laruence"));
 $request->setParam(["age" => 28, "gender" => "man"]);
@@ -40,9 +41,9 @@ var_dump($request->getPost("xxx", NULL));
 var_dump($request->getCookie("xxx", false));
 var_dump($request->getEnv("xxx", "2.13232"));
 echo "------params-------\n";
+var_dump($request->getParams());
 var_dump($request->setParam("xxxx"));
 var_dump($request->getParam("xxxx"));
-var_dump($request->getParams());
 
 ?>
 --EXPECTF--
@@ -59,6 +60,7 @@ Yaf_Request_Simple Object
     [language:protected] => 
     [params:protected] => Array
         (
+            [foo] => bar
         )
 
 )
@@ -87,11 +89,9 @@ NULL
 bool(false)
 string(7) "2.13232"
 ------params-------
-
-Warning: Yaf_Request_Abstract::setParam() expects parameter 1 to be array, string given in %s002.php on line %d
-NULL
-NULL
-array(3) {
+array(4) {
+  ["foo"]=>
+  string(3) "bar"
   ["name"]=>
   string(8) "Laruence"
   ["age"]=>
@@ -99,3 +99,9 @@ array(3) {
   ["gender"]=>
   string(3) "man"
 }
+
+Fatal error: Uncaught TypeError: Yaf_Request_Abstract::setParam()%sarray, string given in %s002.php:%d
+Stack trace:
+#0 %s002.php(%d): Yaf_Request_Abstract->setParam('xxxx')
+#1 {main}
+  thrown in %s002.php on line %d

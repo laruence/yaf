@@ -32,4 +32,4 @@ shutdown();
 ?>
 --EXPECTF--
 laruence
-Notice: Undefined variable: tpl in %sfoo.phtml on line %d
+%s: Undefined variable%stpl in %sfoo.phtml on line %d

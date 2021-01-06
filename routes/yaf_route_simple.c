@@ -44,10 +44,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_simple_construct_arginfo, 0, 0, 3)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_simple_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_route_simple_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_route_simple_object *simple = Z_YAFROUTESIMPLEOBJ_P(object);
+	yaf_route_simple_object *simple = (yaf_route_simple_object*)(yaf_strip_obj(object));
 
 	if (!simple->properties) {
 		ALLOC_HASHTABLE(simple->properties);

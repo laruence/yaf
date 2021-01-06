@@ -42,10 +42,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_map_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_map_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_route_map_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(object);
+	yaf_route_map_object *map = (yaf_route_map_object*)(yaf_strip_obj(object));
 
 	if (!map->properties) {
 		ALLOC_HASHTABLE(map->properties);

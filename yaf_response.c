@@ -53,10 +53,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_body_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_response_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_response_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(object);
+	yaf_response_object *response = php_yaf_response_fetch_object(yaf_strip_obj(obj));
 
 	if (!response->properties) {
 		ALLOC_HASHTABLE(response->properties);
@@ -71,7 +71,7 @@ static HashTable *yaf_response_get_properties(zval *object) /* {{{ */ {
 	ZVAL_BOOL(&rv, response->flags & YAF_RESPONSE_HEADER_SENT);
 	zend_hash_str_update(ht, "header_sent:protected", sizeof("header_sent:protected") - 1, &rv);
 
-	if (Z_OBJCE_P(object) == yaf_response_http_ce) {
+	if (response->std.ce == yaf_response_http_ce) {
 		if (response->header) {
 			ZVAL_ARR(&rv, response->header);
 			GC_ADDREF(response->header);
@@ -93,40 +93,46 @@ static HashTable *yaf_response_get_properties(zval *object) /* {{{ */ {
 }
 /* }}} */
 
-static zval *yaf_response_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+static zval *yaf_response_read_property(yaf_object *obj, void *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zend_string *member;
-	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(zobj);
+	yaf_response_object *response = php_yaf_response_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
+	member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
+#endif
 
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
 		php_error_docref(NULL, E_WARNING,
-				"Indirect modification of Yaf_Response internal property '%s' is not allowed", Z_STRVAL_P(name));
+				"Indirect modification of Yaf_Response internal property '%s' is not allowed", ZSTR_VAL(member));
 		return &EG(error_zval);
 	}
-	
-	member = Z_STR_P(name);
 	
 	if (zend_string_equals_literal(member, "response_code")) {
 		ZVAL_LONG(rv, response->code);
 		return rv;
 	}
 
-	return std_object_handlers.read_property(zobj, name, type, cache_slot, rv);
+	return std_object_handlers.read_property(obj, name, type, cache_slot, rv);
 }
 /* }}} */
 
-static YAF_WRITE_HANDLER yaf_response_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_response_write_property(yaf_object *obj, void *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
-	yaf_response_object *response = Z_YAFRESPONSEOBJ_P(zobj);
+	yaf_response_object *response = php_yaf_response_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
-
-	member = Z_STR_P(name);
+	member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
+#endif
 	
 	if (zend_string_equals_literal(member, "response_code")) {
 		if (Z_TYPE_P(value) != IS_LONG) {
@@ -140,11 +146,11 @@ static YAF_WRITE_HANDLER yaf_response_write_property(zval *zobj, zval *name, zva
 		zend_string_equals_literal(member, "header") ||
 		zend_string_equals_literal(member, "header_sent")) {
 		php_error_docref(NULL, E_WARNING,
-				"Modification of Yaf_Reponse internal property '%s' is not allowed", Z_STRVAL_P(name));
+				"Modification of Yaf_Reponse internal property '%s' is not allowed", ZSTR_VAL(member));
 		YAF_WHANDLER_RET(value);
 	}
 
-	return std_object_handlers.write_property(zobj, name, value, cache_slot);
+	return std_object_handlers.write_property(obj, name, value, cache_slot);
 }
 /* }}} */
 
@@ -255,7 +261,11 @@ int yaf_response_alter_body(yaf_response_object *response, zend_string *name, ze
 
 		ZVAL_OBJ(&obj, &response->std);
 		ZVAL_STR(&arg, body);
+#if PHP_VERSION_ID < 80000
 		zend_call_method_with_1_params(&obj, ce, NULL, "appendbody", &ret, &arg);
+#else
+        zend_call_method_with_1_params(Z_OBJ(obj), ce, NULL, "appendbody", &ret, &arg);
+#endif
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}
@@ -287,9 +297,17 @@ int yaf_response_clear_body(yaf_response_object *response, zend_string *name) /*
 		ZVAL_OBJ(&obj, &response->std);
 		if (name) {
 			ZVAL_STR(&arg, name);
-			zend_call_method_with_1_params(&obj, ce, NULL, "clearbody", &ret, &arg);
+#if PHP_VERSION_ID < 80000
+            zend_call_method_with_1_params(&obj, ce, NULL, "clearbody", &ret, &arg);
+#else
+            zend_call_method_with_1_params(Z_OBJ(obj), ce, NULL, "clearbody", &ret, &arg);
+#endif
 		} else {
+#if PHP_VERSION_ID < 80000
 			zend_call_method_with_0_params(&obj, ce, NULL, "clearbody", &ret);
+#else
+            zend_call_method_with_0_params(Z_OBJ(obj), ce, NULL, "clearbody", &ret);
+#endif
 		}
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
@@ -342,7 +360,11 @@ int yaf_response_response(yaf_response_object *response) /* {{{ */ {
 		zval obj, ret;
 
 		ZVAL_OBJ(&obj, &response->std);
+#if PHP_VERSION_ID < 80000
 		zend_call_method_with_0_params(&obj, ce, NULL, "response", &ret);
+#else
+        zend_call_method_with_0_params(Z_OBJ(obj), ce, NULL, "response", &ret);
+#endif
 		if (UNEXPECTED(EG(exception))) {
 			return 0;
 		}
@@ -530,7 +552,11 @@ PHP_METHOD(yaf_response, __toString) {
 
 	if (response->body) {
 		ZVAL_ARR(&rv, response->body);
+#if PHP_VERSION_ID < 80000
 		php_implode(ZSTR_EMPTY_ALLOC(), &rv, return_value);
+#else
+        php_implode(ZSTR_EMPTY_ALLOC(), Z_ARR(rv), return_value);
+#endif
 	} else {
 		RETURN_EMPTY_STRING();
 	}
@@ -541,7 +567,7 @@ PHP_METHOD(yaf_response, __toString) {
 */
 zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, __construct, yaf_response_void_arginfo,       ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_response, __toString,  NULL,                            ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, __toString,  yaf_response_void_arginfo,                            ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setBody,     yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, appendBody,  yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, prependBody, yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
@@ -572,8 +598,8 @@ YAF_STARTUP_FUNCTION(response) {
 	yaf_response_obj_handlers.clone_obj = NULL;
 	yaf_response_obj_handlers.get_gc = NULL;
 	yaf_response_obj_handlers.get_properties = yaf_response_get_properties;
-	yaf_response_obj_handlers.read_property = yaf_response_read_property;
-	yaf_response_obj_handlers.write_property = yaf_response_write_property;
+	yaf_response_obj_handlers.read_property = (zend_object_read_property_t)yaf_response_read_property;
+	yaf_response_obj_handlers.write_property = (zend_object_write_property_t)yaf_response_write_property;
 
 	zend_declare_class_constant_stringl(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
 

@@ -65,10 +65,10 @@ static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
 }
 /* }}} */
 
-static HashTable *yaf_session_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_session_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
+	yaf_session_object *sess = php_yaf_session_fetch_object(yaf_strip_obj(obj));
 
 	if (!sess->properties) {
 		ALLOC_HASHTABLE(sess->properties);
@@ -311,7 +311,7 @@ PHP_METHOD(yaf_session, clear) {
 /** {{{ yaf_session_methods
 */
 zend_function_entry yaf_session_methods[] = {
-	PHP_ME(yaf_session, __construct, NULL, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_session, __construct, yaf_session_void_arginfo, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
 	PHP_ME(yaf_session, getInstance, yaf_session_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	PHP_ME(yaf_session, start, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)

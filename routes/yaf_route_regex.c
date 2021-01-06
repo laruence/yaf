@@ -51,10 +51,10 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_regex_match_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_regex_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_route_regex_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_route_regex_object *regex = Z_YAFROUTEREGEXOBJ_P(object);
+	yaf_route_regex_object *regex = (yaf_route_regex_object*)(yaf_strip_obj(object));
 
 	if (!regex->properties) {
 		ALLOC_HASHTABLE(regex->properties);

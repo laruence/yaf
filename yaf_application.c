@@ -143,8 +143,8 @@ static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 }
 /* }}} */
 
-static HashTable *yaf_application_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
-	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
+static HashTable *yaf_application_get_gc(yaf_object *obj, zval **table, int *n) /* {{{ */ {
+	yaf_application_object *app = php_yaf_application_fetch_object(yaf_strip_obj(obj));
 
 	*table = &app->dispatcher;
 	*n = 2;
@@ -153,12 +153,12 @@ static HashTable *yaf_application_get_gc(zval *object, zval **table, int *n) /* 
 }
 /* }}} */
 
-static HashTable *yaf_application_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_application_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_application_object *app = Z_YAFAPPOBJ_P(object);
+	yaf_application_object *app = php_yaf_application_fetch_object(yaf_strip_obj(obj));
 
-	if (!app->properties) {
+    if (!app->properties) {
 		ALLOC_HASHTABLE(app->properties);
 		zend_hash_init(app->properties, 16, NULL, ZVAL_PTR_DTOR, 0);
 		YAF_ALLOW_VIOLATION(app->properties);
@@ -308,20 +308,23 @@ static inline zend_object *yaf_application_get_config(yaf_application_object *ap
 }
 /* }}} */
 
-static zval *yaf_application_read_property(zval *zobj, zval *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
+static zval *yaf_application_read_property(yaf_object *obj, void *name, int type, void **cache_slot, zval *rv) /* {{{ */ {
 	zend_string *member;
-	yaf_application_object *app = Z_YAFAPPOBJ_P(zobj);
+	yaf_application_object *app = php_yaf_application_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		return &EG(uninitialized_zval);
 	}
-	
+    member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
+#endif
+
 	if (UNEXPECTED(type == BP_VAR_W || type == BP_VAR_RW)) {
 		return &EG(error_zval);
 	}
 
-	member = Z_STR_P(name);
-	
 	if (zend_string_equals_literal(member, "directory")) {
 		if (app->directory) {
 			ZVAL_STR_COPY(rv, app->directory);
@@ -413,16 +416,19 @@ static zval *yaf_application_read_property(zval *zobj, zval *name, int type, voi
 }
 /* }}} */
 
-static YAF_WRITE_HANDLER yaf_application_write_property(zval *zobj, zval *name, zval *value, void **cache_slot) /* {{{ */ {
+static YAF_WRITE_HANDLER yaf_application_write_property(yaf_object *obj, void *name, zval *value, void **cache_slot) /* {{{ */ {
 	zend_string *member;
-	yaf_application_object *app = Z_YAFAPPOBJ_P(zobj);
+	yaf_application_object *app = php_yaf_application_fetch_object(yaf_strip_obj(obj));
 
-	if (UNEXPECTED(Z_TYPE_P(name) != IS_STRING)) {
+#if PHP_VERSION_ID < 80000
+	if (UNEXPECTED(Z_TYPE_P((zval*)name) != IS_STRING)) {
 		YAF_WHANDLER_RET(value);
 	}
-	
-	member = Z_STR_P(name);
-	
+    member = Z_STR_P((zval*)name);
+#else
+	member = (zend_string*)name;
+#endif
+
 	if (zend_string_equals_literal(member, "directory")) {
 		if (Z_TYPE_P(value) != IS_STRING) {
 			YAF_WHANDLER_RET(value);
@@ -1088,8 +1094,8 @@ YAF_STARTUP_FUNCTION(application) {
 	yaf_application_obj_handlers.get_gc = yaf_application_get_gc;
 	yaf_application_obj_handlers.free_obj = yaf_application_free;
 	yaf_application_obj_handlers.get_properties = yaf_application_get_properties;
-	yaf_application_obj_handlers.read_property = yaf_application_read_property;
-	yaf_application_obj_handlers.write_property = yaf_application_write_property;
+	yaf_application_obj_handlers.read_property = (zend_object_read_property_t)yaf_application_read_property;
+	yaf_application_obj_handlers.write_property = (zend_object_write_property_t)yaf_application_write_property;
 
 	return SUCCESS;
 }

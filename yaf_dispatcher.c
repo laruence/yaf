@@ -50,12 +50,12 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_dispatch_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, request)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_seterrhdler_arginfo, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_seterrhdler_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, callback)
 	ZEND_ARG_INFO(0, error_types)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_flush_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_flush_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
@@ -79,7 +79,7 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_catchex_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_autorender_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_autorender_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, flag)
 ZEND_END_ARG_INFO()
 
@@ -135,10 +135,10 @@ static void yaf_dispatcher_obj_free(zend_object *object) /* {{{ */ {
 }
 /* }}} */
 
-static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_dispatcher_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
 	HashTable *ht;
-	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(object);
+	yaf_dispatcher_object *dispatcher = php_yaf_dispatcher_fetch_object(yaf_strip_obj(obj));
 
 	if (!dispatcher->properties) {
 		ALLOC_HASHTABLE(dispatcher->properties);
@@ -180,8 +180,8 @@ static HashTable *yaf_dispatcher_get_properties(zval *object) /* {{{ */ {
 }
 /* }}} */
 
-static HashTable *yaf_dispatcher_get_gc(zval *object, zval **table, int *n) /* {{{ */ {
-	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(object);
+static HashTable *yaf_dispatcher_get_gc(yaf_object *obj, zval **table, int *n) /* {{{ */ {
+	yaf_dispatcher_object *dispatcher = php_yaf_dispatcher_fetch_object(yaf_strip_obj(obj));
 
 	*table = &dispatcher->request;
 	*n = 4;
@@ -463,7 +463,11 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 	zend_class_entry *ce = NULL;
 	zend_string *action = request->action;
 
+#if PHP_VERSION_ID < 80000
 	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
+#else
+    actions_map = zend_read_property(Z_OBJCE_P(controller), Z_OBJ_P(controller), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
+#endif
 
 	ZVAL_DEREF(actions_map);
 
@@ -555,7 +559,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 		zend_class_entry *ce;
 		yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
 
-		ZEND_ASSERT(request->module && yaf_application_is_module_name((request->module)));
+		ZEND_ASSERT(request->module);
 		ZEND_ASSERT(request->controller);
 		ZEND_ASSERT(request->action);
 
@@ -607,12 +611,16 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				memcpy(func_name + ZSTR_LEN(request->action), "action", sizeof("action") - 1);
 				/* Magic __call supports? */
 				if (UNEXPECTED((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL)) {
-					free_alloca(func_name, use_heap);
-					if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
-						OBJ_RELEASE(Z_OBJ(controller));
-						return 0;
+					/* Fallback to lowercase searching */
+					zend_str_tolower(func_name, ZSTR_LEN(request->action));
+					if ((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL) {
+						free_alloca(func_name, use_heap);
+						if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
+							OBJ_RELEASE(Z_OBJ(controller));
+							return 0;
+						}
+						ctl = Z_YAFCTLOBJ(controller);
 					}
-					ctl = Z_YAFCTLOBJ(controller);
 				}
 				free_alloca(func_name, use_heap);
 			} while (0);
@@ -1291,7 +1299,7 @@ PHP_METHOD(yaf_dispatcher, __construct) {
 /** {{{ yaf_dispatcher_methods
 */
 zend_function_entry yaf_dispatcher_methods[] = {
-	PHP_ME(yaf_dispatcher, __construct,          NULL, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+	PHP_ME(yaf_dispatcher, __construct,          yaf_dispatcher_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
 	PHP_ME(yaf_dispatcher, enableView,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, disableView,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_dispatcher, initView,             yaf_dispatcher_initview_arginfo, ZEND_ACC_PUBLIC)

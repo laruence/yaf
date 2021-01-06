@@ -30,6 +30,20 @@
 
 zend_class_entry *yaf_request_simple_ce;
 
+/** {{{ ARG_INFO
+ */
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_simple_construct_arginfo, 0, 0, 0)
+	ZEND_ARG_INFO(0, method)
+	ZEND_ARG_INFO(0, module)
+	ZEND_ARG_INFO(0, controller)
+	ZEND_ARG_INFO(0, action)
+	ZEND_ARG_INFO(0, params)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(yaf_request_simple_void_arginfo, 0, 0, 0)
+ZEND_END_ARG_INFO()
+/* }}} */
+
 void yaf_request_simple_init(yaf_request_object *request, zend_string *module, zend_string *controller, zend_string *action, zend_string *method, zval *params) /* {{{ */ {
 	if (!method) {
 		const char *method = yaf_request_get_request_method();
@@ -122,8 +136,8 @@ PHP_METHOD(yaf_request_simple, isXmlHttpRequest) {
 /** {{{ yaf_request_simple_methods
  */
 zend_function_entry yaf_request_simple_methods[] = {
-	PHP_ME(yaf_request_simple, __construct,	NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_request_simple, isXmlHttpRequest,NULL,ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_request_simple, __construct,	yaf_request_simple_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_request_simple, isXmlHttpRequest,yaf_request_simple_void_arginfo,ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

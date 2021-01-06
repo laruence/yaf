@@ -23,7 +23,7 @@ bool(true)
 
 Warning: Yaf\Loader::autoload(): Failed opening script %s/Test/Test/Test/Test/Test/Test/T/Test/Test.php: No such file or directory in %sissue297.php on line %d
 
-Fatal error: Uncaught Error: Class 'Test\Test\Test\Test\Test\Test\T\Test\Test' not found in %sissue297.php:%d
+Fatal error: Uncaught Error: Class %cTest\Test\Test\Test\Test\Test\T\Test\Test%c not found in %sissue297.php:%d
 Stack trace:
 #0 {main}
   thrown in %sissue297.php on line %d

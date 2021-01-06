@@ -5,7 +5,7 @@ Check for Yaf_Config_Simple APIs
 --INI--
 yaf.use_namespace=0
 --FILE--
-<?php 
+<?php
 $config = array(
 	'section1' => array(
 		'name' => 'value',
@@ -14,9 +14,9 @@ $config = array(
 	'section2' => "laruence",
 );
 
-$config1 = new Yaf_Config_Simple($config, 1);
+$config1 = new Yaf_Config_Simple($config, true);
 print_r($config1);
-$config2 = new Yaf_Config_Simple($config, 1);
+$config2 = new Yaf_Config_Simple($config, true);
 var_dump($config2->readonly());
 $config2->new = "value";
 var_dump(isset($config->new));
@@ -41,7 +41,7 @@ foreach($config3 as $key => $val) {
 
 print_r($config3->toArray());
 
-$sick = @new Yaf_Config_Simple();
+$sick = @new Yaf_Config_Simple([]);
 
 var_dump($sick->__isset(1));
 var_dump($sick->__get(2));
@@ -95,5 +95,5 @@ Array
 )
 bool(false)
 NULL
-int(0)
-NULL
+int(1)
+int(1)

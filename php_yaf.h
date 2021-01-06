@@ -44,7 +44,7 @@ extern zend_module_entry yaf_module_entry;
 # define ZEND_ACC_DTOR	0x0
 #endif
 
-#define PHP_YAF_VERSION 					"3.2.6-dev"
+#define PHP_YAF_VERSION 					"3.3.0"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
@@ -73,6 +73,14 @@ extern zend_module_entry yaf_module_entry;
 #else
 #define YAF_WRITE_HANDLER       zval *
 #define YAF_WHANDLER_RET(zv)    return zv
+#endif
+
+#if PHP_VERSION_ID < 80000
+#define yaf_object zval
+#define yaf_strip_obj(o) Z_OBJ_P(o)
+#else
+#define yaf_object zend_object
+#define yaf_strip_obj
 #endif
 
 #define yaf_application_t       zval

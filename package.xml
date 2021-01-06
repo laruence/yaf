@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2020-06-11</date>
- <time>15:30:00</time>
+ <date>2021-01-06</date>
+ <time>12:00:00</time>
  <version>
-  <release>3.2.5</release>
-  <api>3.2.5</api>
+  <release>3.3.0</release>
+  <api>3.3.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,10 +22,11 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #492 (init method could be protected)
-  - Fixed issue #492 (plugins maybe changed in controller execution)
-  - Fixed issue #492 (empty names shoud not be set to request)
-  - Fixed cow_violation conflicts
+  - PHP8 Supported
+  - Fixed issue #508 (Route::addConfig take action as module wrongly)
+  - Fixed issue #509 (getViewpath return NULL)
+  - Fixed issue #513 (supports of custom camel MVC name)
+  - Fixed issue #518 (setRediect not working)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -237,6 +238,8 @@
     <file name="issue420.phpt" role="test" />
     <file name="issue468.phpt" role="test" />
     <file name="issue469.phpt" role="test" />
+    <file name="issue513.phpt" role="test" />
+    <file name="issue518.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
     <file name="multi-section.ini" role="test" />
@@ -257,6 +260,26 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2021-01-06</date> 
+   <version> 
+    <release>3.3.0</release> 
+    <api>3.3.0</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - PHP8 Supported
+    - Fixed issue #508 (Route::addConfig take action as module wrongly)
+    - Fixed issue #509 (getViewpath return NULL)
+    - Fixed issue #513 (supports of custom camel MVC name)
+    - Fixed issue #518 (setRediect not working)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2020-06-11</date> 
    <version> 
     <release>3.2.5</release> 
@@ -274,7 +297,6 @@
     - Fixed cow_violation conflicts
    </notes> 
   </release> 
-
   <release> 
    <date>2020-06-04</date> 
    <version> 

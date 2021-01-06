@@ -42,9 +42,9 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_route_supervar_construct_arginfo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-static HashTable *yaf_route_supervar_get_properties(zval *object) /* {{{ */ {
+static HashTable *yaf_route_supervar_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
-	yaf_route_supervar_object *super = Z_YAFROUTESUPEROBJ_P(object);
+	yaf_route_supervar_object *super = (yaf_route_supervar_object*)(yaf_strip_obj(object));
 
 	if (!super->properties) {
 		ALLOC_HASHTABLE(super->properties);
