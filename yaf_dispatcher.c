@@ -559,7 +559,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 		zend_class_entry *ce;
 		yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
 
-		ZEND_ASSERT(request->module && yaf_application_is_module_name((request->module)));
+		ZEND_ASSERT(request->module);
 		ZEND_ASSERT(request->controller);
 		ZEND_ASSERT(request->action);
 
@@ -611,12 +611,16 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				memcpy(func_name + ZSTR_LEN(request->action), "action", sizeof("action") - 1);
 				/* Magic __call supports? */
 				if (UNEXPECTED((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL)) {
-					free_alloca(func_name, use_heap);
-					if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
-						OBJ_RELEASE(Z_OBJ(controller));
-						return 0;
+					/* Fallback to lowercase searching */
+					zend_str_tolower(func_name, ZSTR_LEN(request->action));
+					if ((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL) {
+						free_alloca(func_name, use_heap);
+						if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
+							OBJ_RELEASE(Z_OBJ(controller));
+							return 0;
+						}
+						ctl = Z_YAFCTLOBJ(controller);
 					}
-					ctl = Z_YAFCTLOBJ(controller);
 				}
 				free_alloca(func_name, use_heap);
 			} while (0);
