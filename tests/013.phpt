@@ -100,7 +100,7 @@ Array
 
     [simple] => Yaf_Route_Simple Object
         (
-            [module:protected] => a
+            [module:protected] => m
             [controller:protected] => c
             [action:protected] => a
         )
