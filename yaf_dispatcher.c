@@ -692,6 +692,12 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 	const zend_op *opline;
 	yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
 
+#if PHP_VERSION_ID >= 80000
+	if (zend_is_unwind_exit(EG(exception))) {
+		return;
+	}
+#endif
+
 	if ((YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_IN_EXCEPTION)|| !EG(exception)) {
 		return;
 	}
