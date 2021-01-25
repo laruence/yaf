@@ -14,7 +14,8 @@ jobs:
         TEST_PHP_ARGS : "--show-diff"
 
     steps:
-    - uses: actions/checkout@main
+      #https://github.com/actions/checkout
+    - uses: actions/checkout@v2
     - name: autoconf
       run: phpize
     - name: configure
