@@ -1,0 +1,24 @@
+name: integrate
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: autoconf
+      run: phpize
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make
+    - name: make test
+      run: TEST_PHP_ARGS="--show-diff" make test
+
