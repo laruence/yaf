@@ -10,9 +10,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env :
+        TEST_PHP_ARGS : "--show-diff"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@main
     - name: autoconf
       run: phpize
     - name: configure
@@ -20,5 +22,5 @@ jobs:
     - name: make
       run: make
     - name: make test
-      run: TEST_PHP_ARGS="--show-diff" make test
+      run: make test
 
