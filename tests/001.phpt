@@ -19,3 +19,4 @@ echo "yaf extension is available";
 ?>
 --EXPECT--
 yaf extension is available
+test
