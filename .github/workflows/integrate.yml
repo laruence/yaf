@@ -10,7 +10,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env :
+    env:
         TEST_PHP_ARGS : "--show-diff"
 
     steps:
