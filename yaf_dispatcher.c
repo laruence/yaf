@@ -614,8 +614,8 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 					/* Fallback to lowercase searching */
 					zend_str_tolower(func_name, ZSTR_LEN(request->action));
 					if ((fptr = zend_hash_str_find_ptr(&((ce)->function_table), func_name, func_len)) == NULL) {
-						free_alloca(func_name, use_heap);
 						if (UNEXPECTED((fptr = yaf_dispatcher_handle_action(app, dispatcher, &controller)) == NULL)) {
+							free_alloca(func_name, use_heap);
 							OBJ_RELEASE(Z_OBJ(controller));
 							return 0;
 						}

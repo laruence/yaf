@@ -241,6 +241,7 @@
     <file name="issue513.phpt" role="test" />
     <file name="issue518.phpt" role="test" />
     <file name="issue530.phpt" role="test" />
+    <file name="issue535.phpt" role="test" />
     <file name="simple.ini" role="test" />
     <file name="system.ini" role="test" />
     <file name="multi-section.ini" role="test" />

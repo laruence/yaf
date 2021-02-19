@@ -33,6 +33,7 @@ file_put_contents(APPLICATION_PATH . "/actions/test/seprate.php", <<<PHP
    class Test_SeprateAction extends Yaf_Action_Abstract {
          public function execute() {
 			\$x  = new XX();
+			\$yy  = new YY();
 			echo "okey";
 			return false;
          }
@@ -42,9 +43,8 @@ PHP
 
 file_put_contents(APPLICATION_PATH . "/library/XX.php", <<<PHP
 <?php
-	class XX extends YY {
+	class XX extends ZZ {
 		public static function test() {
-			return "okey";
         }
     }
 PHP
@@ -52,7 +52,16 @@ PHP
 
 file_put_contents(APPLICATION_PATH . "/library/YY.php", <<<PHP
 <?php
-	class YY { }
+	class YY extends ZZ {
+		public static function test() {
+        }
+    }
+PHP
+);
+
+file_put_contents(APPLICATION_PATH . "/library/ZZ.php", <<<PHP
+<?php
+	class ZZ { }
 PHP
 );
 
