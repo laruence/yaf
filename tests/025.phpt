@@ -5,6 +5,8 @@ Check for Yaf_Loader with namespace configuration
 --INI--
 yaf.library="/php/global/dir"
 yaf.use_namespace=0
+yaf.use_spl_autoload=0
+yaf.lowercase_path=0
 --FILE--
 <?php 
 $config = array(
