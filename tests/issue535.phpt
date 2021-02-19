@@ -3,7 +3,7 @@ ISSUE #535 (Segsev while throw exception in action)
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
-yaf.use_spl_autoload=0
+yaf.use_spl_autoload=1
 yaf.lowcase_path=0
 yaf.use_namespace=0
 --FILE--
@@ -21,26 +21,28 @@ file_put_contents(APPLICATION_PATH . "/controllers/Index.php", <<<PHP
 <?php
    class IndexController extends Yaf_Controller_Abstract {
 		public \$actions = array(
-				"index" => "actions/index.php",
+				"test_seprate" => "actions/test/seprate.php",
 			);
    }
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/actions/index.php", <<<PHP
+@mkdir(APPLICATION_PATH . "/actions/test/");
+file_put_contents(APPLICATION_PATH . "/actions/test/seprate.php", <<<PHP
 <?php
-   class IndexAction extends Yaf_Action_Abstract {
+   class Test_SeprateAction extends Yaf_Action_Abstract {
          public function execute() {
-			\$x  = new X();
-			\$this->getView()->assign("result", \$x->test());
+			\$x  = new XX();
+			echo "okey";
+			return false;
          }
    }
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/library/X.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/library/XX.php", <<<PHP
 <?php
-	class X extends Y {
+	class XX extends YY {
 		public static function test() {
 			return "okey";
         }
@@ -48,17 +50,15 @@ file_put_contents(APPLICATION_PATH . "/library/X.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/library/Y.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/library/YY.php", <<<PHP
 <?php
-	class Y {
-    }
+	class YY { }
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/views/index/index.phtml", "<?=\$result?>" . PHP_EOL);
-
 $app = new Yaf_Application($config);
-$app->run();
+$request = new Yaf_Request_Simple("GET", "Index", "Index", "test_seprate");
+$app->getDispatcher()->dispatch($request);
 ?>
 --CLEAN--
 <?php
