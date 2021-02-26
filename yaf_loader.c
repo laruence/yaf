@@ -490,11 +490,11 @@ ZEND_HOT int yaf_loader_import(const char *path, uint32_t len) /* {{{ */ {
 			zend_hash_add_empty_element(&EG(included_files), file_handle.opened_path);
 		}
 
-        /* ZVAL_UNDEF(&result); */
+        ZVAL_UNDEF(&result);
 		zend_execute(op_array, &result);
 		destroy_op_array(op_array);
 		efree_size(op_array, sizeof(zend_op_array));
-        /* zval_ptr_dtor(&result); */
+        zval_ptr_dtor(&result);
 		zend_destroy_file_handle(&file_handle);
 
 		return 1;
