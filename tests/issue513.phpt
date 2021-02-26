@@ -13,6 +13,7 @@ startup();
 $config = array(
 	"application" => array(
 		"directory" => APPLICATION_PATH,
+        "bootstrap" => APPLICATION_PATH . "/cboot.php",
         "dispatcher" => array (
            "catchException" => true,
         ), 
@@ -32,7 +33,7 @@ file_put_contents(APPLICATION_PATH . "/controllers/Error.php", <<<PHP
 PHP
 );
 
-file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
+file_put_contents(APPLICATION_PATH . "/cboot.php", <<<PHP
 <?php
    class Bootstrap extends Yaf_Bootstrap_Abstract {
         public function _initPlugin(Yaf_Dispatcher \$dispatcher) {

@@ -827,12 +827,12 @@ PHP_METHOD(yaf_application, bootstrap) {
 	char buf[MAXPATHLEN];
 	zend_function *fptr;
 	zend_class_entry  *ce;
+	const char *bootstrap_path;
+	uint32_t bootstrap_path_len;
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 	yaf_dispatcher_t *dispatcher = &app->dispatcher;
 
 	if (!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER)))) {
-		const char *bootstrap_path;
-		uint32_t bootstrap_path_len;
 		if (UNEXPECTED(app->bootstrap)) {
 			bootstrap_path = ZSTR_VAL(app->bootstrap);
 			bootstrap_path_len = ZSTR_LEN(app->bootstrap);
@@ -882,7 +882,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 	}
 
 error:
-	yaf_application_errors_hub(1, ce, buf);
+	yaf_application_errors_hub(1, ce, bootstrap_path);
 	RETURN_FALSE;
 }
 /* }}} */
