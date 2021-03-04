@@ -737,9 +737,31 @@ ZEND_HOT zval *yaf_request_query(unsigned type, zend_string *name) /* {{{ */ {
 }
 /* }}} */
 
+int yaf_request_del_str_param(yaf_request_object *request, const char *key, size_t len) /* {{{ */ {
+	if (request->params) {
+		return zend_hash_str_del(request->params, key, len);
+	}
+	return 0;
+}
+/* }}} */
+
 int yaf_request_del_param(yaf_request_object *request, zend_string *key) /* {{{ */ {
 	if (request->params) {
 		return zend_hash_del(request->params, key);
+	}
+	return 0;
+}
+/* }}} */
+
+int yaf_request_set_str_params_single(yaf_request_object *request, const char *key, size_t len, zval *value) /* {{{ */ {
+	if (!request->params) {
+		ALLOC_HASHTABLE(request->params);
+		zend_hash_init(request->params, 8, NULL, ZVAL_PTR_DTOR, 0);
+		YAF_ALLOW_VIOLATION(request->params);
+	}
+	if ((zend_hash_str_update(request->params, key, len, value)) != NULL) {
+		Z_TRY_ADDREF_P(value);
+		return 1;
 	}
 	return 0;
 }

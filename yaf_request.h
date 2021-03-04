@@ -66,7 +66,9 @@ zend_string *yaf_request_get_language(yaf_request_object *request);
 
 void yaf_request_set_mvc(yaf_request_object *request, zend_string *module, zend_string *controller, zend_string *action, zend_array *params);
 int yaf_request_set_params_single(yaf_request_object *instance, zend_string *key, zval *value);
+int yaf_request_set_str_params_single(yaf_request_object *instance, const char *key, size_t len, zval *value);
 int yaf_request_set_params_multi(yaf_request_object *instance, zval *values);
+int yaf_request_del_str_param(yaf_request_object *request, const char *key, size_t len);
 int yaf_request_del_param(yaf_request_object *request, zend_string *key);
 const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len);
 const char *yaf_request_get_request_method(void);

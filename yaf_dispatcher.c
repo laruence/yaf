@@ -687,7 +687,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 /* }}} */
 
 static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dispatcher_object *dispatcher) /* {{{ */ {
-	zend_string *exception_str, *controller, *action;
+	zend_string *controller, *action;
 	zval exception;
 	const zend_op *opline;
 	yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
@@ -724,12 +724,10 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 	zend_string_release(action);
 
 	/** use $request->getException() instand of */
-	exception_str = zend_string_init(ZEND_STRL("exception"), 0);
-	if (yaf_request_set_params_single(request, exception_str, &exception)) {
+	if (yaf_request_set_str_params_single(request, "exception", sizeof("exception") - 1, &exception)) {
 		zval_ptr_dtor(&exception);
 	} else {
 		/* failover to uncaught exception */
-		zend_string_release(exception_str);
 		EG(exception) = Z_OBJ(exception);
 		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
 		return;
@@ -737,8 +735,7 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 	yaf_request_set_dispatched(request, 0);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
-		yaf_request_del_param(request, exception_str);
-		zend_string_release(exception_str);
+		yaf_request_del_str_param(request, "exception", sizeof("exception") - 1);
 		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
 		return;
 	}
@@ -755,8 +752,7 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 		}
 	}
 
-	yaf_request_del_param(request, exception_str);
-	zend_string_release(exception_str);
+	yaf_request_del_str_param(request, "exception", sizeof("exception") - 1);
 
 	if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
 		yaf_response_response(Z_YAFRESPONSEOBJ(dispatcher->response));
