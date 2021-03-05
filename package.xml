@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2021-02-20</date>
- <time>17:00:00</time>
+ <date>2021-03-05</date>
+ <time>12:50:00</time>
  <version>
-  <release>3.3.1</release>
-  <api>3.3.1</api>
+  <release>3.3.2</release>
+  <api>3.3.2</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,8 +22,9 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed Issue #535 (segfault due to double free on platform without alloca)
-  - Fixed issue #530 (segfault while exiting in action)
+  - Fixed Memory leak in yaf_loader
+  - Fixed issue #537 (segfault in macos with 4 bytes length controller name)
+  - Fixed issue #536 (application.bootstrap not used)
  </notes>
  <contents> 
   <dir name="/"> 
@@ -259,6 +260,24 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2021-03-05</date> 
+   <version> 
+    <release>3.3.2</release> 
+    <api>3.3.2</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed Memory leak in yaf_loader
+    - Fixed issue #537 (segfault in macos with 4 bytes length controller name)
+    - Fixed issue #536 (application.bootstrap not used)
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2021-02-20</date> 
    <version> 
     <release>3.3.1</release> 
@@ -274,7 +293,6 @@
     - Fixed issue #530 (segfault while exiting in action)
    </notes> 
   </release> 
-
   <release> 
    <date>2021-01-06</date> 
    <version> 
