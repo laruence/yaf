@@ -435,7 +435,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 			zend_str_tolower_copy(p, YAF_G(name_separator), YAF_G(name_separator_len));
 			p += YAF_G(name_separator_len);
 		}
-		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller) + 1);
+		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller));
 	}
 
 	if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) == NULL || !instanceof_function(ce, yaf_controller_ce)) {
