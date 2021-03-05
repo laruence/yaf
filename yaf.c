@@ -371,12 +371,12 @@ ZEND_HOT zend_string *yaf_build_camel_name(const char *str, size_t len) /* {{{ *
 	while (p + 16 <= e) {
 		uint32_t mask;
 		__m128i rot, lower, upper, delta, line;
-		const __m128i upper_guard = _mm_set1_epi8('A' + 128);
-		const __m128i lower_guard = _mm_set1_epi8('a' + 128);
+		const __m128i upper_guard = _mm_set1_epi8('A' + (char)128);
+		const __m128i lower_guard = _mm_set1_epi8('a' + (char)128);
 		__m128i in = _mm_loadu_si128((__m128i*)str);
 
 		rot = _mm_sub_epi8(in, upper_guard);
-		upper = _mm_cmpgt_epi8(rot, _mm_set1_epi8(-128 + 'Z' - 'A'));
+		upper = _mm_cmpgt_epi8(rot, _mm_set1_epi8((char)-128 + 'Z' - 'A'));
 		delta = _mm_andnot_si128(upper, _mm_set1_epi8('a' - 'A'));
 	    in = _mm_add_epi8(in, delta);
 
