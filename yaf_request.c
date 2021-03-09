@@ -664,34 +664,34 @@ static inline zval* yaf_request_fetch_container(unsigned type) /* {{{ */ {
 
 	switch (type) {
 		case YAF_GLOBAL_VARS_POST:
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_POST"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_POST));
 			break;
 		case YAF_GLOBAL_VARS_GET:
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_GET"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_GET));
 			break;
 		case YAF_GLOBAL_VARS_COOKIE:
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_COOKIE"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_COOKIE));
 			break;
 		case YAF_GLOBAL_VARS_FILES:
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_FILES"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_FILES));
 			break;
 		case YAF_GLOBAL_VARS_SERVER:
 			if (jit_initialization) {
-				zend_is_auto_global_str(ZEND_STRL("_SERVER"));
+				zend_is_auto_global(YAF_KNOWN_STR(YAF_VAR_SERVER));
 			}
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SERVER"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_SERVER));
 			break;
 		case YAF_GLOBAL_VARS_REQUEST:
 			if (jit_initialization) {
-				zend_is_auto_global_str(ZEND_STRL("_REQUEST"));
+				zend_is_auto_global(YAF_KNOWN_STR(YAF_VAR_REQUEST));
 			}
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_REQUEST"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_REQUEST));
 			break;
 		case YAF_GLOBAL_VARS_ENV:
 			if (jit_initialization) {
-				zend_is_auto_global_str(ZEND_STRL("_ENV"));
+				zend_is_auto_global(YAF_KNOWN_STR(YAF_VAR_ENV));
 			}
-			container = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_ENV"));
+			container = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_ENV));
 			break;
 		default:
 			return NULL;

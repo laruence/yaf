@@ -17,7 +17,6 @@
 #ifndef YAF_ACTION_H
 #define YAF_ACTION_H
 
-#define YAF_ACTION_EXECUTOR_NAME		"execute"
 #define YAF_ACTION_PROPERTY_NAME_CTRL 	"_controller"
 
 #define yaf_action_object yaf_controller_object

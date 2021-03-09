@@ -333,7 +333,7 @@ static YAF_WRITE_HANDLER yaf_controller_write_property(yaf_object *obj, void *na
 
 static void yaf_controller_determine_auto_render(yaf_controller_object *ctl, zend_class_entry *ce, zend_object *obj) /* {{{ */ {
 	zval *render;
-	zval *offset = zend_hash_str_find(&ce->properties_info, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_RENDER));
+	zval *offset = zend_hash_find(&ce->properties_info, YAF_KNOWN_STR(YAF_AUTORENDER));
 	if (EXPECTED(offset == NULL)) {
 		ctl->flags = (zend_uchar)YAF_CTL_AUTORENDER_DEPEND;
 		return ;
@@ -422,9 +422,9 @@ int yaf_controller_render(yaf_controller_t *controller, zend_string *action, zva
 	zend_class_entry *ce = Z_OBJCE_P(controller);
 
 	if (ret != NULL) {
-		fbc = (zend_function*)zend_hash_str_find_ptr(&ce->function_table, ZEND_STRL("render"));
+		fbc = (zend_function*)zend_hash_find_ptr(&ce->function_table, YAF_KNOWN_STR(YAF_RENDER));
 	} else {
-		fbc = (zend_function*)zend_hash_str_find_ptr(&ce->function_table, ZEND_STRL("display"));
+		fbc = (zend_function*)zend_hash_find_ptr(&ce->function_table, YAF_KNOWN_STR(YAF_DISPLAY));
 	}
 
 	if (EXPECTED(fbc->type == ZEND_INTERNAL_FUNCTION)) {

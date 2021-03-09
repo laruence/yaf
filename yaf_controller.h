@@ -17,7 +17,6 @@
 #ifndef YAF_CONTROLLER_H
 #define YAF_CONTROLLER_H
 
-#define YAF_CONTROLLER_PROPERTY_NAME_ACTIONS	"actions"
 #define YAF_CONTROLLER_PROPERTY_NAME_RENDER     "yafAutoRender"
 
 #define YAF_CTL_AUTORENDER         (1<<0)

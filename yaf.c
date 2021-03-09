@@ -49,6 +49,13 @@
 
 ZEND_DECLARE_MODULE_GLOBALS(yaf);
 
+zend_string **yaf_known_strings = NULL;
+const char const *yaf_known_chars[] = {
+#define _YAF_CHARS(id, str) str,
+YAF_KNOWN_NAMES(_YAF_CHARS)
+#undef _YAF_CHARS
+	NULL
+};
 /* {{{ yaf_functions[]
 */
 zend_function_entry yaf_functions[] = {
@@ -501,7 +508,24 @@ PHP_GINIT_FUNCTION(yaf)
 */
 PHP_MINIT_FUNCTION(yaf)
 {
+	uint32_t idx = 0;
+
 	REGISTER_INI_ENTRIES();
+
+    yaf_known_strings = malloc(sizeof(yaf_known_chars));
+	while (yaf_known_chars[idx]) {
+		yaf_known_strings[idx] = zend_string_init(yaf_known_chars[idx], strlen(yaf_known_chars[idx]), 1);
+#if PHP_VERSION_ID < 70300
+		zend_string_hash_val(yaf_known_strings[idx]);
+		GC_REFCOUNT(yaf_known_strings[idx]) = 1;
+		GC_FLAGS(yaf_known_strings[idx]) |= IS_STR_INTERNED | IS_STR_PERSISTENT;
+#else
+		zend_string_hash_func(yaf_known_strings[idx]);
+		GC_SET_REFCOUNT(yaf_known_strings[idx], 1);
+		GC_ADD_FLAGS(yaf_known_strings[idx], IS_STR_INTERNED | IS_STR_PERSISTENT);
+#endif
+		idx++;
+	}
 
 	if (yaf_is_use_namespace()) {
 
@@ -562,7 +586,14 @@ PHP_MINIT_FUNCTION(yaf)
 */
 PHP_MSHUTDOWN_FUNCTION(yaf)
 {
+	uint32_t idx = 0;
+
 	UNREGISTER_INI_ENTRIES();
+
+	for (idx; idx < sizeof(yaf_known_chars)/sizeof(char*) - 1; idx++) {
+		free(yaf_known_strings[idx]);
+	}
+	free(yaf_known_strings);
 
 	return SUCCESS;
 }

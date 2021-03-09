@@ -56,19 +56,19 @@ void yaf_request_simple_init(yaf_request_object *request, zend_string *module, z
 		if (module) {
 			yaf_request_set_module(request, module);
 		} else {
-			request->module = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_MODULE), 0);
+			request->module = YAF_KNOWN_STR(YAF_DEFAULT_MODULE);
 		}
 
 		if (controller) {
 			yaf_request_set_controller(request, controller);
 		} else {
-			request->controller = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_CONTROLLER), 0);
+			request->controller = YAF_KNOWN_STR(YAF_DEFAULT_CONTROLLER);
 		}
 
 		if (action) {
 			yaf_request_set_action(request, action);
 		} else {
-			request->action = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_ACTION), 0);
+			request->action = YAF_KNOWN_STR(YAF_DEFAULT_ACTION);
 		}
 
 		yaf_request_set_routed(request, 1);

@@ -262,10 +262,10 @@ static ZEND_COLD zend_never_inline zend_class_entry *yaf_dispatcher_get_errors_h
 					"There is no method %s%s in %s", ZSTR_VAL(action), "Action", ZSTR_VAL(Z_OBJCE_P(controller)->name));
 		} else if ((pzval = zend_hash_find(Z_ARRVAL_P(action_map), action)) == NULL) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "There is no method %s%s in %s::$%s", ZSTR_VAL(action),
-					"Action", ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_CONTROLLER_PROPERTY_NAME_ACTIONS);
+					"Action", ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_KNOWN_CHARS(YAF_ACTIONS_MAP));
 		} else if (Z_TYPE_P(pzval) != IS_STRING) {
 			yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "Action '%s' in %s::%s does not have a valid path", ZSTR_VAL(action),
-					ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_CONTROLLER_PROPERTY_NAME_ACTIONS);
+					ZSTR_VAL(Z_OBJCE_P(controller)->name), YAF_KNOWN_CHARS(YAF_ACTIONS_MAP));
 		} else if (ce) {
 			yaf_trigger_error(YAF_ERR_TYPE_ERROR,
 					"Action '%s' is not a subclass of %s", ZSTR_VAL(ce->name), ZSTR_VAL(yaf_action_ce->name));
@@ -464,9 +464,13 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 	zend_string *action = request->action;
 
 #if PHP_VERSION_ID < 80000
-	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
+# if PHP_VERSION_ID < 70100
+	actions_map = zend_read_property(Z_OBJCE_P(controller), controller, YAF_KNOWN_CHARS(YAF_ACTIONS_MAP), strlen(YAF_KNOWN_CHARS(YAF_ACTIONS_MAP)), 1, NULL);
+# else
+	actions_map = zend_read_property_ex(Z_OBJCE_P(controller), controller, YAF_KNOWN_STR(YAF_ACTIONS_MAP), 1, NULL);
+# endif
 #else
-    actions_map = zend_read_property(Z_OBJCE_P(controller), Z_OBJ_P(controller), ZEND_STRL(YAF_CONTROLLER_PROPERTY_NAME_ACTIONS), 1, NULL);
+    actions_map = zend_read_property_ex(Z_OBJCE_P(controller), Z_OBJ_P(controller), YAF_KNOWN_STR(YAF_ACTIONS_MAP), 1, NULL);
 #endif
 
 	ZVAL_DEREF(actions_map);
@@ -529,7 +533,7 @@ static zend_never_inline zend_function *yaf_dispatcher_handle_action(yaf_applica
 	zend_class_entry *ce;
 
 	if ((ce = yaf_dispatcher_get_action(app->directory, controller, Z_YAFREQUESTOBJ(dispatcher->request)))) {
-		if ((fptr = zend_hash_str_find_ptr(&(ce->function_table), ZEND_STRL(YAF_ACTION_EXECUTOR_NAME)))) {
+		if ((fptr = zend_hash_find_ptr(&(ce->function_table), YAF_KNOWN_STR(YAF_EXECUTE)))) {
 			yaf_action_t action;
 			yaf_action_object *act;
 
@@ -779,36 +783,36 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	request = Z_YAFREQUESTOBJ(dispatcher->request);
 	/* route request */
 	if (EXPECTED(!yaf_request_is_routed(request))) {
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESTARTUP);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_ROUTESTARTUP);
 		if (UNEXPECTED(!yaf_dispatcher_route(dispatcher))) {
 			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 			return NULL;
 		}
 		yaf_dispatcher_fix_default(dispatcher, request);
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_ROUTESHUTDOWN);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_ROUTESHUTDOWN);
 		yaf_request_set_routed(request, 1);
 	} else {
 		yaf_dispatcher_fix_default(dispatcher, request);
 	}
 
-	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSTARTUP);
+	YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_LOOPSTARTUP);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		return NULL;
 	}
 
 	do {
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_PREDISPATCH);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_PREDISPATCH);
 		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
 			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
 			return NULL;
 		}
 		/* yaf_dispatcher_fix_default(dispatcher, request); */
-		YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_POSTDISPATCH);
+		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_POSTDISPATCH);
 	} while (!yaf_request_is_dispatched(request) && --nesting > 0);
 
-	YAF_PLUGIN_HANDLE(dispatcher, YAF_PLUGIN_HOOK_LOOPSHUTDOWN);
+	YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_LOOPSHUTDOWN);
 
 	if (EXPECTED(yaf_request_is_dispatched(request))) {
 		if (!(YAF_DISPATCHER_FLAGS(dispatcher) & YAF_DISPATCHER_RETURN_RESPONSE)) {
@@ -1138,7 +1142,7 @@ PHP_METHOD(yaf_dispatcher, getDefaultModule) {
 	if (app->default_module) {
 		RETURN_STR_COPY(app->default_module);
 	} else {
-		RETURN_STRINGL(YAF_ROUTER_DEFAULT_MODULE, sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1);
+		RETURN_STR(YAF_KNOWN_STR(YAF_DEFAULT_MODULE));
 	}
 }
 /* }}} */
@@ -1155,7 +1159,7 @@ PHP_METHOD(yaf_dispatcher, getDefaultController) {
 	if (app->default_controller) {
 		RETURN_STR_COPY(app->default_controller);
 	} else {
-		RETURN_STRINGL(YAF_ROUTER_DEFAULT_CONTROLLER, sizeof(YAF_ROUTER_DEFAULT_CONTROLLER) - 1);
+		RETURN_STR(YAF_KNOWN_STR(YAF_DEFAULT_CONTROLLER));
 	}
 }
 /* }}} */
@@ -1172,7 +1176,7 @@ PHP_METHOD(yaf_dispatcher, getDefaultAction) {
 	if (app->default_action) {
 		RETURN_STR_COPY(app->default_action);
 	} else {
-		RETURN_STRINGL(YAF_ROUTER_DEFAULT_ACTION, sizeof(YAF_ROUTER_DEFAULT_ACTION) - 1);
+		RETURN_STR(YAF_KNOWN_STR(YAF_DEFAULT_ACTION));
 	}
 }
 /* }}} */

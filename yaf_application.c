@@ -236,7 +236,7 @@ static HashTable *yaf_application_get_properties(yaf_object *obj) /* {{{ */ {
 		if (app->default_module) {
 			ZVAL_STR_COPY(&t, app->default_module);
 		} else {
-			ZVAL_STRINGL(&t, YAF_ROUTER_DEFAULT_MODULE, sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1);
+			ZVAL_STR(&t, YAF_KNOWN_STR(YAF_DEFAULT_MODULE));
 		}
 		zend_hash_index_update(Z_ARRVAL(rv), 0, &t);
 	}
@@ -499,7 +499,7 @@ ZEND_HOT int yaf_application_is_module_name(zend_string *name) /* {{{ */ {
 		if (UNEXPECTED(app->default_module)) {
 			return zend_string_equals_ci(app->default_module, name);
 		}
-		return zend_string_equals_literal_ci(name, YAF_ROUTER_DEFAULT_MODULE);
+		return zend_string_equals_ci(name, YAF_KNOWN_STR(YAF_DEFAULT_MODULE));
 	}
 
 	ZEND_HASH_FOREACH_VAL(app->modules, pzval) {
@@ -525,7 +525,8 @@ ZEND_HOT int yaf_application_is_module_name_str(const char *name, size_t len) /*
 		if (UNEXPECTED(app->default_module)) {
 			return len == ZSTR_LEN(app->default_module) && !strncasecmp(name, ZSTR_VAL(app->default_module), len);
 		}
-		return len == sizeof(YAF_ROUTER_DEFAULT_MODULE) - 1 && !strncasecmp(name, YAF_ROUTER_DEFAULT_MODULE, len);
+		return len == strlen(YAF_KNOWN_CHARS(YAF_DEFAULT_MODULE)) &&
+			!strncasecmp(name, YAF_KNOWN_CHARS(YAF_DEFAULT_MODULE), len);
 	}
 
 	ZEND_HASH_FOREACH_VAL(app->modules, pzval) {
@@ -545,7 +546,7 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 	zval *pzval, *psval;
 
 	/* following options are optional */
-	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("bootstrap"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF_BOOTSTRAP))) != NULL &&
 		Z_TYPE_P(pzval) == IS_STRING)) {
 		app->bootstrap = zend_string_copy(Z_STR_P(pzval));
 	}
@@ -559,7 +560,7 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 		if (EXPECTED(IS_STRING == Z_TYPE_P(pzval))) {
 			app->library = zend_string_copy(Z_STR_P(pzval));
 		} else if (IS_ARRAY == Z_TYPE_P(pzval)) {
-			if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("directory"))) != NULL &&
+			if ((psval = zend_hash_find(Z_ARRVAL_P(pzval), YAF_KNOWN_STR(YAF_DIRECTORY))) != NULL &&
 				Z_TYPE_P(psval) == IS_STRING) {
 				app->library = zend_string_copy(Z_STR_P(psval));
 			}
@@ -677,15 +678,15 @@ int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	uint32_t items;
 
 	conf = Z_YAFCONFIGOBJ(app->config)->config;
-	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
+	if (UNEXPECTED((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF_APPLICATION))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
 		/* For back compatibilty */
-		if (((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
+		if (((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) {
 			return 0;
 		}
 	}
 
 	conf = Z_ARRVAL_P(pzval);
-	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("directory"))) == NULL ||
+	if (UNEXPECTED((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF_DIRECTORY))) == NULL ||
 		Z_TYPE_P(pzval) != IS_STRING || Z_STRLEN_P(pzval) == 0)) {
 		return 0;
 	}
@@ -697,7 +698,7 @@ int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 	}
 
 	items = zend_hash_num_elements(conf) - 1;
-	if (UNEXPECTED((pzval = zend_hash_str_find(conf, ZEND_STRL("dispatcher"))) != NULL &&
+	if (UNEXPECTED((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF_DISPATCHER))) != NULL &&
 		Z_TYPE_P(pzval) == IS_ARRAY)) {
 		zval *psval;
 
@@ -706,21 +707,21 @@ int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 			Z_TYPE_P(psval) == IS_STRING) {
 			app->default_module = yaf_canonical_name(1, Z_STR_P(psval));
 		} else {
-			app->default_module = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_MODULE), 0);
+			app->default_module = YAF_KNOWN_STR(YAF_DEFAULT_MODULE);
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultController"))) != NULL &&
 			Z_TYPE_P(psval) == IS_STRING) {
 			app->default_controller = yaf_canonical_name(1, Z_STR_P(psval));
 		} else {
-			app->default_controller = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_CONTROLLER), 0);
+			app->default_controller = YAF_KNOWN_STR(YAF_DEFAULT_CONTROLLER);
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("defaultAction"))) != NULL &&
 			Z_TYPE_P(psval) == IS_STRING) {
 			app->default_action = yaf_canonical_name(0, Z_STR_P(psval));
 		} else {
-			app->default_action = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_ACTION), 0);
+			app->default_action = YAF_KNOWN_STR(YAF_DEFAULT_ACTION);
 		}
 
 		if ((psval = zend_hash_str_find(Z_ARRVAL_P(pzval), ZEND_STRL("throwException"))) != NULL) {
@@ -737,9 +738,9 @@ int yaf_application_parse_option(yaf_application_object *app) /* {{{ */ {
 			app->default_route = Z_ARRVAL_P(psval);
 		}
 	} else {
-		app->default_module = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_MODULE), 0);
-		app->default_controller = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_CONTROLLER), 0);
-		app->default_action = zend_string_init(ZEND_STRL(YAF_ROUTER_DEFAULT_ACTION), 0);
+		app->default_module = YAF_KNOWN_STR(YAF_DEFAULT_MODULE);
+		app->default_controller = YAF_KNOWN_STR(YAF_DEFAULT_CONTROLLER);
+		app->default_action = YAF_KNOWN_STR(YAF_DEFAULT_ACTION);
 	}
 
 	/* prasing optional configs */
@@ -832,7 +833,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 	yaf_application_object *app = Z_YAFAPPOBJ_P(getThis());
 	yaf_dispatcher_t *dispatcher = &app->dispatcher;
 
-	if (!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER)))) {
+	if (!(ce = zend_hash_find_ptr(EG(class_table), YAF_KNOWN_STR(YAF_BOOTSTRAP)))) {
 		if (UNEXPECTED(app->bootstrap)) {
 			bootstrap_path = ZSTR_VAL(app->bootstrap);
 			bootstrap_path_len = ZSTR_LEN(app->bootstrap);
@@ -850,7 +851,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 			bootstrap_path = buf;
 		}
 		if (UNEXPECTED((!yaf_loader_import(bootstrap_path, bootstrap_path_len)) ||
-			(!(ce = zend_hash_str_find_ptr(EG(class_table), ZEND_STRL(YAF_DEFAULT_BOOTSTRAP_LOWER)))))) {
+			(!(ce = zend_hash_find_ptr(EG(class_table), YAF_KNOWN_STR(YAF_BOOTSTRAP)))))) {
 			goto error;
 		}
 	}

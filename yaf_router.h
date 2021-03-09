@@ -17,10 +17,6 @@
 #ifndef YAF_ROUTER_H
 #define YAF_ROUTER_H
 
-#define YAF_ROUTER_DEFAULT_ACTION	 	"index"
-#define YAF_ROUTER_DEFAULT_CONTROLLER  	"Index"
-#define YAF_ROUTER_DEFAULT_MODULE	  	"Index"
-
 #define YAF_ROUTER_URL_DELIMIETER 	 '/'
 #define YAF_ROUTE_REGEX_DILIMITER  	 '#'
 

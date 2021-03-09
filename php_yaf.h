@@ -152,6 +152,45 @@ int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, 
 int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
 void yaf_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t);
 
+extern const char const *yaf_known_chars[];
+extern zend_string **yaf_known_strings;
+#define YAF_KNOWN_STR(id)        (yaf_known_strings[id])
+#define YAF_KNOWN_CHARS(id)      (yaf_known_chars[id])
+#define YAF_KNOWN_NAMES(_) \
+	_(YAF,                       "yaf") \
+	_(YAF_APPLICATION,           "application") \
+	_(YAF_DIRECTORY,             "directory") \
+	_(YAF_DISPATCHER,            "dispatcher") \
+	_(YAF_DEFAULT_MODULE,        "Index") \
+	_(YAF_DEFAULT_CONTROLLER,    "Index") \
+	_(YAF_DEFAULT_ACTION,        "index") \
+	_(YAF_ACTIONS_MAP,           "actions") \
+	_(YAF_BOOTSTRAP,             "bootstrap") \
+	_(YAF_CONTENT,               "content") \
+	_(YAF_VAR_POST,              "_POST") \
+	_(YAF_VAR_GET,               "_GET") \
+	_(YAF_VAR_SERVER,            "_SERVER") \
+	_(YAF_VAR_COOKIE,            "_COOKIE") \
+	_(YAF_VAR_FILES,             "_FILES") \
+	_(YAF_VAR_REQUEST,           "_REQUEST") \
+	_(YAF_VAR_ENV,               "_ENV") \
+	_(YAF_HOOK_ROUTESTARTUP,     "routerstartup") \
+	_(YAF_HOOK_ROUTESHUTDOWN,    "routershutdown") \
+	_(YAF_HOOK_LOOPSTARTUP,      "dispatchloopstartup") \
+	_(YAF_HOOK_PREDISPATCH,      "predispatch") \
+	_(YAF_HOOK_POSTDISPATCH,     "postdispatch") \
+	_(YAF_HOOK_LOOPSHUTDOWN,     "dispatchloopshutdown") \
+	_(YAF_AUTORENDER,            "yafAutoRender") \
+	_(YAF_RENDER,                "render") \
+	_(YAF_DISPLAY,               "display") \
+	_(YAF_EXECUTE,               "execute") \
+
+enum _yaf_known_chars_id {
+#define _YAF_CHARS_ID(id, str) id,
+YAF_KNOWN_NAMES(_YAF_CHARS_ID)
+#undef _YAF_CHARS_ID
+	YAF_LAST_KNOWN_CHARS
+};
 
 #define YSCMP(a, b, l, s)  do { \
 	if (l>=sizeof(uint##s##_t)) { \

@@ -20,14 +20,6 @@
 #define YAF_ERROR_CONTROLLER                    "Error"
 #define YAF_ERROR_ACTION                        "error"
 
-#define YAF_PLUGIN_HOOK_ROUTESTARTUP            "routerstartup"
-#define YAF_PLUGIN_HOOK_ROUTESHUTDOWN           "routershutdown"
-#define YAF_PLUGIN_HOOK_LOOPSTARTUP             "dispatchloopstartup"
-#define YAF_PLUGIN_HOOK_PREDISPATCH             "predispatch"
-#define YAF_PLUGIN_HOOK_POSTDISPATCH            "postdispatch"
-#define YAF_PLUGIN_HOOK_LOOPSHUTDOWN            "dispatchloopshutdown"
-#define YAF_PLUGIN_HOOK_PRERESPONSE             "preresponse"
-
 extern zend_class_entry *yaf_dispatcher_ce;
 
 #define YAF_DISPATCHER_AUTO_RENDER       (1<<0)
@@ -62,7 +54,7 @@ static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object
 			yaf_dispatcher_object *_d = (dispatcher); \
 			HashTable *_pls = _d->plugins; \
 			ZEND_HASH_FOREACH_VAL(_pls, _t) { \
-				_f = zend_hash_str_find_ptr(&(Z_OBJCE_P(_t)->function_table), (ev), sizeof(ev) - 1); \
+				_f = zend_hash_find_ptr(&(Z_OBJCE_P(_t)->function_table), YAF_KNOWN_STR(ev)); \
 				ZEND_ASSERT(_f); \
 				if (_f->type == ZEND_USER_FUNCTION) {\
 			        if (!yaf_call_user_method_with_2_arguments(Z_OBJ_P(_t), _f, &_d->request, &_d->response, &_r)) { \

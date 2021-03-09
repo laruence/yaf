@@ -216,8 +216,7 @@ static int yaf_response_alter_body_ex(yaf_response_object *response, zend_string
 update:
 		ZVAL_STR_COPY(&rv, body);
 		if (EXPECTED(name == NULL)) {
-			return zend_hash_str_update(response->body,
-					YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY, sizeof(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY) - 1, &rv) != NULL;
+			return zend_hash_update(response->body, YAF_KNOWN_STR(YAF_CONTENT), &rv) != NULL;
 		} else {
 			return zend_hash_update(response->body, name, &rv) != NULL;
 		}
@@ -226,7 +225,7 @@ update:
 		zend_string *obody;
 
 		if (EXPECTED(name == NULL)) {
-			pzval = zend_hash_str_find(response->body, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+			pzval = zend_hash_find(response->body, YAF_KNOWN_STR(YAF_CONTENT));
 		} else {
 			pzval = zend_hash_find(response->body, name);
 		}
@@ -321,14 +320,6 @@ int yaf_response_clear_body(yaf_response_object *response, zend_string *name) /*
 zval *yaf_response_get_body(yaf_response_object *response, zend_string *name) /* {{{ */{
 	if (response->body) {
 		return zend_hash_find(response->body, name);
-	}
-	return NULL;
-}
-/* }}} */
-
-zval* yaf_response_get_body_str(yaf_response_object *response, char *name, size_t len) /* {{{ */ {
-	if (response->body) {
-		return zend_hash_str_find(response->body, name, len);
 	}
 	return NULL;
 }
@@ -501,7 +492,7 @@ PHP_METHOD(yaf_response, getBody) {
 	}
 
 	if (!name) {
-		body = yaf_response_get_body_str(response, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+		body = yaf_response_get_body(response, YAF_KNOWN_STR(YAF_CONTENT));
 	} else {
 		if (ZVAL_IS_NULL(name)) {
 			if (response->body) {
@@ -601,7 +592,7 @@ YAF_STARTUP_FUNCTION(response) {
 	yaf_response_obj_handlers.read_property = (zend_object_read_property_t)yaf_response_read_property;
 	yaf_response_obj_handlers.write_property = (zend_object_write_property_t)yaf_response_write_property;
 
-	zend_declare_class_constant_stringl(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODY));
+	zend_declare_class_constant_string(yaf_response_ce, ZEND_STRL(YAF_RESPONSE_PROPERTY_NAME_DEFAULTBODYNAME), YAF_KNOWN_CHARS(YAF_CONTENT));
 
 	YAF_STARTUP(response_http);
 	YAF_STARTUP(response_cli);
