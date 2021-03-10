@@ -76,7 +76,7 @@ void yaf_request_http_init(yaf_request_object *req, zend_string *request_uri, ze
 				}
 			}
 #endif
-			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PATH_INFO"));
+			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, YAF_KNOWN_STR(YAF_PATH_INFO));
 			if (uri) {
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
 					settled_uri = zend_string_copy(Z_STR_P(uri));
@@ -84,12 +84,16 @@ void yaf_request_http_init(yaf_request_object *req, zend_string *request_uri, ze
 				}
 			}
 
-			uri = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("REQUEST_URI"));
+			uri = yaf_request_query(YAF_GLOBAL_VARS_SERVER, YAF_KNOWN_STR(YAF_REQUEST_URI));
 			if (uri) {
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
 					/* Http proxy reqs setup request uri with scheme and host [and port] + the url path,
 					 * only use url path */
-					if (strncasecmp(Z_STRVAL_P(uri), "http", sizeof("http") - 1) == 0) {
+					const char *p = (const char*)Z_STRVAL_P(uri);
+					if ((*p == 'h' || *p++ == 'H') &&
+						(*p == 't' || *p++ == 'T') &&
+						(*p == 't' || *p++ == 'T') &&
+						(*p == 'p' || *p == 'P')) {
 						php_url *url_info = php_url_parse(Z_STRVAL_P(uri));
 #if PHP_VERSION_ID < 70300
 						if (url_info && url_info->path) {

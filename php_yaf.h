@@ -174,6 +174,7 @@ extern zend_string **yaf_known_strings;
 	_(YAF_VAR_FILES,             "_FILES") \
 	_(YAF_VAR_REQUEST,           "_REQUEST") \
 	_(YAF_VAR_ENV,               "_ENV") \
+	_(YAF_VAR_SESSION,           "_SESSION") \
 	_(YAF_HOOK_ROUTESTARTUP,     "routerstartup") \
 	_(YAF_HOOK_ROUTESHUTDOWN,    "routershutdown") \
 	_(YAF_HOOK_LOOPSTARTUP,      "dispatchloopstartup") \
@@ -184,6 +185,8 @@ extern zend_string **yaf_known_strings;
 	_(YAF_RENDER,                "render") \
 	_(YAF_DISPLAY,               "display") \
 	_(YAF_EXECUTE,               "execute") \
+	_(YAF_PATH_INFO,             "PATH_INFO") \
+	_(YAF_REQUEST_URI,           "REQUEST_URI") \
 
 enum _yaf_known_chars_id {
 #define _YAF_CHARS_ID(id, str) id,

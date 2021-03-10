@@ -149,7 +149,7 @@ static yaf_session_t *yaf_session_instance() /* {{{ */ {
 	sess->flags = 0;
 	yaf_session_start(sess);
 
-	if ((pzval = zend_hash_str_find(&EG(symbol_table), ZEND_STRL("_SESSION"))) == NULL ||
+	if ((pzval = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_SESSION))) == NULL ||
 		Z_TYPE_P(pzval) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(pzval)) != IS_ARRAY) {
 		php_error_docref(NULL, E_WARNING, "Attempt to start session failed");
 		sess->session = NULL;
