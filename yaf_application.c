@@ -266,8 +266,8 @@ static ZEND_COLD zend_never_inline void yaf_application_errors_hub(int type, ...
 		} else {
 			zval *pzval;
 			HashTable *conf = Z_YAFCONFIGOBJ(app->config)->config;
-			if ((((pzval = zend_hash_str_find(conf, ZEND_STRL("application"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) &&
-					(((pzval = zend_hash_str_find(conf, ZEND_STRL("yaf"))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY)) {
+			if ((((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF_APPLICATION))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY) &&
+					(((pzval = zend_hash_find(conf, YAF_KNOWN_STR(YAF))) == NULL) || Z_TYPE_P(pzval) != IS_ARRAY)) {
 				yaf_trigger_error(YAF_ERR_TYPE_ERROR, "%s", "Expected an array of application configuration");
 			} else {
 				yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "%s", "Expected 'directory' entry in application configuration");

@@ -174,6 +174,7 @@ extern zend_string **yaf_known_strings;
 	_(YAF_VAR_FILES,             "_FILES") \
 	_(YAF_VAR_REQUEST,           "_REQUEST") \
 	_(YAF_VAR_ENV,               "_ENV") \
+	_(YAF_VAR_SESSION,           "_SESSION") \
 	_(YAF_HOOK_ROUTESTARTUP,     "routerstartup") \
 	_(YAF_HOOK_ROUTESHUTDOWN,    "routershutdown") \
 	_(YAF_HOOK_LOOPSTARTUP,      "dispatchloopstartup") \
