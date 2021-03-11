@@ -56,6 +56,7 @@ YAF_KNOWN_NAMES(_YAF_CHARS)
 #undef _YAF_CHARS
 	NULL
 };
+
 /* {{{ yaf_functions[]
 */
 zend_function_entry yaf_functions[] = {
