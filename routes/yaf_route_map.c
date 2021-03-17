@@ -119,78 +119,107 @@ void yaf_route_map_instance(yaf_route_t *route, zend_bool ctl_prefer, zend_strin
 }
 /* }}} */
 
-static inline void yaf_route_map_append(smart_str *str, const char *seg, uint32_t len) /* {{{ */ {
-	uint32_t i;
+static inline zend_string *yaf_route_map_build(const char *src, size_t len, zend_bool ctl) /* {{{ */ {
+	unsigned char *str = (unsigned char*)src;
+	unsigned char *end = str + len;
 
-	smart_str_appendc(str, toupper(*seg));
-	for (i = 1; i < len; i++) {
-		smart_str_appendc(str, tolower(seg[i]));
+	while (*str == YAF_ROUTER_URL_DELIMIETER) {
+		str++;
 	}
+
+	if (str < end) {
+		unsigned char *p, *q, *e;
+		zend_string *result = zend_string_alloc(end - str, 0);
+
+		zend_str_tolower_copy(ZSTR_VAL(result), str, end - str);
+		p = q = (unsigned char*)ZSTR_VAL(result);
+		e = p + ZSTR_LEN(result);
+
+		if (ctl) {
+			*p++ = toupper(*q++);
+		} else {
+			*p++, *q++;
+		}
+		while (q < e) {
+			if (*q == YAF_ROUTER_URL_DELIMIETER) {
+				while (*(++q) == YAF_ROUTER_URL_DELIMIETER);
+				if (UNEXPECTED(*q == '\0')) {
+					break;
+				}
+				*p++ = '_';
+				if (ctl) {
+					*p++ = toupper(*q++);
+				} else {
+					*p++ = *q++;
+				}
+			} else {
+				*p++ = *q++;
+			}
+		}
+		*p = '\0';
+
+		ZSTR_LEN(result) = p - (unsigned char*)ZSTR_VAL(result);
+
+		return result;
+	}
+
+	return NULL;
 }
 /* }}} */
 
 int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
-	const char *req_uri, *query_str, *pos;
-	size_t req_uri_len, query_str_len;
-	smart_str route_result = {0};
+	size_t len, query_len;
+	const char *uri, *query, *p;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(route);
 
 	if (request->base_uri) {
-		req_uri = yaf_request_strip_base_uri(request->uri, request->base_uri, &req_uri_len);
+		uri = yaf_request_strip_base_uri(request->uri, request->base_uri, &len);
 	} else {
-		req_uri = ZSTR_VAL(request->uri);
-		req_uri_len = ZSTR_LEN(request->uri);
+		uri = ZSTR_VAL(request->uri);
+		len = ZSTR_LEN(request->uri);
 	}
 
 	if (UNEXPECTED(map->delim)) {
-		if ((query_str = strstr(req_uri, ZSTR_VAL(map->delim))) && *(query_str - 1) == YAF_ROUTER_URL_DELIMIETER) {
-			const char *rest = query_str + ZSTR_LEN(map->delim);
+		if ((query = strstr(uri, ZSTR_VAL(map->delim))) && *(query - 1) == YAF_ROUTER_URL_DELIMIETER) {
+			const char *rest = query + ZSTR_LEN(map->delim);
 
 			while (*rest == YAF_ROUTER_URL_DELIMIETER) {
 				rest++;
 			}
 			if (*rest != '\0') {
 				zval params;
-				query_str_len = req_uri_len - (rest - req_uri);
-				req_uri_len = query_str - req_uri;
-				query_str = rest;
-				yaf_router_parse_parameters(query_str, query_str_len, &params);
+				query_len = len - (rest - uri);
+				len = query - uri;
+				query = rest;
+				yaf_router_parse_parameters(query, query_len, &params);
 				yaf_request_set_params_multi(request, &params);
-				zval_ptr_dtor(&params);
+				zend_array_destroy(Z_ARR(params));
 			} else {
-				req_uri_len = query_str - req_uri;
+				len = query - uri;
 			}
 		}
 	}
 
-	while ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, req_uri_len))) {
-		size_t seg_len = pos++ - req_uri;
-		if (seg_len) {
-			yaf_route_map_append(&route_result, req_uri, seg_len);
-			smart_str_appendc(&route_result, '_');
-		}
-		req_uri_len -= pos - req_uri;
-		req_uri = pos;
-	}
-
-	if (req_uri_len) {
-		yaf_route_map_append(&route_result, req_uri, req_uri_len);
-		smart_str_appendc(&route_result, '_');
-	}
-
-	if (route_result.s) {
-		ZSTR_LEN(route_result.s)--;
-		ZSTR_VAL(route_result.s)[ZSTR_LEN(route_result.s)] = '\0';
+	if (len) {
 		if (map->flags & YAF_ROUTE_MAP_CTL_PREFER) {
-			/* avoding double realloc */
-			if (UNEXPECTED(request->controller)) {
-				zend_string_release(request->controller);
+			zend_string *result = yaf_route_map_build(uri, len, 1);
+			if (result) {
+				/* avoding double realloc */
+				if (UNEXPECTED(request->controller)) {
+					zend_string_release(request->controller);
+				}
+				request->controller = result;
 			}
-			request->controller = route_result.s;
 		} else {
-			yaf_request_set_action(request, route_result.s);
-			smart_str_free(&route_result);
+			zend_string *result = yaf_route_map_build(uri, len, 0);
+			if (result) {
+				/* avoding double realloc */
+				if (UNEXPECTED(request->action)) {
+					zend_string_release(request->action);
+				}
+				request->action = result;
+			}
 		}
 	}
 
