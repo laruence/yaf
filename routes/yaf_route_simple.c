@@ -84,9 +84,17 @@ static zend_object *yaf_route_simple_new(zend_class_entry *ce) /* {{{ */ {
 static void yaf_route_simple_object_free(zend_object *object) /* {{{ */ {
 	yaf_route_simple_object *simple = (yaf_route_simple_object*)object;
 
-	zend_string_release(simple->m);
-	zend_string_release(simple->c);
-	zend_string_release(simple->a);
+	if (simple->m) {
+		zend_string_release(simple->m);
+	}
+
+	if (simple->c) {
+		zend_string_release(simple->c);
+	}
+
+	if (simple->a) {
+		zend_string_release(simple->a);
+	}
 
 	if (simple->properties) {
 		if (GC_DELREF(simple->properties) == 0) {
