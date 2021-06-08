@@ -863,7 +863,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 		obj = Z_OBJ(bootstrap);
 		ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
 			zval ret;
-			if (UNEXPECTED(ZSTR_LEN(func) < 5) ||
+			if (UNEXPECTED(ZSTR_LEN(func) < sizeof("_init")) ||
 				!yaf_slip_equal(ZSTR_VAL(func), ZEND_STRL(YAF_BOOTSTRAP_INITFUNC_PREFIX))) {
 				continue;
 			}
