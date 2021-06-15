@@ -786,8 +786,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_ROUTESTARTUP);
 		if (UNEXPECTED(!yaf_dispatcher_route(dispatcher))) {
 			yaf_trigger_error(YAF_ERR_ROUTE_FAILED, "Routing request failed");
-			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
-			return NULL;
+			YAF_EXCEPTION_HANDLE(dispatcher);
 		}
 		yaf_dispatcher_fix_default(dispatcher, request);
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_ROUTESHUTDOWN);
@@ -805,8 +804,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	do {
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_PREDISPATCH);
 		if (UNEXPECTED(!yaf_dispatcher_handle(dispatcher))) {
-			YAF_EXCEPTION_HANDLE_NORET(dispatcher);
-			return NULL;
+			YAF_EXCEPTION_HANDLE(dispatcher);
 		}
 		/* yaf_dispatcher_fix_default(dispatcher, request); */
 		YAF_PLUGIN_HANDLE(dispatcher, YAF_HOOK_POSTDISPATCH);
@@ -823,8 +821,7 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 	} else {
 		ZEND_ASSERT(nesting == 0);
 		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The maximum dispatching count %ld is reached", yaf_get_forward_limit());
-		YAF_EXCEPTION_HANDLE_NORET(dispatcher);
-		return NULL;
+		YAF_EXCEPTION_HANDLE(dispatcher);
 	}
 }
 /* }}} */

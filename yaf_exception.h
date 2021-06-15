@@ -48,7 +48,6 @@
 	}
 
 #define YAF_EXCEPTION_HANDLE(dispatcher)       YAF_EXCEPTION_HANDLE_EX(dispatcher, return NULL;)
-#define YAF_EXCEPTION_HANDLE_NORET(dispatcher) YAF_EXCEPTION_HANDLE_EX(dispatcher, );
 
 #define YAF_EXCEPTION_ERASE_EXCEPTION() \
 	do { \
