@@ -71,6 +71,15 @@ void yaf_iterator_dtor(zend_object_iterator *iter) /* {{{ */ {
 }
 /* }}} */
 
+#if PHP_VERSION_ID >= 70400
+HashTable *yaf_fake_get_gc(zend_object *zobj, zval **table, int *n) /* {{{ */ {
+	*n = 0;
+	*table = NULL;
+	return NULL;
+}
+/* }}} */
+#endif
+
 static int yaf_iterator_valid(zend_object_iterator *iter) /* {{{ */ {
 	return zend_hash_has_more_elements_ex(Z_ARRVAL(iter->data), &(((yaf_iterator*)iter)->pos));
 }

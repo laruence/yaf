@@ -70,9 +70,11 @@ extern zend_module_entry yaf_module_entry;
 # define GC_ADDREF(gc)           (++GC_REFCOUNT(gc))
 # define GC_DELREF(gc)           (--GC_REFCOUNT(gc))
 # endif
+# define yaf_fake_get_gc        NULL
 #else
 #define YAF_WRITE_HANDLER       zval *
 #define YAF_WHANDLER_RET(zv)    return zv
+HashTable *yaf_fake_get_gc(zend_object *zobj, zval **table, int *n);
 #endif
 
 #if PHP_VERSION_ID < 80000

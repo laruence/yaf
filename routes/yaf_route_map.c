@@ -372,7 +372,7 @@ YAF_STARTUP_FUNCTION(route_map) {
 	memcpy(&yaf_route_map_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_route_map_obj_handlers.free_obj = yaf_route_map_object_free;
 	yaf_route_map_obj_handlers.clone_obj = NULL;
-	yaf_route_map_obj_handlers.get_gc = NULL;
+	yaf_route_map_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_route_map_obj_handlers.get_properties = yaf_route_map_get_properties;
 
 

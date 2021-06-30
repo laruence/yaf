@@ -685,7 +685,7 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	yaf_view_simple_obj_handlers.read_property = (zend_object_read_property_t)yaf_view_simple_read_property;
 	yaf_view_simple_obj_handlers.write_property = (zend_object_write_property_t)yaf_view_simple_write_property;
 	yaf_view_simple_obj_handlers.clone_obj = NULL;
-	yaf_view_simple_obj_handlers.get_gc = NULL;
+	yaf_view_simple_obj_handlers.get_gc = yaf_fake_get_gc;
 
 
 	return SUCCESS;

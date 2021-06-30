@@ -587,7 +587,7 @@ YAF_STARTUP_FUNCTION(response) {
 	yaf_response_obj_handlers.offset = XtOffsetOf(yaf_response_object, std);
 	yaf_response_obj_handlers.free_obj = yaf_response_object_free;
 	yaf_response_obj_handlers.clone_obj = NULL;
-	yaf_response_obj_handlers.get_gc = NULL;
+	yaf_response_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_response_obj_handlers.get_properties = yaf_response_get_properties;
 	yaf_response_obj_handlers.read_property = (zend_object_read_property_t)yaf_response_read_property;
 	yaf_response_obj_handlers.write_property = (zend_object_write_property_t)yaf_response_write_property;

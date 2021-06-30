@@ -854,7 +854,7 @@ YAF_STARTUP_FUNCTION(controller) {
 	memcpy(&yaf_controller_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_controller_obj_handlers.offset = XtOffsetOf(yaf_controller_object, std);
 	yaf_controller_obj_handlers.clone_obj = NULL;
-	yaf_controller_obj_handlers.get_gc = NULL;
+	yaf_controller_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_controller_obj_handlers.free_obj = yaf_controller_object_free;
 	yaf_controller_obj_handlers.get_properties = yaf_controller_get_properties;
 	yaf_controller_obj_handlers.read_property = (zend_object_read_property_t)yaf_controller_read_property;

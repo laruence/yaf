@@ -432,7 +432,7 @@ YAF_STARTUP_FUNCTION(router) {
 	memcpy(&yaf_router_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_router_obj_handlers.offset = XtOffsetOf(yaf_router_object, std);
 	yaf_router_obj_handlers.clone_obj = NULL;
-	yaf_router_obj_handlers.get_gc = NULL;
+	yaf_router_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_router_obj_handlers.free_obj = yaf_router_object_free;
 	yaf_router_obj_handlers.get_properties = yaf_router_get_properties;
 

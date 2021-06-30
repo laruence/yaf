@@ -350,7 +350,7 @@ YAF_STARTUP_FUNCTION(session) {
 	yaf_session_obj_handlers.offset = XtOffsetOf(yaf_session_object, std);
 	yaf_session_obj_handlers.free_obj = yaf_session_object_free;
 	yaf_session_obj_handlers.clone_obj = NULL;
-	yaf_session_obj_handlers.get_gc = NULL;
+	yaf_session_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_session_obj_handlers.get_properties = yaf_session_get_properties;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
