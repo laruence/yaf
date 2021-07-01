@@ -28,22 +28,22 @@ environment:
         - PHP_VER: 8.0.0
           ARCH: x64
           TS: 1
-          VC: vc15
+          VC: vc16
           APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
         - PHP_VER: 8.0.0
           ARCH: x64
           TS: 0
-          VC: vc15
+          VC: vc16
           APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
         - PHP_VER: 8.0.0
           ARCH: x86
           TS: 1
-          VC: vc15
+          VC: vc16
           APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
         - PHP_VER: 8.0.0
           ARCH: x86
           TS: 0
-          VC: vc15
+          VC: vc16
           APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
         - PHP_VER: 7.4.0
           ARCH: x64
