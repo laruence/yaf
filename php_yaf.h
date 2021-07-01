@@ -44,7 +44,7 @@ extern zend_module_entry yaf_module_entry;
 # define ZEND_ACC_DTOR	0x0
 #endif
 
-#define PHP_YAF_VERSION 					"3.3.3"
+#define PHP_YAF_VERSION 					"3.3.4-dev"
 
 #define YAF_STARTUP_FUNCTION(module)   	ZEND_MINIT_FUNCTION(yaf_##module)
 #define YAF_RINIT_FUNCTION(module)		ZEND_RINIT_FUNCTION(yaf_##module)
