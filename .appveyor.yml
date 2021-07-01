@@ -29,22 +29,22 @@ environment:
           ARCH: x64
           TS: 1
           VC: vs16
-          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
         - PHP_VER: 8.0.0
           ARCH: x64
           TS: 0
           VC: vs16
-          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
         - PHP_VER: 8.0.0
           ARCH: x86
           TS: 1
           VC: vs16
-          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
         - PHP_VER: 8.0.0
           ARCH: x86
           TS: 0
           VC: vs16
-          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
         - PHP_VER: 7.4.0
           ARCH: x64
           TS: 1
