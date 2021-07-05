@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  php-7.0-zts:
+  php-70-zts:
     name: "PHP-7.0-ZTS"
     env:
       PHP: "7.0"
