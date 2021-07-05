@@ -1,27 +1,41 @@
 name: integrate
-
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  php-7.0-zts:
+    name: "PHP-7.0-ZTS"
     env:
-        TEST_PHP_ARGS : "--show-diff"
-
+      PHP: "7.0"
+      enable_debug: "yes"
+      enable_maintainer_zts: "yes"
+      enable_session: "yes"
+      TEST_PHP_ARGS : "--show-diff"
+    runs-on: ubuntu-20.04
     steps:
-      #https://github.com/actions/checkout
-    - uses: actions/checkout@v2
-    - name: autoconf
-      run: phpize
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make test
-      run: make test
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install
+        run: |
+          sudo apt-get install -y \
+            php-cli \
+            php-pear \
+            re2c
+      - name: Prepare
+        run: |
+            phpize
+      - name: Build
+        run: |
+            ./confgiure
+      - name: Make
+        run: |
+            make
+      - name: Test
+        run: |
+            make test
 
