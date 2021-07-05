@@ -31,7 +31,7 @@ jobs:
             phpize
       - name: Build
         run: |
-            ./confgiure
+            ./configure
       - name: Make
         run: |
             make
