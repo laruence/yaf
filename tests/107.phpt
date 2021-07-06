@@ -1,7 +1,10 @@
 --TEST--
 Check for Yaf_Dispatcher::setRespone
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php 
+if (!extension_loaded("json")) die("skip, json required");
+if (!extension_loaded("yaf")) die("skip");
+ ?>
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
