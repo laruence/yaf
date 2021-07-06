@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
-        ZTS: ["no"]
         include:
           - PHP: "8.0"
             ZTS: "yes"
@@ -26,10 +25,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Setup
         uses: shivammathur/setup-php@v2
         with:
-          php-version: $ {{ matrix.PHP }}
+          php-version: ${{ matrix.PHP }}
       - name: Install
         run: |
           sudo apt-get install -y \
