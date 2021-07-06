@@ -12,10 +12,10 @@ jobs:
     strategy:
       matrix:
         PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
-        OS: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        OS: ["ubuntu-latest"]
         include:
           - PHP: "8.0"
-            ZTS: "yes"
+            OS: "macos-latest"
     env:
       GITHUB: "yes"
       enable_debug: "yes"
@@ -32,6 +32,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.PHP }}
+      - name: Install
+        run: |
+          sudo apt-get install -y re2c
       - name: Prepare
         run: |
             phpize
