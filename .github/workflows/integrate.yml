@@ -17,10 +17,8 @@ jobs:
           - PHP: "8.0"
             ZTS: "yes"
     env:
-      PHP: $ {{ matrix.PHP }}
       GITHUB: "yes"
       enable_debug: "yes"
-      enable_maintainer_zts: $ {{ matrix.ZTS }}
       enable_session: "yes"
       TEST_PHP_ARGS : "--show-diff"
       REPORT_EXIT_STATUS: "yes"
@@ -29,7 +27,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - uses: nanasess/setup-php@master
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: $ {{ matrix.PHP }}
       - name: Install
