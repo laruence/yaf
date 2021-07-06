@@ -2,7 +2,7 @@
 Check for auto response with ErrorController
 --SKIPIF--
 <?php 
-if (!extension_loaded("json")) die("json required, skip");
+if (!extension_loaded("json")) die("skip, json required");
 if (!extension_loaded("yaf")) die("skip");
  ?>
 --INI--
