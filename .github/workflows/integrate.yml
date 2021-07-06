@@ -26,12 +26,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-          with:
-            submodules: true
+        with:
+          submodules: true
       - name: Setup
         uses: shivammathur/setup-php@v2
-          with:
-            php-version: $ {{ matrix.PHP }}
+        with:
+          php-version: $ {{ matrix.PHP }}
       - name: Install
         run: |
           sudo apt-get install -y \
