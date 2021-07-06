@@ -1,21 +1,30 @@
 name: integrate
 on:
-  workflow_dispatch:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  php-70-NTS:
-    name: "PHP-7.0"
+  matrix:
+    name: "PHP"
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        ZTS: ["no"]
+        include:
+          - PHP: "8.0"
+            ZTS: "yes"
     env:
-      PHP: "7.0"
+      PHP: $ {{ matrix.PHP }}
+      GITHUB: "yes"
       enable_debug: "yes"
-      enable_maintainer_zts: "no"
+      enable_maintainer_zts: $ {{ matrix.ZTS }}
       enable_session: "yes"
       TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
+      REPORT_EXIT_STATUS: "yes"
+      NO_INTERACTION: "yes"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -38,190 +47,3 @@ jobs:
       - name: Test
         run: |
             make test
-  php-71-NTS:
-    name: "PHP-7.1"
-    env:
-      PHP: "7.1"
-      enable_debug: "yes"
-      enable_maintainer_zts: "no"
-      enable_session: "yes"
-      TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Install
-        run: |
-          sudo apt-get install -y \
-            php-cli \
-            php-pear \
-            re2c
-      - name: Prepare
-        run: |
-            phpize
-      - name: Build
-        run: |
-            ./configure
-      - name: Make
-        run: |
-            make
-      - name: Test
-        run: |
-            make test
-  php-72-NTS:
-    name: "PHP-7.2"
-    env:
-      PHP: "7.2"
-      enable_debug: "yes"
-      enable_maintainer_zts: "no"
-      enable_session: "yes"
-      TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Install
-        run: |
-          sudo apt-get install -y \
-            php-cli \
-            php-pear \
-            re2c
-      - name: Prepare
-        run: |
-            phpize
-      - name: Build
-        run: |
-            ./configure
-      - name: Make
-        run: |
-            make
-      - name: Test
-        run: |
-            make test
-  php-73-NTS:
-    name: "PHP-7.3"
-    env:
-      PHP: "7.3"
-      enable_debug: "yes"
-      enable_maintainer_zts: "no"
-      enable_session: "yes"
-      TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Install
-        run: |
-          sudo apt-get install -y \
-            php-cli \
-            php-pear \
-            re2c
-      - name: Prepare
-        run: |
-            phpize
-      - name: Build
-        run: |
-            ./configure
-      - name: Make
-        run: |
-            make
-      - name: Test
-        run: |
-            make test
-  php-74-NTS:
-    name: "PHP-7.4"
-    env:
-      PHP: "7.4"
-      enable_debug: "yes"
-      enable_maintainer_zts: "no"
-      enable_session: "yes"
-      TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Install
-        run: |
-          sudo apt-get install -y \
-            php-cli \
-            php-pear \
-            re2c
-      - name: Prepare
-        run: |
-            phpize
-      - name: Build
-        run: |
-            ./configure
-      - name: Make
-        run: |
-            make
-      - name: Test
-        run: |
-            make test
-  php-80-NTS:
-    name: "PHP-8.0"
-    env:
-      PHP: "8.0"
-      enable_debug: "yes"
-      enable_maintainer_zts: "no"
-      enable_session: "yes"
-      TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Install
-        run: |
-          sudo apt-get install -y \
-            php-cli \
-            php-pear \
-            re2c
-      - name: Prepare
-        run: |
-            phpize
-      - name: Build
-        run: |
-            ./configure
-      - name: Make
-        run: |
-            make
-      - name: Test
-        run: |
-            make test
-  php-80-ZTS:
-    name: "PHP-8.0-ZTS"
-    env:
-      PHP: "8.0"
-      enable_debug: "yes"
-      enable_maintainer_zts: "yes"
-      enable_session: "yes"
-      TEST_PHP_ARGS : "--show-diff"
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Install
-        run: |
-          sudo apt-get install -y \
-            php-cli \
-            php-pear \
-            re2c
-      - name: Prepare
-        run: |
-            phpize
-      - name: Build
-        run: |
-            ./configure
-      - name: Make
-        run: |
-            make
-      - name: Test
-        run: |
-            make test
-
