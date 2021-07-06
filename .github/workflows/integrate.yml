@@ -14,8 +14,9 @@ jobs:
         PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
         OS: ["ubuntu-latest"]
         include:
-          - PHP: "8.0"
-            OS: "macos-latest"
+          - PHP: "8.1"
+            OS: "ubuntu-latest"
+            ZTS: true
     env:
       GITHUB: "yes"
       enable_debug: "yes"
