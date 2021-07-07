@@ -5,6 +5,8 @@ Check for Yaf_Dispatcher::setRespone
 if (!extension_loaded("json")) die("skip, json required");
 if (!extension_loaded("yaf")) die("skip");
  ?>
+--EXTENSIONS--
+json
 --INI--
 yaf.use_spl_autoload=0
 yaf.lowcase_path=0
