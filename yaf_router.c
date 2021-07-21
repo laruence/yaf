@@ -424,10 +424,14 @@ YAF_STARTUP_FUNCTION(router) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Router", "Yaf\\Router", yaf_router_methods);
 	yaf_router_ce = zend_register_internal_class_ex(&ce, NULL);
-	yaf_router_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_router_ce->create_object = yaf_router_new;
+#if PHP_VERSION_ID < 80100
+	yaf_router_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_router_ce->serialize = zend_class_serialize_deny;
 	yaf_router_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_router_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_router_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_router_obj_handlers.offset = XtOffsetOf(yaf_router_object, std);

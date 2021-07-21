@@ -466,9 +466,13 @@ YAF_STARTUP_FUNCTION(route_regex) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Regex", "Yaf\\Route\\Regex", yaf_route_regex_methods);
 	yaf_route_regex_ce = zend_register_internal_class(&ce);
 	yaf_route_regex_ce->create_object = yaf_route_regex_new;
+#if PHP_VERSION_ID < 80100
 	yaf_route_regex_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_route_regex_ce->serialize = zend_class_serialize_deny;
 	yaf_route_regex_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_route_regex_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	zend_class_implements(yaf_route_regex_ce, 1, yaf_route_ce);
 

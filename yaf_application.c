@@ -1084,10 +1084,14 @@ YAF_STARTUP_FUNCTION(application) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Application", "Yaf\\Application", yaf_application_methods);
 
 	yaf_application_ce = zend_register_internal_class_ex(&ce, NULL);
-	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_application_ce->create_object = yaf_application_new;
+#if PHP_VERSION_ID < 80100
+	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_application_ce->serialize = zend_class_serialize_deny;
 	yaf_application_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_application_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_application_obj_handlers.offset = XtOffsetOf(yaf_application_object, std);

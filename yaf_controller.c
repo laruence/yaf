@@ -845,11 +845,14 @@ YAF_STARTUP_FUNCTION(controller) {
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Controller_Abstract", "Yaf\\Controller_Abstract", yaf_controller_methods);
 	yaf_controller_ce = zend_register_internal_class_ex(&ce, NULL);
-	yaf_controller_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-
 	yaf_controller_ce->create_object = yaf_controller_new;
+#if PHP_VERSION_ID < 80100
+	yaf_controller_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 	yaf_controller_ce->serialize = zend_class_serialize_deny;
 	yaf_controller_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_controller_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_controller_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_controller_obj_handlers.offset = XtOffsetOf(yaf_controller_object, std);

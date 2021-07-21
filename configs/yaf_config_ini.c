@@ -53,6 +53,20 @@ ZEND_BEGIN_ARG_INFO_EX(yaf_config_ini_set_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
+
+#if PHP_VERSION_ID < 80100
+#define yaf_config_ini_oget_arginfo yaf_config_ini_get_arginfo
+#define yaf_config_ini_oset_arginfo yaf_config_ini_set_arginfo
+#else
+ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_ini_oget_arginfo, 0, 1, IS_MIXED, 0)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_ini_oset_arginfo, 0, 2, IS_VOID, 0)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_TYPE_INFO(0, value, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+#endif
 /* }}} */
 
 static inline void yaf_deep_copy_section(zval *dst, zval *src) /* {{{ */ {
@@ -508,8 +522,8 @@ zend_function_entry yaf_config_ini_methods[] = {
 	PHP_ME(yaf_config_ini, get, yaf_config_ini_get_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_ini, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_ini, readonly, yaf_config_ini_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_ini, offsetGet, get, yaf_config_ini_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_ini, offsetSet, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_ini, offsetGet, get, yaf_config_ini_oget_arginfo, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_ini, offsetSet, set, yaf_config_ini_oset_arginfo, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_ini, __set, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };

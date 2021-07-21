@@ -489,10 +489,14 @@ YAF_STARTUP_FUNCTION(route_rewrite) {
 	zend_class_entry ce;
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Route_Rewrite", "Yaf\\Route\\Rewrite", yaf_route_rewrite_methods);
 	yaf_route_rewrite_ce = zend_register_internal_class_ex(&ce, NULL);
-	yaf_route_rewrite_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_route_rewrite_ce->create_object = yaf_route_rewrite_new;
+#if PHP_VERSION_ID < 80100
+	yaf_route_rewrite_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_route_rewrite_ce->serialize = zend_class_serialize_deny;
 	yaf_route_rewrite_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_route_rewrite_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	zend_class_implements(yaf_route_rewrite_ce, 1, yaf_route_ce);
 

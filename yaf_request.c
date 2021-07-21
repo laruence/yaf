@@ -1437,11 +1437,14 @@ YAF_STARTUP_FUNCTION(request){
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Request_Abstract", "Yaf\\Request_Abstract", yaf_request_methods);
 	yaf_request_ce	= zend_register_internal_class_ex(&ce, NULL);
-	yaf_request_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-
 	yaf_request_ce->create_object = yaf_request_new;
+#if PHP_VERSION_ID < 80100
+	yaf_request_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 	yaf_request_ce->serialize = zend_class_serialize_deny;
 	yaf_request_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_request_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_request_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_request_obj_handlers.offset = XtOffsetOf(yaf_request_object, std);

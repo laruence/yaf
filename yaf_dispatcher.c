@@ -1340,10 +1340,13 @@ YAF_STARTUP_FUNCTION(dispatcher) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Dispatcher", "Yaf\\Dispatcher", yaf_dispatcher_methods);
 
 	yaf_dispatcher_ce = zend_register_internal_class_ex(&ce, NULL);
+#if PHP_VERSION_ID < 80100
 	yaf_dispatcher_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_dispatcher_ce->serialize = zend_class_serialize_deny;
 	yaf_dispatcher_ce->unserialize = zend_class_unserialize_deny;
-
+#else
+	yaf_dispatcher_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 	memcpy(&yaf_dispatcher_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_dispatcher_obj_handlers.offset = XtOffsetOf(yaf_dispatcher_object, std);
 	yaf_dispatcher_obj_handlers.free_obj = yaf_dispatcher_obj_free;
