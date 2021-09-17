@@ -1052,7 +1052,7 @@ PHP_METHOD(yaf_request, getActionName) {
 */
 PHP_METHOD(yaf_request, setModuleName) {
 	zend_string *module;
-	zend_bool format_name = 1;
+	zend_bool format_name = 0;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|b", &module, &format_name) == FAILURE) {
@@ -1065,8 +1065,8 @@ PHP_METHOD(yaf_request, setModuleName) {
 		} else {
 			if (request->module) {
 				zend_string_release(request->module);
-				request->module = zend_string_copy(module);
 			}
+			request->module = zend_string_copy(module);
 		}
 	}
 
