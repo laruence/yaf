@@ -994,9 +994,13 @@ YAF_STARTUP_FUNCTION(loader) {
 
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Loader",  "Yaf\\Loader", yaf_loader_methods);
 	yaf_loader_ce = zend_register_internal_class_ex(&ce, NULL);
+#if PHP_VERSION_ID < 80100
 	yaf_loader_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_loader_ce->serialize = zend_class_serialize_deny;
 	yaf_loader_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_loader_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_loader_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_loader_obj_handlers.clone_obj = NULL;

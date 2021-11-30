@@ -233,9 +233,13 @@ YAF_STARTUP_FUNCTION(registry) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Registry", "Yaf\\Registry", yaf_registry_methods);
 
 	yaf_registry_ce = zend_register_internal_class_ex(&ce, NULL);
+#if PHP_VERSION_ID < 80100
 	yaf_registry_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_registry_ce->serialize = zend_class_serialize_deny;
 	yaf_registry_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_registry_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_registry_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_registry_obj_handlers.offset = XtOffsetOf(yaf_registry_object, std);

@@ -577,11 +577,14 @@ YAF_STARTUP_FUNCTION(response) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_Response_Abstract", "Yaf\\Response_Abstract", yaf_response_methods);
 
 	yaf_response_ce = zend_register_internal_class_ex(&ce, NULL);
-	yaf_response_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
-
 	yaf_response_ce->create_object = yaf_response_new;
+#if PHP_VERSION_ID < 80100
+	yaf_response_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 	yaf_response_ce->serialize = zend_class_serialize_deny;
 	yaf_response_ce->unserialize = zend_class_unserialize_deny;
+#else
+	yaf_response_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS | ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 
 	memcpy(&yaf_response_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 	yaf_response_obj_handlers.offset = XtOffsetOf(yaf_response_object, std);

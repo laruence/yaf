@@ -673,9 +673,12 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	YAF_INIT_CLASS_ENTRY(ce, "Yaf_View_Simple", "Yaf\\View\\Simple", yaf_view_simple_methods);
 	yaf_view_simple_ce = zend_register_internal_class_ex(&ce, NULL);
 	yaf_view_simple_ce->create_object = yaf_view_simple_new;
+#if PHP_VERSION_ID < 80100
 	yaf_view_simple_ce->serialize = zend_class_serialize_deny;
 	yaf_view_simple_ce->unserialize = zend_class_unserialize_deny;
-
+#else
+	yaf_view_simple_ce->ce_flags |= ZEND_ACC_NOT_SERIALIZABLE;
+#endif
 	zend_class_implements(yaf_view_simple_ce, 1, yaf_view_interface_ce);
 
 	memcpy(&yaf_view_simple_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
