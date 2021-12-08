@@ -50,7 +50,7 @@
 ZEND_DECLARE_MODULE_GLOBALS(yaf);
 
 zend_string **yaf_known_strings = NULL;
-const char const *yaf_known_chars[] = {
+const char *yaf_known_chars[] = {
 #define _YAF_CHARS(id, str) str,
 YAF_KNOWN_NAMES(_YAF_CHARS)
 #undef _YAF_CHARS
@@ -600,7 +600,7 @@ PHP_MSHUTDOWN_FUNCTION(yaf)
 
 	UNREGISTER_INI_ENTRIES();
 
-	for (idx; idx < sizeof(yaf_known_chars)/sizeof(char*) - 1; idx++) {
+	for (; idx < sizeof(yaf_known_chars)/sizeof(char*) - 1; idx++) {
 		free(yaf_known_strings[idx]);
 	}
 	free(yaf_known_strings);
