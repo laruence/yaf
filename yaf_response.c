@@ -39,6 +39,13 @@ static zend_object_handlers yaf_response_obj_handlers;
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_void_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
+#if PHP_VERSION_ID < 80100
+#define yaf_response_to_string_arginfo yaf_response_void_arginfo
+#else
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(yaf_response_to_string_arginfo, 0, 0, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+#endif
+
 ZEND_BEGIN_ARG_INFO_EX(yaf_response_get_body_arginfo, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
@@ -558,7 +565,7 @@ PHP_METHOD(yaf_response, __toString) {
 */
 zend_function_entry yaf_response_methods[] = {
 	PHP_ME(yaf_response, __construct, yaf_response_void_arginfo,       ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_response, __toString,  yaf_response_void_arginfo,                            ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, __toString,  yaf_response_to_string_arginfo,  ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, setBody,     yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, appendBody,  yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_response, prependBody, yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
