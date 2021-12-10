@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 9fb3504669c402c3d004d5b1beb6de2cc6f52e5c */
+ * Stub hash: 2a33bede1d9790ff5cb67c0e86f42e688930fa98 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Config_Abstract_count, 0, 0, 0)
 ZEND_END_ARG_INFO()
