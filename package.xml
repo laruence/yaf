@@ -34,37 +34,62 @@
    <file name="yaf_action.h" role="src" />
    <file name="yaf_application.c" role="src" />
    <file name="yaf_application.h" role="src" />
+   <file name="yaf_application_arginfo.h" role="src" />
+   <file name="yaf_application_legacy_arginfo.h" role="src" />
    <file name="yaf_bootstrap.c" role="src" />
    <file name="yaf_bootstrap.h" role="src" />
    <file name="yaf.c" role="src" />
    <file name="yaf_config.c" role="src" />
    <file name="yaf_config.h" role="src" />
+   <file name="yaf_config_arginfo.h" role="src" />
+   <file name="yaf_config_legacy_arginfo.h" role="src" />
    <file name="yaf_controller.c" role="src" />
    <file name="yaf_controller.h" role="src" />
+   <file name="yaf_controller_arginfo.h" role="src" />
+   <file name="yaf_controller_legacy_arginfo.h" role="src" />
    <file name="yaf_dispatcher.c" role="src" />
    <file name="yaf_dispatcher.h" role="src" />
+   <file name="yaf_dispatcher_arginfo.h" role="src" />
+   <file name="yaf_dispatcher_legacy_arginfo.h" role="src" />
    <file name="yaf.dsp" role="src" />
    <file name="yaf_exception.c" role="src" />
    <file name="yaf_exception.h" role="src" />
    <file name="yaf_loader.c" role="src" />
    <file name="yaf_loader.h" role="src" />
+   <file name="yaf_loader_arginfo.h" role="src" />
+   <file name="yaf_loader_legacy_arginfo.h" role="src" />
    <file name="yaf_logo.h" role="src" />
    <file name="yaf_namespace.h" role="src" />
    <file name="yaf.php" role="src" />
    <file name="yaf_plugin.c" role="src" />
    <file name="yaf_plugin.h" role="src" />
+   <file name="yaf_plugin_arginfo.h" role="src" />
    <file name="yaf_registry.c" role="src" />
    <file name="yaf_registry.h" role="src" />
+   <file name="yaf_registry_arginfo.h" role="src" />
+   <file name="yaf_registry_legacy_arginfo.h" role="src" />
    <file name="yaf_request.c" role="src" />
    <file name="yaf_request.h" role="src" />
+   <file name="yaf_request_arginfo.h" role="src" />
+   <file name="yaf_request_legacy_arginfo.h" role="src" />
    <file name="yaf_response.c" role="src" />
    <file name="yaf_response.h" role="src" />
+   <file name="yaf_response_arginfo.h" role="src" />
+   <file name="yaf_response_legacy_arginfo.h" role="src" />
    <file name="yaf_router.c" role="src" />
    <file name="yaf_router.h" role="src" />
+   <file name="yaf_router_arginfo.h" role="src" />
+   <file name="yaf_router_legacy_arginfo.h" role="src" />
    <file name="yaf_session.c" role="src" />
    <file name="yaf_session.h" role="src" />
+   <file name="yaf_session_arginfo.h" role="src" />
+   <file name="yaf_session_legacy_arginfo.h" role="src" />
    <file name="yaf_view.c" role="src" />
    <file name="yaf_view.h" role="src" />
+   <file name="yaf_view_arginfo.h" role="src" />
+   <file name="yaf_view_legacy_arginfo.h" role="src" />
+   <file name="yaf_route_arginfo.h" role="src" />
+   <file name="yaf_route_legacy_arginfo.h" role="src" />
    <dir name="configs">
     <file name="yaf_config_ini.c" role="src" />
     <file name="yaf_config_ini.h" role="src" />
@@ -232,8 +257,10 @@
     <file name="issue163.phpt" role="test" />
     <file name="issue231.phpt" role="test" />
     <file name="issue232.phpt" role="test" />
+    <file name="issue297.phpt" role="test" />
     <file name="issue303.phpt" role="test" />
     <file name="issue311.phpt" role="test" />
+    <file name="issue415.phpt" role="test" />
     <file name="issue420.phpt" role="test" />
     <file name="issue468.phpt" role="test" />
     <file name="issue469.phpt" role="test" />
