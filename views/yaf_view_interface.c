@@ -26,6 +26,12 @@
 #include "yaf_loader.h"
 #include "yaf_view.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_view_arginfo.h"
+#else
+#include "yaf_view_legacy_arginfo.h"
+#endif
+
 #include "views/yaf_view_interface.h"
 
 zend_class_entry *yaf_view_interface_ce;
@@ -33,11 +39,11 @@ zend_class_entry *yaf_view_interface_ce;
 /** {{{ yaf_view_interface_methods
  */
 zend_function_entry yaf_view_interface_methods[] = {
-	ZEND_ABSTRACT_ME(yaf_view, assign,  yaf_view_assign_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, display, yaf_view_display_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, render, yaf_view_render_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, setScriptPath, yaf_view_setpath_arginfo)
-	ZEND_ABSTRACT_ME(yaf_view, getScriptPath, yaf_view_getpath_arginfo)
+	ZEND_ABSTRACT_ME(yaf_view, assign, arginfo_class_Yaf_View_Interface_assign)
+	ZEND_ABSTRACT_ME(yaf_view, display, arginfo_class_Yaf_View_Interface_display)
+	ZEND_ABSTRACT_ME(yaf_view, render, arginfo_class_Yaf_View_Interface_render)
+	ZEND_ABSTRACT_ME(yaf_view, setScriptPath, arginfo_class_Yaf_View_Interface_setScriptPath)
+	ZEND_ABSTRACT_ME(yaf_view, getScriptPath, arginfo_class_Yaf_View_Interface_getScriptPath)
 	{NULL, NULL, NULL}
 };
 /* }}} */

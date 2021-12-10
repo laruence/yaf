@@ -124,12 +124,6 @@ int yaf_view_render(yaf_view_t *view, zend_string *script, zval *var_array, zval
 /** {{{ YAF_STARTUP_FUNCTION
 */
 YAF_STARTUP_FUNCTION(view) {
-	/* tricky way to supress warning "defined but not used" */
-	(void)yaf_view_assign_arginfo;
-	(void)yaf_view_display_arginfo;
-	(void)yaf_view_render_arginfo;
-	(void)yaf_view_getpath_arginfo;
-	(void)yaf_view_setpath_arginfo;
 
 	YAF_STARTUP(view_interface);
 	YAF_STARTUP(view_simple);

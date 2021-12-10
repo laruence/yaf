@@ -26,34 +26,15 @@
 #include "yaf_response.h"
 #include "yaf_exception.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_response_arginfo.h"
+#else
+#include "yaf_response_legacy_arginfo.h"
+#endif
+
 #include "responses/yaf_response_http.h"
 
 zend_class_entry *yaf_response_http_ce;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_http_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_http_set_header_arginfo, 0, 0, 2)
-  ZEND_ARG_INFO(0, name)
-  ZEND_ARG_INFO(0, value)
-  ZEND_ARG_INFO(0, rep)
-  ZEND_ARG_INFO(0, response_code)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_http_get_header_arginfo, 0, 0, 0)
-  ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_http_set_all_headers_arginfo, 0, 0, 1)
-  ZEND_ARG_INFO(0, headers)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_http_set_redirect_arginfo, 0, 0, 1)
-  ZEND_ARG_INFO(0, url)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 zval *yaf_response_get_header(yaf_response_object *response, zend_string *name) /* {{{ */ {
 	if (response->header) {
@@ -222,7 +203,7 @@ PHP_METHOD(yaf_response_http, setAllHeaders) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Response_Http::getHeader(void)
+/** {{{ proto public Yaf_Response_Http::getHeader(string $name = NULL)
 */
 PHP_METHOD(yaf_response_http, getHeader) {
 	zval *header;
@@ -297,12 +278,12 @@ PHP_METHOD(yaf_response_http, response) {
 /** {{{ yaf_response_methods
 */
 zend_function_entry yaf_response_http_methods[] = {
-	PHP_ME(yaf_response_http, setHeader,     yaf_response_http_set_header_arginfo,        ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response_http, setAllHeaders, yaf_response_http_set_all_headers_arginfo,   ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response_http, getHeader,     yaf_response_http_get_header_arginfo,        ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response_http, clearHeaders,  yaf_response_http_void_arginfo,     ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response_http, setRedirect,   yaf_response_http_set_redirect_arginfo,      ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response_http, response,      yaf_response_http_void_arginfo,              ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response_http, setHeader, arginfo_class_Yaf_Response_Http_setHeader, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response_http, setAllHeaders, arginfo_class_Yaf_Response_Http_setAllHeaders, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response_http, getHeader, arginfo_class_Yaf_Response_Http_getHeader, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response_http, clearHeaders, arginfo_class_Yaf_Response_Http_clearHeaders, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response_http, setRedirect, arginfo_class_Yaf_Response_Http_setRedirect, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response_http, response, arginfo_class_Yaf_Response_Http_response, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

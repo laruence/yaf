@@ -20,7 +20,7 @@ class myRoute implements Yaf_Route_Interface {
 		return $switch;
 	}
 
-	public function assemble(array $info, array $verify = NULL) {
+	public function assemble($info, $verify = NULL) {
 	}
 }
 

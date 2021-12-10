@@ -17,9 +17,6 @@
 #ifndef YAF_NAMESPACE_H
 #define YAF_NAMESPACE_H
 
-#define YAF_BEGIN_ARG_INFO     ZEND_BEGIN_ARG_INFO
-#define YAF_BEGIN_ARG_INFO_EX  ZEND_BEGIN_ARG_INFO_EX
-
 #define namespace_switch(n) \
 	((yaf_is_use_namespace())? n##_ns : n)
 
@@ -29,11 +26,6 @@
 	} else { \
 		INIT_CLASS_ENTRY(ce, name, methods); \
 	}
-
-#define YAF_END_ARG_INFO    ZEND_END_ARG_INFO
-#define YAF_ARG_INFO        ZEND_ARG_INFO
-#define YAF_ARG_OBJ_INFO    ZEND_ARG_OBJ_INFO
-#define YAF_ARG_ARRAY_INFO  ZEND_ARG_ARRAY_INFO
 
 #endif	/* PHP_YAF_H */
 

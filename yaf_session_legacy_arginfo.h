@@ -1,0 +1,54 @@
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: 8fda93eab8e918e0a8184604569e4a01b6f60557 */
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Session___construct, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Session_getInstance arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_start arginfo_class_Yaf_Session___construct
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Session_get, 0, 0, 0)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Session_has, 0, 0, 1)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Session_set, 0, 0, 2)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Session_del arginfo_class_Yaf_Session_has
+
+#define arginfo_class_Yaf_Session_clear arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_count arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_rewind arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_current arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_next arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_valid arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_key arginfo_class_Yaf_Session___construct
+
+#define arginfo_class_Yaf_Session_offsetGet arginfo_class_Yaf_Session_has
+
+#define arginfo_class_Yaf_Session_offsetSet arginfo_class_Yaf_Session_set
+
+#define arginfo_class_Yaf_Session_offsetUnSet arginfo_class_Yaf_Session_has
+
+#define arginfo_class_Yaf_Session_offsetExists arginfo_class_Yaf_Session_has
+
+#define arginfo_class_Yaf_Session___get arginfo_class_Yaf_Session_has
+
+#define arginfo_class_Yaf_Session___isset arginfo_class_Yaf_Session_has
+
+#define arginfo_class_Yaf_Session___set arginfo_class_Yaf_Session_set
+
+#define arginfo_class_Yaf_Session___unset arginfo_class_Yaf_Session_has

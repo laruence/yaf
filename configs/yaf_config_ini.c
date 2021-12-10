@@ -29,45 +29,17 @@
 
 #include "configs/yaf_config_ini.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_config_arginfo.h"
+#else
+#include "yaf_config_legacy_arginfo.h"
+#endif
+
 zend_class_entry *yaf_config_ini_ce;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 extern PHPAPI zend_class_entry *spl_ce_Countable;
 #endif
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_ini_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_ini_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, config_file)
-	ZEND_ARG_INFO(0, section)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_ini_get_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_ini_set_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-#if PHP_VERSION_ID < 80100
-#define yaf_config_ini_oget_arginfo yaf_config_ini_get_arginfo
-#define yaf_config_ini_oset_arginfo yaf_config_ini_set_arginfo
-#else
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_ini_oget_arginfo, 0, 1, IS_MIXED, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_ini_oset_arginfo, 0, 2, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_TYPE_INFO(0, value, IS_MIXED, 0)
-ZEND_END_ARG_INFO()
-#endif
-/* }}} */
 
 static inline void yaf_deep_copy_section(zval *dst, zval *src) /* {{{ */ {
 	zval *pzval, *dstpzval, value;
@@ -518,13 +490,13 @@ PHP_METHOD(yaf_config_ini, readonly) {
 /** {{{ yaf_config_ini_methods
 */
 zend_function_entry yaf_config_ini_methods[] = {
-	PHP_ME(yaf_config_ini, __construct, yaf_config_ini_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_config_ini, get, yaf_config_ini_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_ini, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_ini, readonly, yaf_config_ini_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_ini, offsetGet, get, yaf_config_ini_oget_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_ini, offsetSet, set, yaf_config_ini_oset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_ini, __set, set, yaf_config_ini_set_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_ini, __construct, arginfo_class_Yaf_Config_Ini___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_config_ini, get, arginfo_class_Yaf_Config_Ini_get, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_ini, set, arginfo_class_Yaf_Config_Ini_set, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_ini, readonly, arginfo_class_Yaf_Config_Ini_readonly, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_ini, offsetGet, get, arginfo_class_Yaf_Config_Ini_offsetGet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_ini, offsetSet, set, arginfo_class_Yaf_Config_Ini_offsetSet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_ini, __set, set, arginfo_class_Yaf_Config_Ini___set, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 

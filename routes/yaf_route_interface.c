@@ -27,6 +27,12 @@
 #include "yaf_exception.h"
 #include "yaf_router.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_route_arginfo.h"
+#else
+#include "yaf_route_legacy_arginfo.h"
+#endif
+
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_static.h"
 #include "routes/yaf_route_simple.h"
@@ -128,8 +134,8 @@ int yaf_route_instance(yaf_route_t *route, HashTable *config) /* {{{ */ {
 /** {{{ yaf_route_methods
  */
 zend_function_entry yaf_route_methods[] = {
-	PHP_ABSTRACT_ME(yaf_route, route, yaf_route_route_arginfo)
-	PHP_ABSTRACT_ME(yaf_route, assemble, yaf_route_assemble_arginfo)
+	PHP_ABSTRACT_ME(yaf_route, route, arginfo_class_Yaf_Route_Interface_route)
+	PHP_ABSTRACT_ME(yaf_route, assemble, arginfo_class_Yaf_Route_Interface_assemble)
     {NULL, NULL, NULL}
 };
 /* }}} */

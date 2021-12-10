@@ -1,0 +1,36 @@
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: f66e1addbc0bacfe1709bf3bde6b79445e0b4ace */
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Plugin_Abstract_routerStartup, 0, 0, 2)
+	ZEND_ARG_OBJ_INFO(0, request, Yaf_Request_Abstract, 0)
+	ZEND_ARG_OBJ_INFO(0, response, Yaf_Response_Abstract, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Plugin_Abstract_routerShutdown arginfo_class_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_Yaf_Plugin_Abstract_dispatchLoopStartup arginfo_class_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_Yaf_Plugin_Abstract_dispatchLoopShutdown arginfo_class_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_Yaf_Plugin_Abstract_preDispatch arginfo_class_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_Yaf_Plugin_Abstract_postDispatch arginfo_class_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_Yaf_Plugin_Abstract_preResponse arginfo_class_Yaf_Plugin_Abstract_routerStartup
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup, 0, 0, 2)
+	ZEND_ARG_OBJ_INFO(0, request, Yaf\\Request_Abstract, 0)
+	ZEND_ARG_OBJ_INFO(0, response, Yaf\\Response_Abstract, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_NS_Yaf_Plugin_Abstract_routerShutdown arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_NS_Yaf_Plugin_Abstract_dispatchLoopStartup arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_NS_Yaf_Plugin_Abstract_dispatchLoopShutdown arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_NS_Yaf_Plugin_Abstract_preDispatch arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_NS_Yaf_Plugin_Abstract_postDispatch arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup
+
+#define arginfo_class_NS_Yaf_Plugin_Abstract_preResponse arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup

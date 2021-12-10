@@ -1,0 +1,118 @@
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: ef6113aea8b100c9a211a3b81733b4fc4daaced0 */
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_isGet, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_isPost arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isPut arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isHead arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isOptions arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isDelete arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isPatch arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isCli arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_isXmlHttpRequest arginfo_class_Yaf_Request_Abstract_isGet
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_getServer, 0, 0, 0)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_INFO(0, default)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_getEnv arginfo_class_Yaf_Request_Abstract_getServer
+
+#define arginfo_class_Yaf_Request_Abstract_getQuery arginfo_class_Yaf_Request_Abstract_getServer
+
+#define arginfo_class_Yaf_Request_Abstract_getRequest arginfo_class_Yaf_Request_Abstract_getServer
+
+#define arginfo_class_Yaf_Request_Abstract_getPost arginfo_class_Yaf_Request_Abstract_getServer
+
+#define arginfo_class_Yaf_Request_Abstract_getCookie arginfo_class_Yaf_Request_Abstract_getServer
+
+#define arginfo_class_Yaf_Request_Abstract_getFiles arginfo_class_Yaf_Request_Abstract_getServer
+
+#define arginfo_class_Yaf_Request_Abstract_getRaw arginfo_class_Yaf_Request_Abstract_isGet
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_get, 0, 0, 1)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_INFO(0, default)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_clearParams arginfo_class_Yaf_Request_Abstract_isGet
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_setParam, 0, 0, 1)
+	ZEND_ARG_INFO(0, name)
+	ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_getParam arginfo_class_Yaf_Request_Abstract_get
+
+#define arginfo_class_Yaf_Request_Abstract_getParams arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_getException arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_getModuleName arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_getControllerName arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_getActionName arginfo_class_Yaf_Request_Abstract_isGet
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_setModuleName, 0, 0, 1)
+	ZEND_ARG_INFO(0, module)
+	ZEND_ARG_INFO(0, format_name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_setControllerName, 0, 0, 1)
+	ZEND_ARG_INFO(0, controller)
+	ZEND_ARG_INFO(0, format_name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_setActionName, 0, 0, 1)
+	ZEND_ARG_INFO(0, action)
+	ZEND_ARG_INFO(0, format_name)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_getMethod arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_getLanguage arginfo_class_Yaf_Request_Abstract_isGet
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_setBaseUri, 0, 0, 1)
+	ZEND_ARG_INFO(0, uir)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_getBaseUri arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_getRequestUri arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_setRequestUri arginfo_class_Yaf_Request_Abstract_setBaseUri
+
+#define arginfo_class_Yaf_Request_Abstract_isDispatched arginfo_class_Yaf_Request_Abstract_isGet
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Abstract_setDispatched, 0, 0, 0)
+	ZEND_ARG_INFO(0, flag)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Abstract_isRouted arginfo_class_Yaf_Request_Abstract_isGet
+
+#define arginfo_class_Yaf_Request_Abstract_setRouted arginfo_class_Yaf_Request_Abstract_setDispatched
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Http___construct, 0, 0, 0)
+	ZEND_ARG_INFO(0, requestUri)
+	ZEND_ARG_INFO(0, baseUri)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Request_Simple___construct, 0, 0, 0)
+	ZEND_ARG_INFO(0, method)
+	ZEND_ARG_INFO(0, module)
+	ZEND_ARG_INFO(0, controller)
+	ZEND_ARG_INFO(0, action)
+	ZEND_ARG_INFO(0, params)
+ZEND_END_ARG_INFO()
+
+#define arginfo_class_Yaf_Request_Simple_isXmlHttpRequest arginfo_class_Yaf_Request_Abstract_isGet

@@ -34,54 +34,14 @@
 #include "yaf_controller.h"
 #include "yaf_action.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_controller_arginfo.h"
+#else
+#include "yaf_controller_legacy_arginfo.h"
+#endif
+
 zend_class_entry *yaf_controller_ce;
 static zend_object_handlers yaf_controller_obj_handlers;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_ctor_arginfo, 0, 0, 3)
-    ZEND_ARG_INFO(0, request)
-    ZEND_ARG_INFO(0, response)
-    ZEND_ARG_INFO(0, view)
-    ZEND_ARG_ARRAY_INFO(0, args, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_initview_arginfo, 0, 0, 0)
-    ZEND_ARG_ARRAY_INFO(0, options, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_getiarg_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_setvdir_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, view_directory)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_forward_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, module)
-    ZEND_ARG_INFO(0, controller)
-    ZEND_ARG_INFO(0, action)
-    ZEND_ARG_ARRAY_INFO(0, parameters, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_redirect_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, url)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_render_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, tpl)
-    ZEND_ARG_ARRAY_INFO(0, parameters, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_controller_display_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, tpl)
-    ZEND_ARG_ARRAY_INFO(0, parameters, 1)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static void yaf_controller_sanitize_view_path(zend_string *path) /* {{{ */ {
 	yaf_replace_chr(ZSTR_VAL(path), ZSTR_LEN(path), '_', DEFAULT_SLASH);
@@ -524,6 +484,10 @@ PHP_METHOD(yaf_controller, __construct) {
 	zend_class_entry *ce = Z_OBJCE_P(getThis());
 	yaf_application_object *app = yaf_application_instance();
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
 	if (app == NULL) {
 		zend_throw_exception_ex(NULL, 0,
 			"Cannot construct '%s' while no '%s' initialized", ZSTR_VAL(ce->name), ZSTR_VAL(yaf_application_ce->name));
@@ -587,10 +551,10 @@ PHP_METHOD(yaf_controller, getResponse) {
 /** {{{ proto public Yaf_Controller_Abstract::initView(array $options = NULL)
 */
 PHP_METHOD(yaf_controller, initView) {
-	zval *args;
+	zval *args = NULL;
 	yaf_controller_object *ctl = Z_YAFCTLOBJ_P(getThis());
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a", &args) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|a", &args) == FAILURE) {
 		return;
 	}
 
@@ -820,22 +784,22 @@ PHP_METHOD(yaf_controller, display) {
 /** {{{ yaf_controller_methods
 */
 zend_function_entry yaf_controller_methods[] = {
-	PHP_ME(yaf_controller, __construct,	yaf_controller_ctor_arginfo,    ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_controller, render,	    yaf_controller_render_arginfo, 	ZEND_ACC_PROTECTED)
-	PHP_ME(yaf_controller, display,	    yaf_controller_display_arginfo, ZEND_ACC_PROTECTED)
-	PHP_ME(yaf_controller, getRequest,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getResponse,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getView, 	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getName,     yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getModuleName,yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, initView,	yaf_controller_initview_arginfo,ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, setViewpath,	yaf_controller_setvdir_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getViewpath,	yaf_controller_void_arginfo, 	ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, forward,	   	yaf_controller_forward_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, redirect,    yaf_controller_redirect_arginfo,ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getInvokeArgs,yaf_controller_void_arginfo,   ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_controller, getInvokeArg, yaf_controller_getiarg_arginfo,ZEND_ACC_PUBLIC)
-	{NULL, NULL, NULL}
+    PHP_ME(yaf_controller, __construct, arginfo_class_Yaf_Controller_Abstract___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+    PHP_ME(yaf_controller, render, arginfo_class_Yaf_Controller_Abstract_render, ZEND_ACC_PROTECTED)
+    PHP_ME(yaf_controller, display, arginfo_class_Yaf_Controller_Abstract_display, ZEND_ACC_PROTECTED)
+    PHP_ME(yaf_controller, getRequest, arginfo_class_Yaf_Controller_Abstract_getRequest, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getResponse, arginfo_class_Yaf_Controller_Abstract_getResponse, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getView, arginfo_class_Yaf_Controller_Abstract_getView, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getName, arginfo_class_Yaf_Controller_Abstract_getName, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getModuleName, arginfo_class_Yaf_Controller_Abstract_getModuleName, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, initView, arginfo_class_Yaf_Controller_Abstract_initView, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, setViewpath, arginfo_class_Yaf_Controller_Abstract_setViewpath, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getViewpath, arginfo_class_Yaf_Controller_Abstract_getViewpath, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, forward, arginfo_class_Yaf_Controller_Abstract_forward, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, redirect, arginfo_class_Yaf_Controller_Abstract_redirect, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getInvokeArgs, arginfo_class_Yaf_Controller_Abstract_getInvokeArgs, ZEND_ACC_PUBLIC)
+    PHP_ME(yaf_controller, getInvokeArg, arginfo_class_Yaf_Controller_Abstract_getInvokeArg, ZEND_ACC_PUBLIC)
+    {NULL, NULL, NULL}
 };
 /* }}} */
 

@@ -29,6 +29,12 @@
 #include "yaf_router.h"
 #include "yaf_config.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_router_arginfo.h"
+#else
+#include "yaf_router_legacy_arginfo.h"
+#endif
+
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_static.h"
 #include "routes/yaf_route_map.h"
@@ -39,29 +45,6 @@
 
 zend_class_entry *yaf_router_ce;
 static zend_object_handlers yaf_router_obj_handlers;
-
-/** {{{ ARG_INFO
-*/
-ZEND_BEGIN_ARG_INFO_EX(yaf_router_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_router_name_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_router_route_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, request)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_router_add_route_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, route)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_router_add_config_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, config)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static zend_object *yaf_router_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_router_object *router = emalloc(sizeof(yaf_router_object) + zend_object_properties_size(yaf_router_ce));
@@ -406,13 +389,13 @@ PHP_METHOD(yaf_router, getCurrentRoute) {
 /** {{{ yaf_router_methods
  */
 zend_function_entry yaf_router_methods[] = {
-	PHP_ME(yaf_router, __construct,	yaf_router_void_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-	PHP_ME(yaf_router, addRoute,  	yaf_router_add_route_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, addConfig, 	yaf_router_add_config_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, route,		yaf_router_route_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, getRoute,  	yaf_router_name_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, getRoutes,   yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_router, getCurrentRoute,	yaf_router_void_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, __construct, arginfo_class_Yaf_Router___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_router, addRoute, arginfo_class_Yaf_Router_addRoute, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, addConfig, arginfo_class_Yaf_Router_addConfig, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, route, arginfo_class_Yaf_Router_route, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, getRoute, arginfo_class_Yaf_Router_getRoute, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, getRoutes, arginfo_class_Yaf_Router_getRoutes, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_router, getCurrentRoute, arginfo_class_Yaf_Router_getCurrentRoute, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

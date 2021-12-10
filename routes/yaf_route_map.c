@@ -27,20 +27,18 @@
 #include "yaf_exception.h"
 #include "yaf_request.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_route_arginfo.h"
+#else
+#include "yaf_route_legacy_arginfo.h"
+#endif
+
 #include "yaf_router.h"
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_map.h"
 
 zend_class_entry *yaf_route_map_ce;
 static zend_object_handlers yaf_route_map_obj_handlers;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_route_map_construct_arginfo, 0, 0, 0)
-    ZEND_ARG_INFO(0, controller_prefer)
-	ZEND_ARG_INFO(0, delimiter)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static HashTable *yaf_route_map_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
@@ -348,9 +346,9 @@ PHP_METHOD(yaf_route_map, assemble) {
 /** {{{ yaf_route_map_methods
 */
 zend_function_entry yaf_route_map_methods[] = {
-	PHP_ME(yaf_route_map, __construct, yaf_route_map_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_route_map, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_route_map, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_map, __construct, arginfo_class_Yaf_Route_Map___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_route_map, route, arginfo_class_Yaf_Route_Map_route, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_map, assemble, arginfo_class_Yaf_Route_Map_assemble, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

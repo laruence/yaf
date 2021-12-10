@@ -29,40 +29,17 @@
 #include "yaf_request.h"
 #include "yaf_view.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_view_arginfo.h"
+#else
+#include "yaf_view_legacy_arginfo.h"
+#endif
+
 #include "views/yaf_view_interface.h"
 #include "views/yaf_view_simple.h"
 
 zend_class_entry *yaf_view_simple_ce;
 static zend_object_handlers yaf_view_simple_obj_handlers;
-
-/** {{{ ARG_INFO */
-ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, template_dir)
-	ZEND_ARG_ARRAY_INFO(0, options, 1)
-ZEND_END_ARG_INFO();
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_get_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_isset_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO();
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_assign_by_ref_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(1, value)
-ZEND_END_ARG_INFO();
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_eval_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, tpl_str)
-	ZEND_ARG_INFO(0, vars)
-ZEND_END_ARG_INFO();
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_view_simple_clear_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO();
-/* }}} */
 
 static HashTable *yaf_view_simple_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
@@ -649,18 +626,18 @@ PHP_METHOD(yaf_view_simple, clear) {
 /** {{{ yaf_view_simple_methods
 */
 zend_function_entry yaf_view_simple_methods[] = {
-	PHP_ME(yaf_view_simple, __construct, yaf_view_simple_construct_arginfo, ZEND_ACC_CTOR|ZEND_ACC_FINAL|ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, get, yaf_view_simple_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, assign, yaf_view_assign_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, render, yaf_view_render_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, eval,  yaf_view_simple_eval_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, display, yaf_view_display_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, assignRef, yaf_view_simple_assign_by_ref_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, clear, yaf_view_simple_clear_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, setScriptPath, yaf_view_setpath_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_view_simple, getScriptPath, yaf_view_getpath_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_view_simple, __get, get, yaf_view_simple_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_view_simple, __set, assign, yaf_view_assign_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, __construct, arginfo_class_Yaf_View_Simple___construct, ZEND_ACC_CTOR|ZEND_ACC_FINAL|ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, get, arginfo_class_Yaf_View_Simple_get, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, assign, arginfo_class_Yaf_View_Simple_assign, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, render, arginfo_class_Yaf_View_Simple_render, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, eval, arginfo_class_Yaf_View_Simple_eval, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, display, arginfo_class_Yaf_View_Simple_display, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, assignRef, arginfo_class_Yaf_View_Simple_assignRef, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, clear, arginfo_class_Yaf_View_Simple_clear, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, setScriptPath, arginfo_class_Yaf_View_Simple_setScriptPath, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, getScriptPath, arginfo_class_Yaf_View_Simple_getScriptPath, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_view_simple, __get, get, arginfo_class_Yaf_View_Simple___get, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_view_simple, __set, assign, arginfo_class_Yaf_View_Simple___set, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

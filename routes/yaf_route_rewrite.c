@@ -29,6 +29,13 @@
 #include "yaf_request.h"
 
 #include "yaf_router.h"
+
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_route_arginfo.h"
+#else
+#include "yaf_route_legacy_arginfo.h"
+#endif
+
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_rewrite.h"
 
@@ -36,19 +43,6 @@
 
 zend_class_entry *yaf_route_rewrite_ce;
 static zend_object_handlers yaf_route_rewrite_obj_handlers;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_construct_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, match)
-	ZEND_ARG_ARRAY_INFO(0, route, 0)
-	ZEND_ARG_ARRAY_INFO(0, verify, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_route_rewrite_match_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, uri)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static HashTable *yaf_route_rewrite_get_properties(yaf_object *object) /* {{{ */ {
 	zval rv;
@@ -475,10 +469,10 @@ PHP_METHOD(yaf_route_rewrite, assemble) {
 /** {{{ yaf_route_rewrite_methods
  */
 zend_function_entry yaf_route_rewrite_methods[] = {
-	PHP_ME(yaf_route_rewrite, __construct, yaf_route_rewrite_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_route_rewrite, match, yaf_route_rewrite_match_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_route_rewrite, route, yaf_route_route_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_route_rewrite, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_rewrite, __construct, arginfo_class_Yaf_Route_Rewrite___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_route_rewrite, match, arginfo_class_Yaf_Route_Rewrite_match, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_rewrite, route, arginfo_class_Yaf_Route_Rewrite_route, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_rewrite, assemble, arginfo_class_Yaf_Route_Rewrite_assemble, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 /* }}} */

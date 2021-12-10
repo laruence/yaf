@@ -34,50 +34,14 @@
 #include "yaf_bootstrap.h"
 #include "yaf_exception.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_application_arginfo.h"
+#else
+#include "yaf_application_legacy_arginfo.h"
+#endif
+
 zend_class_entry    *yaf_application_ce;
 static zend_object_handlers yaf_application_obj_handlers;
-
-/** {{{ ARG_INFO
- *  */
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, config)
-	ZEND_ARG_INFO(0, environ)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_app_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_execute_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, entry)
-	ZEND_ARG_INFO(0, ...)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_getconfig_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_getmodule_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_getdispatch_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_bootstrap_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, bootstrap)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_environ_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_run_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_application_setappdir_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, directory)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static void yaf_application_free(zend_object *object) /* {{{ */ {
 	yaf_application_object *app = yaf_application_instance();
@@ -1058,21 +1022,21 @@ PHP_METHOD(yaf_application, getAppDirectory) {
 /** {{{ yaf_application_methods
 */
 zend_function_entry yaf_application_methods[] = {
-	PHP_ME(yaf_application, __construct,         yaf_application_construct_arginfo,     ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-	PHP_ME(yaf_application, run,                 yaf_application_run_arginfo,         ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, execute,             yaf_application_execute_arginfo,     ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, app,                 yaf_application_app_arginfo,         ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	YAF_ME(yaf_application_environ, "environ",   yaf_application_environ_arginfo,     ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, bootstrap,           yaf_application_bootstrap_arginfo,      ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getConfig,           yaf_application_getconfig_arginfo,     ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getModules,          yaf_application_getmodule_arginfo,      ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getDispatcher,       yaf_application_getdispatch_arginfo,    ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, setAppDirectory,     yaf_application_setappdir_arginfo,      ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getAppDirectory,     yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getLastErrorNo,      yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, getLastErrorMsg,     yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_application, clearLastError,      yaf_application_void_arginfo,         ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_application, getInstance, app, yaf_application_app_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, __construct, arginfo_class_Yaf_Application___construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+	PHP_ME(yaf_application, run, arginfo_class_Yaf_Application_run, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, execute, arginfo_class_Yaf_Application_execute, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, app, arginfo_class_Yaf_Application_app, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	YAF_ME(yaf_application_environ, "environ", arginfo_class_Yaf_Application_environ, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, bootstrap, arginfo_class_Yaf_Application_bootstrap, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, getConfig, arginfo_class_Yaf_Application_getConfig, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, getModules, arginfo_class_Yaf_Application_getModules, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, getDispatcher, arginfo_class_Yaf_Application_getDispatcher, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, setAppDirectory, arginfo_class_Yaf_Application_setAppDirectory, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, getAppDirectory, arginfo_class_Yaf_Application_getAppDirectory, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, getLastErrorNo, arginfo_class_Yaf_Application_getLastErrorNo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, getLastErrorMsg, arginfo_class_Yaf_Application_getLastErrorMsg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_application, clearLastError, arginfo_class_Yaf_Application_clearLastError, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_application, getInstance, app, arginfo_class_Yaf_Application_app, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

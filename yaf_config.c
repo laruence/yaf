@@ -32,77 +32,17 @@
 extern PHPAPI zend_class_entry *spl_ce_Countable;
 #endif
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_config_arginfo.h"
+#else
+#include "yaf_config_legacy_arginfo.h"
+#endif
+
 #include "configs/yaf_config_ini.h"
 #include "configs/yaf_config_simple.h"
 
 zend_class_entry *yaf_config_ce;
 static zend_object_handlers yaf_config_obj_handlers;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_get_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_set_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_isset_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-#if PHP_VERSION_ID < 80100
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_unset_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-#define yaf_config_current_arginfo yaf_config_void_arginfo
-#define yaf_config_next_arginfo    yaf_config_void_arginfo
-#define yaf_config_valid_arginfo   yaf_config_void_arginfo
-#define yaf_config_key_arginfo     yaf_config_current_arginfo
-#define yaf_config_rewind_arginfo  yaf_config_void_arginfo
-#define yaf_config_exists_arginfo  yaf_config_isset_arginfo
-#define yaf_config_oget_arginfo    yaf_config_get_arginfo
-#define yaf_config_oset_arginfo    yaf_config_set_arginfo
-#define yaf_config_count_arginfo   yaf_config_void_arginfo
-#else
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(yaf_config_current_arginfo, 0, 0, IS_MIXED, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(yaf_config_next_arginfo, 0, 0, IS_VOID, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(yaf_config_valid_arginfo, 0, 0, _IS_BOOL, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_exists_arginfo, 0, 1, _IS_BOOL, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_oget_arginfo, 0, 1, IS_MIXED, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_oset_arginfo, 0, 2, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_TYPE_INFO(0, value, IS_MIXED, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_unset_arginfo, 0, 1, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_count_arginfo, 0, 0, IS_LONG, 0)
-ZEND_END_ARG_INFO()
-#define yaf_config_key_arginfo      yaf_config_current_arginfo
-#define yaf_config_rewind_arginfo   yaf_config_next_arginfo
-#endif
-/* }}} */
 
 static HashTable *yaf_config_get_gc(yaf_object *obj, zval **table, int *n) /* {{{ */ {
 	yaf_config_object *conf = php_yaf_config_fetch_object(yaf_strip_obj(obj));
@@ -429,22 +369,22 @@ PHP_METHOD(yaf_config, valid) {
 /** {{{ yaf_config_methods
 */
 zend_function_entry yaf_config_methods[] = {
-	PHP_ME(yaf_config, get, yaf_config_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, count, yaf_config_count_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, toArray, yaf_config_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, offsetUnset, yaf_config_unset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, rewind, yaf_config_rewind_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, current, yaf_config_current_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, key, yaf_config_key_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, next, yaf_config_next_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, valid, yaf_config_valid_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config, __isset, yaf_config_isset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config, __get, get, yaf_config_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config, offsetGet, get, yaf_config_oget_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config, offsetExists, __isset, yaf_config_exists_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ABSTRACT_ME(yaf_config, offsetSet, yaf_config_oset_arginfo)
-	PHP_ABSTRACT_ME(yaf_config, set, yaf_config_set_arginfo)
-	PHP_ABSTRACT_ME(yaf_config, readonly, yaf_config_void_arginfo)
+	PHP_ME(yaf_config, get, arginfo_class_Yaf_Config_Abstract_get, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, count, arginfo_class_Yaf_Config_Abstract_count, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, toArray, arginfo_class_Yaf_Config_Abstract_toArray, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, offsetUnset, arginfo_class_Yaf_Config_Abstract_offsetUnSet, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, rewind, arginfo_class_Yaf_Config_Abstract_rewind, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, current, arginfo_class_Yaf_Config_Abstract_current, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, key, arginfo_class_Yaf_Config_Abstract_key, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, next, arginfo_class_Yaf_Config_Abstract_next, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, valid, arginfo_class_Yaf_Config_Abstract_valid, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config, __isset, arginfo_class_Yaf_Config_Abstract___isset, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config, __get, get, arginfo_class_Yaf_Config_Abstract___get, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config, offsetGet, get, arginfo_class_Yaf_Config_Abstract_offsetGet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config, offsetExists, __isset, arginfo_class_Yaf_Config_Abstract_offsetExists, ZEND_ACC_PUBLIC)
+	PHP_ABSTRACT_ME(yaf_config, offsetSet, arginfo_class_Yaf_Config_Abstract_offsetSet)
+	PHP_ABSTRACT_ME(yaf_config, set, arginfo_class_Yaf_Config_Abstract_set)
+	PHP_ABSTRACT_ME(yaf_config, readonly, arginfo_class_Yaf_Config_Abstract_readonly)
 	{NULL, NULL, NULL}
 };
 /* }}} */

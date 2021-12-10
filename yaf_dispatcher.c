@@ -38,76 +38,14 @@
 #include "yaf_plugin.h"
 #include "yaf_exception.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_dispatcher_arginfo.h"
+#else
+#include "yaf_dispatcher_legacy_arginfo.h"
+#endif
+
 zend_class_entry    *yaf_dispatcher_ce;
 static zend_object_handlers yaf_dispatcher_obj_handlers;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_dispatch_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, request)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_seterrhdler_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, callback)
-	ZEND_ARG_INFO(0, error_types)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_flush_arginfo, 0, 0, 0)
-    ZEND_ARG_INFO(0, flag)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_regplugin_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, plugin)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setrequest_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, request)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setresponse_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, response)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_throwex_arginfo, 0, 0, 0)
-    ZEND_ARG_INFO(0, flag)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_catchex_arginfo, 0, 0, 0)
-    ZEND_ARG_INFO(0, flag)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_autorender_arginfo, 0, 0, 0)
-    ZEND_ARG_INFO(0, flag)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_returnresp_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, flag)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_initview_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, templates_dir)
-	ZEND_ARG_ARRAY_INFO(0, options, 1)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setview_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, view)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setctrl_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, controller)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setmodule_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, module)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_dispatcher_setaction_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, action)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static void yaf_dispatcher_obj_free(zend_object *object) /* {{{ */ {
 	yaf_dispatcher_object *dispatcher = php_yaf_dispatcher_fetch_object(object);
@@ -876,7 +814,7 @@ PHP_METHOD(yaf_dispatcher, enableView) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Dispatcher::returnResponse(bool $return_response = 1)
+/** {{{ proto public Yaf_Dispatcher::returnResponse(bool $return_response = 0)
 */
 PHP_METHOD(yaf_dispatcher, returnResponse) {
 	zend_bool return_response = 0;
@@ -899,10 +837,10 @@ PHP_METHOD(yaf_dispatcher, returnResponse) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_Dispatcher::flushInstantly(bool $flag)
+/** {{{ proto public Yaf_Dispatcher::flushInstantly(bool $flag = 1)
 */
 PHP_METHOD(yaf_dispatcher, flushInstantly) {
-	zend_bool instantly_flush;
+	zend_bool instantly_flush = 1;
 	yaf_dispatcher_object *dispatcher = Z_YAFDISPATCHEROBJ_P(getThis());
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|b", &instantly_flush) == FAILURE) {
@@ -1302,32 +1240,32 @@ PHP_METHOD(yaf_dispatcher, __construct) {
 /** {{{ yaf_dispatcher_methods
 */
 zend_function_entry yaf_dispatcher_methods[] = {
-	PHP_ME(yaf_dispatcher, __construct,          yaf_dispatcher_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-	PHP_ME(yaf_dispatcher, enableView,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, disableView,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, initView,             yaf_dispatcher_initview_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setView,              yaf_dispatcher_setview_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setRequest,           yaf_dispatcher_setrequest_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setResponse,          yaf_dispatcher_setresponse_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getApplication,       yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getRouter,            yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getResponse,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getRequest,           yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getDefaultModule,     yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getDefaultController, yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getDefaultAction,     yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setErrorHandler,      yaf_dispatcher_seterrhdler_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultModule,     yaf_dispatcher_setmodule_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultController, yaf_dispatcher_setctrl_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, setDefaultAction,     yaf_dispatcher_setaction_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, returnResponse,       yaf_dispatcher_returnresp_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, autoRender,           yaf_dispatcher_autorender_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, flushInstantly,       yaf_dispatcher_flush_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, getInstance,          yaf_dispatcher_void_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(yaf_dispatcher, dispatch,             yaf_dispatcher_dispatch_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, throwException,       yaf_dispatcher_throwex_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, catchException,       yaf_dispatcher_catchex_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_dispatcher, registerPlugin,       yaf_dispatcher_regplugin_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, __construct, arginfo_class_Yaf_Dispatcher___construct,  ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+	PHP_ME(yaf_dispatcher, enableView, arginfo_class_Yaf_Dispatcher_enableView,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, disableView, arginfo_class_Yaf_Dispatcher_disableView,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, initView, arginfo_class_Yaf_Dispatcher_initView,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setView, arginfo_class_Yaf_Dispatcher_setView,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setRequest, arginfo_class_Yaf_Dispatcher_setRequest,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setResponse, arginfo_class_Yaf_Dispatcher_setResponse,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getApplication, arginfo_class_Yaf_Dispatcher_getApplication,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getRouter, arginfo_class_Yaf_Dispatcher_getRouter,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getResponse, arginfo_class_Yaf_Dispatcher_getResponse,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getRequest, arginfo_class_Yaf_Dispatcher_getRequest,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getDefaultModule, arginfo_class_Yaf_Dispatcher_getDefaultModule,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getDefaultController, arginfo_class_Yaf_Dispatcher_getDefaultController,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getDefaultAction, arginfo_class_Yaf_Dispatcher_getDefaultAction,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setErrorHandler, arginfo_class_Yaf_Dispatcher_setErrorHandler,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultModule, arginfo_class_Yaf_Dispatcher_setDefaultModule,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultController, arginfo_class_Yaf_Dispatcher_setDefaultController,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, setDefaultAction, arginfo_class_Yaf_Dispatcher_setDefaultAction,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, returnResponse, arginfo_class_Yaf_Dispatcher_returnResponse,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, autoRender, arginfo_class_Yaf_Dispatcher_autoRender,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, flushInstantly, arginfo_class_Yaf_Dispatcher_flushInstantly,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, getInstance, arginfo_class_Yaf_Dispatcher_getInstance,  ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(yaf_dispatcher, dispatch, arginfo_class_Yaf_Dispatcher_dispatch,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, throwException, arginfo_class_Yaf_Dispatcher_throwException,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, catchException, arginfo_class_Yaf_Dispatcher_catchException,  ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_dispatcher, registerPlugin, arginfo_class_Yaf_Dispatcher_registerPlugin,  ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

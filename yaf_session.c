@@ -26,63 +26,18 @@
 #include "yaf_session.h"
 #include "yaf_exception.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_session_arginfo.h"
+#else
+#include "yaf_session_legacy_arginfo.h"
+#endif
+
 zend_class_entry *yaf_session_ce;
 static zend_object_handlers yaf_session_obj_handlers;
 
 #if defined(HAVE_SPL) && PHP_VERSION_ID < 70200
 extern PHPAPI zend_class_entry *spl_ce_Countable;
 #endif
-
-/* {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_session_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_session_get_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_session_has_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_session_del_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_session_set_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-#if PHP_VERSION_ID < 80100
-#define yaf_session_oexists_arginfo yaf_session_has_arginfo
-#define yaf_session_oget_arginfo yaf_session_get_arginfo
-#define yaf_session_oset_arginfo yaf_session_set_arginfo
-#define yaf_session_ounset_arginfo yaf_session_del_arginfo
-#define yaf_session_count_arginfo yaf_session_void_arginfo
-#else
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_session_oexists_arginfo, 0, 1, _IS_BOOL, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_session_oget_arginfo, 0, 1, IS_MIXED, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_session_oset_arginfo, 0, 2, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_TYPE_INFO(0, value, IS_MIXED, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_session_ounset_arginfo, 0, 1, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_session_count_arginfo, 0, 0, IS_LONG, 0)
-ZEND_END_ARG_INFO()
-#endif
-/* }}} */
 
 static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
 	if (session->flags & YAF_SESSION_STARTED) {
@@ -261,10 +216,10 @@ PHP_METHOD(yaf_session, get) {
 /** {{{ proto public static Yaf_Session::has($name)
 */
 PHP_METHOD(yaf_session, has) {
-	zend_string *name = NULL;
+	zend_string *name;
 	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S!", &name) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S!", &name) == FAILURE) {
 		return;
 	} 
 
@@ -339,23 +294,23 @@ PHP_METHOD(yaf_session, clear) {
 /** {{{ yaf_session_methods
 */
 zend_function_entry yaf_session_methods[] = {
-	PHP_ME(yaf_session, __construct, yaf_session_void_arginfo, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
-	PHP_ME(yaf_session, getInstance, yaf_session_void_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
-	PHP_ME(yaf_session, start, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, has, yaf_session_has_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, set, yaf_session_set_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, del, yaf_session_del_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, count, yaf_session_count_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_session, clear, yaf_session_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, offsetGet, get, yaf_session_oget_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, offsetSet, set, yaf_session_oset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, offsetExists, has, yaf_session_oexists_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, offsetUnset, del, yaf_session_ounset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, __get, get, yaf_session_get_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, __isset, has, yaf_session_has_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, __set, set, yaf_session_set_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, __unset, del, yaf_session_del_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, __construct, arginfo_class_Yaf_Session___construct, ZEND_ACC_CTOR|ZEND_ACC_PRIVATE)
+	PHP_ME(yaf_session, getInstance, arginfo_class_Yaf_Session_getInstance, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+	PHP_ME(yaf_session, start, arginfo_class_Yaf_Session_start, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, get, arginfo_class_Yaf_Session_get, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, has, arginfo_class_Yaf_Session_has, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, set, arginfo_class_Yaf_Session_set, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, del, arginfo_class_Yaf_Session_del, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, count, arginfo_class_Yaf_Session_count, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, clear, arginfo_class_Yaf_Session_clear, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, offsetGet, get, arginfo_class_Yaf_Session_offsetGet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, offsetSet, set, arginfo_class_Yaf_Session_offsetSet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, offsetExists, has, arginfo_class_Yaf_Session_offsetExists, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, offsetUnSet, del, arginfo_class_Yaf_Session_offsetUnSet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, __get, get, arginfo_class_Yaf_Session___get, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, __isset, has, arginfo_class_Yaf_Session___isset, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, __set, set, arginfo_class_Yaf_Session___set, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_session, __unset, del, arginfo_class_Yaf_Session___unset, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

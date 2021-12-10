@@ -1,0 +1,28 @@
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: 68d96eda78f44c62790e782902e75f0254491527 */
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Router___construct, 0, 0, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Yaf_Router_addRoute, 0, 2, IS_OBJECT, 1)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, route, IS_OBJECT, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_class_Yaf_Router_addConfig, 0, 1, MAY_BE_OBJECT|MAY_BE_NULL|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_MASK(0, config, MAY_BE_OBJECT|MAY_BE_ARRAY, NULL)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Yaf_Router_route, 0, 1, _IS_BOOL, 1)
+	ZEND_ARG_TYPE_INFO(0, request, IS_OBJECT, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_class_Yaf_Router_getRoute, 0, 1, MAY_BE_OBJECT|MAY_BE_NULL|MAY_BE_FALSE)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_Yaf_Router_getRoutes, 0, 0, IS_ARRAY, 1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_class_Yaf_Router_getCurrentRoute, 0, 0, MAY_BE_LONG|MAY_BE_STRING|MAY_BE_NULL)
+ZEND_END_ARG_INFO()

@@ -92,10 +92,6 @@ ZEND_COLD void yaf_throw_exception(long code, char *message) /* {{{ */ {
 /** {{{ yaf_exception_methods
 */
 zend_function_entry yaf_exception_methods[] = {
-#if ((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 3)) || (PHP_MAJOR_VERSION < 5)
-	PHP_ME(yaf_exception, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_exception, getPrevious, NULL, ZEND_ACC_PUBLIC)
-#endif
 	{NULL, NULL, NULL}
 };
 /* }}} */

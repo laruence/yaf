@@ -27,41 +27,13 @@
 
 #include "configs/yaf_config_simple.h"
 
-zend_class_entry *yaf_config_simple_ce;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_simple_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_simple_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, config)
-	ZEND_ARG_INFO(0, readonly)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_simple_set_arginfo, 0, 0, 2)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_config_simple_unset_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-#if PHP_VERSION_ID < 80100
-#define yaf_config_simple_oset_arginfo   yaf_config_simple_set_arginfo
-#define yaf_config_simple_ounset_arginfo yaf_config_simple_unset_arginfo
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_config_arginfo.h"
 #else
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_simple_oset_arginfo, 0, 2, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_TYPE_INFO(0, value, IS_MIXED, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_TENTATIVE_RETURN_TYPE_INFO_EX(yaf_config_simple_ounset_arginfo, 0, 1, IS_VOID, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
+#include "yaf_config_legacy_arginfo.h"
 #endif
-/* }}} */
+
+zend_class_entry *yaf_config_simple_ce;
 
 void yaf_config_simple_init(yaf_config_object *conf, zval *val, int readonly) /* {{{ */ {
 	if (Z_TYPE_P(val) == IS_ARRAY) {
@@ -169,12 +141,12 @@ PHP_METHOD(yaf_config_simple, offsetUnset) {
 /** {{{ yaf_config_simple_methods
 */
 zend_function_entry yaf_config_simple_methods[] = {
-	PHP_ME(yaf_config_simple,     __construct, yaf_config_simple_construct_arginfo, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_config_simple,     set, yaf_config_simple_set_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple,     readonly,	yaf_config_simple_void_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_config_simple,     offsetUnset, yaf_config_simple_ounset_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_simple, __set, set, yaf_config_simple_set_arginfo, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_simple, offsetSet, set, yaf_config_simple_oset_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, __construct, arginfo_class_Yaf_Config_Simple___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_config_simple, set, arginfo_class_Yaf_Config_Simple_set, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, readonly,	arginfo_class_Yaf_Config_Simple_readonly, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, offsetUnset, arginfo_class_Yaf_Config_Simple_offsetUnSet, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_simple, __set, set, arginfo_class_Yaf_Config_Simple___set, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_config_simple, offsetSet, set, arginfo_class_Yaf_Config_Simple_offsetSet, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

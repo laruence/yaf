@@ -17,29 +17,6 @@
 #ifndef YAF_VIEW_INTERFACE_H
 #define YAF_VIEW_INTERFACE_H
 
-YAF_BEGIN_ARG_INFO_EX(yaf_view_assign_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, name)
-	ZEND_ARG_INFO(0, value)
-YAF_END_ARG_INFO()
-
-YAF_BEGIN_ARG_INFO_EX(yaf_view_display_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, tpl)
-	ZEND_ARG_INFO(0, tpl_vars)
-YAF_END_ARG_INFO()
-
-YAF_BEGIN_ARG_INFO_EX(yaf_view_render_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, tpl)
-	ZEND_ARG_INFO(0, tpl_vars)
-YAF_END_ARG_INFO()
-
-YAF_BEGIN_ARG_INFO_EX(yaf_view_setpath_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, template_dir)
-YAF_END_ARG_INFO()
-
-YAF_BEGIN_ARG_INFO_EX(yaf_view_getpath_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, request)
-YAF_END_ARG_INFO()
-
 extern zend_class_entry *yaf_view_interface_ce;
 
 YAF_STARTUP_FUNCTION(view_interface);

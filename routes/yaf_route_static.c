@@ -28,17 +28,17 @@
 #include "yaf_request.h"
 
 #include "yaf_router.h"
+
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_route_arginfo.h"
+#else
+#include "yaf_route_legacy_arginfo.h"
+#endif
+
 #include "routes/yaf_route_interface.h"
 #include "routes/yaf_route_static.h"
 
 zend_class_entry * yaf_route_static_ce;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_route_static_match_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, uri)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static inline void yaf_route_strip_uri(const char **req_uri, size_t *req_uri_len) /* {{{ */ {
 	register const char *p = *req_uri;
@@ -272,9 +272,9 @@ PHP_METHOD(yaf_route_static, assemble) {
 /** {{{ yaf_route_static_methods
  */
 zend_function_entry yaf_route_static_methods[] = {
-	PHP_ME(yaf_route_static, match, yaf_route_static_match_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_route_static, route, yaf_route_route_arginfo, 		ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_route_static, assemble, yaf_route_assemble_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_static, match, arginfo_class_Yaf_Route_Static_match, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_static, route, arginfo_class_Yaf_Route_Static_route, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_route_static, assemble, arginfo_class_Yaf_Route_Static_assemble, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

@@ -28,30 +28,17 @@
 #include "yaf_response.h"
 #include "yaf_exception.h"
 
+#if PHP_MAJOR_VERSION > 7
+#include "yaf_response_arginfo.h"
+#else
+#include "yaf_response_legacy_arginfo.h"
+#endif
+
 #include "responses/yaf_response_http.h"
 #include "responses/yaf_response_cli.h"
 
 zend_class_entry *yaf_response_ce;
 static zend_object_handlers yaf_response_obj_handlers;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_void_arginfo, 0, 0, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_get_body_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_set_body_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, body)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(yaf_response_clear_body_arginfo, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 static HashTable *yaf_response_get_properties(yaf_object *obj) /* {{{ */ {
 	zval rv;
@@ -557,14 +544,14 @@ PHP_METHOD(yaf_response, __toString) {
 /** {{{ yaf_response_methods
 */
 zend_function_entry yaf_response_methods[] = {
-	PHP_ME(yaf_response, __construct, yaf_response_void_arginfo,       ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
-	PHP_ME(yaf_response, __toString,  yaf_response_void_arginfo,                            ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, setBody,     yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, appendBody,  yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, prependBody, yaf_response_set_body_arginfo,   ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, clearBody,   yaf_response_clear_body_arginfo, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, getBody,     yaf_response_get_body_arginfo,   ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_response, response,    yaf_response_void_arginfo,       ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, __construct, arginfo_class_Yaf_Response_Abstract___construct, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
+	PHP_ME(yaf_response, __toString, arginfo_class_Yaf_Response_Abstract___toString, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, setBody, arginfo_class_Yaf_Response_Abstract_setBody, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, appendBody, arginfo_class_Yaf_Response_Abstract_appendBody, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, prependBody, arginfo_class_Yaf_Response_Abstract_prependBody, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, clearBody, arginfo_class_Yaf_Response_Abstract_clearBody, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, getBody, arginfo_class_Yaf_Response_Abstract_getBody, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_response, response, arginfo_class_Yaf_Response_Abstract_response, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

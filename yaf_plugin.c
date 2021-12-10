@@ -24,20 +24,9 @@
 #include "yaf_namespace.h"
 #include "yaf_plugin.h"
 
+#include "yaf_plugin_arginfo.h"
+
 zend_class_entry * yaf_plugin_ce;
-
-/** {{{ ARG_INFO
- */
-ZEND_BEGIN_ARG_INFO_EX(plugin_arg, 0, 0, 2)
-	ZEND_ARG_OBJ_INFO(0, request, Yaf_Request_Abstract, 0)
-	ZEND_ARG_OBJ_INFO(0, response, Yaf_Response_Abstract, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(plugin_arg_ns, 0, 0, 2)
-	ZEND_ARG_OBJ_INFO(0, request, Yaf\\Request_Abstract, 0)
-	ZEND_ARG_OBJ_INFO(0, response, Yaf\\Response_Abstract, 0)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 /** {{{ proto public Yaf_Plugin::routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
 */
@@ -91,24 +80,24 @@ PHP_METHOD(yaf_plugin, preResponse) {
 /** {{{ yaf_plugin_methods
 */
 zend_function_entry yaf_plugin_methods[] = {
-	PHP_ME(yaf_plugin, routerStartup,        plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, routerShutdown,       plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopStartup,  plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopShutdown, plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preDispatch,          plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, postDispatch,         plugin_arg, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preResponse,          plugin_arg, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerStartup, arginfo_class_Yaf_Plugin_Abstract_routerStartup, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerShutdown, arginfo_class_Yaf_Plugin_Abstract_routerShutdown, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopStartup, arginfo_class_Yaf_Plugin_Abstract_dispatchLoopStartup, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopShutdown, arginfo_class_Yaf_Plugin_Abstract_dispatchLoopShutdown, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preDispatch, arginfo_class_Yaf_Plugin_Abstract_preDispatch, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, postDispatch, arginfo_class_Yaf_Plugin_Abstract_postDispatch, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preResponse, arginfo_class_Yaf_Plugin_Abstract_preResponse, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
 zend_function_entry yaf_plugin_methods_ns[] = {
-	PHP_ME(yaf_plugin, routerStartup,        plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, routerShutdown,       plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopStartup,  plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, dispatchLoopShutdown, plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preDispatch,          plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, postDispatch,         plugin_arg_ns, ZEND_ACC_PUBLIC)
-	PHP_ME(yaf_plugin, preResponse,          plugin_arg_ns, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerStartup, arginfo_class_NS_Yaf_Plugin_Abstract_routerStartup, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, routerShutdown, arginfo_class_NS_Yaf_Plugin_Abstract_routerShutdown, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopStartup, arginfo_class_NS_Yaf_Plugin_Abstract_dispatchLoopStartup, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, dispatchLoopShutdown, arginfo_class_NS_Yaf_Plugin_Abstract_dispatchLoopShutdown, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preDispatch, arginfo_class_NS_Yaf_Plugin_Abstract_preDispatch, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, postDispatch, arginfo_class_NS_Yaf_Plugin_Abstract_postDispatch, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_plugin, preResponse, arginfo_class_NS_Yaf_Plugin_Abstract_preResponse, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

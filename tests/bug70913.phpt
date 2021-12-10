@@ -32,6 +32,7 @@ PHP
 file_put_contents(APPLICATION_PATH . "/controllers/Second.php", <<<PHP
 <?php
    class SecondController extends Yaf_Controller_Abstract {
+		public function __construct(\$request, \$response, \$view) {}
    }
 PHP
 );
