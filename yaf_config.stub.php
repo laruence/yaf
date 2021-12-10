@@ -10,7 +10,7 @@ abstract class Yaf_Config_Abstract implements \Iterator, \Traversable, \ArrayAcc
 
 	/* methods */
 	public function count():int { }
-	public function rewind():bool { }
+	public function rewind():void { }
 	public function current():mixed { }
 	public function next():void { }
 	public function valid():bool { }
@@ -29,9 +29,9 @@ abstract class Yaf_Config_Abstract implements \Iterator, \Traversable, \ArrayAcc
     /**
      * @implementation-alias Yaf_Config_Abstract::set
      */
-	public function offsetSet(mixed $name, mixed $value):bool {}
+	public function offsetSet(mixed $name, mixed $value):void {}
 
-	public function offsetUnSet(mixed $name):bool {}
+	public function offsetUnSet(mixed $name):void {}
 
     /**
      * @implementation-alias Yaf_Config_Abstract::__isset
@@ -63,13 +63,13 @@ final class Yaf_Config_Simple extends Yaf_Config_Abstract implements \Iterator, 
 
 	public function readonly():bool {}
 
-	/* @implementation-alias Yaf_Config_Simple::get */
+	/** @implementation-alias Yaf_Config_Simple::get */
 	public function offsetGet(mixed $name):mixed {}
 
-	/* @implementation-alias Yaf_Config_Simple::__isset */
-	public function offsetSet(mixed $name, mixed $value):bool {}
+	/** @implementation-alias Yaf_Config_Simple::set */
+	public function offsetSet(mixed $name, mixed $value):void {}
 
-	public function offsetUnSet(mixed $name):bool {}
+	public function offsetUnSet(mixed $name):void {}
 }
 
 final class Yaf_Config_Ini extends Yaf_Config_Abstract implements \Iterator, \Traversable, \ArrayAccess, \Countable { 
@@ -89,9 +89,11 @@ final class Yaf_Config_Ini extends Yaf_Config_Abstract implements \Iterator, \Tr
 
 	public function readonly():bool {}
 
+	/** @implementation-alias Yaf_Config_Ini::get */
 	public function offsetGet(mixed $name):mixed {}
 
-	public function offsetSet(mixed $name, mixed $value):bool {}
+	/** @implementation-alias Yaf_Config_Ini::set */
+	public function offsetSet(mixed $name, mixed $value):void {}
 
 	public function __set(mixed $name, mixed $value):void {}
 }
