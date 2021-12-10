@@ -39,7 +39,7 @@ final class Yaf_Session implements \Iterator, \Traversable, \ArrayAccess, \Count
 	public function count():int { }
 
 	/** Iterator */
-	public function rewind():bool { }
+	public function rewind():void { }
 	public function current():mixed { }
 	public function next():void { }
 	public function valid():bool { }
@@ -54,12 +54,12 @@ final class Yaf_Session implements \Iterator, \Traversable, \ArrayAccess, \Count
     /**
      * @implementation-alias Yaf_Session::set
      */
-	public function offsetSet(mixed $name, mixed $value):bool;
+	public function offsetSet(mixed $name, mixed $value):void;
 
     /**
      * @implementation-alias Yaf_Session::del
      */
-	public function offsetUnSet(mixed $name):bool;
+	public function offsetUnSet(mixed $name):void;
 
     /**
      * @implementation-alias Yaf_Session::has
