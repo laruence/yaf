@@ -8,19 +8,21 @@ on:
 jobs:
   matrix:
     name: "PHP"
-    runs-on: ${{ matrix.OS }}
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
-        OS: ["ubuntu-latest"]
+        ZTS: ["no"]
         include:
           - PHP: "8.1"
             OS: "ubuntu-latest"
             ZTS: true
     env:
+      PHP: $ {{ matrix.PHP }}
       GITHUB: "yes"
       enable_debug: "yes"
       enable_session: "yes"
+      enable_maintainer_zts: $ {{ matrix.ZTS }}
       TEST_PHP_ARGS : "--show-diff"
       REPORT_EXIT_STATUS: "yes"
       NO_INTERACTION: "yes"
