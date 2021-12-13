@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.OS }}
     strategy:
       matrix:
-        PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
         OS: ["ubuntu-latest"]
         include:
           - PHP: "8.1"
