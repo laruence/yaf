@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2021-07-01</date>
- <time>13:40:00</time>
+ <date>2021-12-16</date>
+ <time>12:05:00</time>
  <version>
-  <release>3.3.3</release>
-  <api>3.3.3</api>
+  <release>3.3.4</release>
+  <api>3.3.4</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,10 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed issue #546 (Segfault due to get_gc handler changed)
-  - Use interned strings
-  - Fixed Issue #545 segfault in yaf_route_simple::construct
-  - Optimized Yaf_Route_Map::route
+  - Fixed build with PHP8.1
+  - change to using stub.php generated arginfos
  </notes>
  <contents> 
   <dir name="/"> 
@@ -288,6 +286,23 @@
  <extsrcrelease />
  <changelog> 
   <release> 
+   <date>2021-12-16</date> 
+   <version> 
+    <release>3.3.4</release> 
+    <api>3.3.4</api> 
+   </version> 
+   <stability> 
+    <release>stable</release> 
+    <api>stable</api> 
+   </stability> 
+   <license uri="http://www.php.net/license">PHP License</license> 
+   <notes>
+    - Fixed build with PHP8.1
+    - change to using stub.php generated arginfos
+   </notes> 
+  </release> 
+
+  <release> 
    <date>2021-07-01</date> 
    <version> 
     <release>3.3.3</release> 
@@ -305,7 +320,6 @@
     - Optimized Yaf_Route_Map::route
    </notes> 
   </release> 
-
   <release> 
    <date>2021-03-05</date> 
    <version> 
