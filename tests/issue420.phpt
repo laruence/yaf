@@ -32,7 +32,7 @@ PHP
 
 $app = new Yaf_Application($config);
 $req = new Yaf_Request_Simple();
-$req->setControllerName('Foo_Bar');
+$req->setControllerName('Foo_Bar', false);
 var_dump($req->getControllerName());
 $req->setControllerName('index');
 $req->setActionName('func');

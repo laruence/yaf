@@ -1024,8 +1024,8 @@ PHP_METHOD(yaf_request, setModuleName) {
 		} else {
 			if (request->module) {
 				zend_string_release(request->module);
-				request->module = zend_string_copy(module);
 			}
+			request->module = zend_string_copy(module);
 		}
 	}
 
@@ -1050,8 +1050,8 @@ PHP_METHOD(yaf_request, setControllerName) {
 		} else {
 			if (request->controller) {
 				zend_string_release(request->controller);
-				request->controller = zend_string_copy(controller);
 			}
+			request->controller = zend_string_copy(controller);
 		}
 	}
 
@@ -1076,8 +1076,8 @@ PHP_METHOD(yaf_request, setActionName) {
 		} else {
 			if (request->action) {
 				zend_string_release(request->action);
-				request->action = zend_string_copy(action);
 			}
+			request->action = zend_string_copy(action);
 		}
 	}
 
