@@ -827,7 +827,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 		obj = Z_OBJ(bootstrap);
 		ZEND_HASH_FOREACH_STR_KEY_PTR(&(ce->function_table), func, fptr) {
 			zval ret;
-			if (UNEXPECTED(ZSTR_LEN(func) < sizeof("_init")) ||
+			if (UNEXPECTED(ZSTR_LEN(func) < (sizeof("_init")) - 1) ||
 				!yaf_slip_equal(ZSTR_VAL(func), ZEND_STRL(YAF_BOOTSTRAP_INITFUNC_PREFIX))) {
 				continue;
 			}
@@ -1036,7 +1036,7 @@ zend_function_entry yaf_application_methods[] = {
 	PHP_ME(yaf_application, getLastErrorNo, arginfo_class_Yaf_Application_getLastErrorNo, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, getLastErrorMsg, arginfo_class_Yaf_Application_getLastErrorMsg, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_application, clearLastError, arginfo_class_Yaf_Application_clearLastError, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_application, getInstance, app, arginfo_class_Yaf_Application_app, ZEND_ACC_PUBLIC)
+	PHP_MALIAS(yaf_application, getInstance, app, arginfo_class_Yaf_Application_app, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */
