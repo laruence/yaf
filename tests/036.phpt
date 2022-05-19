@@ -11,7 +11,7 @@ $url = array(
   "/foo/bar/dummy", "/foo///bar/dummy/", "foo/bar/dummy/",
   "/my", "/my/", "/my/foo", "/my/foo/", "my/foo/bar", "my/foo/bar/",
   "/m/index/index", "/my/foo/bar/dummy/1", "my/foo/bar/dummy/1/a/2/////",
-  "/my/index/index", "my/index", "/foo/index", "index/foo",
+  "/my/index/index", "my/index", "/foo/index", "index/foo", "//foo///bar///p1////v1////p2/v2/",
 );
 
 $config = array( 
@@ -58,7 +58,7 @@ foreach ($url as $u) {
 }
 
 ?>
---EXPECTF--
+--EXPECT--
 / : m=> c=> a=>
 /foo : m=> c=>Foo a=>
 /foo/ : m=> c=>Foo a=>
@@ -81,6 +81,7 @@ my/foo/bar/dummy/1/a/2///// : m=>My c=>Foo a=>bar args=>dummy->1,a->2,
 my/index : m=> c=>My a=>index
 /foo/index : m=> c=>Foo a=>index
 index/foo : m=> c=>Index a=>foo
+//foo///bar///p1////v1////p2/v2/ : m=> c=>Foo a=>bar args=>p1->,v1->,p2->v2,
 / : m=> c=> a=>
 /foo : m=> c=> a=>foo
 /foo/ : m=> c=> a=>foo

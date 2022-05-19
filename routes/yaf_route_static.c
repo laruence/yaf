@@ -65,12 +65,14 @@ void yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, 
 	do {
 		parts[current] = req_uri;
 		lens[current] = req_uri_len;
-		req_uri_len = 0;
 		if ((pos = memchr(req_uri, YAF_ROUTER_URL_DELIMIETER, lens[current])) != NULL) {
 			req_uri_len = lens[current] - (pos - req_uri + 1);
 			lens[current] = pos - req_uri;
 			req_uri = pos + 1;
 			yaf_route_strip_uri(&req_uri, &req_uri_len);
+		} else {
+			req_uri = parts[current] + lens[current];
+			req_uri_len = 0;
 		}
 	} while (++current < 3 && req_uri_len);
 
@@ -102,8 +104,8 @@ void yaf_route_pathinfo_route(yaf_request_object *request, const char *req_uri, 
 			if (!yaf_application_is_module_name_str(parts[0], lens[0])) {
 				/* /module/controller/ -> /controller/action */
 				/* action -> call args */
+				req_uri_len += req_uri - parts[2];
 				req_uri = parts[2];
-				req_uri_len += lens[2] + (req_uri_len? 1 : 0) /* stripped back slash */;
 				parts[2] = parts[1];
 				parts[1] = parts[0];
 				parts[0] = NULL;
