@@ -388,8 +388,10 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 		ZVAL_STR(&phtml, strpprintf(0, "?>%s", ZSTR_VAL(tpl)));
 #if PHP_VERSION_ID < 80000
 		op_array = zend_compile_string(&phtml, eval_desc);
-#else
+#elif PHP_VERSION_ID < 80200
         op_array = zend_compile_string(Z_STR(phtml), eval_desc);
+#else
+        op_array = zend_compile_string(Z_STR(phtml), eval_desc, ZEND_COMPILE_POSITION_AFTER_OPEN_TAG);
 #endif
 		zval_dtor(&phtml);
 		efree(eval_desc);
