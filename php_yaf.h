@@ -260,6 +260,11 @@ static zend_always_inline uint32_t yaf_compose_2_pathes(char *buf, zend_string *
 }
 #endif
 
+/* removed in 8.3 */
+#ifndef ZEND_HOT
+#define ZEND_HOT
+#endif
+
 /*
  * Local variables:
  * tab-width: 4
