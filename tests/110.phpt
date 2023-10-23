@@ -13,7 +13,7 @@ $file = dirname(__FILE__) . "/simple.ini";
 // ulimit -n, default 256
 // open files will be 257
 for ($i = 0; $i < 257; $i++) {
-    $a = new Yaf\Config\Ini($file);
+    $a = new Yaf_Config_Ini($file);
     unset($a);
 }
 
