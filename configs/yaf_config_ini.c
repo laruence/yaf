@@ -81,7 +81,7 @@ static zval* yaf_config_ini_get(yaf_config_object *conf, zend_string *name) /* {
 	char *seg, *delim;
 	size_t len;
 	HashTable *target;
-	
+
 	if (conf->config == NULL) {
 		return NULL;
 	}
@@ -298,7 +298,7 @@ static void yaf_config_ini_parser_cb(zval *key, zval *value, zval *index, int ca
 			YAF_CONFIG_PARSER_FLAG() = YAF_CONFIG_INI_PARSING_END;
 			return;
 		}
-		
+
 		p = Z_STRVAL_P(key);
 		l = Z_STRLEN_P(key);
 
@@ -387,6 +387,9 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 						return 0;
 					}
 				}
+
+				// done
+				zend_destroy_file_handle(&fh);
 			} else {
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
 				return 0;
