@@ -1,5 +1,5 @@
 --TEST--
-Bug (mem leak or crash in Yaf_Config_Ini, PHP 8.1 or later)
+Bug (open file not destroy or crash in Yaf_Config_Ini, PHP 8.1 or later)
 --SKIPIF--
 <?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
@@ -10,7 +10,9 @@ yaf.use_namespace=0
 <?php
 $file = dirname(__FILE__) . "/simple.ini";
 
-for ($i = 0; $i < 10241; $i++) {
+// ulimit -n, default 256
+// open files will be 257
+for ($i = 0; $i < 257; $i++) {
     $a = new Yaf\Config\Ini($file);
     unset($a);
 }
