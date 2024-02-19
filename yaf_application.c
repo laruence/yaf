@@ -1053,8 +1053,10 @@ YAF_STARTUP_FUNCTION(application) {
 	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL;
 	yaf_application_ce->serialize = zend_class_serialize_deny;
 	yaf_application_ce->unserialize = zend_class_unserialize_deny;
-#else
+#elif PHP_VERSION_ID < 80200
 	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
+#else
+	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE | ZEND_ACC_ALLOW_DYNAMIC_PROPERTIES;
 #endif
 
 	memcpy(&yaf_application_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));

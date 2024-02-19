@@ -36,7 +36,7 @@ Array
 )
 array (
   '_default' => 
-  Yaf_Route_Map::__set_state(array(
+  %saf_Route_Map::__set_state(array(
      'ctl_prefer:protected' => true,
      'delimiter:protected' => '##',
   )),

@@ -34,7 +34,7 @@ Yaf_Request_Http Object
         )
 
 )
-Yaf_Request_Http::__set_state(array(
+%saf_Request_Http::__set_state(array(
    'method' => 'POST',
    'module' => NULL,
    'controller' => NULL,
