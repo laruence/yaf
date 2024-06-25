@@ -74,7 +74,11 @@ extern zend_module_entry yaf_module_entry;
 #else
 #define YAF_WRITE_HANDLER       zval *
 #define YAF_WHANDLER_RET(zv)    return zv
+#if PHP_VERSION_ID >= 80000
 HashTable *yaf_fake_get_gc(zend_object *zobj, zval **table, int *n);
+#else
+HashTable *yaf_fake_get_gc(zval *zobj, zval **table, int *n);
+#endif
 #endif
 
 #if PHP_VERSION_ID < 80000
@@ -258,6 +262,11 @@ static zend_always_inline uint32_t yaf_compose_2_pathes(char *buf, zend_string *
 	len = len + l2 + 1;
 	return len;
 }
+#endif
+
+/* removed in 8.3 */
+#ifndef ZEND_HOT
+#define ZEND_HOT
 #endif
 
 /*
