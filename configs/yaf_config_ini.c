@@ -381,20 +381,15 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 					if (zend_parse_ini_file(&fh, 0, 0 /* ZEND_INI_SCANNER_NORMAL */,
 							(zend_ini_parser_cb_t)yaf_config_ini_parser_cb, &configs) == FAILURE
 							|| Z_TYPE(configs) != IS_ARRAY) {
-						zval_ptr_dtor(&configs);
-#if PHP_VERSION_ID < 80100
-						fclose(fh.handle.fp);
-#else
-						zend_destroy_file_handle(&fh);
+#if PHP_VERSION_ID >= 80100 /* zend_parse_ini_file stop dtor filehandle since 8.1 */
+				zend_destroy_file_handle(&fh);
 #endif
+						zval_ptr_dtor(&configs);
 						yaf_trigger_error(E_ERROR, "Parsing ini file '%s' failed", ini_file);
 						return 0;
 					}
-#if PHP_VERSION_ID < 80100
-					fclose(fh.handle.fp);
-#endif
 				}
-#if PHP_VERSION_ID >= 80100 /* zend_stream_ini copy filename from 8.1 */
+#if PHP_VERSION_ID >= 80100
 				zend_destroy_file_handle(&fh);
 #endif
 			} else {
