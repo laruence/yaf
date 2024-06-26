@@ -43,7 +43,7 @@ final class Yaf_View_Simple implements Yaf_View_Interface {
 
 	public function __isset(string $name):bool {}
 	
-	public function get(string $name):mixed {}
+	public function get(?string $name = NULL):mixed {}
 
 	/**
 	 * @return Yaf_View_Simple|NULL|FALSE
