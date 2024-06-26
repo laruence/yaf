@@ -365,7 +365,6 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 #else
 				fh.handle.fp = VCWD_FOPEN(ini_file, "r");
 #endif
-
 				if (fh.handle.fp) {
 #if PHP_VERSION_ID < 70400
 					fh.filename = ini_file;
@@ -383,13 +382,21 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 							(zend_ini_parser_cb_t)yaf_config_ini_parser_cb, &configs) == FAILURE
 							|| Z_TYPE(configs) != IS_ARRAY) {
 						zval_ptr_dtor(&configs);
+#if PHP_VERSION_ID < 70400
+						fclose(fh.handle.fp);
+#else
+						zend_destroy_file_handle(&fh);
+#endif
 						yaf_trigger_error(E_ERROR, "Parsing ini file '%s' failed", ini_file);
 						return 0;
 					}
+#if PHP_VERSION_ID < 70400
+					fclose(fh.handle.fp);
+#endif
 				}
-
-				// done
+#if PHP_VERSION_ID >= 70400
 				zend_destroy_file_handle(&fh);
+#endif
 			} else {
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
 				return 0;
