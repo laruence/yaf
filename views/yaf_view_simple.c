@@ -26,7 +26,6 @@
 #include "yaf_namespace.h"
 #include "yaf_exception.h"
 #include "yaf_loader.h"
-#include "yaf_request.h"
 #include "yaf_view.h"
 
 #if PHP_MAJOR_VERSION > 7
@@ -466,15 +465,10 @@ PHP_METHOD(yaf_view_simple, setScriptPath) {
 }
 /* }}} */
 
-/** {{{ proto public Yaf_View_Simple::getScriptPath(Yaf_Request_Abstarct $request = NULL)
+/** {{{ proto public Yaf_View_Simple::getScriptPath()
 */
 PHP_METHOD(yaf_view_simple, getScriptPath) {
-	yaf_request_t *request = NULL;
 	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|O!", &request, yaf_request_ce) == FAILURE) {
-		return;
-	}
 
 	if (view->tpl_dir) {
 		RETURN_STR_COPY(view->tpl_dir);
