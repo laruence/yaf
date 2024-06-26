@@ -485,6 +485,21 @@ PHP_METHOD(yaf_config_ini, set) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Config_Ini::__set($name, $value)
+*/
+PHP_METHOD(yaf_config_ini, __set) {
+	zval *val;
+	zend_string *name;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &val) == FAILURE) {
+		return;
+	}
+
+	php_error_docref(NULL, E_WARNING, "config is readonly");
+	return;
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Config_Ini::readonly(void)
 */
 PHP_METHOD(yaf_config_ini, readonly) {
@@ -499,9 +514,9 @@ zend_function_entry yaf_config_ini_methods[] = {
 	PHP_ME(yaf_config_ini, get, arginfo_class_Yaf_Config_Ini_get, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_ini, set, arginfo_class_Yaf_Config_Ini_set, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_ini, readonly, arginfo_class_Yaf_Config_Ini_readonly, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_ini, __set, arginfo_class_Yaf_Config_Ini___set, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_ini, offsetGet, get, arginfo_class_Yaf_Config_Ini_offsetGet, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_ini, offsetSet, set, arginfo_class_Yaf_Config_Ini_offsetSet, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_ini, __set, set, arginfo_class_Yaf_Config_Ini___set, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
