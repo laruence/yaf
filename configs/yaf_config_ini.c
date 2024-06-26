@@ -382,7 +382,7 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 							(zend_ini_parser_cb_t)yaf_config_ini_parser_cb, &configs) == FAILURE
 							|| Z_TYPE(configs) != IS_ARRAY) {
 						zval_ptr_dtor(&configs);
-#if PHP_VERSION_ID < 70400
+#if PHP_VERSION_ID < 80100
 						fclose(fh.handle.fp);
 #else
 						zend_destroy_file_handle(&fh);
