@@ -390,11 +390,11 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 						yaf_trigger_error(E_ERROR, "Parsing ini file '%s' failed", ini_file);
 						return 0;
 					}
-#if PHP_VERSION_ID < 70400
+#if PHP_VERSION_ID < 80100
 					fclose(fh.handle.fp);
 #endif
 				}
-#if PHP_VERSION_ID >= 70400
+#if PHP_VERSION_ID >= 80100 /* zend_stream_ini copy filename from 8.1 */
 				zend_destroy_file_handle(&fh);
 #endif
 			} else {
