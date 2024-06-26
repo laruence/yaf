@@ -135,14 +135,11 @@ PHP_METHOD(yaf_config_simple, offsetUnset) {
 	if (conf->config) {
 		if (Z_TYPE_P(offset) == IS_STRING) {
 			zend_hash_del(conf->config, Z_STR_P(offset));
-			RETURN_TRUE;
 		} else if (Z_TYPE_P(offset) == IS_LONG) {
 			zend_hash_index_del(conf->config, Z_LVAL_P(offset));
-			RETURN_TRUE;
 		}
 	}
-	
-	RETURN_FALSE;
+	return;
 }
 /* }}} */
 
