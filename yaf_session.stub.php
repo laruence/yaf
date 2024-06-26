@@ -5,8 +5,8 @@ final class Yaf_Session implements \Iterator, \Traversable, \ArrayAccess, \Count
 	/* constants */
 
 	/* properties */
-	static protected object $_instance = NULL;
-	protected array $_session = NULL;
+	static protected ?object $_instance = NULL;
+	protected ?array $_session = NULL;
 	protected bool $_started = false;
 
 	/* methods */
@@ -22,7 +22,7 @@ final class Yaf_Session implements \Iterator, \Traversable, \ArrayAccess, \Count
 	 */
 	public function start():object;
 
-	public function get(string $name = NULL):mixed;
+	public function get(?string $name = NULL):mixed;
 
 	public function has(string $name):?bool;
 

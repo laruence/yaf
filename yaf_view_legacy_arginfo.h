@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 5d45d131328e5f80f5df131f65cd8018d12574b8 */
+ * Stub hash: 45071bca670049bd8ac3f1a2ea5611c022466ade */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Interface_assign, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
@@ -29,9 +29,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Simple___isset, 0, 0, 1)
 	ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Simple_get, 0, 0, 0)
-	ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
+#define arginfo_class_Yaf_View_Simple_get arginfo_class_Yaf_View_Simple___isset
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Simple_assign, 0, 0, 0)
 	ZEND_ARG_INFO(0, name)
@@ -52,15 +50,18 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Simple_assignRef, 0, 0, 2)
 	ZEND_ARG_INFO(1, value)
 ZEND_END_ARG_INFO()
 
-#define arginfo_class_Yaf_View_Simple_clear arginfo_class_Yaf_View_Simple_get
+ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Simple_clear, 0, 0, 0)
+	ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
 
 #define arginfo_class_Yaf_View_Simple_setScriptPath arginfo_class_Yaf_View_Interface_setScriptPath
 
 #define arginfo_class_Yaf_View_Simple_getScriptPath arginfo_class_Yaf_View_Interface_getScriptPath
 
-#define arginfo_class_Yaf_View_Simple___get arginfo_class_Yaf_View_Simple_get
+#define arginfo_class_Yaf_View_Simple___get arginfo_class_Yaf_View_Simple___isset
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_View_Simple___set, 0, 0, 2)
 	ZEND_ARG_INFO(0, name)
 	ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
+

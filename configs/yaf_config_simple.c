@@ -101,6 +101,14 @@ PHP_METHOD(yaf_config_simple, set) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_Config_Simple::__set($name, $value)
+*/
+PHP_METHOD(yaf_config_simple, __set) {
+	PHP_MN(yaf_config_simple_set)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+	RETURN_NULL();
+}
+/* }}} */
+
 /** {{{ proto public Yaf_Config_Simple::readonly(void)
 */
 PHP_METHOD(yaf_config_simple, readonly) {
@@ -145,7 +153,7 @@ zend_function_entry yaf_config_simple_methods[] = {
 	PHP_ME(yaf_config_simple, set, arginfo_class_Yaf_Config_Simple_set, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_simple, readonly,	arginfo_class_Yaf_Config_Simple_readonly, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_config_simple, offsetUnset, arginfo_class_Yaf_Config_Simple_offsetUnSet, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_config_simple, __set, set, arginfo_class_Yaf_Config_Simple___set, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_config_simple, __set, arginfo_class_Yaf_Config_Simple___set, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_config_simple, offsetSet, set, arginfo_class_Yaf_Config_Simple_offsetSet, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };

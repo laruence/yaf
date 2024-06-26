@@ -6,13 +6,13 @@ abstract class Yaf_Controller_Abstract {
 	/* constants */
 
 	/* properties */
-	protected array $actions = NULL;
-	protected string $_module = NULL;
-	protected string $_name = NULL;
-	protected object $_request = NULL;
-	protected object $_response = NULL;
-	protected array $_invoke_args = NULL;
-	protected object $_view = NULL;
+	protected ?array $actions = NULL;
+	protected ?string $_module = NULL;
+	protected ?string $_name = NULL;
+	protected ?object $_request = NULL;
+	protected ?object $_response = NULL;
+	protected ?array $_invoke_args = NULL;
+	protected ?object $_view = NULL;
 
 	/* methods */
 
@@ -38,7 +38,7 @@ abstract class Yaf_Controller_Abstract {
 	/**
 	 * @return Yaf_View_Interface|NULL
 	 */
-	final public function initView(array $options = NULL):?object;
+	final public function initView(?array $options = NULL):?object;
 
 	final public function setViewpath(string $view_directory):?bool;
 
@@ -64,9 +64,9 @@ abstract class Yaf_Controller_Abstract {
 
 	final public function getName():?string;
 
-	final protected function render(string $tpl, array $parameters = NULL):string|null|bool;
+	final protected function render(string $tpl, ?array $parameters = NULL):string|null|bool;
 
-	final protected function display(string $tpl, array $parameters = NULL):?bool;
+	final protected function display(string $tpl, ?array $parameters = NULL):?bool;
 }
 
 abstract class Yaf_Action_Abstract extends Yaf_Controller_Abstract { 

@@ -505,6 +505,19 @@ PHP_METHOD(yaf_view_simple, assign) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_View_Simple::__set(mixed $value, mixed $value)
+*/
+PHP_METHOD(yaf_view_simple, __set) {
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
+	zval *value;
+	zend_string *name;
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
+		return;
+	}
+	yaf_view_simple_assign_single(view, name, value);
+}
+/* }}} */
+
 /** {{{ proto public Yaf_View_Simple::assignRef(mixed $value, mixed &$value)
 */
 PHP_METHOD(yaf_view_simple, assignRef) {
@@ -647,8 +660,8 @@ zend_function_entry yaf_view_simple_methods[] = {
 	PHP_ME(yaf_view_simple, setScriptPath, arginfo_class_Yaf_View_Simple_setScriptPath, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, getScriptPath, arginfo_class_Yaf_View_Simple_getScriptPath, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, __isset, arginfo_class_Yaf_View_Simple___isset, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, __set, arginfo_class_Yaf_View_Simple___set, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_view_simple, __get, get, arginfo_class_Yaf_View_Simple___get, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_view_simple, __set, assign, arginfo_class_Yaf_View_Simple___set, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

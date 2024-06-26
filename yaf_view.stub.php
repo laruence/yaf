@@ -12,12 +12,12 @@ Interface Yaf_View_Interface {
 	/**
 	 * @return string|bool
 	 */
-	public function render(string $tpl, array $tpl_vars = NULL);
+	public function render(string $tpl, ?array $tpl_vars = NULL);
 
 	/**
 	 * @return Yaf_View_Interface|bool
 	 */
-	public function display(string $tpl, array $tpl_vars = NULL);
+	public function display(string $tpl, ?array $tpl_vars = NULL);
 
 	/**
 	 * @return bool
@@ -39,11 +39,11 @@ final class Yaf_View_Simple implements Yaf_View_Interface {
 	protected ?array $_options = NULL;
 
 	/* methods */
-	public function __construct(string $tempalte_dir, array $options = NULL) {}
+	public function __construct(string $tempalte_dir, ?array $options = NULL) {}
 
 	public function __isset(string $name):bool {}
 	
-	public function get(string $name = NULL):mixed {}
+	public function get(string $name):mixed {}
 
 	/**
 	 * @return Yaf_View_Simple|NULL|FALSE
@@ -59,12 +59,12 @@ final class Yaf_View_Simple implements Yaf_View_Interface {
 	/**
 	 * @return Yaf_View_Simple|NULL
 	 */
-	public function assignRef(string $name = NULL, mixed &$value):?object {}
+	public function assignRef(?string $name = NULL, mixed &$value):?object {}
 
 	/**
 	 * @return Yaf_View_Simple|NULL
 	 */
-	public function clear(string $name = NULL):?object {}
+	public function clear(?string $name = NULL):?object {}
 
 	/**
 	 * @return Yaf_View_Simple|NULL|FALSE
@@ -74,7 +74,7 @@ final class Yaf_View_Simple implements Yaf_View_Interface {
 	public function getScriptPath():?string {}
 
 	/** @implementation-alias Yaf_View_Simple::get */
-	public function __get(string $name = NULL):mixed {} 
+	public function __get(string $name):mixed {} 
 	
 	/** @implementation-alias Yaf_View_Simple::assign */
 	public function __set(string $name, mixed $value):void {}

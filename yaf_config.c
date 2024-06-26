@@ -342,10 +342,8 @@ PHP_METHOD(yaf_config, next) {
 
 	if (conf->config) {
 		zend_hash_move_forward(conf->config);
-		RETURN_TRUE;
 	}
-
-	RETURN_FALSE;
+	return;
 }
 /* }}} */
 

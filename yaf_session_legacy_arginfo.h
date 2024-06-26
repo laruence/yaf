@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 61ccfe989e1c36218cc63866db9e781a671efd6e */
+ * Stub hash: f10baf628eb99eafbf7d0d0baef833070aa0d3ba */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Session___construct, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -52,3 +52,4 @@ ZEND_END_ARG_INFO()
 #define arginfo_class_Yaf_Session___set arginfo_class_Yaf_Session_set
 
 #define arginfo_class_Yaf_Session___unset arginfo_class_Yaf_Session_has
+

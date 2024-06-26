@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: c265ad91ca592d72f56f0603c262bcb90f0a1737 */
+ * Stub hash: f6b3c770dde0187a7432deb7b9291bec34347c5b */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Controller_Abstract___construct, 0, 0, 0)
 ZEND_END_ARG_INFO()
@@ -53,3 +53,4 @@ ZEND_END_ARG_INFO()
 #define arginfo_class_Yaf_Action_Abstract_getController arginfo_class_Yaf_Controller_Abstract___construct
 
 #define arginfo_class_Yaf_Action_Abstract_getControllerName arginfo_class_Yaf_Controller_Abstract___construct
+
