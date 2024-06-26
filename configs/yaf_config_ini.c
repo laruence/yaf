@@ -355,22 +355,20 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 	} else if (Z_TYPE_P(filename) == IS_STRING) {
 		zval configs;
 		zend_stat_t sb;
-		zend_file_handle fh;
 		char *ini_file = Z_STRVAL_P(filename);
 
 		if (VCWD_STAT(ini_file, &sb) == 0) {
 			if (S_ISREG(sb.st_mode)) {
+				FILE *fp;
+				if ((fp = VCWD_FOPEN(ini_file, "r"))) {
 #if PHP_VERSION_ID >= 70400
-				zend_stream_init_fp(&fh, VCWD_FOPEN(ini_file, "r"), ini_file);
+					zend_file_handle fh;
+					zend_stream_init_fp(&fh, fp, ini_file);
 #else
-				fh.handle.fp = VCWD_FOPEN(ini_file, "r");
-#endif
-				if (fh.handle.fp) {
-#if PHP_VERSION_ID < 70400
-					fh.filename = ini_file;
+					zend_file_handle fh = {{0}, 0};
+					fh.filename = filename;
+					fh.handle.fp = fp;
 					fh.type = ZEND_HANDLE_FP;
-					fh.free_filename = 0;
-					fh.opened_path = NULL;
 #endif
 
 					ZVAL_UNDEF(&YAF_G(active_ini_file_section));
@@ -381,21 +379,20 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 					if (zend_parse_ini_file(&fh, 0, 0 /* ZEND_INI_SCANNER_NORMAL */,
 							(zend_ini_parser_cb_t)yaf_config_ini_parser_cb, &configs) == FAILURE
 							|| Z_TYPE(configs) != IS_ARRAY) {
-#if PHP_VERSION_ID >= 80100 /* zend_parse_ini_file stop dtor filehandle since 8.1 */
-				zend_destroy_file_handle(&fh);
-#endif
 						zval_ptr_dtor(&configs);
+#if PHP_VERSION_ID >= 80100 /* zend_parse_ini_file stop dtor filehandle since 8.1 */
+						zend_destroy_file_handle(&fh);
+#endif
 						yaf_trigger_error(E_ERROR, "Parsing ini file '%s' failed", ini_file);
 						return 0;
 					}
-				}
 #if PHP_VERSION_ID >= 80100
-				zend_destroy_file_handle(&fh);
+					zend_destroy_file_handle(&fh);
 #endif
+				}
 			} else {
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
 				return 0;
-
 			}
 		} else {
 			yaf_trigger_error(E_ERROR, "Unable to find config file '%s'", ini_file);
