@@ -1,5 +1,5 @@
 # Yaf - Yet Another Framework  
-[![Build status](https://ci.appveyor.com/api/projects/status/awii6wf2ocmy202p/branch/master?svg=true)](https://ci.appveyor.com/project/laruence/yaf/branch/master) [![Build Status](https://github.com/laruence/yaf/workflows/integrate/badge.svg?branch=master)](https://github.com/laruence/yaf/actions?query=workflow%3Aintegrate)
+[![Build status](https://ci.appveyor.com/api/projects/status/awii6wf2ocmy202p/branch/master?svg=true)](https://ci.appveyor.com/project/laruence/yaf/branch/master) [![Build Status](https://github.com/laruence/yaf/workflows/integrate/badge.svg)](https://github.com/laruence/yaf/actions?query=workflow%3Aintegrate)
 
 PHP framework written in c and built as a PHP extension.
 
