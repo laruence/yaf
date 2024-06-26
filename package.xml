@@ -241,6 +241,7 @@
     <file name="107.phpt" role="test" />
     <file name="108.phpt" role="test" />
     <file name="109.phpt" role="test" />
+    <file name="110.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
