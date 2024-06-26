@@ -154,7 +154,7 @@ The view script for default controller and default action is in the application/
 ```
 
 ## Run the Application
-  http://www.yourhostname.com/
+  http://www.example.com
 
 ## Alternative
 You can generate the example above by using Yaf Code Generator:  https://github.com/laruence/php-yaf/tree/master/tools/cg
