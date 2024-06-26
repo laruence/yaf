@@ -551,6 +551,20 @@ PHP_METHOD(yaf_view_simple, get) {
 }
 /* }}} */
 
+/** {{{ proto public Yaf_View_Simple::__isset($name)
+*/
+PHP_METHOD(yaf_view_simple, __isset) {
+	zend_string *name = NULL;
+	yaf_view_object *view = Z_YAFVIEWOBJ_P(getThis());
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
+		return;
+	}
+
+	RETURN_BOOL(zend_hash_exists(&view->tpl_vars, name));
+}
+/* }}} */
+
 /** {{{ proto public Yaf_View_Simple::render(string $tpl, array $vars = NULL)
 */
 PHP_METHOD(yaf_view_simple, render) {
@@ -638,6 +652,7 @@ zend_function_entry yaf_view_simple_methods[] = {
 	PHP_ME(yaf_view_simple, clear, arginfo_class_Yaf_View_Simple_clear, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, setScriptPath, arginfo_class_Yaf_View_Simple_setScriptPath, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_view_simple, getScriptPath, arginfo_class_Yaf_View_Simple_getScriptPath, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_view_simple, __isset, arginfo_class_Yaf_View_Simple___isset, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_view_simple, __get, get, arginfo_class_Yaf_View_Simple___get, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_view_simple, __set, assign, arginfo_class_Yaf_View_Simple___set, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}

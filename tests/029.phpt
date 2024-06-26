@@ -14,8 +14,12 @@ print_r($view->get("a"));
 print_r($view->get());
 $view->clear("b");
 print_r($view->get());
+var_dump(empty($view->a));
+var_dump(isset($view->a));
 $view->clear();
 print_r($view->get());
+var_dump(empty($view->a));
+var_dump(isset($view->a));
 ?>
 --EXPECTF--
 bArray
@@ -27,6 +31,10 @@ Array
 (
     [a] => b
 )
+bool(false)
+bool(true)
 Array
 (
 )
+bool(true)
+bool(false)
