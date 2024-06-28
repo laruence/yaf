@@ -18,11 +18,11 @@ jobs:
             OS: "ubuntu-latest"
             ZTS: true
     env:
-      PHP: $ {{ matrix.PHP }}
+      PHP: ${{ matrix.PHP }}
       GITHUB: "yes"
       enable_debug: "yes"
       enable_session: "yes"
-      enable_maintainer_zts: $ {{ matrix.ZTS }}
+      enable_maintainer_zts: ${{ matrix.ZTS }}
       TEST_PHP_ARGS : "--show-diff"
       REPORT_EXIT_STATUS: "yes"
       NO_INTERACTION: "yes"
@@ -34,7 +34,7 @@ jobs:
       - name: Setup
         uses: shivammathur/setup-php@v2
         with:
-          php-version: $ {{ matrix.PHP }}
+          php-version: ${{ matrix.PHP }}
       - name: Install
         run: |
           sudo apt-get install -y re2c
