@@ -34,4 +34,4 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-Parse error: syntax error, unexpected %s}%c in %sfoo.phtml on line %d
+Parse error: syntax error, unexpected %s in %sfoo.phtml on line %d
