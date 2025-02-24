@@ -1,9 +1,7 @@
 --TEST--
 Check for Yaf_View_Simple recursive render error message outputing
 --SKIPIF--
-<?php
-if (!extension_loaded("yaf")) die("skip");
-?>
+<?php if (!extension_loaded("yaf")) print "skip"; ?>
 --INI--
 yaf.library="/php/global/dir"
 log_errors=0
@@ -37,20 +35,7 @@ HTML
 try {
 	echo $view->render($tpl, array('tpl' => $tpl2));
 } catch (Error $e) {
-	$msg = $e->getMessage();
-	if (version_compare(PHP_VERSION, "8.4", "ge")) {
-		if (strcmp("syntax error, unexpected token \"{\"", $msg) == 0) {
-			echo "okey";
-        } else {
-			echo $msg;
-        }
-    } else {
-		if (strcmp("syntax error, unexpected token \"}\"", $msg) == 0) {
-			echo "okey";
-        } else {
-			echo $msg;
-		}
-	}
+	echo $e->getMessage();
 }
 ?>
 --CLEAN--
@@ -59,5 +44,5 @@ try {
 require "build.inc"; 
 shutdown();
 ?>
---EXPECT--
-okey
+--EXPECTF--
+syntax error, unexpected %s}%c
