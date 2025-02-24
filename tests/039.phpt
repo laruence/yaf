@@ -44,8 +44,14 @@ try {
         } else {
 			echo $msg;
         }
-    } else {
+    } else if (version_compare(PHP_VERSION, "8.0", "ge")) {
 		if (strcmp("syntax error, unexpected token \"}\"", $msg) == 0) {
+			echo "okey";
+        } else {
+			echo $msg;
+		}
+	} else {
+		if (strcmp("syntax error, unexpected \"}\"", $msg) == 0) {
 			echo "okey";
         } else {
 			echo $msg;
