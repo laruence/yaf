@@ -1,7 +1,10 @@
 --TEST--
 Check for Yaf_View_Simple error message outputing
 --SKIPIF--
-<?php if (!extension_loaded("yaf")) print "skip"; ?>
+<?php
+if (!extension_loaded("yaf")) die("skip");
+if (version_compare(PHP_VERSION, "8.4", "ge")) print "skip only for <= 8.3";
+?>
 --INI--
 yaf.library="/php/global/dir"
 log_errors=0
