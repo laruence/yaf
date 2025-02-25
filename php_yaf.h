@@ -158,7 +158,7 @@ int yaf_call_user_method_with_1_arguments(zend_object *obj, zend_function *fbc, 
 int yaf_call_user_method_with_2_arguments(zend_object *obj, zend_function *fbc, zval *arg1, zval *arg2, zval *ret);
 void yaf_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar t);
 
-extern const char const *yaf_known_chars[];
+extern const char *yaf_known_chars[];
 extern zend_string **yaf_known_strings;
 #define YAF_KNOWN_STR(id)        (yaf_known_strings[id])
 #define YAF_KNOWN_CHARS(id)      (yaf_known_chars[id])

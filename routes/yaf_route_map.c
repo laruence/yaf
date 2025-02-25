@@ -129,14 +129,14 @@ static inline zend_string *yaf_route_map_build(const char *src, size_t len, zend
 		unsigned char *p, *q, *e;
 		zend_string *result = zend_string_alloc(end - str, 0);
 
-		zend_str_tolower_copy(ZSTR_VAL(result), str, end - str);
+		zend_str_tolower_copy(ZSTR_VAL(result), (char*)str, end - str);
 		p = q = (unsigned char*)ZSTR_VAL(result);
 		e = p + ZSTR_LEN(result);
 
 		if (ctl) {
 			*p++ = toupper(*q++);
 		} else {
-			*p++, *q++;
+			p++, q++;
 		}
 		while (q < e) {
 			if (*q == YAF_ROUTER_URL_DELIMIETER) {
@@ -167,7 +167,7 @@ static inline zend_string *yaf_route_map_build(const char *src, size_t len, zend
 
 int yaf_route_map_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 	size_t len, query_len;
-	const char *uri, *query, *p;
+	const char *uri, *query;
 	yaf_request_object *request = Z_YAFREQUESTOBJ_P(req);
 	yaf_route_map_object *map = Z_YAFROUTEMAPOBJ_P(route);
 

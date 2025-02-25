@@ -761,6 +761,8 @@ ZEND_HOT yaf_response_t *yaf_dispatcher_dispatch(yaf_dispatcher_object *dispatch
 		yaf_trigger_error(YAF_ERR_DISPATCH_FAILED, "The maximum dispatching count %ld is reached", yaf_get_forward_limit());
 		YAF_EXCEPTION_HANDLE(dispatcher);
 	}
+
+	return NULL;
 }
 /* }}} */
 
