@@ -183,12 +183,8 @@ static void yaf_response_object_free(zend_object *object) /* {{{ */ {
 void yaf_response_instance(yaf_response_t *this_ptr, char *sapi_name) /* {{{ */ {
 	zend_class_entry *ce;
 
-	if (!yaf_slip_equal(sapi_name, "cli", 4)) {
-		ce = yaf_response_http_ce;
-	} else {
-		ce = yaf_response_cli_ce;
-	}
-	
+	ce = yaf_response_http_ce;
+
 	ZVAL_OBJ(this_ptr, yaf_response_new(ce));
 }
 /* }}} */
