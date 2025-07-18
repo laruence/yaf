@@ -21,7 +21,7 @@
 #include "php.h"
 #include "main/SAPI.h" /* for sapi_module */
 #include "Zend/zend_interfaces.h" /* for zend_call_method_with_* */
-#include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
+#include "Zend/zend_exceptions.h" /* for zend_ce_exception */
 
 #include "php_yaf.h"
 #include "yaf_namespace.h"
@@ -355,7 +355,7 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 		directory_len += yaf_compose_2_pathes(directory + directory_len, module, ZEND_STRL(YAF_CONTROLLER_DIRECTORY_NAME));
 	}
 
-	STR_ALLOCA_ALLOC(lc_name, ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("controller") - 1, use_heap);
+	ZSTR_ALLOCA_ALLOC(lc_name, ZSTR_LEN(controller) + YAF_G(name_separator_len) + sizeof("controller") - 1, use_heap);
 	if (EXPECTED(yaf_is_name_suffix())) {
 		char *p = ZSTR_VAL(lc_name);
 		zend_str_tolower_copy(p, ZSTR_VAL(controller), ZSTR_LEN(controller));
@@ -381,15 +381,15 @@ static zend_class_entry *yaf_dispatcher_get_controller(zend_string *app_dir, yaf
 		if (yaf_loader_load_internal(l, ZSTR_VAL(controller), ZSTR_LEN(controller), directory, directory_len)) {
 			if (EXPECTED((ce = zend_hash_find_ptr(EG(class_table), lc_name)))) {
 				if (EXPECTED(instanceof_function(ce, yaf_controller_ce))) {
-					STR_ALLOCA_FREE(lc_name, use_heap);
+					ZSTR_ALLOCA_FREE(lc_name, use_heap);
 					return ce;
 				}
 			}
 		}
-		STR_ALLOCA_FREE(lc_name, use_heap);
+		ZSTR_ALLOCA_FREE(lc_name, use_heap);
 		return yaf_dispatcher_get_errors_hub(1, ce, controller, directory, directory_len);
 	}
-	STR_ALLOCA_FREE(lc_name, use_heap);
+	ZSTR_ALLOCA_FREE(lc_name, use_heap);
 	return ce;
 }
 /* }}} */
@@ -417,7 +417,7 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 		zend_string *lc_name;
 		ALLOCA_FLAG(use_heap);
 
-		STR_ALLOCA_ALLOC(lc_name, ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("action") - 1, use_heap);
+		ZSTR_ALLOCA_ALLOC(lc_name, ZSTR_LEN(action) + YAF_G(name_separator_len) + sizeof("action") - 1, use_heap);
 		if (EXPECTED(yaf_is_name_suffix())) {
 			char *p = ZSTR_VAL(lc_name);
 			memcpy(p, ZSTR_VAL(action), ZSTR_LEN(action));
@@ -440,7 +440,7 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 
 		if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
 			if (EXPECTED(instanceof_function(ce, yaf_action_ce))) {
-				STR_ALLOCA_FREE(lc_name, use_heap);
+				ZSTR_ALLOCA_FREE(lc_name, use_heap);
 				return ce;
 			}
 		} else if (((pzval = zend_hash_find_ind(Z_ARRVAL_P(actions_map), action)) != NULL) &&
@@ -453,13 +453,13 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 			if (yaf_loader_import(path, len)) {
 				if ((ce = zend_hash_find_ptr(EG(class_table), lc_name)) != NULL) {
 					if (EXPECTED(instanceof_function(ce, yaf_action_ce))) {
-						STR_ALLOCA_FREE(lc_name, use_heap);
+						ZSTR_ALLOCA_FREE(lc_name, use_heap);
 						return ce;
 					}
 				}
 			}
 		}
-		STR_ALLOCA_FREE(lc_name, use_heap);
+		ZSTR_ALLOCA_FREE(lc_name, use_heap);
 	}
 
 	return yaf_dispatcher_get_errors_hub(2, ce, actions_map, action, controller, path);

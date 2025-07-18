@@ -174,4 +174,4 @@ string(%s) "Failed opening action script %sindex.php: No such file or directory"
 string(61) "Action 'IndexAction' is not a subclass of Yaf_Action_Abstract"
 string(61) "Action 'IndexAction' is not a subclass of Yaf_Action_Abstract"
 
-Fatal error: Class FooAction contains 1 abstract method and must therefore be declared abstract or implement the remaining methods (Yaf_Action_Abstract::execute) in %sfoo.php on line %d
+Fatal error: Class FooAction contains 1 abstract method and must therefore be declared abstract or implement the remaining method%s(Yaf_Action_Abstract::execute) in %sfoo.php on line %d
