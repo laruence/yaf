@@ -25,7 +25,10 @@ jobs:
     outputs:
       matrix: ${{ steps.extension-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
       - name: Get the extension matrix
         id: extension-matrix
         uses: php/php-windows-builder/extension-matrix@v1
@@ -39,14 +42,16 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.windows-get-extension-matrix.outputs.matrix)}}
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
       - name: Build and test the extension
         uses: php/php-windows-builder/extension@v1
         with:
           php-version: ${{ matrix.php-version }}
           ts: ${{ matrix.ts }}
           arch: ${{ matrix.arch }}
-          args: --enable-yaf-extension
           run-tests: true
 
   linux-phpt-tests:
@@ -75,7 +80,7 @@ jobs:
         run: sudo apt-get install -y re2c
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           submodules: true
 
