@@ -52,7 +52,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           ts: ${{ matrix.ts }}
           arch: ${{ matrix.arch }}
-          run-tests: false
+          run-tests: true
 
   linux-phpt-tests:
     name: "Linux PHPT Tests"
