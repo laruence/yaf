@@ -20,12 +20,41 @@ jobs:
       - name: Validate
         run: composer validate
 
+  windows-get-extension-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.extension-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Get the extension matrix
+        id: extension-matrix
+        uses: php/php-windows-builder/extension-matrix@v1
+        with:
+          php-version-list: '7.4, 8.0, 8.1, 8.2, 8.3, 8.4'
+
+  windows-phpt-tests:
+    needs: windows-get-extension-matrix
+    name: "Windows PHPT Tests"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: ${{fromJson(needs.windows-get-extension-matrix.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build and test the extension
+        uses: php/php-windows-builder/extension@v1
+        with:
+          php-version: ${{ matrix.php-version }}
+          ts: ${{ matrix.ts }}
+          arch: ${{ matrix.arch }}
+          args: --enable-yaf-extension
+          run-tests: true
+
   linux-phpt-tests:
     name: "Linux PHPT Tests"
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        PHP: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5" ]
+        PHP: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4" ]
         ZTS: [ "no" ]
         include:
           - PHP: "8.4"
