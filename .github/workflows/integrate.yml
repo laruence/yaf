@@ -22,7 +22,7 @@ jobs:
 
   linux-phpt-tests:
     name: "Linux PHPT Tests"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         PHP: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5" ]
