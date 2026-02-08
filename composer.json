@@ -1,0 +1,23 @@
+{
+  "name": "laruence/yaf",
+  "type": "php-ext",
+  "license": "PHP-3.01",
+  "description": "Fast php framework written in c, built in php extension",
+  "require": {
+    "php": ">=7.4,^8.0"
+  },
+  "replace": {
+    "ext-yaf": "*"
+  },
+  "php-ext": {
+    "extension-name": "ext-yaf",
+    "download-url-method": ["pre-packaged-binary", "composer-default"],
+    "priority": 74,
+    "configure-options": [
+      {
+        "name": "enable-yaf",
+        "description": "whether to enable yaf support"
+      }
+    ]
+  }
+}

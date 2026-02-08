@@ -1,0 +1,15 @@
+#
+# docker build . -f Dockerfile.pie.dev -t yaf/pie:test
+# docker run yaf/pie:test
+#
+FROM debian:trixie
+
+USER root
+WORKDIR /
+
+RUN apt-get -y update
+RUN apt-get -y install gcc make autoconf libtool bison re2c pkg-config php-dev
+
+RUN php -r "copy('https://github.com/php/pie/releases/download/1.3.8/pie.phar', 'pie.phar');"
+
+CMD [ "php", "pie.phar" ]

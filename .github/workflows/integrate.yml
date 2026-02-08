@@ -6,13 +6,27 @@ on:
     branches: [ master ]
 
 jobs:
-  matrix:
-    name: "PHP"
+
+  composer-validate:
+    name: "Validate using Composer"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          tools: composer:2.9.5
+      - name: Validate
+        run: composer validate
+
+  linux-phpt-tests:
+    name: "Linux PHPT Tests"
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        PHP: ["7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4"]
-        ZTS: ["no"]
+        PHP: [ "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5" ]
+        ZTS: [ "no" ]
         include:
           - PHP: "8.4"
             OS: "ubuntu-latest"
@@ -23,30 +37,33 @@ jobs:
       enable_debug: "yes"
       enable_session: "yes"
       enable_maintainer_zts: ${{ matrix.ZTS }}
-      TEST_PHP_ARGS : "--show-diff"
+      TEST_PHP_ARGS: "--show-diff"
       REPORT_EXIT_STATUS: "yes"
       NO_INTERACTION: "yes"
     steps:
+
+      - name: Install re2c on ubuntu pipeline
+        run: sudo apt-get install -y re2c
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Setup
+
+      - name: Setup PHP ${{ matrix.PHP }} ${{ matrix.ZTS && 'zts' || 'nts' }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.PHP }}
-      - name: Install
-        run: |
-          sudo apt-get install -y re2c
-      - name: Prepare
-        run: |
-            phpize
+        env:
+          phpts: ${{ matrix.ZTS && 'zts' || 'nts' }}
+          fail-fast: true
+
       - name: Build
         run: |
+            phpize
             ./configure
-      - name: Make
-        run: |
             make
+
       - name: Test
         run: |
             make test
