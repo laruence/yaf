@@ -56,7 +56,7 @@ if test "$PHP_YAF" != "no"; then
     routes/yaf_route_simple.c       \
     routes/yaf_route_supervar.c     \
     routes/yaf_route_regex.c        \
-    routes/yaf_route_rewrite.c      \ 
+    routes/yaf_route_rewrite.c      \
     routes/yaf_route_map.c          \
     yaf_loader.c                    \
     yaf_registry.c                  \

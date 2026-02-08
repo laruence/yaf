@@ -21,7 +21,7 @@
 #include "php.h"
 #include "main/SAPI.h"
 #include "standard/php_string.h" /* for php_basename */
-#include "Zend/zend_exceptions.h" /* for zend_exception_get_default */
+#include "Zend/zend_exceptions.h" /* for zend_ce_exception */
 #include "Zend/zend_interfaces.h" /* for zend_class_serialize_deny */
 #include "Zend/zend_smart_str.h"
 
