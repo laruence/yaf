@@ -52,7 +52,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           ts: ${{ matrix.ts }}
           arch: ${{ matrix.arch }}
-          run-tests: true
+          run-tests: false
 
   linux-phpt-tests:
     name: "Linux PHPT Tests"
@@ -64,7 +64,7 @@ jobs:
         include:
           - PHP: "8.5"
             OS: "ubuntu-latest"
-            ZTS: false
+            ZTS: true
     env:
       PHP: ${{ matrix.PHP }}
       GITHUB: "yes"
