@@ -64,7 +64,7 @@ jobs:
         include:
           - PHP: "8.5"
             OS: "ubuntu-latest"
-            ZTS: true
+            ZTS: false
     env:
       PHP: ${{ matrix.PHP }}
       GITHUB: "yes"
