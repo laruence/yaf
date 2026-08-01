@@ -5,6 +5,11 @@ define("APPLICATION_PATH", DIR_ROOT . DIRECTORY_SEPARATOR . 'application');
 
 function shutdown($root = APPLICATION_PATH) {
     $dp = opendir($root);
+
+    if (false === $dp) {
+        return;
+    }
+
     while (($dir = readdir($dp))) {
         if (in_array($dir, array('.', '..'))) {
             continue;
