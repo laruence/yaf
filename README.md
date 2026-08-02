@@ -1,78 +1,104 @@
-# Yaf - Yet Another Framework  
+# Yaf - Yet Another Framework
+
 [![Build status](https://ci.appveyor.com/api/projects/status/awii6wf2ocmy202p/branch/master?svg=true)](https://ci.appveyor.com/project/laruence/yaf/branch/master) [![Build Status](https://github.com/laruence/yaf/workflows/integrate/badge.svg)](https://github.com/laruence/yaf/actions?query=workflow%3Aintegrate)
 
-Yaf is a PHP framework with high performance, it is written in c and built as a PHP extension
+Yaf is a PHP framework with high performance. It is written in C and built as a PHP extension.
 
 ## Requirement
-- PHP 7.0+  (master branch))
-- PHP 5.2+  ([php5 branch](https://github.com/laruence/yaf/tree/php5))
+
+- PHP 7.0+ (master branch)
+- PHP 5.2+ ([php5 branch](https://github.com/laruence/yaf/tree/php5))
 
 ## Install
-### Install Yaf 
+
+### Install via PECL
+
 Yaf is a PECL extension, which means you can simply install it by:
 
-```
-$pecl install yaf
-```
-### Compile Yaf in Linux
-Of course, you could also install it by hand:
-```
-$/path/to/phpize
-$./configure --with-php-config=/path/to/php-config
-$make && make install
+```bash
+$ pecl install yaf
 ```
 
-## Document
-Yaf manual could be found at: http://www.php.net/manual/en/book.yaf.php
+### Compile from source
 
+```bash
+$ /path/to/phpize
+$ ./configure --with-php-config=/path/to/php-config
+$ make && make install
+```
+
+## Documentation
+
+Yaf manual can be found at: http://www.php.net/manual/en/book.yaf.php
 
 ## For IDE
-A documented prototype script could be found at: https://github.com/elad-yosifon/php-yaf-doc
+
+A documented prototype script can be found at: https://github.com/elad-yosifon/php-yaf-doc
 
 ## Tutorial
 
-### layout
+### Application Directory Layout
+
 A classic application directory layout is:
 
 ```
-- .htaccess // Rewrite rules
+- .htaccess  # Rewrite rules
 + public
-  | - index.php // Application entry
+  | - index.php  # Application entry
   | + css
   | + js
   | + img
 + conf
-  | - application.ini // Configure 
+  | - application.ini  # Configuration
 - application/
-  - Bootstrap.php   // Bootstrap
+  - Bootstrap.php  # Bootstrap
   + controllers
-     - Index.php // Default controller
-  + views    
-     |+ index   
-        - index.phtml // View template for default controller
-  + library // libraries
-  + models  // Models
-  + plugins // Plugins
+     - Index.php  # Default controller
+  + views
+     |+ index
+        - index.phtml  # View template for default controller
+  + library  # Libraries
+  + models   # Models
+  + plugins  # Plugins
 ```
+
 ### DocumentRoot
-You should set `DocumentRoot` to `application/public`, by doing this, only the public folder can be accessed by user:
+
+Set `DocumentRoot` to `application/public`, so only the public folder is accessible from the web.
 
 ### index.php
-`index.php` in the public directory is the only way in of the application, you should rewrite all request to it(you can use `.htaccess` in Apache+php mod) 
+
+`index.php` in the public directory is the only way into the application. You should rewrite all requests to it (using `.htaccess` in Apache + mod_php, or the equivalent in your web server).
 
 ```php
 <?php
-define("APPLICATION_PATH",  dirname(dirname(__FILE__)));
+define("APPLICATION_PATH", dirname(dirname(__FILE__)));
 
-$app  = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini");
-$app->bootstrap() //call bootstrap methods defined in Bootstrap.php
+$app = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini");
+$app->bootstrap() // call bootstrap methods defined in Bootstrap.php
     ->run();
 ```
-### Rewrite rules
+
+### Bootstrap
+
+A minimal `Bootstrap.php` looks like this:
+
+```php
+<?php
+class Bootstrap extends Yaf_Bootstrap_Abstract
+{
+    public function _initConfig(Yaf_Dispatcher $dispatcher)
+    {
+        // put your init logic here
+    }
+}
+```
+
+### Rewrite Rules
 
 #### Apache
 
-```conf
+```apache
 #.htaccess
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -81,16 +107,16 @@ RewriteRule .* index.php
 
 #### Nginx
 
-```
+```nginx
 server {
-  listen ****;
-  server_name  domain.com;
-  root   document_root;
-  index  index.php index.html index.htm;
- 
-  if (!-e $request_filename) {
-    rewrite ^/(.*)  /index.php/$1 last;
-  }
+    listen      80;
+    server_name domain.com;
+    root        /path/to/document/root;
+    index       index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
 }
 ```
 
@@ -98,69 +124,84 @@ server {
 
 ```
 $HTTP["host"] =~ "(www.)?domain.com$" {
-  url.rewrite = (
-     "^/(.+)/?$"  => "/index.php/$1",
-  )
+    url.rewrite = (
+        "^/(.+)/?$" => "/index.php/$1",
+    )
 }
 ```
 
 ### application.ini
-`application.ini` is the application config file
+
+`application.ini` is the application config file:
+
 ```ini
 [product]
-;CONSTANTS is supported
-application.directory = APPLICATION_PATH "/application/" 
+; Constants defined in index.php are supported
+application.directory = APPLICATION_PATH "/application/"
 ```
-Alternatively, you can use a PHP array instead: 
+
+Alternatively, you can use a PHP array instead:
+
 ```php
 <?php
-$config = array(
-   "application" => array(
-       "directory" => application_path . "/application/",
-    ),
-);
+$config = [
+    "application" => [
+        "directory" => APPLICATION_PATH . "/application/",
+    ],
+];
 
-$app  = new yaf_application($config);
-....
-  
+$app = new Yaf_Application($config);
 ```
-### default controller
+
+### Default Controller
+
 In Yaf, the default controller is named `IndexController`:
 
 ```php
 <?php
-class IndexController extends Yaf_Controller_Abstract {
-   // default action name
-   public function indexAction() {  
+class IndexController extends Yaf_Controller_Abstract
+{
+    // default action name
+    public function indexAction()
+    {
         $this->getView()->content = "Hello World";
-   }
+    }
 }
-?>
 ```
 
-### view script
-The view script for default controller and default action is application/views/index/index.phtml, Yaf provides a simple view engine called "Yaf_View_Simple", which support the view template written in PHP:
+### View Script
+
+The view script for the default controller and default action is `application/views/index/index.phtml`. Yaf provides a simple view engine called `Yaf_View_Simple`, which supports view templates written in PHP:
 
 ```php
 <html>
- <head>
-   <title>Hello World</title>
- </head>
- <body>
-   <?php echo $content; ?>
- </body>
+  <head>
+    <title>Hello World</title>
+  </head>
+  <body>
+    <?php echo $content; ?>
+  </body>
 </html>
 ```
 
 ## Run the Application
 
-http://www.example.com
+Point your browser to your configured domain (e.g. `http://www.example.com`) and you should see "Hello World".
 
-## Alternative
-You can generate the example above by using Yaf Code Generator:  https://github.com/laruence/php-yaf/tree/master/tools/cg
+## Code Generator
+
+You can generate the example above using Yaf Code Generator:
+
+```bash
+$ ./yaf_cg -d output_directory [-a application_name] [--namespace]
 ```
-./yaf_cg -d output_directory [-a application_name] [--namespace]
-```
+
+The code generator is located at: https://github.com/laruence/php-yaf/tree/master/tools/cg
 
 ## More
-More infos could be found at Yaf Manual: http://www.php.net/manual/en/book.yaf.php
+
+More info can be found at the Yaf Manual: http://www.php.net/manual/en/book.yaf.php
+
+## License
+
+[PHP-3.01](https://www.php.net/license/3_01.txt)
