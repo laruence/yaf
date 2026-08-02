@@ -245,11 +245,24 @@ The view script for the default controller and default action is `application/vi
 </html>
 ```
 
-## Run the Application
+### Run the Application
 
 Point your browser to your configured domain (e.g. `http://www.example.com`) and you should see "Hello World".
 
-## Routing
+### Code Generator
+
+You can generate the example above using Yaf Code Generator:
+
+```bash
+$ ./yaf_cg -d output_directory [-a application_name] [--namespace]
+```
+
+The code generator is located at: https://github.com/laruence/yaf/tree/master/tools/cg
+
+
+## Core Concepts
+
+### Routing
 
 Yaf supports 6 built-in route types, all implementing `Yaf_Route_Interface`:
 
@@ -294,11 +307,11 @@ Routes can also be loaded from INI config:
 $router->addConfig(new Yaf_Config_Ini("routes.ini"));
 ```
 
-## Configuration
+### Configuration
 
 Yaf provides two configuration parsers:
 
-### Yaf_Config_Ini
+#### Yaf_Config_Ini
 
 Parses standard INI files. Supports section inheritance:
 
@@ -314,7 +327,7 @@ db.pass = "secret"
 
 The `[product : common]` syntax inherits all keys from `[common]` then applies its own overrides.
 
-### Yaf_Config_Simple
+#### Yaf_Config_Simple
 
 Parses PHP arrays or INI files into a mutable configuration object. Values can be modified at runtime:
 
@@ -328,7 +341,9 @@ $config->db->host = "10.0.0.1"; // editable
 
 In contrast, `Yaf_Config_Ini` is always read-only.
 
-## Plugins
+> **Performance tip**: If you have a large amount of static configuration, consider using [Yaconf](https://github.com/laruence/yaconf) — a persistent configuration container that keeps configs in shared memory across the entire PHP lifecycle, providing significantly faster access than parsing INI files on every request.
+
+### Plugins
 
 Yaf supports a plugin hook system via `Yaf_Plugin_Abstract`. Override any of 7 hooks:
 
@@ -352,7 +367,7 @@ Register in Bootstrap:
 $dispatcher->registerPlugin(new UserPlugin());
 ```
 
-## Exceptions
+### Exceptions
 
 Yaf defines a structured exception hierarchy:
 
@@ -373,7 +388,7 @@ $dispatcher->throwException(true);  // throw to user
 $dispatcher->catchException(true);  // catch and store in request
 ```
 
-## Core Classes Quick Reference
+### Core Classes Quick Reference
 
 | Class | Purpose |
 |---|---|
@@ -395,15 +410,6 @@ $dispatcher->catchException(true);  // catch and store in request
 | `Yaf_View_Simple` | PHP-template view engine (`assign`, `render`, `display`, `eval`, `assignRef`, `clear`) |
 | `Yaf_Plugin_Abstract` | 7-hook plugin base class |
 
-## Code Generator
-
-You can generate the example above using Yaf Code Generator:
-
-```bash
-$ ./yaf_cg -d output_directory [-a application_name] [--namespace]
-```
-
-The code generator is located at: https://github.com/laruence/yaf/tree/master/tools/cg
 
 ## More
 
