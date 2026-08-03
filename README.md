@@ -4,6 +4,19 @@
 
 Yaf is a PHP framework with high performance. It is written in C and built as a PHP extension.
 
+### When to use Yaf
+
+Yaf is not "yet another PHP framework" — it's a **C framework exposed through PHP**. Every class, every router match, every dispatch cycle runs in compiled C code rather than interpreted PHP. The result: constant overhead per request measured in microseconds, not milliseconds.
+
+This matters most in two scenarios:
+
+- **High-traffic applications** where framework bootstrap overhead becomes the dominant cost. Yaf eliminates the class-file loading cascade of Composer-based frameworks — there are no PHP files to `require` for the framework itself. `new Yaf_Application()` is instant; the router and dispatcher are already loaded in the extension's shared memory.
+- **Long-lived services** (Swoole, RoadRunner, ReactPHP) where you want your framework to *not* be the bottleneck. Yaf has no global state pollution issues across requests — each request gets a clean dispatch cycle with no static caches to leak.
+
+Yaf pairs naturally with the rest of the "Yet Another" ecosystem:
+- Use [Yaconf](https://github.com/laruence/yaconf) for static configuration — it eliminates the INI parse overhead that `Yaf_Config_Ini` pays on every request.
+- Use [Yac](https://github.com/laruence/yac) for runtime caching — database results, computed data, HTML fragments. All three share the same "local first, zero dependency, C-native" design philosophy.
+
 ## Requirement
 
 - PHP 7.0+ (master branch)
@@ -409,6 +422,47 @@ $dispatcher->catchException(true);  // catch and store in request
 | `Yaf_Response_Cli` | CLI response |
 | `Yaf_View_Simple` | PHP-template view engine (`assign`, `render`, `display`, `eval`, `assignRef`, `clear`) |
 | `Yaf_Plugin_Abstract` | 7-hook plugin base class |
+
+### Yaf_Registry
+
+`Yaf_Registry` is a static key-value store — a global data bus accessible from anywhere in the application. All methods are `static`.
+
+```php
+Yaf_Registry::set("user_config", $config);
+$config = Yaf_Registry::get("user_config");
+Yaf_Registry::has("user_config");  // true
+Yaf_Registry::del("user_config");  // removes the key
+```
+
+Common use: storing objects initialized in Bootstrap (e.g. a database connection, a logger instance) so controllers can access them without re-initializing.
+
+### Yaf_Session
+
+`Yaf_Session` is a namespaced wrapper around PHP's native `$_SESSION`. It implements `ArrayAccess`, `Iterator`, and `Countable`, and supports property-style access.
+
+```php
+$session = Yaf_Session::getInstance();
+$session->start();
+
+// All equivalent:
+$session->set("user", $data);
+$session["user"] = $data;
+$session->user = $data;
+
+$session->get("user");
+$session["user"];
+$session->user;
+
+$session->has("user");
+isset($session->user);
+
+$session->del("user");
+unset($session["user"]);
+unset($session->user);
+
+$session->clear();  // removes all keys
+count($session);    // number of keys
+```
 
 
 ## More
