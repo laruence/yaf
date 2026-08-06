@@ -30,7 +30,18 @@ if test "$PHP_YAF" != "no"; then
   else
     AC_MSG_RESULT([$php_version, ok])
   fi
-  PHP_NEW_EXTENSION(yaf, 
+  dnl when PHP is built with --with-external-pcre (e.g. Homebrew),
+  dnl php_pcre.h includes a bare "pcre2.h" which lives outside PHP's
+  dnl include dirs; locate it via pkg-config when available
+  ifdef([PKG_CHECK_MODULES], [
+    PKG_CHECK_MODULES([PCRE2], [libpcre2-8], [
+      PHP_EVAL_INCLINE($PCRE2_CFLAGS)
+    ], [
+      AC_MSG_NOTICE([libpcre2-8 not found via pkg-config, assuming bundled pcre])
+    ])
+  ])
+
+  PHP_NEW_EXTENSION(yaf,
     yaf.c                           \
     yaf_application.c               \
     yaf_bootstrap.c                 \
