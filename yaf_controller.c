@@ -79,7 +79,7 @@ static void yaf_controller_object_free(zend_object *object) /* {{{ */ {
 	}
 
 	if (ctl->properties) {
-		if (GC_DELREF(ctl->properties)) {
+		if (GC_DELREF(ctl->properties) == 0) {
 			GC_REMOVE_FROM_BUFFER(ctl->properties);
 			zend_array_destroy(ctl->properties);
 		}

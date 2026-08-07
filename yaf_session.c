@@ -79,7 +79,7 @@ static void yaf_session_object_free(zend_object *object) /* {{{ */ {
 	yaf_session_object *sess = php_yaf_session_fetch_object(object);
 
 	if (sess->properties) {
-		if (GC_DELREF(sess->properties)) {
+		if (GC_DELREF(sess->properties) == 0) {
 			GC_REMOVE_FROM_BUFFER(sess->properties);
 			zend_array_destroy(sess->properties);
 		}
