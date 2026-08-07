@@ -242,6 +242,25 @@
     <file name="108.phpt" role="test" />
     <file name="109.phpt" role="test" />
     <file name="110.phpt" role="test" />
+    <file name="111.phpt" role="test" />
+    <file name="112.phpt" role="test" />
+    <file name="113.phpt" role="test" />
+    <file name="114.phpt" role="test" />
+    <file name="115.phpt" role="test" />
+    <file name="116.phpt" role="test" />
+    <file name="117.phpt" role="test" />
+    <file name="118.phpt" role="test" />
+    <file name="119.phpt" role="test" />
+    <file name="120.phpt" role="test" />
+    <file name="121.phpt" role="test" />
+    <file name="122.phpt" role="test" />
+    <file name="123.phpt" role="test" />
+    <file name="124.phpt" role="test" />
+    <file name="125.phpt" role="test" />
+    <file name="126.phpt" role="test" />
+    <file name="127.phpt" role="test" />
+    <file name="128.phpt" role="test" />
+    <file name="129.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
