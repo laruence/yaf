@@ -457,8 +457,16 @@ int yaf_controller_init(yaf_controller_object *ctl, yaf_dispatcher_object *dispa
 	ctl->request = &dispatcher->request;
 	ctl->response = &dispatcher->response;
 	ctl->view = &dispatcher->view;
-	ctl->name = zend_string_copy(Z_YAFREQUESTOBJ(dispatcher->request)->controller);
-	ctl->module = zend_string_copy(Z_YAFREQUESTOBJ(dispatcher->request)->module);
+	/* request may be unset when constructing from userland before dispatch */
+	if (EXPECTED(Z_TYPE(dispatcher->request) == IS_OBJECT)) {
+		yaf_request_object *request = Z_YAFREQUESTOBJ(dispatcher->request);
+		if (request->controller) {
+			ctl->name = zend_string_copy(request->controller);
+		}
+		if (request->module) {
+			ctl->module = zend_string_copy(request->module);
+		}
+	}
 
 	if (!instanceof_function(ce, yaf_action_ce) &&
 		zend_hash_str_exists(&(ce->function_table), ZEND_STRL("init"))) {
