@@ -268,6 +268,9 @@ static void yaf_dispatcher_get_call_parameters(yaf_request_object *request, zend
 			if (UNEXPECTED(op == end)) {
 				goto out;
 			}
+		} else {
+			/* Missing required argument, let the engine throw */
+			goto out;
 		}
 	}
 out:
