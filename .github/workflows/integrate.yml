@@ -4,37 +4,37 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   matrix:
-    name: "PHP"
+    name: "Linux PHP ${{ matrix.php }} (${{ matrix.ts }})"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        PHP: ["7.0", "7.4", "8.0", "8.3", "8.4", "8.5"]
-        ZTS: ["no"]
+        php: ["7.0", "7.4", "8.0", "8.3", "8.4", "8.5"]
+        ts: ["nts"]
         include:
-          - PHP: "8.5"
-            OS: "ubuntu-latest"
-            ZTS: true
+          - php: "8.5"
+            ts: "ts"
     env:
-      PHP: ${{ matrix.PHP }}
+      PHP: ${{ matrix.php }}
       GITHUB: "yes"
       enable_debug: "yes"
       enable_session: "yes"
-      enable_maintainer_zts: ${{ matrix.ZTS }}
+      enable_maintainer_zts: ${{ matrix.ts == 'ts' && 'yes' || 'no' }}
       TEST_PHP_ARGS : "--show-diff"
       REPORT_EXIT_STATUS: "yes"
       NO_INTERACTION: "yes"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.PHP }}
+          php-version: ${{ matrix.php }}
       - name: Install
         run: |
           sudo apt-get install -y re2c
@@ -50,3 +50,24 @@ jobs:
       - name: Test
         run: |
             make test
+
+  windows:
+    name: "Windows PHP ${{ matrix.php }} (${{ matrix.ts }})"
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.0", "8.5"]
+        ts: ["nts"]
+        include:
+          - php: "8.5"
+            ts: "ts"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build and test extension
+        uses: php/php-windows-builder/extension@v1
+        with:
+          php-version: ${{ matrix.php }}
+          arch: x64
+          ts: ${{ matrix.ts }}
