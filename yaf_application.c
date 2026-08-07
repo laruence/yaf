@@ -831,6 +831,8 @@ PHP_METHOD(yaf_application, bootstrap) {
 				!yaf_slip_equal(ZSTR_VAL(func), ZEND_STRL(YAF_BOOTSTRAP_INITFUNC_PREFIX))) {
 				continue;
 			}
+			/* ret stays uninitialized if the callee is protected/private */
+			ZVAL_UNDEF(&ret);
 			if (UNEXPECTED(!yaf_call_user_method_with_1_arguments(obj, fptr, dispatcher, &ret))) {
 				/** an uncaught exception threw in function call */
 				if (UNEXPECTED(EG(exception))) {
@@ -838,8 +840,7 @@ PHP_METHOD(yaf_application, bootstrap) {
 					RETURN_FALSE;
 				}
 			}
-			/* Must always return bool? */
-			/* zval_ptr_dtor(&ret); */
+			zval_ptr_dtor(&ret);
 		} ZEND_HASH_FOREACH_END();
 		OBJ_RELEASE(Z_OBJ(bootstrap));
 
