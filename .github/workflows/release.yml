@@ -17,7 +17,7 @@ jobs:
       matrix: ${{ steps.extension-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Get the extension matrix
         id: extension-matrix
@@ -31,7 +31,7 @@ jobs:
       matrix: ${{ fromJson(needs.get-extension-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build the extension
         uses: php/php-windows-builder/extension@v1
