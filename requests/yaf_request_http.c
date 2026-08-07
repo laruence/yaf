@@ -87,21 +87,20 @@ void yaf_request_http_init(yaf_request_object *req, zend_string *request_uri, ze
 				if (EXPECTED(Z_TYPE_P(uri) == IS_STRING)) {
 					/* Http proxy reqs setup request uri with scheme and host [and port] + the url path,
 					 * only use url path */
-					const char *p = (const char*)Z_STRVAL_P(uri);
-					if ((*p == 'h' || *p++ == 'H') &&
-						(*p == 't' || *p++ == 'T') &&
-						(*p == 't' || *p++ == 'T') &&
-						(*p == 'p' || *p == 'P')) {
+					if (!strncasecmp(Z_STRVAL_P(uri), "http", 4)) {
 						php_url *url_info = php_url_parse(Z_STRVAL_P(uri));
+						/* Malformed absolute-form (eg. empty host, invalid port) */
+						if (url_info) {
 #if PHP_VERSION_ID < 70300
-						if (url_info && url_info->path) {
-							settled_uri = zend_string_init(url_info->path, strlen(url_info->path), 0);
-						}
+							if (url_info->path) {
+								settled_uri = zend_string_init(url_info->path, strlen(url_info->path), 0);
+							}
 #else
-						settled_uri = url_info->path;
-						url_info->path = NULL;
+							settled_uri = url_info->path;
+							url_info->path = NULL;
 #endif
-						php_url_free(url_info);
+							php_url_free(url_info);
+						}
 					} else {
 						char *pos = NULL;
 						if ((pos = strstr(Z_STRVAL_P(uri), "?"))) {
