@@ -674,14 +674,14 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 	} else {
 		/* failover to uncaught exception */
 		EG(exception) = Z_OBJ(exception);
-		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
+		YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_IN_EXCEPTION;
 		return;
 	}
 	yaf_request_set_dispatched(request, 0);
 
 	if (UNEXPECTED(!yaf_dispatcher_init_view(dispatcher, NULL, NULL))) {
 		yaf_request_del_str_param(request, "exception", sizeof("exception") - 1);
-		YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
+		YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_IN_EXCEPTION;
 		return;
 	}
 
@@ -705,7 +705,7 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 	}
 
 	EG(opline_before_exception) = opline;
-	YAF_DISPATCHER_FLAGS(dispatcher) = ~YAF_DISPATCHER_IN_EXCEPTION;
+	YAF_DISPATCHER_FLAGS(dispatcher) &= ~YAF_DISPATCHER_IN_EXCEPTION;
 	YAF_EXCEPTION_ERASE_EXCEPTION();
 }
 /* }}} */
