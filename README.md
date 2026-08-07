@@ -1,6 +1,6 @@
 # Yaf - Yet Another Framework
 
-[![Build status](https://ci.appveyor.com/api/projects/status/awii6wf2ocmy202p/branch/master?svg=true)](https://ci.appveyor.com/project/laruence/yaf/branch/master) [![Linux](https://github.com/laruence/yaf/actions/workflows/linux.yml/badge.svg?branch=master)](https://github.com/laruence/yaf/actions/workflows/linux.yml) [![Windows](https://github.com/laruence/yaf/actions/workflows/windows.yml/badge.svg?branch=master)](https://github.com/laruence/yaf/actions/workflows/windows.yml)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/awii6wf2ocmy202p/branch/master?svg=true)](https://ci.appveyor.com/project/laruence/yaf/branch/master) [![Linux](https://github.com/laruence/yaf/actions/workflows/linux.yml/badge.svg?branch=master)](https://github.com/laruence/yaf/actions/workflows/linux.yml) [![Windows](https://github.com/laruence/yaf/actions/workflows/windows.yml/badge.svg?branch=master)](https://github.com/laruence/yaf/actions/workflows/windows.yml)
 
 Yaf is a PHP framework with high performance. It is written in C and built as a PHP extension.
 
