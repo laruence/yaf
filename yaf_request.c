@@ -236,13 +236,11 @@ static zend_always_inline zend_string *yaf_request_get_base_uri(yaf_request_obje
 /* }}} */
 
 zend_string *yaf_request_get_language(yaf_request_object *request) /* {{{ */ {
-	if (!request->language) {
+	if (request->language) {
+		return zend_string_copy(request->language);
+	} else {
 		zval *accept_langs = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("HTTP_ACCEPT_LANGUAGE"));
-		if (!accept_langs) {
-			return NULL;
-		} else if (UNEXPECTED(IS_STRING != Z_TYPE_P(accept_langs) || !Z_STRLEN_P(accept_langs))) {
-			return NULL;
-		} else {
+		if (accept_langs && Z_TYPE_P(accept_langs) == IS_STRING && Z_STRLEN_P(accept_langs)) {
 			char *seg;
 			char *ptrptr = NULL;
 			unsigned prefer_len = 0;
@@ -259,7 +257,8 @@ zend_string *yaf_request_get_language(yaf_request_object *request) /* {{{ */ {
 				/* Accept-Language: da, en-gb;q=0.8, en;q=0.7 */
 				if ((qvalue = strstr(seg, "q="))) {
 					float qval = strtod(qvalue + 2, NULL);
-					if (qval > max_qvlaue) {
+					/* require a non-empty tag before ";q=", skip malformed segment like "q=0.8" */
+					if (qvalue > seg + 1 && qval > max_qvlaue) {
 						max_qvlaue = qval;
 						prefer_len = qvalue - seg - 1;
 						prefer 	   = seg;
@@ -277,12 +276,13 @@ zend_string *yaf_request_get_language(yaf_request_object *request) /* {{{ */ {
 
 			if (prefer) {
 				request->language = zend_string_init(prefer, prefer_len, 0);
+				efree(langs);
+				return zend_string_copy(request->language);
 			}
 			efree(langs);
 		}
+		return NULL;
 	}
-
-	return zend_string_copy(request->language);
 }
 /* }}} */
 
