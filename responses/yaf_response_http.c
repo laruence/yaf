@@ -138,8 +138,9 @@ int yaf_response_http_send(yaf_response_object *response) /* {{{ */ {
 					efree((char*)ctr.line);
 					return 0;
 				}
+				/* sapi_header_op() copies the line, the buffer is ours to free */
+				efree((char*)ctr.line);
 			} ZEND_HASH_FOREACH_END();
-			efree((char*)ctr.line);
 			response->flags |= YAF_RESPONSE_HEADER_SENT;
 		}
 	}
