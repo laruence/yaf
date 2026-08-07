@@ -201,8 +201,14 @@ static int yaf_view_simple_valid_var_name(zend_string *var_name) /* {{{ */ {
 static void yaf_view_build_symtable(zend_array *symbol_table, zend_array *tpl_vars, zval *vars) /* {{{ */ {
 	zval *entry;
 	zend_string *var_name;
+	uint32_t n = (tpl_vars ? zend_hash_num_elements(tpl_vars) : 0);
 
-	zend_hash_init(symbol_table, 8, NULL, ZVAL_PTR_DTOR, 0);
+	if (vars && Z_TYPE_P(vars) == IS_ARRAY) {
+		n += zend_hash_num_elements(Z_ARRVAL_P(vars));
+	}
+
+	/* pre-size the table to avoid rehashing when there are many variables */
+	zend_hash_init(symbol_table, n > 8 ? n : 8, NULL, ZVAL_PTR_DTOR, 0);
 
 	if (EXPECTED(tpl_vars)) {
 	    ZEND_HASH_FOREACH_STR_KEY_VAL(tpl_vars, var_name, entry) {
