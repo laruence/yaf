@@ -97,8 +97,9 @@ static zend_object *yaf_route_regex_new(zend_class_entry *ce) /* {{{ */ {
 
 	regex->match = NULL;
 	regex->router = NULL;
-	regex->router = NULL;
+	regex->map = NULL;
 	regex->verify = NULL;
+	regex->reverse = NULL;
 	regex->properties = NULL;
 
 	return &regex->std;
