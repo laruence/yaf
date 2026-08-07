@@ -397,7 +397,7 @@ static inline void yaf_request_set_uri(yaf_request_object *request, zend_string 
 
 const char *yaf_request_strip_base_uri(zend_string *uri, zend_string *base_uri, size_t *len) /* {{{ */ {
 	register const char *p = ZSTR_VAL(uri);
-	if (strncasecmp(p, ZSTR_VAL(base_uri), ZSTR_LEN(base_uri)) == 0) {
+	if (ZSTR_LEN(base_uri) && strncasecmp(p, ZSTR_VAL(base_uri), ZSTR_LEN(base_uri)) == 0) {
 		p += ZSTR_LEN(base_uri);
 		if (*p == '\0' || *p == YAF_ROUTER_URL_DELIMIETER || *(--p) == YAF_ROUTER_URL_DELIMIETER) {
 			*len = ZSTR_LEN(uri) - (p - ZSTR_VAL(uri));
