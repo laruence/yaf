@@ -685,6 +685,9 @@ static ZEND_COLD zend_never_inline void yaf_dispatcher_exception_handler(yaf_dis
 		return;
 	}
 
+	/* only errorAction itself is dispatched here; a forward() inside it
+	   won't be followed until a next userland dispatch() call, since the
+	   caller of this handler always returns (see YAF_EXCEPTION_HANDLE) */
 	if (!yaf_dispatcher_handle(dispatcher)) {
 		if (UNEXPECTED(EG(exception)) &&
 			instanceof_function(EG(exception)->ce,

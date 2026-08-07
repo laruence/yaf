@@ -39,6 +39,10 @@
 
 #define YAF_CORRESPOND_ERROR(x) (x>>9L)
 
+/* NOTE: call sites pass `return NULL` as ret, so dispatching does NOT resume
+ * within the same dispatch() call after the exception handler ran. A forward()
+ * issued inside errorAction only takes effect on a subsequent dispatch() call.
+ * This is long-standing upstream behavior, kept intentionally. */
 #define YAF_EXCEPTION_HANDLE_EX(dispatcher, ret) \
 	if (UNEXPECTED(EG(exception))) { \
 		if (catch_exception) { \
