@@ -50,6 +50,9 @@ ZEND_COLD void yaf_trigger_error(int type, char *format, ...) /* {{{ */ {
 
 		if (app) {
 			app->err_no = type;
+			if (app->err_msg) {
+				zend_string_release(app->err_msg);
+			}
 			app->err_msg = msg;
 		}
 		php_error_docref(NULL, E_RECOVERABLE_ERROR, "%s", ZSTR_VAL(msg));
