@@ -749,7 +749,7 @@ int yaf_request_set_params_multi(yaf_request_object *request, zval *values) /* {
 		}
 		yaf_request_set_params_single(request, key, entry);
 	} ZEND_HASH_FOREACH_END();
-	return 0;
+	return 1;
 }
 /* }}} */
 
