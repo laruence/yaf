@@ -62,6 +62,7 @@ void yaf_view_set_tpl_dir_ex(yaf_view_t *view, zend_string *tpl) /* {{{ */ {
 	if (Z_TYPE(ret) != IS_TRUE && (Z_TYPE(ret) != IS_LONG || !Z_LVAL(ret))) {
 		/* error handle? */
 	}
+	zval_ptr_dtor(&ret);
 	zval_dtor(&arg);
 }
 /* }}} */
