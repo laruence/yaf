@@ -398,12 +398,11 @@ static int yaf_view_simple_eval(yaf_view_t *view, zend_string *tpl, zval * vars,
 		if (op_array) {
 			yaf_view_build_symtable(&symbol_table, &(Z_YAFVIEWOBJ_P(view))->tpl_vars, vars);
 			yaf_view_exec_tpl(view, op_array, &symbol_table, ret);
+			zend_hash_destroy(&symbol_table);
 			destroy_op_array(op_array);
 			efree_size(op_array, sizeof(zend_op_array));
 		}
 	}
-
-	zend_hash_destroy(&symbol_table);
 
 	return 1;
 }
