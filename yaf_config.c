@@ -71,6 +71,8 @@ static HashTable *yaf_config_get_properties(yaf_object *obj) /* {{{ */ {
 
 	if (conf->config) {
 		ZVAL_ARR(&rv, zend_array_dup(conf->config));
+	} else {
+		ZVAL_NULL(&rv);
 	}
 	zend_hash_str_update(ht, "config:protected", sizeof("config:protected") - 1, &rv);
 
