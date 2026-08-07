@@ -451,7 +451,7 @@ int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri,
 				phpself_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("PHP_SELF"));
 				if (phpself_name && EXPECTED(IS_STRING == Z_TYPE_P(phpself_name))) {
 					zend_string *phpself = php_basename(Z_STRVAL_P(phpself_name), Z_STRLEN_P(phpself_name), NULL, 0);
-					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(phpself), MIN(ZSTR_LEN(file_name), ZSTR_LEN(file_name))) == 0) {
+					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(phpself), MIN(ZSTR_LEN(file_name), ZSTR_LEN(phpself))) == 0) {
 						basename = zend_string_copy(Z_STR_P(phpself_name));
 						zend_string_release(file_name);
 						zend_string_release(phpself);
@@ -463,7 +463,7 @@ int yaf_request_set_base_uri(yaf_request_object *request, zend_string *base_uri,
 				orig_name = yaf_request_query_str(YAF_GLOBAL_VARS_SERVER, ZEND_STRL("ORIG_SCRIPT_NAME"));
 				if (orig_name && IS_STRING == Z_TYPE_P(orig_name)) {
 					zend_string *orig = php_basename(Z_STRVAL_P(orig_name), Z_STRLEN_P(orig_name), NULL, 0);
-					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(orig), MIN(ZSTR_LEN(file_name), ZSTR_LEN(file_name))) == 0) {
+					if (memcmp(ZSTR_VAL(file_name), ZSTR_VAL(orig), MIN(ZSTR_LEN(file_name), ZSTR_LEN(orig))) == 0) {
 						basename = zend_string_copy(Z_STR_P(orig_name));
 						zend_string_release(file_name);
 						zend_string_release(orig);
