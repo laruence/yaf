@@ -366,7 +366,7 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 					zend_stream_init_fp(&fh, fp, ini_file);
 #else
 					zend_file_handle fh = {{0}, 0};
-					fh.filename = filename;
+					fh.filename = ini_file;
 					fh.handle.fp = fp;
 					fh.type = ZEND_HANDLE_FP;
 #endif
@@ -389,6 +389,9 @@ int yaf_config_ini_init(yaf_config_object *conf, zval *filename, zend_string *se
 #if PHP_VERSION_ID >= 80100
 					zend_destroy_file_handle(&fh);
 #endif
+				} else {
+					yaf_trigger_error(E_ERROR, "Unable to open config file '%s'", ini_file);
+					return 0;
 				}
 			} else {
 				yaf_trigger_error(E_ERROR, "Argument is not a valid ini file '%s'", ini_file);
