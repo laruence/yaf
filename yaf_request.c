@@ -1111,7 +1111,7 @@ PHP_METHOD(yaf_request, setParam) {
 			RETURN_ZVAL(getThis(), 1, 0);
 		}
 	} else {
-		zend_wrong_param_count(); RETURN_THROWS();
+		zend_wrong_param_count(); return;
 	}
 
 	RETURN_FALSE;

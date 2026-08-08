@@ -504,7 +504,7 @@ PHP_METHOD(yaf_view_simple, assign) {
 		yaf_view_simple_assign_multi(view, value);
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		zend_wrong_param_count(); RETURN_THROWS();
+		zend_wrong_param_count(); return;
 		RETURN_FALSE;
 	}
 }
