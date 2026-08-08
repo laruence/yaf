@@ -51,7 +51,7 @@ typedef struct {
 #define Z_YAFREQUESTOBJ_P(zv)  Z_YAFREQUESTOBJ(*zv)
 
 static zend_always_inline yaf_request_object *php_yaf_request_fetch_object(zend_object *obj) {
-	return (yaf_request_object *)((char*)(obj) - XtOffsetOf(yaf_request_object, std));
+	return (yaf_request_object *)((char*)(obj) - offsetof(yaf_request_object, std));
 }
 
 void yaf_request_instance(yaf_request_t *this_ptr, zend_string *info);

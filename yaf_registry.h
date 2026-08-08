@@ -26,7 +26,7 @@ typedef struct {
 #define Z_YAFREGISTRYOBJ(zv)    (php_yaf_registry_fetch_object(Z_OBJ(zv)))
 #define Z_YAFREGISTRYOBJ_P(zv)  Z_YAFREGISTRYOBJ(*zv)
 static zend_always_inline yaf_registry_object *php_yaf_registry_fetch_object(zend_object *obj) {
-	return (yaf_registry_object *)((char*)(obj) - XtOffsetOf(yaf_registry_object, std));
+	return (yaf_registry_object *)((char*)(obj) - offsetof(yaf_registry_object, std));
 }
 
 extern zend_class_entry *yaf_registry_ce;

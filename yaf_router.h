@@ -31,7 +31,7 @@ typedef struct {
 #define Z_YAFROUTEROBJ_P(zv)  Z_YAFROUTEROBJ(*zv)
 
 static zend_always_inline yaf_router_object *php_yaf_router_fetch_object(zend_object *obj) {
-	return (yaf_router_object *)((char*)(obj) - XtOffsetOf(yaf_router_object, std));
+	return (yaf_router_object *)((char*)(obj) - offsetof(yaf_router_object, std));
 }
 
 extern zend_class_entry *yaf_router_ce;

@@ -504,7 +504,7 @@ PHP_METHOD(yaf_view_simple, assign) {
 		yaf_view_simple_assign_multi(view, value);
 		RETURN_ZVAL(getThis(), 1, 0);
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count(); RETURN_THROWS();
 		RETURN_FALSE;
 	}
 }
@@ -688,7 +688,7 @@ YAF_STARTUP_FUNCTION(view_simple) {
 	zend_class_implements(yaf_view_simple_ce, 1, yaf_view_interface_ce);
 
 	memcpy(&yaf_view_simple_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_view_simple_obj_handlers.offset = XtOffsetOf(yaf_view_object, std);
+	yaf_view_simple_obj_handlers.offset = offsetof(yaf_view_object, std);
 	yaf_view_simple_obj_handlers.free_obj = yaf_view_object_free;
 	yaf_view_simple_obj_handlers.get_properties = yaf_view_simple_get_properties;
 	yaf_view_simple_obj_handlers.read_property = (zend_object_read_property_t)yaf_view_simple_read_property;

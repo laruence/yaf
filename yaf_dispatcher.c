@@ -1294,7 +1294,7 @@ YAF_STARTUP_FUNCTION(dispatcher) {
 	yaf_dispatcher_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NOT_SERIALIZABLE;
 #endif
 	memcpy(&yaf_dispatcher_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_dispatcher_obj_handlers.offset = XtOffsetOf(yaf_dispatcher_object, std);
+	yaf_dispatcher_obj_handlers.offset = offsetof(yaf_dispatcher_object, std);
 	yaf_dispatcher_obj_handlers.free_obj = yaf_dispatcher_obj_free;
 	yaf_dispatcher_obj_handlers.clone_obj = NULL;
 	yaf_dispatcher_obj_handlers.get_gc = yaf_dispatcher_get_gc;

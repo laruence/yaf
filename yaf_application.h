@@ -45,7 +45,7 @@ typedef struct {
 #define Z_YAFAPPOBJ_P(zv)   Z_YAFAPPOBJ(*(zv))
 
 static zend_always_inline yaf_application_object *php_yaf_application_fetch_object(zend_object *obj) {
-	return (yaf_application_object *)((char*)(obj) - XtOffsetOf(yaf_application_object, std));
+	return (yaf_application_object *)((char*)(obj) - offsetof(yaf_application_object, std));
 }
 
 extern zend_class_entry *yaf_application_ce;

@@ -225,7 +225,7 @@ YAF_STARTUP_FUNCTION(registry) {
 #endif
 
 	memcpy(&yaf_registry_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_registry_obj_handlers.offset = XtOffsetOf(yaf_registry_object, std);
+	yaf_registry_obj_handlers.offset = offsetof(yaf_registry_object, std);
 	yaf_registry_obj_handlers.clone_obj = NULL;
 	yaf_registry_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_registry_obj_handlers.free_obj = yaf_registry_object_free;

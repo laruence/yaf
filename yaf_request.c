@@ -48,7 +48,7 @@ static zend_object_handlers yaf_request_obj_handlers;
 static zend_object *yaf_request_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_request_object *req = emalloc(sizeof(yaf_request_object) + zend_object_properties_size(ce));
 
-	memset(req, 0, XtOffsetOf(yaf_request_object, std));
+	memset(req, 0, offsetof(yaf_request_object, std));
 	zend_object_std_init(&req->std, ce);
 	if (ce->default_properties_count) {
 		object_properties_init(&req->std, ce);
@@ -1111,7 +1111,7 @@ PHP_METHOD(yaf_request, setParam) {
 			RETURN_ZVAL(getThis(), 1, 0);
 		}
 	} else {
-		WRONG_PARAM_COUNT;
+		zend_wrong_param_count(); RETURN_THROWS();
 	}
 
 	RETURN_FALSE;
@@ -1406,7 +1406,7 @@ YAF_STARTUP_FUNCTION(request){
 #endif
 
 	memcpy(&yaf_request_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_request_obj_handlers.offset = XtOffsetOf(yaf_request_object, std);
+	yaf_request_obj_handlers.offset = offsetof(yaf_request_object, std);
 	yaf_request_obj_handlers.free_obj = yaf_request_object_free;
 	yaf_request_obj_handlers.get_properties = yaf_request_get_properties;;
 	yaf_request_obj_handlers.read_property = (zend_object_read_property_t)yaf_request_read_property;

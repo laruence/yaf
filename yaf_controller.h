@@ -45,7 +45,7 @@ typedef struct {
 #define Z_YAFCTLOBJ_P(zv)  Z_YAFCTLOBJ(*zv)
 
 static zend_always_inline yaf_controller_object *php_yaf_controller_fetch_object(zend_object *obj) {
-	return (yaf_controller_object *)((char*)(obj) - XtOffsetOf(yaf_controller_object, std));
+	return (yaf_controller_object *)((char*)(obj) - offsetof(yaf_controller_object, std));
 }
 
 int yaf_controller_render(yaf_controller_t *ctl, zend_string *action, zval *vars, zval *ret);

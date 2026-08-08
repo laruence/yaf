@@ -43,7 +43,7 @@ typedef struct {
 #define Z_YAFDISPATCHEROBJ_P(zv) Z_YAFDISPATCHEROBJ(*zv)
 
 static zend_always_inline yaf_dispatcher_object *php_yaf_dispatcher_fetch_object(zend_object *obj) {
-	return (yaf_dispatcher_object *)((char*)(obj) - XtOffsetOf(yaf_dispatcher_object, std));
+	return (yaf_dispatcher_object *)((char*)(obj) - offsetof(yaf_dispatcher_object, std));
 }
 
 #define YAF_PLUGIN_HANDLE(dispatcher, ev) \

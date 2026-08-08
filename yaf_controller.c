@@ -312,7 +312,7 @@ static void yaf_controller_determine_auto_render(yaf_controller_object *ctl, zen
 static zend_object *yaf_controller_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_controller_object *ctl = emalloc(sizeof(yaf_controller_object) + zend_object_properties_size(ce));
 
-	memset(ctl, 0, XtOffsetOf(yaf_controller_object, std));
+	memset(ctl, 0, offsetof(yaf_controller_object, std));
 	zend_object_std_init(&ctl->std, ce);
 	if (UNEXPECTED(ce->default_properties_count)) {
 		object_properties_init(&ctl->std, ce);
@@ -827,7 +827,7 @@ YAF_STARTUP_FUNCTION(controller) {
 #endif
 
 	memcpy(&yaf_controller_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_controller_obj_handlers.offset = XtOffsetOf(yaf_controller_object, std);
+	yaf_controller_obj_handlers.offset = offsetof(yaf_controller_object, std);
 	yaf_controller_obj_handlers.clone_obj = NULL;
 	yaf_controller_obj_handlers.get_gc = yaf_fake_get_gc;
 	yaf_controller_obj_handlers.free_obj = yaf_controller_object_free;

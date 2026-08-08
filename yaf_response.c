@@ -144,7 +144,7 @@ static YAF_WRITE_HANDLER yaf_response_write_property(yaf_object *obj, void *name
 static zend_object *yaf_response_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_response_object *response = emalloc(sizeof(yaf_response_object) + zend_object_properties_size(ce));
 	
-	memset(response, 0, XtOffsetOf(yaf_response_object, std));
+	memset(response, 0, offsetof(yaf_response_object, std));
 	zend_object_std_init(&response->std, ce);
 	response->std.handlers = &yaf_response_obj_handlers;
 	if (UNEXPECTED(ce->default_properties_count)) {
@@ -574,7 +574,7 @@ YAF_STARTUP_FUNCTION(response) {
 #endif
 
 	memcpy(&yaf_response_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_response_obj_handlers.offset = XtOffsetOf(yaf_response_object, std);
+	yaf_response_obj_handlers.offset = offsetof(yaf_response_object, std);
 	yaf_response_obj_handlers.free_obj = yaf_response_object_free;
 	yaf_response_obj_handlers.clone_obj = NULL;
 	yaf_response_obj_handlers.get_gc = yaf_fake_get_gc;

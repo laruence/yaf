@@ -88,7 +88,7 @@ static HashTable *yaf_config_get_properties(yaf_object *obj) /* {{{ */ {
 static zend_object *yaf_config_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_config_object *conf = emalloc(sizeof(yaf_config_object) + zend_object_properties_size(ce));
 
-	memset(conf, 0, XtOffsetOf(yaf_config_object, std));
+	memset(conf, 0, offsetof(yaf_config_object, std));
 	zend_object_std_init(&conf->std, ce);
 	conf->std.handlers = &yaf_config_obj_handlers;
 	
@@ -406,7 +406,7 @@ YAF_STARTUP_FUNCTION(config) {
 #endif
 	
 	memcpy(&yaf_config_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_config_obj_handlers.offset = XtOffsetOf(yaf_config_object, std);
+	yaf_config_obj_handlers.offset = offsetof(yaf_config_object, std);
 	yaf_config_obj_handlers.free_obj = yaf_config_object_free;
 	yaf_config_obj_handlers.clone_obj = NULL;
 	yaf_config_obj_handlers.get_gc = yaf_config_get_gc;

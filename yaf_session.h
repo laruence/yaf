@@ -30,7 +30,7 @@ typedef struct {
 #define Z_YAFSESSIONOBJ_P(zv) Z_YAFSESSIONOBJ(*zv)
 
 static zend_always_inline yaf_session_object *php_yaf_session_fetch_object(zend_object *obj) {
-	return (yaf_session_object *)((char*)(obj) - XtOffsetOf(yaf_session_object, std));
+	return (yaf_session_object *)((char*)(obj) - offsetof(yaf_session_object, std));
 }
 
 extern zend_class_entry *yaf_session_ce;

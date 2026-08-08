@@ -31,7 +31,7 @@ typedef struct {
 #define Z_YAFVIEWOBJ_P(zv)  Z_YAFVIEWOBJ(*zv)
 
 static zend_always_inline yaf_view_object *php_yaf_view_fetch_object(zend_object *obj) {
-	return (yaf_view_object *)((char*)(obj) - XtOffsetOf(yaf_view_object, std));
+	return (yaf_view_object *)((char*)(obj) - offsetof(yaf_view_object, std));
 }
 
 void yaf_view_instance(yaf_view_t *view, zend_string *tpl_dir, zval *options);

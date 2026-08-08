@@ -99,7 +99,7 @@ static void yaf_application_free(zend_object *object) /* {{{ */ {
 static zend_object* yaf_application_new(zend_class_entry *ce) /* {{{ */ {
 	yaf_application_object *app = emalloc(sizeof(yaf_application_object) + zend_object_properties_size(ce));
 
-	memset(app, 0, XtOffsetOf(yaf_application_object, std));
+	memset(app, 0, offsetof(yaf_application_object, std));
 	zend_object_std_init(&app->std, ce);
 	app->std.handlers = &yaf_application_obj_handlers;
 
@@ -1061,7 +1061,7 @@ YAF_STARTUP_FUNCTION(application) {
 #endif
 
 	memcpy(&yaf_application_obj_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-	yaf_application_obj_handlers.offset = XtOffsetOf(yaf_application_object, std);
+	yaf_application_obj_handlers.offset = offsetof(yaf_application_object, std);
 	yaf_application_obj_handlers.clone_obj = NULL;
 	yaf_application_obj_handlers.get_gc = yaf_application_get_gc;
 	yaf_application_obj_handlers.free_obj = yaf_application_free;
