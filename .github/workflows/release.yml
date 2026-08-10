@@ -4,8 +4,12 @@ name: release
 
 on:
   release:
-    types: [created]
+    types: [published]
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Release tag to build and upload assets for (e.g. 3.0.0)'
+        required: true
 
 permissions:
   contents: write
@@ -43,10 +47,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.event_name == 'release' }}
+    if: ${{ github.event_name == 'release' || inputs.release }}
     steps:
       - name: Upload artifacts to the release
         uses: php/php-windows-builder/release@v1
         with:
-          release: ${{ github.event.release.tag_name }}
+          release: ${{ github.event.release.tag_name || inputs.release }}
           token: ${{ secrets.GITHUB_TOKEN }}
