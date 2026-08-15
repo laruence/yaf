@@ -219,6 +219,8 @@ static zend_always_inline int yaf_slip_equal(const char *s, const char *p, unsig
 	return (l == 0 || *s == *p);
 }
 
+#define YAF_DEFAULT_FORWARD_LIMIT    5
+
 static zend_always_inline unsigned int yaf_get_forward_limit() {
 	return YAF_VAR_FLAGS(YAF_G(loader));
 }
