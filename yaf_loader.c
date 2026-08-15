@@ -470,6 +470,10 @@ ZEND_HOT int yaf_loader_import(const char *path, uint32_t len) /* {{{ */ {
 		return 0;
 	}
 
+	/* len must cover the whole path: it becomes the zend_string length when
+	   the opened_path is registered into EG(included_files) */
+	ZEND_ASSERT(len == strlen(path));
+
 #if PHP_VERSION_ID < 70400
 	file_handle.filename = path;
 	file_handle.type = ZEND_HANDLE_FILENAME;
@@ -663,7 +667,8 @@ static zend_never_inline int yaf_loader_load_mvc(yaf_loader_object *loader, char
 	buf[ZSTR_LEN(library_dir) + 1 + folder_len] = DEFAULT_SLASH;
 	buf[ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len] = '.';
 	memcpy(buf + ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len + 1, ext, ext_len);
-	buf[ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len + 1 + ext_len] = '\0';
+	len = ZSTR_LEN(library_dir) + 1 + folder_len + 1 + len + 1 + ext_len;
+	buf[len] = '\0';
 
 	return yaf_loader_import(buf, len);
 }
