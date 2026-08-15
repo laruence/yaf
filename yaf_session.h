@@ -21,7 +21,6 @@
 
 typedef struct {
 	zend_uchar  flags;
-	zend_array *session;
 	zend_array *properties;
 	zend_object std;
 } yaf_session_object;

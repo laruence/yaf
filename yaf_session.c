@@ -39,6 +39,21 @@ static zend_object_handlers yaf_session_obj_handlers;
 extern PHPAPI zend_class_entry *spl_ce_Countable;
 #endif
 
+/* Resolve the live $_SESSION array straight from the symbol table on every
+   access instead of caching a borrowed pointer: a cached pointer would dangle
+   once userland unsets $_SESSION or the session is destroyed, and holding a
+   reference instead would silently freeze us on a detached array. */
+static zend_always_inline zend_array *yaf_session_array(void) /* {{{ */ {
+	zval *pzval;
+
+	if (UNEXPECTED((pzval = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_SESSION))) == NULL ||
+		Z_TYPE_P(pzval) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(pzval)) != IS_ARRAY)) {
+		return NULL;
+	}
+	return Z_ARRVAL_P(Z_REFVAL_P(pzval));
+}
+/* }}} */
+
 static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
 	if (session->flags & YAF_SESSION_STARTED) {
 		return;
@@ -63,11 +78,14 @@ static HashTable *yaf_session_get_properties(yaf_object *obj) /* {{{ */ {
 	ZVAL_BOOL(&rv, sess->flags & YAF_SESSION_STARTED);
 	zend_hash_str_update(ht, "started:protected", sizeof("started:protected") - 1, &rv);
 
-	if (sess->session) {
-		ZVAL_ARR(&rv, sess->session);
-		Z_ADDREF(rv);
-	} else {
-		ZVAL_NULL(&rv);
+	{
+		zend_array *session = yaf_session_array();
+		if (session) {
+			ZVAL_ARR(&rv, session);
+			Z_ADDREF(rv);
+		} else {
+			ZVAL_NULL(&rv);
+		}
 	}
 	zend_hash_str_update(ht, "session:protected", sizeof("session:protected") - 1, &rv);
 
@@ -91,13 +109,13 @@ static void yaf_session_object_free(zend_object *object) /* {{{ */ {
 
 zend_object_iterator *yaf_session_get_iterator(zend_class_entry *ce, zval *object, int by_ref) /* {{{ */ {
 	yaf_iterator *iterator;
-	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(object);
+	zend_array *session;
 
 	if (by_ref) {
 		zend_error(E_ERROR, "An iterator cannot be used with foreach by reference");
 	}
 
-	if (!sess->session) {
+	if (!(session = yaf_session_array())) {
 		return NULL;
 	}
 
@@ -105,7 +123,7 @@ zend_object_iterator *yaf_session_get_iterator(zend_class_entry *ce, zval *objec
 	zend_iterator_init(&iterator->intern);
 	iterator->intern.funcs = &yaf_iterator_funcs;
 
-	ZVAL_ARR(&iterator->intern.data, sess->session);
+	ZVAL_ARR(&iterator->intern.data, session);
 	Z_ADDREF(iterator->intern.data);
 
 	ZVAL_UNDEF(&iterator->current);
@@ -115,7 +133,6 @@ zend_object_iterator *yaf_session_get_iterator(zend_class_entry *ce, zval *objec
 /* }}} */
 
 static yaf_session_t *yaf_session_instance() /* {{{ */ {
-	zval *pzval;
 	yaf_session_object *sess;
 	yaf_session_t *instance = &YAF_G(session);
 
@@ -132,14 +149,10 @@ static yaf_session_t *yaf_session_instance() /* {{{ */ {
 	sess->flags = 0;
 	yaf_session_start(sess);
 
-	if ((pzval = zend_hash_find(&EG(symbol_table), YAF_KNOWN_STR(YAF_VAR_SESSION))) == NULL ||
-		Z_TYPE_P(pzval) != IS_REFERENCE || Z_TYPE_P(Z_REFVAL_P(pzval)) != IS_ARRAY) {
+	if (yaf_session_array() == NULL) {
 		php_error_docref(NULL, E_WARNING, "Attempt to start session failed");
-		sess->session = NULL;
-		return &YAF_G(session);
 	}
-	
-	sess->session = Z_ARRVAL_P(Z_REFVAL_P(pzval));
+
 	sess->properties = NULL;
 
 	return &YAF_G(session);
@@ -168,10 +181,10 @@ PHP_METHOD(yaf_session, getInstance) {
 /** {{{ proto public Yaf_Session::count(void)
 */
 PHP_METHOD(yaf_session, count) {
-	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+	zend_array *session;
 
-	if (sess->session) {
-		RETURN_LONG(zend_hash_num_elements(sess->session));
+	if ((session = yaf_session_array())) {
+		RETURN_LONG(zend_hash_num_elements(session));
 	}
 }
 /* }}} */
@@ -192,19 +205,20 @@ PHP_METHOD(yaf_session, start) {
 PHP_METHOD(yaf_session, get) {
 	zend_string *name = NULL;
 	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
-	
+	zend_array *session;
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|S!", &name) == FAILURE) {
 		return;
-	} 
+	}
 
-	if (EXPECTED(sess->session)) {
+	if (EXPECTED((session = yaf_session_array()))) {
 		if (name == NULL) {
-			RETVAL_ARR(sess->session);
+			RETVAL_ARR(session);
 			Z_ADDREF_P(return_value);
 			return;
 		} else {
 			zval *val;
-			if ((val = zend_hash_find(sess->session, name))) {
+			if ((val = zend_hash_find(session, name))) {
 				RETURN_ZVAL(val, 1, 0);
 			}
 		}
@@ -218,13 +232,14 @@ PHP_METHOD(yaf_session, get) {
 PHP_METHOD(yaf_session, has) {
 	zend_string *name;
 	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
-	
+	zend_array *session;
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S!", &name) == FAILURE) {
 		return;
-	} 
+	}
 
-	if (EXPECTED(sess->session)) {
-		RETURN_BOOL(zend_hash_exists(sess->session, name));
+	if (EXPECTED((session = yaf_session_array()))) {
+		RETURN_BOOL(zend_hash_exists(session, name));
 	}
 
 	RETURN_FALSE;
@@ -236,14 +251,14 @@ PHP_METHOD(yaf_session, has) {
 PHP_METHOD(yaf_session, set) {
 	zval *value;
 	zend_string *name;
-	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+	zend_array *session;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
 		return;
 	}
 
-	if (EXPECTED(sess->session)) {
-		if (zend_hash_update(sess->session, name, value)) {
+	if (EXPECTED((session = yaf_session_array()))) {
+		if (zend_hash_update(session, name, value)) {
 			Z_TRY_ADDREF_P(value);
 			RETURN_TRUE;
 		}
@@ -257,14 +272,14 @@ PHP_METHOD(yaf_session, set) {
 */
 PHP_METHOD(yaf_session, del) {
 	zend_string *name;
-	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+	zend_array *session;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
 		return;
 	}
 
-	if (EXPECTED(sess->session)) {
-		if (zend_hash_del(sess->session, name)) {
+	if (EXPECTED((session = yaf_session_array()))) {
+		if (zend_hash_del(session, name)) {
 			RETURN_TRUE;
 		}
 	}
@@ -276,14 +291,14 @@ PHP_METHOD(yaf_session, del) {
 /** {{{ proto public static Yaf_Session::clear()
 */
 PHP_METHOD(yaf_session, clear) {
-	yaf_session_object *sess = Z_YAFSESSIONOBJ_P(getThis());
+	zend_array *session;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
 
-	if (EXPECTED(sess->session)) {
-		zend_hash_clean(sess->session);
+	if (EXPECTED((session = yaf_session_array()))) {
+		zend_hash_clean(session);
 		RETURN_ZVAL(getThis(), 1, 0);
 	}
 
