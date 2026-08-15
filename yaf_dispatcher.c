@@ -129,8 +129,17 @@ static HashTable *yaf_dispatcher_get_gc(yaf_object *obj, zval **table, int *n) /
 /* }}} */
 
 void yaf_dispatcher_instance(yaf_dispatcher_t *this_ptr) /* {{{ */ {
-	yaf_application_object *app = Z_YAFAPPOBJ(YAF_G(app));
+	yaf_application_object *app;
 	yaf_dispatcher_object *dispatcher;
+
+	if (UNEXPECTED(Z_TYPE(YAF_G(app)) != IS_OBJECT)) {
+		zend_throw_exception_ex(NULL, YAF_ERR_STARTUP_FAILED,
+				"%s must be initialized before %s::getInstance()",
+				ZSTR_VAL(yaf_application_ce->name), ZSTR_VAL(yaf_dispatcher_ce->name));
+		return;
+	}
+
+	app = Z_YAFAPPOBJ(YAF_G(app));
 
 	if (IS_OBJECT != Z_TYPE(app->dispatcher)) {
 		dispatcher = emalloc(sizeof(yaf_dispatcher_object) + zend_object_properties_size(yaf_dispatcher_ce));
