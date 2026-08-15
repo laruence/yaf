@@ -94,7 +94,9 @@ int yaf_route_supervar_route(yaf_route_t *route, yaf_request_t *req) /* {{{ */ {
 
 	uri = yaf_request_query(YAF_GLOBAL_VARS_GET, super->varname);
 
-	if (UNEXPECTED(uri == NULL)) {
+	if (UNEXPECTED(uri == NULL || Z_TYPE_P(uri) != IS_STRING)) {
+		/* the supervar may hold a non-string value (e.g. an array from
+		   ?r[a]=b); it cannot carry a uri */
 		return 0;
 	}
 
