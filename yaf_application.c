@@ -614,6 +614,10 @@ static zend_never_inline void yaf_application_parse_optional(yaf_application_obj
 
 		ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(pzval), key, value) {
 			zend_string *str, *val;
+			if (UNEXPECTED(key == NULL)) {
+				/* numeric key: there is no ini entry named after it */
+				continue;
+			}
 			len = snprintf(name, sizeof(name), "%s.%s", "yaf", ZSTR_VAL(key));
 			if (len > sizeof(name) -1) {
 				continue;
