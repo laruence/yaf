@@ -535,9 +535,10 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 			}
 
 			if (UNEXPECTED(!yaf_request_is_dispatched(request))) {
-				/* forward is called in init method */
+				/* forward is called in init method; let the dispatch loop
+				   pick up the new target so it stays subject to forward_limit */
 				OBJ_RELEASE(Z_OBJ(controller));
-				return yaf_dispatcher_handle(dispatcher);
+				return 1;
 			}
 
 			if (EXPECTED(yaf_view_get_tpl_dir(&dispatcher->view, &dispatcher->request) == NULL)) {
