@@ -125,6 +125,10 @@ int yaf_route_instance(yaf_route_t *route, HashTable *config) /* {{{ */ {
 			return 0;
 		}
 		yaf_route_supervar_instance(route, Z_STR_P(varname));
+	} else {
+		/* unknown route type: leave *route untouched, the caller must not
+		   treat it as an initialized route */
+		return 0;
 	}
 
 	return 1;

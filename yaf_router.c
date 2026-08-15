@@ -100,12 +100,14 @@ void yaf_router_init(yaf_router_object *router) /* {{{ */ {
 	zval route;
 	yaf_application_object *app = yaf_application_instance();
 
+	ZVAL_UNDEF(&route);
 	if (app == NULL || app->default_route == NULL) {
 static_route:
 		object_init_ex(&route, yaf_route_static_ce);
 	} else {
 		if (UNEXPECTED(!yaf_route_instance(&route, app->default_route))) {
-			OBJ_RELEASE(Z_OBJ(route));
+			/* route is left untouched (possibly UNDEF) on failure */
+			zval_ptr_dtor(&route);
 			php_error_docref(NULL, E_WARNING,
 					"Unable to initialize default route, use %s instead", ZSTR_VAL(yaf_route_static_ce->name));
 			goto static_route;
