@@ -575,6 +575,8 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				zval *args = NULL;
 				uint32_t count = 0;
 
+				/* ret stays uninitialized if the callee is protected/private */
+				ZVAL_UNDEF(&ret);
 				current_action = zend_string_copy(request->action);
 				if ((fptr->common.num_args)) {
 					yaf_dispatcher_get_call_parameters(request, fptr, &args, &count);
@@ -582,6 +584,7 @@ static ZEND_HOT int yaf_dispatcher_handle(yaf_dispatcher_object *dispatcher) /* 
 				if (UNEXPECTED(!yaf_controller_execute(&controller, fptr, count, args, &ret))) {
 					if ((args)) {
 						efree(args);
+						args = NULL;
 					}
 					if (UNEXPECTED(Z_ISUNDEF(ret))) {
 						zend_string_release(current_action);
