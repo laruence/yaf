@@ -6,7 +6,7 @@ Yaf (Yet Another Framework) `3.3.8-dev` 的 API 参考与使用指南。
 
 - **签名零手抄**：全部类/方法签名由 PHP Reflection 从运行中的 yaf 扩展生成，与源码注册信息逐字节一致。不会出现传统文档里"方法名拼错、参数过时"的问题。
 - **行为以 C 源码为准**：所有描述和示例经过与 yaf 3.3.8 源码逐条核对；近期修复的行为变化（如 `yaf.forward_limit=0` 的语义）在文档中有明确标注。
-- **AI 友好**：纯 Markdown，无 HTML 噪音；提供 [llms.txt](llms.txt)（目录）与 [llms-full.txt](llms-full.txt)（全文合并，适合 AI 一次性读取）。
+- **AI 友好**：纯 Markdown，无 HTML 噪音；仓库根目录提供 [llms.txt](../llms.txt)（目录）与 [llms-full.txt](../llms-full.txt)（全文合并，适合 AI 一次性读取）。
 
 ## 怎么用
 
@@ -18,27 +18,28 @@ Yaf (Yet Another Framework) `3.3.8-dev` 的 API 参考与使用指南。
 
 **AI 助手**：
 
-- 有选择地检索：读 [llms.txt](llms.txt) 拿目录，按需打开具体页面
-- 需要完整上下文：直接读 [llms-full.txt](llms-full.txt)
+- 有选择地检索：读 [llms.txt](../llms.txt) 拿目录，按需打开具体页面
+- 需要完整上下文：直接读 [llms-full.txt](../llms-full.txt)
 - 注意：本手册反映的是 yaf **3.3.8-dev**（含未发布的行为修复），与线上 3.3.x 稳定版有少量差异
 
 ## 目录结构
 
 ```
-doc/
-├── README.md            本文件
-├── index.md             全部类/接口目录
-├── constants.md         预定义常量
-├── ini.md               php.ini 配置项
-├── llms.txt             AI 目录（llms.txt 约定格式）
-├── llms-full.txt        AI 全文（合并版）
-├── guides/              概念指南（手写）
-│   ├── quick-start.md
-│   ├── lifecycle.md
-│   ├── directory-conventions.md
-│   ├── routing.md
-│   └── error-handling.md
-└── classes/             38 个类/接口参考页（自动生成）
+yaf/
+├── llms.txt             AI 目录（llms.txt 约定，仓库根目录）
+├── llms-full.txt        AI 全文（合并版，仓库根目录）
+└── doc/
+    ├── README.md        本文件
+    ├── index.md         全部类/接口目录
+    ├── constants.md     预定义常量
+    ├── ini.md           php.ini 配置项
+    ├── guides/          概念指南（手写）
+    │   ├── quick-start.md
+    │   ├── lifecycle.md
+    │   ├── directory-conventions.md
+    │   ├── routing.md
+    │   └── error-handling.md
+    └── classes/         38 个类/接口参考页（自动生成）
 ```
 
 ## 生成方式
