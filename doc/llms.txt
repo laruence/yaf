@@ -1,0 +1,77 @@
+# Yaf (Yet Another Framework)
+
+> Yaf 3.3.8-dev API 参考。C 扩展, 高性能 PHP 框架。签名由 Reflection 从运行中的扩展生成。
+
+## Guides
+
+- [快速上手: 从零跑起一个最小应用](guides/quick-start.md)
+- [请求生命周期: 一次请求在 yaf 内部的完整路径](guides/lifecycle.md)
+- [目录结构与类名约定: 类如何映射到文件](guides/directory-conventions.md)
+- [路由机制: 6 种内建路由与自定义路由](guides/routing.md)
+- [错误与异常处理: 两条错误通道的开关组合](guides/error-handling.md)
+
+## Reference
+
+- [Index](index.md): 全部类/接口目录
+- [Constants](constants.md): 预定义常量
+- [INI](ini.md): 配置项
+
+## Application
+
+- [Yaf_Application](classes/yaf_application.md)
+- [Yaf_Bootstrap_Abstract](classes/yaf_bootstrap_abstract.md)
+- [Yaf_Dispatcher](classes/yaf_dispatcher.md)
+- [Yaf_Loader](classes/yaf_loader.md)
+- [Yaf_Registry](classes/yaf_registry.md)
+- [Yaf_Session](classes/yaf_session.md)
+
+## MVC
+
+- [Yaf_Controller_Abstract](classes/yaf_controller_abstract.md)
+- [Yaf_Action_Abstract](classes/yaf_action_abstract.md)
+- [Yaf_View_Interface](classes/yaf_view_interface.md)
+- [Yaf_View_Simple](classes/yaf_view_simple.md)
+
+## Request / Response
+
+- [Yaf_Request_Abstract](classes/yaf_request_abstract.md)
+- [Yaf_Request_Http](classes/yaf_request_http.md)
+- [Yaf_Request_Simple](classes/yaf_request_simple.md)
+- [Yaf_Response_Abstract](classes/yaf_response_abstract.md)
+- [Yaf_Response_Http](classes/yaf_response_http.md)
+- [Yaf_Response_Cli](classes/yaf_response_cli.md)
+
+## Config
+
+- [Yaf_Config_Abstract](classes/yaf_config_abstract.md)
+- [Yaf_Config_Ini](classes/yaf_config_ini.md)
+- [Yaf_Config_Simple](classes/yaf_config_simple.md)
+
+## Router / Route
+
+- [Yaf_Router](classes/yaf_router.md)
+- [Yaf_Route_Interface](classes/yaf_route_interface.md)
+- [Yaf_Route_Static](classes/yaf_route_static.md)
+- [Yaf_Route_Simple](classes/yaf_route_simple.md)
+- [Yaf_Route_Supervar](classes/yaf_route_supervar.md)
+- [Yaf_Route_Rewrite](classes/yaf_route_rewrite.md)
+- [Yaf_Route_Regex](classes/yaf_route_regex.md)
+- [Yaf_Route_Map](classes/yaf_route_map.md)
+
+## Plugin
+
+- [Yaf_Plugin_Abstract](classes/yaf_plugin_abstract.md)
+
+## Exceptions
+
+- [Yaf_Exception](classes/yaf_exception.md)
+- [Yaf_Exception_DispatchFailed](classes/yaf_exception_dispatchfailed.md)
+- [Yaf_Exception_LoadFailed](classes/yaf_exception_loadfailed.md)
+- [Yaf_Exception_LoadFailed_Action](classes/yaf_exception_loadfailed_action.md)
+- [Yaf_Exception_LoadFailed_Controller](classes/yaf_exception_loadfailed_controller.md)
+- [Yaf_Exception_LoadFailed_Module](classes/yaf_exception_loadfailed_module.md)
+- [Yaf_Exception_LoadFailed_View](classes/yaf_exception_loadfailed_view.md)
+- [Yaf_Exception_RouterFailed](classes/yaf_exception_routerfailed.md)
+- [Yaf_Exception_StartupError](classes/yaf_exception_startuperror.md)
+- [Yaf_Exception_TypeError](classes/yaf_exception_typeerror.md)
+
