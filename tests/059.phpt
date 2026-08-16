@@ -52,7 +52,7 @@ require "build.inc";
 shutdown();
 ?>
 --EXPECTF--
-string(%d) "%sapplication%cviews"
+string(%d) "%sapplication%c059%cviews"
 Yaf_View_Simple Object
 (
     [tpl_dir:protected] => %s

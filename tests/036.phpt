@@ -14,9 +14,9 @@ $url = array(
   "/my/index/index", "my/index", "/foo/index", "index/foo", "//foo///bar///p1////v1////p2/v2/",
 );
 
-$config = array( 
+$config = array(
     "application" => array(
-        "directory" => '/tmp/',
+        "directory" => sys_get_temp_dir() . DIRECTORY_SEPARATOR,
         "modules"   => 'Index,My',
      ),
 );

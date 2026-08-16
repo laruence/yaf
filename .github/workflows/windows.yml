@@ -27,6 +27,3 @@ jobs:
           php-version: ${{ matrix.php }}
           arch: x64
           ts: ${{ matrix.ts }}
-          # yaf tests share tests/application via build.inc and are not
-          # parallel-safe, so override the action's default of 8 workers
-          test-workers: 1

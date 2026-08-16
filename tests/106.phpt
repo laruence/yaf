@@ -54,9 +54,9 @@ array(2) {
   }
 }
 string(13) "/lib/Zend/foo"
-string(%d) "%sapplication%clibrary"
+string(%d) "%sapplication%c106%clibrary"
 string(18) "/var/lib/microsoft"
-string(%d) "%sapplication%clibrary"
+string(%d) "%sapplication%c106%clibrary"
 
 Warning: Yaf_Loader::autoload(): Failed opening script /var/lib/microsoft%cFramework%cDummy.php: No such file or directory in %s106.php on line %d
 bool(false)

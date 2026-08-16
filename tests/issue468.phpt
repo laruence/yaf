@@ -53,4 +53,4 @@ shutdown();
 ?>
 --EXPECTF--
 string(12) "thrid-source"
-string(%d) "%sapplication%cviews"
+string(%d) "%sapplication%cissue468%cviews"
