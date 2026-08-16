@@ -49,4 +49,4 @@ jobs:
             make
       - name: Test
         run: |
-            TEST_PHP_ARGS="$TEST_PHP_ARGS -j$(nproc)" make test
+            make test
