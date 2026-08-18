@@ -6,17 +6,15 @@
   "require": {
     "php": ">=7.0"
   },
-  "replace": {
-    "ext-yaf": "*"
-  },
   "php-ext": {
-    "extension-name": "ext-yaf",
+    "extension-name": "yaf",
     "download-url-method": ["pre-packaged-binary", "composer-default"],
     "priority": 74,
     "configure-options": [
       {
         "name": "enable-yaf",
-        "description": "whether to enable yaf support"
+        "description": "whether to enable yaf support",
+        "needs-value": false
       }
     ]
   }
