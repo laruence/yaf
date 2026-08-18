@@ -32,6 +32,14 @@ Yaf is a PECL extension, which means you can simply install it by:
 $ pecl install yaf
 ```
 
+### Install via PIE (since 3.3.8)
+
+Yaf can also be installed with [PIE](https://github.com/php/pie), the PHP Installer for Extensions:
+
+```bash
+$ pie install laruence/yaf
+```
+
 ### Compile from source
 
 ```bash

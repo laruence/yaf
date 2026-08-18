@@ -10,11 +10,11 @@
   <email>laruence@php.net</email>
   <active>yes</active>
  </lead>
- <date>2025-07-29</date>
- <time>11:40:00</time>
+ <date>2026-08-18</date>
+ <time>12:49:53</time>
  <version>
-  <release>3.3.7</release>
-  <api>3.3.7</api>
+  <release>3.3.8</release>
+  <api>3.3.8</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,20 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-  - Fixed build with PHP8.5
+  - Fixed heap corruption when dispatching a protected/private action
+  - Fixed segfault in Yaf_Dispatcher::getInstance() without an application
+  - Fixed segfault on numeric keys in the system config section
+  - Fixed several crashes: Yaf_Config_Ini on unopenable file, Yaf_View_Simple::eval() on empty template, getLanguage() on malformed Accept-Language, controller construction without a request
+  - Fixed out-of-bounds read and NULL deref in base_uri / request URI handling
+  - Fixed uninitialized map/reverse in Yaf_Route_Regex on failed construction; reject unknown route types; validate supervar route value is a string
+  - Fixed inverted GC refcount condition when releasing controller/session properties
+  - Fixed exception handler clobbering dispatcher flags
+  - Fixed Yaf_Request_Abstract::setParam(array) always returning FALSE
+  - Fixed stale config property exposed when config init failed
+  - Missing required action argument now raises ArgumentCountError
+  - Clamp yaf.forward_limit to the default on non-positive values; route init()-time forward() through the dispatch loop
+  - Fixed several memory leaks (response headers, bootstrap, error message, view setScriptPath)
+  - Performance: pre-size the view symbol table to the template variable count
  </notes>
  <contents> 
   <dir name="/"> 
@@ -261,6 +274,14 @@
     <file name="127.phpt" role="test" />
     <file name="128.phpt" role="test" />
     <file name="129.phpt" role="test" />
+    <file name="130.phpt" role="test" />
+    <file name="131.phpt" role="test" />
+    <file name="132.phpt" role="test" />
+    <file name="133.phpt" role="test" />
+    <file name="134.phpt" role="test" />
+    <file name="135.phpt" role="test" />
+    <file name="136.phpt" role="test" />
+    <file name="137.phpt" role="test" />
     <file name="build.inc" role="test" />
     <file name="bug61493.phpt" role="test" />
     <file name="bug63381.phpt" role="test" />
@@ -303,22 +324,51 @@
  </dependencies> 
  <providesextension>yaf</providesextension>
  <extsrcrelease />
- <changelog> 
-  <release> 
-   <date>2025-07-29</date> 
-   <version> 
-    <release>3.3.7</release> 
-    <api>3.3.7</api> 
-   </version> 
-   <stability> 
-    <release>stable</release> 
-    <api>stable</api> 
-   </stability> 
-   <license uri="http://www.php.net/license">PHP License</license> 
+ <changelog>
+  <release>
+   <date>2026-08-18</date>
+   <version>
+    <release>3.3.8</release>
+    <api>3.3.8</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>
+    - Fixed heap corruption when dispatching a protected/private action
+    - Fixed segfault in Yaf_Dispatcher::getInstance() without an application
+    - Fixed segfault on numeric keys in the system config section
+    - Fixed several crashes: Yaf_Config_Ini on unopenable file, Yaf_View_Simple::eval() on empty template, getLanguage() on malformed Accept-Language, controller construction without a request
+    - Fixed out-of-bounds read and NULL deref in base_uri / request URI handling
+    - Fixed uninitialized map/reverse in Yaf_Route_Regex on failed construction; reject unknown route types; validate supervar route value is a string
+    - Fixed inverted GC refcount condition when releasing controller/session properties
+    - Fixed exception handler clobbering dispatcher flags
+    - Fixed Yaf_Request_Abstract::setParam(array) always returning FALSE
+    - Fixed stale config property exposed when config init failed
+    - Missing required action argument now raises ArgumentCountError
+    - Clamp yaf.forward_limit to the default on non-positive values; route init()-time forward() through the dispatch loop
+    - Fixed several memory leaks (response headers, bootstrap, error message, view setScriptPath)
+    - Performance: pre-size the view symbol table to the template variable count
+   </notes>
+  </release>
+
+  <release>
+   <date>2025-07-29</date>
+   <version>
+    <release>3.3.7</release>
+    <api>3.3.7</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.php.net/license">PHP License</license>
    <notes>
     - Fixed build with PHP8.5
-   </notes> 
-  </release> 
+   </notes>
+  </release>
 
   <release> 
    <date>2024-06-25</date> 
