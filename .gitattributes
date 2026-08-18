@@ -1,7 +1,1 @@
 *.phpt eol=lf
-tests/ export-ignore
-tools/ export-ignore
-.github/ export-ignore
-.appveyor.yml export-ignore
-check-package.sh export-ignore
-yaf.dsp export-ignore
