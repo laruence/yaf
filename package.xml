@@ -35,6 +35,8 @@
   - Missing required action argument now raises ArgumentCountError
   - Clamp yaf.forward_limit to the default on non-positive values; route init()-time forward() through the dispatch loop
   - Fixed several memory leaks (response headers, bootstrap, error message, view setScriptPath)
+  - Fixed fatal arginfo/zpp mismatch at startup for Yaf_Route_Regex::__construct() with NULL map/verify/reverse arguments
+  - Fixed Yaf_Session write accessors (__set/__unset/offsetSet/offsetUnSet) crashing debug builds due to a void return type conflicting with the aliased bool-returning methods
   - Performance: pre-size the view symbol table to the template variable count
  </notes>
  <contents> 
@@ -350,6 +352,8 @@
     - Missing required action argument now raises ArgumentCountError
     - Clamp yaf.forward_limit to the default on non-positive values; route init()-time forward() through the dispatch loop
     - Fixed several memory leaks (response headers, bootstrap, error message, view setScriptPath)
+    - Fixed fatal arginfo/zpp mismatch at startup for Yaf_Route_Regex::__construct() with NULL map/verify/reverse arguments
+    - Fixed Yaf_Session write accessors (__set/__unset/offsetSet/offsetUnSet) crashing debug builds due to a void return type conflicting with the aliased bool-returning methods
     - Performance: pre-size the view symbol table to the template variable count
    </notes>
   </release>
