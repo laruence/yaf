@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: edc476409aa71476eecd8cef4235a0a8d64f47b3 */
+ * Stub hash: 751d1f319f9bfcfe1a189ad53714000a49c69b8d */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Yaf_Route_Interface_route, 0, 0, 1)
 	ZEND_ARG_INFO(0, request)
@@ -70,3 +70,4 @@ ZEND_END_ARG_INFO()
 #define arginfo_class_Yaf_Route_Map_route arginfo_class_Yaf_Route_Interface_route
 
 #define arginfo_class_Yaf_Route_Map_assemble arginfo_class_Yaf_Route_Interface_assemble
+
