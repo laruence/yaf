@@ -54,6 +54,29 @@ static zend_always_inline zend_array *yaf_session_array(void) /* {{{ */ {
 }
 /* }}} */
 
+static inline zend_bool yaf_session_set_entry(zend_string *name, zval *value) /* {{{ */ {
+	zend_array *session;
+
+	if (EXPECTED((session = yaf_session_array()))) {
+		if (zend_hash_update(session, name, value)) {
+			Z_TRY_ADDREF_P(value);
+			return 1;
+		}
+	}
+	return 0;
+}
+/* }}} */
+
+static inline zend_bool yaf_session_del_entry(zend_string *name) /* {{{ */ {
+	zend_array *session;
+
+	if (EXPECTED((session = yaf_session_array()))) {
+		return zend_hash_del(session, name) == SUCCESS;
+	}
+	return 0;
+}
+/* }}} */
+
 static inline void yaf_session_start(yaf_session_object *session) /* {{{ */ {
 	if (session->flags & YAF_SESSION_STARTED) {
 		return;
@@ -251,20 +274,12 @@ PHP_METHOD(yaf_session, has) {
 PHP_METHOD(yaf_session, set) {
 	zval *value;
 	zend_string *name;
-	zend_array *session;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
 		return;
 	}
 
-	if (EXPECTED((session = yaf_session_array()))) {
-		if (zend_hash_update(session, name, value)) {
-			Z_TRY_ADDREF_P(value);
-			RETURN_TRUE;
-		}
-	}
-
-	RETURN_FALSE;
+	RETURN_BOOL(yaf_session_set_entry(name, value));
 }
 /* }}} */
 
@@ -272,19 +287,66 @@ PHP_METHOD(yaf_session, set) {
 */
 PHP_METHOD(yaf_session, del) {
 	zend_string *name;
-	zend_array *session;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
 		return;
 	}
 
-	if (EXPECTED((session = yaf_session_array()))) {
-		if (zend_hash_del(session, name)) {
-			RETURN_TRUE;
-		}
+	RETURN_BOOL(yaf_session_del_entry(name));
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Session::offsetSet($name, $value)
+*/
+PHP_METHOD(yaf_session, offsetSet) {
+	zval *value;
+	zend_string *name;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
+		return;
 	}
 
-	RETURN_FALSE;
+	yaf_session_set_entry(name, value);
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Session::offsetUnSet($name)
+*/
+PHP_METHOD(yaf_session, offsetUnSet) {
+	zend_string *name;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
+		return;
+	}
+
+	yaf_session_del_entry(name);
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Session::__set($name, $value)
+*/
+PHP_METHOD(yaf_session, __set) {
+	zval *value;
+	zend_string *name;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Sz", &name, &value) == FAILURE) {
+		return;
+	}
+
+	yaf_session_set_entry(name, value);
+}
+/* }}} */
+
+/** {{{ proto public Yaf_Session::__unset($name)
+*/
+PHP_METHOD(yaf_session, __unset) {
+	zend_string *name;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &name) == FAILURE) {
+		return;
+	}
+
+	yaf_session_del_entry(name);
 }
 /* }}} */
 
@@ -319,13 +381,13 @@ zend_function_entry yaf_session_methods[] = {
 	PHP_ME(yaf_session, count, arginfo_class_Yaf_Session_count, ZEND_ACC_PUBLIC)
 	PHP_ME(yaf_session, clear, arginfo_class_Yaf_Session_clear, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetGet, get, arginfo_class_Yaf_Session_offsetGet, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, offsetSet, set, arginfo_class_Yaf_Session_offsetSet, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, offsetSet, arginfo_class_Yaf_Session_offsetSet, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, offsetExists, has, arginfo_class_Yaf_Session_offsetExists, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, offsetUnSet, del, arginfo_class_Yaf_Session_offsetUnSet, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, offsetUnSet, arginfo_class_Yaf_Session_offsetUnSet, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, __get, get, arginfo_class_Yaf_Session___get, ZEND_ACC_PUBLIC)
 	PHP_MALIAS(yaf_session, __isset, has, arginfo_class_Yaf_Session___isset, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, __set, set, arginfo_class_Yaf_Session___set, ZEND_ACC_PUBLIC)
-	PHP_MALIAS(yaf_session, __unset, del, arginfo_class_Yaf_Session___unset, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, __set, arginfo_class_Yaf_Session___set, ZEND_ACC_PUBLIC)
+	PHP_ME(yaf_session, __unset, arginfo_class_Yaf_Session___unset, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 /* }}} */

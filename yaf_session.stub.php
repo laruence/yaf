@@ -51,14 +51,8 @@ final class Yaf_Session implements \Iterator, \Traversable, \ArrayAccess, \Count
      */
 	public function offsetGet(mixed $name):mixed;
 
-    /**
-     * @implementation-alias Yaf_Session::set
-     */
 	public function offsetSet(mixed $name, mixed $value):void;
 
-    /**
-     * @implementation-alias Yaf_Session::del
-     */
 	public function offsetUnSet(mixed $name):void;
 
     /**
@@ -75,13 +69,7 @@ final class Yaf_Session implements \Iterator, \Traversable, \ArrayAccess, \Count
      */
 	public function __isset(string $name):bool;
 
-    /**
-     * @implementation-alias Yaf_Session::set
-     */
 	public function __set(string $name, mixed $value):void;
 
-    /**
-     * @implementation-alias Yaf_Session::del
-     */
 	public function __unset(string $name):void;
 }
