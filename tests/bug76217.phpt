@@ -7,7 +7,7 @@ yaf.use_namespace=0
 --FILE--
 <?php
 require "build.inc";
-startup();
+startup(__FILE__);
 
 file_put_contents(APPLICATION_PATH . "/Bootstrap.php", <<<PHP
 <?php
@@ -49,7 +49,7 @@ $app->bootstrap()->run();
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 string(%d) "%s"

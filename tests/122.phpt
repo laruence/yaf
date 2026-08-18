@@ -9,7 +9,7 @@ yaf.use_namespace=0
 --FILE--
 <?php
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -64,7 +64,7 @@ var_dump($after - $before);
 --CLEAN--
 <?php
 require "build.inc";
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECT--
 int(0)

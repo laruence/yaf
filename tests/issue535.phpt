@@ -9,7 +9,7 @@ yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -72,7 +72,7 @@ $app->getDispatcher()->dispatch($request);
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECT--
 okey

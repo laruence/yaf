@@ -10,7 +10,7 @@ yaf.use_namespace=0
 --FILE--
 <?php
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $view = new Yaf_View_Simple(dirname(__FILE__));
 
@@ -31,7 +31,7 @@ echo $view->render($tpl);
 <?php
 /* unlink foo2.phtml permission denied */
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 Parse error: syntax error, unexpected %s in %sfoo.phtml on line %d

@@ -9,7 +9,7 @@ yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $server = $_SERVER;
 $cookie = $_COOKIE;
@@ -54,7 +54,7 @@ var_dump($post === $_POST);
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 bool(true)

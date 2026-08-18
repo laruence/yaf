@@ -1,74 +1,49 @@
 <?php
 define('DIR_ROOT', dirname(__FILE__));
 
-/* Tests may run in parallel and every one of them shares this helper, so each
-   test gets its own application directory.  run-tests.php executes the FILE
-   section as tests/<name>.php and the CLEAN section as tests/<name>.clean.php
-   (both inside DIR_ROOT), so deriving the key from the running script name
-   makes the two sections resolve to the same directory. */
-function yaf_test_app_name() {
-    $script = '';
-    if (isset($_SERVER['SCRIPT_FILENAME'])) {
-        $script = $_SERVER['SCRIPT_FILENAME'];
-    } elseif (isset($_SERVER['argv'][0])) {
-        $script = $_SERVER['argv'][0];
+/* Tests may run in parallel, so each test runs in its own application root
+   tests/application_<name>, where <name> is the test's own file name:
+   startup()/shutdown() take the caller's __FILE__ and keep the part before
+   the first dot, so the FILE section (tests/<name>.php) and the CLEAN
+   section (tests/<name>.clean.php) resolve to the same root.
+
+   Anything a test writes outside of APPLICATION_PATH must live in a
+   file/directory suffixed with the test's own name, so parallel workers
+   never touch the same path. */
+
+function startup($file) {
+    $root = DIR_ROOT . DIRECTORY_SEPARATOR . 'application_' . explode('.', basename($file))[0];
+    if (!defined('APPLICATION_PATH')) {
+        define('APPLICATION_PATH', $root);
     }
-    $name = preg_replace('/(\.?clean|\.?skip|\.?preload)?\.php$/i', '', basename($script));
-    $name = rtrim($name, '.');
-    if ($name === '') {
-        /* not run through run-tests.php: still keep concurrent runs apart */
-        $name = 'manual-' . getmypid();
+    foreach (array('library', 'controllers', 'actions', 'plugins', 'models', 'views', 'views/index', 'tpls') as $dir) {
+        $dir = $root . DIRECTORY_SEPARATOR . $dir;
+        if (!is_dir($dir) && !@mkdir($dir, 0755, TRUE) && !is_dir($dir)) {
+            throw new RuntimeException("yaf tests: unable to create directory '$dir'");
+        }
     }
-    return $name;
 }
 
-define("APPLICATION_PATH", DIR_ROOT . DIRECTORY_SEPARATOR . 'application' . DIRECTORY_SEPARATOR . yaf_test_app_name());
+function shutdown($file) {
+    yaf_rmtree(DIR_ROOT . DIRECTORY_SEPARATOR . 'application_' . explode('.', basename($file))[0]);
+}
 
-function shutdown($root = APPLICATION_PATH) {
-    if (!is_dir($root)) {
+function yaf_rmtree($dir) {
+    if (!is_dir($dir)) {
         return;
     }
-    $dp = opendir($root);
-    while (($dir = readdir($dp))) {
-        if (in_array($dir, array('.', '..'))) {
-            continue;
-        }
-        $path = $root . DIRECTORY_SEPARATOR . $dir;
-
-        if (is_dir($path)) {
-            shutdown($path);
-        } else if (is_file($path)) {
-            unlink($path);
+    $dp = opendir($dir);
+    while (($entry = readdir($dp)) !== FALSE) {
+        if ($entry !== '.' && $entry !== '..') {
+            $path = $dir . DIRECTORY_SEPARATOR . $entry;
+            if (is_dir($path)) {
+                yaf_rmtree($path);
+            } else {
+                unlink($path);
+            }
         }
     }
     closedir($dp);
-    rmdir($root);
-
-    /* also drop the shared "application" parent once this test's own
-       directory is gone (best effort: other tests may still use it) */
-    if ($root === APPLICATION_PATH) {
-        @rmdir(dirname($root));
-    }
+    rmdir($dir);
 }
-
-function startup($root = APPLICATION_PATH) {
-    $dirs = array();
-    $dirs[] = 'library';
-    $dirs[] = 'controllers';
-	$dirs[] = 'actions';
-    $dirs[] = 'plugins';
-    $dirs[] = 'models';
-    $dirs[] = 'views';
-    $dirs[] = 'views/index';
-    $dirs[] = 'tpls';
-
-    foreach($dirs as $dir){
-        $dir = $root . DIRECTORY_SEPARATOR . $dir;
-        if (!file_exists($dir)) {
-            mkdir($dir, 0755, true);
-            chmod($dir, 0755);
-        }
-    }
-}
-
 ?>

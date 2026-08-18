@@ -7,7 +7,7 @@ yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -40,7 +40,7 @@ $app->bootstrap()->run();
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 Fatal error: Uncaught Error: Call to undefined function geoge() in %s:5

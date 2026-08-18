@@ -9,7 +9,7 @@ yaf.use_namespace=0
 --FILE--
 <?php
 require "build.inc";
-startup();
+startup(__FILE__);
 
 try {
 	$app = new Yaf_Application(fopen(__FILE__, "r"));
@@ -78,7 +78,7 @@ try {
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECT--
 string(43) "Initialization of application config failed"

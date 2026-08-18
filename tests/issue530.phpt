@@ -11,7 +11,7 @@ yaf.use_spl_autoload=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -35,7 +35,7 @@ $app->run();
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECT--
 okey

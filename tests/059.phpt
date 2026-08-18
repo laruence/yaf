@@ -9,7 +9,7 @@ yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -49,7 +49,7 @@ $response = $app->bootstrap()->run();
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 string(%d) "%sapplication%c059%cviews"

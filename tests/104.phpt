@@ -8,7 +8,7 @@ yaf.use_spl_autoload=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -159,7 +159,7 @@ $dispatcher->dispatch($request);
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 string(100) "path too long while loading 'Indexindexindexindexindexindexindexindexindexindexindexindexindexindexi"

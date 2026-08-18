@@ -9,7 +9,7 @@ yaf.use_namespace=0
 --FILE--
 <?php 
 require "build.inc";
-startup();
+startup(__FILE__);
 
 $config = array(
 	"application" => array(
@@ -38,7 +38,7 @@ try {
 --CLEAN--
 <?php
 require "build.inc"; 
-shutdown();
+shutdown(__FILE__);
 ?>
 --EXPECTF--
 Warning: Yaf_Application::bootstrap(): Couldn't find bootstrap file %sBootstrap.php in %s105.php on line %d
