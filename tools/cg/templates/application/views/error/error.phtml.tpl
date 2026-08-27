@@ -19,6 +19,10 @@
   </div>
 </header>
 
+<nav class="top">
+  <a href="/">Home</a>
+</nav>
+
 <main class="content">
   <div class="card">
     <h2>Exception message</h2>
