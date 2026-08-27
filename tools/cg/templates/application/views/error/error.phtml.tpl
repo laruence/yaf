@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>500 Error</title>
+<title><?=$code?> Error</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -14,8 +14,8 @@
 <header class="top">
   <img class="logo" src="/img/yaf-logo.jpg" alt="Yaf logo">
   <div>
-    <h1>500 — something went wrong</h1>
-    <div class="tagline">Yaf caught an unhandled exception</div>
+    <h1><?=$code?> — something went wrong</h1>
+    <div class="tagline"><?php if ($code == 404): ?>Yaf could not find the requested page<?php else: ?>Yaf caught an unhandled exception<?php endif; ?></div>
   </div>
 </header>
 
@@ -29,8 +29,8 @@
     <p><?php echo $exception->getMessage(); ?></p>
     <p class="muted">
       This page is rendered by ErrorController::errorAction because
-      application.dispatcher.catchException is enabled; log the details
-      in production and show a generic message instead.
+      application.dispatcher.catchException is enabled;
+      <?php if ($code == 404): ?>the request matched no controller or action — check the URL.<?php else: ?>log the details in production and show a generic message instead.<?php endif; ?>
     </p>
   </div>
 </main>

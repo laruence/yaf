@@ -15,7 +15,7 @@ Deploy and run this application as follows:
 5. Restart the web server.
 6. Browse http://yourhost/ — a styled page with the Yaf crab logo and
    a record table loaded through SampleModel means it works. Try
-   http://yourhost/user/2 for the custom rewrite route (any id works;
+   http://yourhost/index/index/user/id/2 for the model demo (any id works;
    unknown ids show a "not found" row). Otherwise check the PHP error
    log.
 

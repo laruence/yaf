@@ -18,13 +18,12 @@
         }
     });
 
-    /* The index page carries a "visit user" button: jump to the custom
-     * rewrite route /user/:id with a random id, proving the route
-     * works end to end. */
+    /* The user page carries a "visit user" button: jump to
+     * /index/index/user/id/:id with a random id. */
     var btn = document.getElementById("visit");
     if (btn) {
         btn.addEventListener("click", function () {
-            location.href = "/user/" + (1 + Math.floor(Math.random() * 5));
+            location.href = "/index/index/user/id/" + (1 + Math.floor(Math.random() * 5));
         });
     }
 })();

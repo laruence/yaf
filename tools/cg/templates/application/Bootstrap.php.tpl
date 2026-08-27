@@ -36,17 +36,10 @@ class Bootstrap extends Yaf_Bootstrap_Abstract {
 	}
 
 	/**
-	 * Register custom routes. The default route is Yaf_Route_Static
-	 * (URIs like /controller/action/name/value). This example maps
-	 * /user/:id to IndexController::userAction with a Yaf_Route_Rewrite;
-	 * alternatively load routes from configuration via
-	 * $dispatcher->getRouter()->addConfig($routes).
+	 * Register custom routes here if needed. By default the built-in
+	 * Yaf_Route_Static handles everything (/controller/action/name/value).
 	 */
 	public function _initRoute(Yaf_Dispatcher $dispatcher) {
-		$dispatcher->getRouter()->addRoute('user', new Yaf_Route_Rewrite(
-			'/user/:id',
-			array('controller' => 'Index', 'action' => 'user')
-		));
 	}
 
 	/**

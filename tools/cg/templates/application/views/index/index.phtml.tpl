@@ -27,7 +27,7 @@
 
 <nav class="top">
   <a href="/">Home</a>
-  <a href="/user/1">Model demo</a>
+  <a href="/index/index/user/id/1">Model demo</a>
   <a href="/index/demo">Error demo</a>
 </nav>
 
@@ -75,10 +75,10 @@
     <div class="card">
       <h2>What this skeleton shows</h2>
       <p>
-        The <a href="/user/1">model demo page</a> loads records through
+        The <a href="/index/index/user/id/1">model demo page</a> loads records through
         <code>SampleModel</code> — a mock DAO with an in-memory "table",
         ready to be swapped for a real database driver. Everything else
-        (bootstrap hooks, a plugin, custom routes, error handling) is
+        (bootstrap hooks, a plugin, routing, error handling) is
         explained in the comments of the generated files under
         <code>application/</code>.
       </p>

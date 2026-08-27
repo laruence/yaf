@@ -46,18 +46,10 @@ class IndexController extends Yaf_Controller_Abstract {
 	}
 
 	/**
-	 * The model demo action, reached through the custom rewrite route
-	 * registered in Bootstrap::_initRoute():
-	 *
-	 *       /user/:id  =>  IndexController::userAction($id)
-	 *
-	 * :id is a route placeholder; once the route matches it can be
-	 * read in two equivalent ways:
-	 * 1) $this->getRequest()->getParam("id");
-	 * 2) bound to the action's parameter of the same name.
-	 * The same route can also be declared under routes.* in
-	 * conf/application.ini and loaded with Yaf_Router::addConfig().
-	 * For example, requesting /user/42 yields $id = "42".
+	 * The model demo action, reached via the default static route:
+	 * /index/index/user/id/1 maps to IndexController::userAction with
+	 * $id = "1" (the "id" segment is a request parameter, and route
+	 * parameters with a matching name bind to action arguments).
 	 */
 	public function userAction($id = 0) {
 		// fetch the parameter again from the request; both reads are equivalent

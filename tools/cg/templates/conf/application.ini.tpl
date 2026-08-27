@@ -15,11 +15,13 @@ application.directory = APPLICATION_PATH "/application"
 ; ErrorController::errorAction instead of failing with a fatal error.
 application.dispatcher.catchException = TRUE
 
-; Custom routes (optional). Yaf_Router::addConfig() understands this
-; layout: "type" picks the route class, "match" is the pattern, and the
-; keys under "route" are the dispatch parameters. Uncomment to enable
-; the rewrite route that maps /user/:id to IndexController::userAction
-; (see application/controllers/Index.php):
+; Custom routes (optional). By default the built-in Yaf_Route_Static
+; handles all requests. Yaf_Router::addConfig() understands this
+; layout: "type" picks the route class, "match" is the pattern, and
+; the keys under "route" are the dispatch parameters. Uncomment to
+; enable a rewrite route that maps /user/:id to IndexController::userAction
+; (see application/controllers/Index.php), and load it in Bootstrap:
+;   $dispatcher->getRouter()->addConfig($config->routes);
 ;routes.rewrite_user.type = rewrite
 ;routes.rewrite_user.match = "/user/:id"
 ;routes.rewrite_user.route.controller = Index

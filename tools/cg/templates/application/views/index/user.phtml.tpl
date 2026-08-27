@@ -23,7 +23,7 @@
 
 <nav class="top">
   <a href="/">Home</a>
-  <a href="/user/1">Model demo</a>
+  <a href="/index/index/user/id/1">Model demo</a>
   <a href="/index/demo">Error demo</a>
 </nav>
 
@@ -31,9 +31,8 @@
   <div class="card">
     <h2>User #<?=$user["id"]?></h2>
     <p>
-      This page was reached through the custom rewrite route
-      <code>/user/:id</code> registered in
-      <code>Bootstrap::_initRoute()</code>; the record below was loaded
+      This page was reached through the default static route
+      <code>/index/index/user/id/:id</code>; the record below was loaded
       by <code>SampleModel</code>.
     </p>
     <table class="records">
