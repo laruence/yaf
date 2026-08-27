@@ -89,7 +89,7 @@
   served by Yaf — the C-implemented PHP framework<br>
   <a href="https://www.php.net/manual/en/book.yaf.php">Yaf manual</a> ·
   <a href="https://github.com/laruence/yaf">Yaf on GitHub</a> ·
-  <a href="https://www.laruence.com/">author homepage</a>
+  <a href="https://www.laruence.com/">Author homepage</a>
 </footer>
 
 </body>
