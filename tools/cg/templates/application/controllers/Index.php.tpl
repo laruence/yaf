@@ -44,4 +44,15 @@ class IndexController extends Yaf_Controller_Abstract {
 		//3. let Yaf render the template
 		return TRUE;
 	}
+
+	/**
+	 * Deliberately throws, to demonstrate the error path: with
+	 * application.dispatcher.catchException enabled, the dispatcher
+	 * catches the exception and dispatches to the error controller
+	 * (ErrorController), which renders views/error/error.phtml.
+	 * Visit /index/demo to see it.
+	 */
+	public function demoAction() {
+		throw new Exception("This exception is thrown on purpose by IndexController::demoAction, to demonstrate application.dispatcher.catchException and the ErrorController.");
+	}
 }
