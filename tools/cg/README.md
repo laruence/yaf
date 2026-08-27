@@ -57,6 +57,7 @@ Sample/
 │   ├── plugins/       # Sample (all six dispatch hooks)
 │   └── library/
 ├── nginx.conf         # nginx equivalent of the .htaccess
+├── router.php         # router script for PHP's built-in server quick try
 └── readme.txt         # deployment steps, incl. a PHP built-in server quick start
 ```
 

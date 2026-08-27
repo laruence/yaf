@@ -21,15 +21,6 @@ Deploy and run this application as follows:
 
 Quick try without a web server (PHP's built-in server):
 
-  # router.php: serve real files, forward the rest to public/index.php
-  cat > router.php <<'EOF'
-  <?php
-  $path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
-  if ($path !== "/" && is_file(__DIR__ . "/public" . $path)) {
-      return false;
-  }
-  require __DIR__ . "/public/index.php";
-  EOF
   php -S 127.0.0.1:8000 -t public router.php
 
 then browse http://127.0.0.1:8000/.

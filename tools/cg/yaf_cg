@@ -64,7 +64,7 @@ if (file_exists($directory) && !$force) {
 	exit("Error: {$directory} already exists. Use -f to overwrite.\n");
 }
 
-echo "Outputing", $use_namespace ? " Namespaced" : "", " Yaf Skeleton to {$directory}\n";
+echo "Outputting", $use_namespace ? " Namespaced" : "", " Yaf Skeleton to {$directory}\n";
 
 $author   = trim(shell_exec("whoami") ?: "unknown");
 $hostname = trim(shell_exec("hostname") ?: "localhost");
@@ -232,4 +232,8 @@ function getTemplates($root, &$templates = NULL) {
 }
 
 echo "Generating done\n";
+echo "\n";
+echo "Quick try without a web server:\n";
+echo "  php -S 127.0.0.1:8000 -t {$conf["directory"]}/public {$conf["directory"]}/router.php\n";
+echo "then browse http://127.0.0.1:8000/\n";
 ?>
