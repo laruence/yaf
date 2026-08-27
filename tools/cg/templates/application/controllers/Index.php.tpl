@@ -16,7 +16,7 @@ class IndexController extends Yaf_Controller_Abstract {
 	 * variables). Safe to delete if not needed.
 	 */
 	public function init() {
-		$this->getView()->assign("header", "Yaf Example");
+		$this->getView()->assign("app_name", "{&$APP_NAME&}");
 	}
 
 	/**
@@ -36,12 +36,16 @@ class IndexController extends Yaf_Controller_Abstract {
 		//1. fetch a GET query parameter, with a fallback default value
 		$get = $this->getRequest()->getQuery("get", "default value");
 
-		//2. call a model (autoloaded by Yaf_Loader from models/)
+		//2. call a model (autoloaded by Yaf_Loader from models/);
+		//   SampleModel is a mock DAO backed by an in-memory "table"
 		$model = new SampleModel();
+		$records = $model->find();
 
-		//3. hand variables to the view engine
-		$this->getView()->assign("content", $model->selectSample());
+		//3. hand variables to the view engine; every key becomes a
+		//   local variable in views/index/index.phtml
 		$this->getView()->assign("name", $name);
+		$this->getView()->assign("records", $records);
+		$this->getView()->assign("count", count($records));
 
 		//4. let Yaf render the template
 		return TRUE;

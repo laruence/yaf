@@ -13,6 +13,23 @@ Deploy and run this application as follows:
        yaf.environ="product"
    so that the [product] section of conf/application.ini is loaded.
 5. Restart the web server.
-6. Browse http://yourhost/ — "Hello world, I am Yaf." means it works.
-   You can also try http://yourhost/user/42 for the custom rewrite
-   route. Otherwise check the PHP error log.
+6. Browse http://yourhost/ — a styled page with the Yaf crab logo and
+   a record table loaded through SampleModel means it works. Try
+   http://yourhost/user/2 for the custom rewrite route (any id works;
+   unknown ids show a "not found" row). Otherwise check the PHP error
+   log.
+
+Quick try without a web server (PHP's built-in server):
+
+  # router.php: serve real files, forward the rest to public/index.php
+  cat > router.php <<'EOF'
+  <?php
+  $path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
+  if ($path !== "/" && is_file(__DIR__ . "/public" . $path)) {
+      return false;
+  }
+  require __DIR__ . "/public/index.php";
+  EOF
+  php -S 127.0.0.1:8000 -t public router.php
+
+then browse http://127.0.0.1:8000/.

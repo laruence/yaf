@@ -24,8 +24,20 @@ class UserController extends Yaf_Controller_Abstract {
 		// fetch the parameter again from the request; both reads are equivalent
 		$alt = $this->getRequest()->getParam("id");
 
-		// in a real project, call a model here to load the user record
-		$this->getView()->assign("id", $id);
+		// load the user record through the model layer; the mock DAO
+		// falls back to a "not found" row for unknown ids
+		$model = new SampleModel();
+		$users = $model->find();
+		$user  = array("id" => $id, "name" => "unknown", "role" => "no such record");
+		foreach ($users as $row) {
+			if ($row["id"] == $id) {
+				$user = $row;
+				break;
+			}
+		}
+
+		$this->getView()->assign("app_name", "{&$APP_NAME&}");
+		$this->getView()->assign("user", $user);
 
 		// return TRUE to render views/user/list.phtml
 		return TRUE;

@@ -1,17 +1,55 @@
 <!--
   View template for UserController::listAction, auto-rendered from
-  views/user/list.phtml. The $id variable was passed in via assign().
+  views/user/list.phtml. The $user array was passed in via assign();
+  it comes from SampleModel (the mock DAO), or is a "not found" row
+  when the id does not exist.
 -->
 <html>
 <head>
-<title>User #<?=$id?></title>
+<meta charset="utf-8">
+<title>User #<?=$user["id"]?> — <?=$app_name?></title>
+<link rel="stylesheet" href="/css/style.css">
+<script src="/js/app.js" defer></script>
 </head>
 <body>
-<p>
-<?php
-// $id comes from the :id placeholder of the rewrite route /user/:id
-echo "This is user ", $id;
-?>
-</p>
+
+<header class="top">
+  <img class="logo" src="/img/yaf-logo.jpg" alt="Yaf logo">
+  <div>
+    <h1><?=$app_name?></h1>
+    <div class="tagline">a Yaf skeleton application — C-speed PHP framework</div>
+  </div>
+</header>
+
+<nav class="top">
+  <a href="/">Home</a>
+  <a href="/user/3">User #3</a>
+</nav>
+
+<main class="content">
+  <div class="card">
+    <h2>User #<?=$user["id"]?></h2>
+    <p>
+      This page was reached through the custom rewrite route
+      <code>/user/:id</code> registered in
+      <code>Bootstrap::_initRoute()</code>; the record below was loaded
+      by <code>SampleModel</code>.
+    </p>
+    <table class="records">
+      <tr><th>ID</th><th>Name</th><th>Role</th></tr>
+      <tr>
+        <td><?=$user["id"]?></td>
+        <td><?=$user["name"]?></td>
+        <td><?=$user["role"]?></td>
+      </tr>
+    </table>
+    <button id="visit">Visit another random user</button>
+  </div>
+</main>
+
+<footer class="bottom">
+  served by Yaf — the C-implemented PHP framework
+</footer>
+
 </body>
 </html>

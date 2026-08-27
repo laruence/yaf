@@ -1,8 +1,14 @@
 <?php
 /**
  * @name SampleModel
- * @desc Sample data-access class. In a real project this is where you
- *       talk to a database, files, or other services.
+ * @desc Data-access example backed by a tiny in-memory "database".
+ *
+ * The skeleton must run with zero external dependencies, so instead of
+ * a real database this model keeps its rows in a static property and
+ * mimics the shape of a DAO: find()/insert() methods that a real
+ * implementation would back with PDO or a similar driver. Swapping the
+ * static array for a real connection is a contained change — the
+ * controllers only talk to these two methods.
  *
  * Classes under models/ are autoloaded by Yaf_Loader by class name, so
  * a plain "new SampleModel()" works — no manual require needed.
@@ -12,26 +18,39 @@
 class SampleModel {
 
 	/**
-	 * Constructor: establish connections or read configuration here.
-	 * A real project might do dependency injection or lazy DB setup.
+	 * The mock table. A static property so rows inserted earlier in
+	 * the same request (or by other model instances) stay visible.
+	 *
+	 * @var array
 	 */
-	public function __construct() {
+	protected static $records = array(
+		array("id" => 1, "name" => "Yaf",    "role" => "The C-implemented PHP framework"),
+		array("id" => 2, "name" => "Yaconf", "role" => "Persistent configuration container"),
+		array("id" => 3, "name" => "Yac",    "role" => "Shared-memory cache for PHP"),
+		array("id" => 4, "name" => "Yar",    "role" => "Concurrent RPC framework"),
+	);
+
+	/**
+	 * Read example: return every record, the way a DAO's findAll()
+	 * would. Replace the array return with a real query (e.g. PDO) in
+	 * a real project.
+	 *
+	 * @return array
+	 */
+	public function find() {
+		return static::$records;
 	}
 
 	/**
-	 * Example read method: returns a sample record.
-	 * Replace with a real query (e.g. PDO) in your project.
-	 */
-	public function selectSample() {
-		return 'Hello world';
-	}
-
-	/**
-	 * Example write method: stores a record and reports success.
+	 * Write example: append a record and report success, the way a
+	 * DAO's insert() would.
 	 *
 	 * @param array $arrInfo the fields to persist
+	 * @return bool
 	 */
-	public function insertSample($arrInfo) {
+	public function insert($arrInfo) {
+		$arrInfo["id"] = count(static::$records) + 1;
+		static::$records[] = $arrInfo;
 		return true;
 	}
 }

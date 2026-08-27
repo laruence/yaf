@@ -116,6 +116,7 @@ function processTemplates(&$skeletons, $conf) {
 						"Yaf_Plugin_Abstract",
 						"Yaf_Request_Abstract",
 						"Yaf_Response_Abstract",
+						"Yaf_Response_Http",
 						"Yaf_Registry",
 						"Yaf_Router",
 						"Yaf_Route_Interface",
@@ -143,6 +144,7 @@ function processTemplates(&$skeletons, $conf) {
 						"\\Yaf\\Plugin_Abstract",
 						"\\Yaf\\Request_Abstract",
 						"\\Yaf\\Response_Abstract",
+						"\\Yaf\\Response_Http",
 						"\\Yaf\\Registry",
 						"\\Yaf\\Router",
 						"\\Yaf\\Route_Interface",
@@ -180,8 +182,11 @@ function processOutput($directory, $skeletons) {
 			@mkdir($directory . "/" . $k, 0755, true);
 			processOutput($directory . "/" . $k, $skeletons[$k]);
 		} else {
-			// Strip the trailing ".tpl" from the file name and write it out.
-			file_put_contents($directory . "/" . substr($k, 0, -4), $v);
+			// Strip the trailing ".tpl" from the file name and write it
+			// out; assets that carry no ".tpl" suffix (e.g. images) are
+			// copied under their original name.
+			$name = (substr($k, -4) == ".tpl") ? substr($k, 0, -4) : $k;
+			file_put_contents($directory . "/" . $name, $v);
 		}
 	}
 }
