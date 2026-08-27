@@ -131,3 +131,14 @@ footer.bottom {
   font-size: 12px;
   padding: 24px 0 40px;
 }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.grid .card { margin-bottom: 0; }
+
+a { color: var(--yaf-accent); }

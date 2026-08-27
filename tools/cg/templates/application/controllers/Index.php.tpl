@@ -33,21 +33,15 @@ class IndexController extends Yaf_Controller_Abstract {
 	 * returning a string sends it as the response body.
 	 */
 	public function indexAction($name = "Yaf") {
-		//1. fetch a GET query parameter, with a fallback default value
+		//1. fetch a GET query parameter, with a fallback default value;
+		//   try /?name=Laruence or /index/index/name/Laruence
 		$get = $this->getRequest()->getQuery("get", "default value");
 
-		//2. call a model (autoloaded by Yaf_Loader from models/);
-		//   SampleModel is a mock DAO backed by an in-memory "table"
-		$model = new SampleModel();
-		$records = $model->find();
-
-		//3. hand variables to the view engine; every key becomes a
+		//2. hand variables to the view engine; every key becomes a
 		//   local variable in views/index/index.phtml
 		$this->getView()->assign("name", $name);
-		$this->getView()->assign("records", $records);
-		$this->getView()->assign("count", count($records));
 
-		//4. let Yaf render the template
+		//3. let Yaf render the template
 		return TRUE;
 	}
 }

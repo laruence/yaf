@@ -23,7 +23,7 @@
 
 <nav class="top">
   <a href="/">Home</a>
-  <a href="/user/3">User #3</a>
+  <a href="/user/1">Model demo</a>
 </nav>
 
 <main class="content">
