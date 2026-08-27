@@ -71,18 +71,17 @@
         (concurrent RPC) — the same C-native design philosophy.
       </p>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>What this skeleton shows</h2>
-    <p>
-      The <a href="/user/1">model demo page</a> loads records through
-      <code>SampleModel</code> — a mock DAO with an in-memory "table",
-      ready to be swapped for a real database driver. Everything else
-      (bootstrap hooks, a plugin, custom routes, error handling) is
-      explained in the comments of the generated files under
-      <code>application/</code>.
-    </p>
+    <div class="card">
+      <h2>What this skeleton shows</h2>
+      <p>
+        The <a href="/user/1">model demo page</a> loads records through
+        <code>SampleModel</code> — a mock DAO with an in-memory "table",
+        ready to be swapped for a real database driver. Everything else
+        (bootstrap hooks, a plugin, custom routes, error handling) is
+        explained in the comments of the generated files under
+        <code>application/</code>.
+      </p>
+    </div>
   </div>
 </main>
 
