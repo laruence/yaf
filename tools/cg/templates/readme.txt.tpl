@@ -1,7 +1,18 @@
-可以按照以下步骤来部署和运行程序:
-1.请确保机器{&$DEV_PC&}已经安装了Yaf框架, 并且已经加载入PHP;
-2.把{&$APP_NAME&}目录Copy到Webserver的DocumentRoot目录下;
-3.需要在php.ini里面启用如下配置，生产的代码才能正确运行：
-	yaf.environ="product"
-4.重启Webserver;
-5.访问http://yourhost/{&$APP_NAME&}/,出现Hellow Word!, 表示运行成功,否则请查看php错误日志;
+Deploy and run this application as follows:
+
+1. Make sure the Yaf extension is installed and loaded on
+   {&$DEV_PC&} (php -m | grep yaf).
+2. Copy the {&$APP_NAME&} directory to your web server, and point the
+   DocumentRoot (or nginx root) at its public/ subdirectory, so that
+   only public assets are reachable from the web.
+3. Forward every request to public/index.php:
+     - Apache: public/.htaccess already contains the rewrite rules
+       (mod_rewrite required);
+     - nginx: see nginx.conf at the top level of this skeleton.
+4. In php.ini, set
+       yaf.environ="product"
+   so that the [product] section of conf/application.ini is loaded.
+5. Restart the web server.
+6. Browse http://yourhost/ — "Hello world, I am Yaf." means it works.
+   You can also try http://yourhost/user/42 for the custom rewrite
+   route. Otherwise check the PHP error log.

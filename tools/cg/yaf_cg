@@ -1,38 +1,53 @@
 #!/usr/bin/env php
 <?php
 /**
- * @name conf.php
- * @desc odp-cg的配置文件
- * @author Wei He(he_wei@baidu.com)
- * @modifier Laruence(laruence@baidu.com)
+ * @name yaf_cg
+ * @desc Yaf application skeleton code generator.
+ *
+ * Generates a full, ready-to-run Yaf application layout that mirrors the
+ * "Quick Start" tutorial of the Yaf manual: a public/ entry directory, an
+ * INI configuration file, a Bootstrap with every hook explained, default /
+ * error / custom-route controllers, a sample model, a plugin demonstrating
+ * all six dispatch hooks, and view templates.
+ *
+ * Every generated method carries a comment describing what it is for, so the
+ * skeleton doubles as runnable documentation.
+ *
+ * @author Wei He (he_wei@baidu.com)
+ * @author Laruence (laruence@baidu.com)
  */
 
-$options = getOpt("a:d:nh", array("namespace", "directory:", "app", "help"));
+$options = getOpt("a:d:nhf", array("namespace", "directory:", "app", "help", "force"));
 
-if (empty($options) || isset($options["h"]) || isset($options["help"])) {
+if (isset($options["h"]) || isset($options["help"]) || empty($options)) {
     die(<<<HELP
-Usage: yaf_cg [-a ApplicationName] [-d ApplicationPath] [-n]
+Usage: yaf_cg [-a ApplicationName] [-d ApplicationPath] [-n] [-f]
 
 POSIX options:  GNU long options:    Meaning:
-      -a          --app              Applicaton Name, default yaf_skeleton
-      -d          --directory        Output directory, default ./ApplicationName
-      -n          --namespace        Using Namespace Style
-      -h          --help             Print Usage
+      -a          --app              Application Name, default yaf_skeleton
+      -d          --directory        Output directory, default ./<ApplicationName>
+      -n          --namespace        Use the namespace class style (Yaf\Application)
+      -f          --force            Overwrite the output directory if it already exists
+      -h          --help             Print this usage
+
+Examples:
+      ./yaf_cg -a Sample -d /tmp/sample
+      ./yaf_cg -a Sample -n          # namespace style, into ./Sample
 
 HELP
-);
+    );
 }
 
 if (!isset($options["a"]) && !isset($options["app"])) {
 	$appname = "yaf_skeleton";
 } else {
-	$appname = isset($options["a"])? strval($options["a"]) : strval($options["app"]);
+	$appname = isset($options["a"]) ? strval($options["a"]) : strval($options["app"]);
 }
 
 if (!isset($options["d"]) && !isset($options["directory"])) {
-	$directory = __DIR__ . "/yaf_skeleton";
+	$directory = __DIR__ . "/" . $appname;
 } else {
-	$directory = isset($options["d"])? strval($options["d"]) : strval($options["directory"]);
+	$directory = isset($options["d"]) ? strval($options["d"]) : strval($options["directory"]);
 }
 
 if (!isset($options["n"]) && !isset($options["namespace"])) {
@@ -41,17 +56,25 @@ if (!isset($options["n"]) && !isset($options["namespace"])) {
 	$use_namespace = 1;
 }
 
-echo "Outputing", $use_namespace? " Namspaced" : "", " Yaf Skeleton to {$directory}\n";
+$force = isset($options["f"]) || isset($options["force"]);
 
-$author = trim(`whoami`);
-$hostname = trim(`hostname`);
+if (file_exists($directory) && !$force) {
+	// The directory already exists and -f was not given; abort rather
+	// than overwrite user files.
+	exit("Error: {$directory} already exists. Use -f to overwrite.\n");
+}
 
-$conf= array (
-    'author'     => $author,        //开发人员
-    'app_name'   => $appname,       //app名字,请确保这也是一个合法的文件夹名
-	'directory'  => $directory,     //输出的目标地址
-	'namespace'  => $use_namespace, //是否启用命名空间申明方式，比如Yaf_Appliation会变成Yaf\Application
-    'dev_pc'     => $author . '@' . $hostname ,//开发机,用于生产makefile自动部署
+echo "Outputing", $use_namespace ? " Namespaced" : "", " Yaf Skeleton to {$directory}\n";
+
+$author   = trim(shell_exec("whoami") ?: "unknown");
+$hostname = trim(shell_exec("hostname") ?: "localhost");
+
+$conf = array (
+	'author'     => $author,          // developer, written into @author of generated files
+	'app_name'   => $appname,         // application name, must also be a valid directory name
+	'directory'  => $directory,       // output directory
+	'namespace'  => $use_namespace,   // use namespace class style (Yaf_Application -> \Yaf\Application)
+	'dev_pc'     => $author . '@' . $hostname, // dev machine, written into the README
 );
 
 generateSkeleton($conf);
@@ -81,26 +104,62 @@ function processTemplates(&$skeletons, $conf) {
 				$v);
 
 			if ($conf["namespace"]) {
+				// Rewrite underscore-style class names into namespace style
+				// (every Yaf_* class appearing in generated files is replaced).
 				$v = str_replace(
 					array(
 						"Yaf_Application",
 						"Yaf_Dispatcher",
-						"Yaf_Controller_Abstract",
 						"Yaf_Bootstrap_Abstract",
+						"Yaf_Controller_Abstract",
+						"Yaf_Action_Abstract",
 						"Yaf_Plugin_Abstract",
 						"Yaf_Request_Abstract",
 						"Yaf_Response_Abstract",
 						"Yaf_Registry",
+						"Yaf_Router",
+						"Yaf_Route_Interface",
+						"Yaf_Route_Static",
+						"Yaf_Route_Rewrite",
+						"Yaf_Route_Regex",
+						"Yaf_Route_Simple",
+						"Yaf_Route_Supervar",
+						"Yaf_Route_Map",
+						"Yaf_View_Simple",
+						"Yaf_View_Interface",
+						"Yaf_Loader",
+						"Yaf_Session",
+						"Yaf_Config_Abstract",
+						"Yaf_Config_Ini",
+						"Yaf_Config_Simple",
+						"Yaf_Exception",
 					),
 					array(
 						"\\Yaf\\Application",
 						"\\Yaf\\Dispatcher",
-						"\\Yaf\\Controller_Abstract",
 						"\\Yaf\\Bootstrap_Abstract",
+						"\\Yaf\\Controller_Abstract",
+						"\\Yaf\\Action_Abstract",
 						"\\Yaf\\Plugin_Abstract",
 						"\\Yaf\\Request_Abstract",
 						"\\Yaf\\Response_Abstract",
 						"\\Yaf\\Registry",
+						"\\Yaf\\Router",
+						"\\Yaf\\Route_Interface",
+						"\\Yaf\\Route_Static",
+						"\\Yaf\\Route_Rewrite",
+						"\\Yaf\\Route_Regex",
+						"\\Yaf\\Route_Simple",
+						"\\Yaf\\Route_Supervar",
+						"\\Yaf\\Route_Map",
+						"\\Yaf\\View_Simple",
+						"\\Yaf\\View_Interface",
+						"\\Yaf\\Loader",
+						"\\Yaf\\Session",
+						"\\Yaf\\Config_Abstract",
+						"\\Yaf\\Config_Ini",
+						"\\Yaf\\Config_Simple",
+						"\\Yaf\\Exception",
 					),
 					$v);
 			}
@@ -112,7 +171,7 @@ function processTemplates(&$skeletons, $conf) {
 function processOutput($directory, $skeletons) {
 	if (!file_exists($directory)) {
 		if (false === mkdir($directory, 0755, true)) {
-			exit("$directory cannot be created");
+			exit("Error: {$directory} cannot be created\n");
 		}
 	}
 
@@ -121,6 +180,7 @@ function processOutput($directory, $skeletons) {
 			@mkdir($directory . "/" . $k, 0755, true);
 			processOutput($directory . "/" . $k, $skeletons[$k]);
 		} else {
+			// Strip the trailing ".tpl" from the file name and write it out.
 			file_put_contents($directory . "/" . substr($k, 0, -4), $v);
 		}
 	}
@@ -129,13 +189,16 @@ function processOutput($directory, $skeletons) {
 function getTemplates($root, &$templates = NULL) {
 	$dir = opendir($root);
 	if ($dir === false) {
-		exit("Error: {$root} is not exsits\n");
+		exit("Error: {$root} does not exist\n");
 	}
 	if ($templates === NULL) {
 		$templates = array();
 	}
 	while ($entry = readdir($dir)) {
-		if ($entry[0] == "." || $entry[0] == "..") {
+		// Skip only the two special directory entries "." and ".."; do
+		// not test the first character, or dotfiles like ".htaccess"
+		// would be silently skipped.
+		if ($entry == "." || $entry == "..") {
 			continue;
 		}
 		if (!is_dir($root . $entry)) {
@@ -145,9 +208,9 @@ function getTemplates($root, &$templates = NULL) {
 			getTemplates($root . $entry . "/", $templates[$entry]);
 		}
 	}
+	closedir($dir);
 	return $templates;
 }
-
 
 echo "Generating done\n";
 ?>

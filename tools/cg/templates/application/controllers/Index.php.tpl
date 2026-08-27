@@ -2,35 +2,48 @@
 /**
  * @name IndexController
  * @author {&$AUTHOR&}
- * @desc 默认控制器
+ * @desc The default controller. Requests that match no module/controller
+ *       land here; every method ending in Action is an action, and
+ *       indexAction is the default one.
  * @see http://www.php.net/manual/en/class.yaf-controller-abstract.php
  */
 class IndexController extends Yaf_Controller_Abstract {
-    /**
-     * 默认初始化方法，如果不需要，可以删除掉这个方法
-     * 如果这个方法被定义，那么在Controller被构造以后，Yaf会调用这个方法
-     */
-    public function init() {
+
+	/**
+	 * Controller initialization hook: called automatically after the
+	 * controller is constructed and before the action runs. Good place
+	 * for controller-specific preparation (access checks, shared view
+	 * variables). Safe to delete if not needed.
+	 */
+	public function init() {
 		$this->getView()->assign("header", "Yaf Example");
 	}
 
-	/** 
-     * 默认动作
-     * Yaf支持直接把Yaf_Request_Abstract::getParam()得到的同名参数作为Action的形参
-     * 对于如下的例子, 当访问http://yourhost/{&$APP_NAME&}/index/index/index/name/{&$AUTHOR&} 的时候, 你就会发现不同
-     */
-	public function indexAction($name = "Stranger") {
-		//1. fetch query
+	/**
+	 * The default action.
+	 *
+	 * Yaf binds route parameters with a matching name directly to the
+	 * action's formal parameters: requesting
+	 * /index/index/index/name/{&$AUTHOR&} yields $name = "{&$AUTHOR&}"
+	 * (the three "index" segments are module, controller and action).
+	 *
+	 * Return value semantics: returning TRUE (or nothing) lets Yaf
+	 * auto-render views/index/index.phtml; returning FALSE tells Yaf the
+	 * action produced the response itself and skips auto-rendering;
+	 * returning a string sends it as the response body.
+	 */
+	public function indexAction($name = "Yaf") {
+		//1. fetch a GET query parameter, with a fallback default value
 		$get = $this->getRequest()->getQuery("get", "default value");
 
-		//2. fetch model
+		//2. call a model (autoloaded by Yaf_Loader from models/)
 		$model = new SampleModel();
 
-		//3. assign
+		//3. hand variables to the view engine
 		$this->getView()->assign("content", $model->selectSample());
 		$this->getView()->assign("name", $name);
 
-		//4. render by Yaf, 如果这里返回FALSE, Yaf将不会调用自动视图引擎Render模板
-        return TRUE;
+		//4. let Yaf render the template
+		return TRUE;
 	}
 }
