@@ -1,6 +1,6 @@
 <!--
-  View template for UserController::listAction, auto-rendered from
-  views/user/list.phtml. The $user array was passed in via assign();
+  View template for IndexController::userAction, auto-rendered from
+  views/index/user.phtml. The $user array was passed in via assign();
   it comes from SampleModel (the mock DAO), or is a "not found" row
   when the id does not exist.
 -->

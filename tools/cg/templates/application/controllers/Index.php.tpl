@@ -46,6 +46,42 @@ class IndexController extends Yaf_Controller_Abstract {
 	}
 
 	/**
+	 * The model demo action, reached through the custom rewrite route
+	 * registered in Bootstrap::_initRoute():
+	 *
+	 *       /user/:id  =>  IndexController::userAction($id)
+	 *
+	 * :id is a route placeholder; once the route matches it can be
+	 * read in two equivalent ways:
+	 * 1) $this->getRequest()->getParam("id");
+	 * 2) bound to the action's parameter of the same name.
+	 * The same route can also be declared under routes.* in
+	 * conf/application.ini and loaded with Yaf_Router::addConfig().
+	 * For example, requesting /user/42 yields $id = "42".
+	 */
+	public function userAction($id = 0) {
+		// fetch the parameter again from the request; both reads are equivalent
+		$alt = $this->getRequest()->getParam("id");
+
+		// load the user record through the model layer; the mock DAO
+		// falls back to a "not found" row for unknown ids
+		$model = new SampleModel();
+		$users = $model->find();
+		$user  = array("id" => $id, "name" => "unknown", "role" => "no such record");
+		foreach ($users as $row) {
+			if ($row["id"] == $id) {
+				$user = $row;
+				break;
+			}
+		}
+
+		$this->getView()->assign("user", $user);
+
+		// return TRUE to render views/index/user.phtml
+		return TRUE;
+	}
+
+	/**
 	 * Deliberately throws, to demonstrate the error path: with
 	 * application.dispatcher.catchException enabled, the dispatcher
 	 * catches the exception and dispatches to the error controller
