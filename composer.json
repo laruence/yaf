@@ -6,6 +6,9 @@
   "require": {
     "php": ">=7.0"
   },
+  "replace": {
+    "ext-yaf": "*"
+  },
   "php-ext": {
     "extension-name": "yaf",
     "download-url-method": ["pre-packaged-binary", "composer-default"],
