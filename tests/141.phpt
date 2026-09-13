@@ -10,7 +10,8 @@ require "build.inc";
 startup(__FILE__);
 
 try {
-    $view = new Yaf_View_Simple("/" . str_repeat("x", PHP_MAXPATHLEN));
+    $tpl_dir = DIRECTORY_SEPARATOR == "\\" ? "C:/" : "/";
+    $view = new Yaf_View_Simple($tpl_dir . str_repeat("x", PHP_MAXPATHLEN));
     $view->render("index.phtml");
 } catch (Throwable $e) {
     echo get_class($e), ": ", $e->getMessage(), PHP_EOL;
