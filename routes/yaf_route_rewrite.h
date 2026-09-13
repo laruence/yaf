@@ -20,6 +20,7 @@
 typedef struct {
 	zend_object  std;
 	zend_string *match;
+	zend_string *pattern; /* pre-translated pcre pattern for match, built once at construction time */
 	zend_array  *router;
 	zend_array  *verify;
 	zend_array  *properties;
