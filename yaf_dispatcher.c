@@ -197,7 +197,10 @@ static ZEND_COLD zend_never_inline zend_class_entry *yaf_dispatcher_get_errors_h
 						"Controller", YAF_G(name_separator), ZSTR_VAL(controller), directory);
 			}
 		}
-	} else {
+	} else if (type == 3) {
+		zend_string *action = va_arg(args, zend_string*);
+		yaf_trigger_error(YAF_ERR_NOTFOUND_ACTION, "path too long while loading action '%s'", ZSTR_VAL(action));
+	} else if (type == 2) {
 		zval *pzval;
 		zend_class_entry *ce = va_arg(args, zend_class_entry*);
 		zval *action_map = va_arg(args, zval*);
@@ -459,6 +462,12 @@ static zend_class_entry *yaf_dispatcher_get_action(zend_string *app_dir, yaf_con
 				((Z_TYPE_P(pzval) == IS_STRING) ||
 				(Z_TYPE_P(pzval) == IS_REFERENCE && (pzval = Z_REFVAL_P(pzval), (Z_TYPE_P(pzval) == IS_STRING))))) {
 			uint32_t len;
+
+			if (UNEXPECTED(ZSTR_LEN(app_dir) >= MAXPATHLEN ||
+					Z_STRLEN_P(pzval) >= MAXPATHLEN - ZSTR_LEN(app_dir) - 1)) {
+				ZSTR_ALLOCA_FREE(lc_name, use_heap);
+				return yaf_dispatcher_get_errors_hub(3, action);
+			}
 
 			len = yaf_compose_2_pathes(path, app_dir, Z_STRVAL_P(pzval), Z_STRLEN_P(pzval));
 			path[len] = '\0';

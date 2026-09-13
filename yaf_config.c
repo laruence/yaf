@@ -159,7 +159,9 @@ void yaf_config_instance(yaf_config_t *this_ptr, zval *config, zend_string *sect
 	zend_object *conf;
 
 	if (Z_TYPE_P(config) == IS_STRING) {
-		if (strncasecmp(Z_STRVAL_P(config) + Z_STRLEN_P(config) - 4, ".ini", 4) == 0) {
+		if (Z_STRLEN_P(config) >= sizeof(".ini") - 1 &&
+				strncasecmp(Z_STRVAL_P(config) + Z_STRLEN_P(config) - (sizeof(".ini") - 1),
+						".ini", sizeof(".ini") - 1) == 0) {
 			conf = yaf_config_new(yaf_config_ini_ce);
 			ZVAL_OBJ(this_ptr, conf);
 			if (UNEXPECTED(!yaf_config_ini_init(php_yaf_config_fetch_object(conf), config, section))) {

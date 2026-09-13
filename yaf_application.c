@@ -806,6 +806,14 @@ PHP_METHOD(yaf_application, bootstrap) {
 			bootstrap_path = ZSTR_VAL(app->bootstrap);
 			bootstrap_path_len = ZSTR_LEN(app->bootstrap);
 		} else {
+			size_t ext_len = app->ext ? ZSTR_LEN(app->ext) : sizeof(YAF_DEFAULT_EXT) - 1;
+
+			if (UNEXPECTED(ZSTR_LEN(app->directory) >= MAXPATHLEN - sizeof(YAF_DEFAULT_BOOTSTRAP) - 1 ||
+					ext_len >= MAXPATHLEN - ZSTR_LEN(app->directory) - sizeof(YAF_DEFAULT_BOOTSTRAP) - 1)) {
+				yaf_trigger_error(YAF_ERR_STARTUP_FAILED, "Bootstrap path is too long");
+				RETURN_FALSE;
+			}
+
 			bootstrap_path_len = yaf_compose_2_pathes(buf, app->directory, ZEND_STRL(YAF_DEFAULT_BOOTSTRAP));
 			buf[bootstrap_path_len++] = '.';
 			if (UNEXPECTED(app->ext)) {

@@ -365,6 +365,14 @@ int yaf_view_simple_render(yaf_view_t *view, zend_string *tpl, zval *vars, zval 
 			return 0;
 		} else {
 			zend_string *v_tpl = v->tpl_dir;
+
+			if (UNEXPECTED(ZSTR_LEN(v_tpl) >= MAXPATHLEN ||
+					ZSTR_LEN(tpl) >= MAXPATHLEN - ZSTR_LEN(v_tpl) - 1)) {
+				zend_hash_destroy(&symbol_table);
+				yaf_trigger_error(YAF_ERR_NOTFOUND_VIEW, "View script path is too long");
+				return 0;
+			}
+
 			tpl_len = yaf_compose_2_pathes(directory, v_tpl, tpl_dir, tpl_len);
 			directory[tpl_len] = '\0';
 			tpl_dir = directory;

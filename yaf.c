@@ -516,7 +516,6 @@ ZEND_HOT void yaf_replace_chr(char *name, uint32_t len, zend_uchar f, zend_uchar
 */
 PHP_GINIT_FUNCTION(yaf)
 {
-
 	memset(yaf_globals, 0, sizeof(*yaf_globals));
 }
 /* }}} */
