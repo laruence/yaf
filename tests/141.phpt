@@ -10,7 +10,7 @@ require "build.inc";
 startup(__FILE__);
 
 try {
-    $tpl_dir = DIRECTORY_SEPARATOR == "\\" ? "C:/" : "/";
+    $tpl_dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR;
     $view = new Yaf_View_Simple($tpl_dir . str_repeat("x", PHP_MAXPATHLEN));
     $view->render("index.phtml");
 } catch (Throwable $e) {
