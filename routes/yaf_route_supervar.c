@@ -75,7 +75,9 @@ static zend_object *yaf_route_supervar_new(zend_class_entry *ce) /* {{{ */ {
 static void yaf_route_supervar_object_free(zend_object *object) /* {{{ */ {
 	yaf_route_supervar_object *supervar = (yaf_route_supervar_object*)object;
 
-	zend_string_release(supervar->varname);
+	if (supervar->varname) {
+		zend_string_release(supervar->varname);
+	}
 
 	if (supervar->properties) {
 		if (GC_DELREF(supervar->properties) == 0) {
