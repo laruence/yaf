@@ -225,7 +225,11 @@ PHP_METHOD(yaf_config, toArray) {
 	}
 
 	RETVAL_ARR(conf->config);
-	Z_ADDREF_P(return_value);
+	if (UNEXPECTED(GC_FLAGS(conf->config) & IS_ARRAY_IMMUTABLE)) {
+		Z_TYPE_INFO_P(return_value) = IS_ARRAY;
+	} else {
+		Z_ADDREF_P(return_value);
+	}
 }
 /* }}} */
 
